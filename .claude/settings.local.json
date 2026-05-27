@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -oE '\\\\{\"id\":[^}]{1,200}' fe-prep.html)",
+      "Bash(awk '/const DATA\\\\s*=/{found=1} found{print NR\": \"$0; if\\(NR>=20+startln\\) exit} /const DATA\\\\s*=/{startln=NR}' fe-prep.html)",
+      "Bash(pnpm --version)",
+      "Bash(npm --version)",
+      "Bash(gh --version)",
+      "Bash(pnpm create *)",
+      "Bash(mkdir -p /tmp/aic-staging)",
+      "Bash(mv PRD.md plans resources /tmp/aic-staging/)"
+    ]
+  }
+}
