@@ -22,18 +22,28 @@ Next.js **16** · React **19.2** · TypeScript · Tailwind v4 · shadcn/ui · Zu
 | # | Phase | Status | Maps to PRD |
 |---|---|---|---|
 | 01 | [Foundation](./phase-01-foundation.md) — Next.js + Supabase + Prisma + landing + topic selection + seed bank | **🟡 mostly done — seed extraction blocked on LLM quota** | §16 M1 |
-| 02 | [Interview Flow](./phase-02-interview-flow.md) — Session state machine + AI orchestrator + streaming question/feedback | **🟡 partial — question gen + answer submit done; streaming + follow-up still pending** | §16 M2 |
-| 03 | [Feedback & Summary](./phase-03-feedback-summary.md) — Scoring + better-answer + session summary + history | pending | §16 M3 |
-| 04 | [Dashboard](./phase-04-dashboard.md) — Progress overview + topic radar + recommendations | pending | §16 M4 |
-| 05 | [Polish & Deploy](./phase-05-polish-deploy.md) — Responsive + rate limit + error handling + analytics + Vercel | pending | §16 M5 |
+| 02 | [Interview Flow](./phase-02-interview-flow.md) — Session state machine + AI orchestrator + streaming question/feedback | **✅ complete for MVP scope — move to Phase 03** | §16 M2 |
+| 03 | [Feedback & Summary](./phase-03-feedback-summary.md) — Scoring + better-answer + session summary + history | **✅ complete for MVP scope — move to Phase 04** | §16 M3 |
+| 04 | [Dashboard](./phase-04-dashboard.md) — Progress overview + topic radar + recommendations | **✅ complete for MVP scope — move to Phase 05** | §16 M4 |
+| 05 | [Polish & Deploy](./phase-05-polish-deploy.md) — Responsive + rate limit + error handling + analytics + Vercel | **🟡 in-app polish done — analytics + deploy + manual QA pending** | §16 M5 |
 
-## Resume here — snapshot 2026-05-27 19:30 SGT
+## Resume here — snapshot 2026-05-27 22:25 ICT
 
 **What works end-to-end (compiles + serves on `PORT=3001 pnpm dev`):**
 - Landing · sign-in (magic link + Google OAuth) · onboarding · topic selection
-- Create session · generate question (hybrid 70% seed / 30% AI) · submit answer · advance to next
+- Create session · stream generated question (hybrid 70% seed / 30% AI) · submit answer · generate follow-up · save follow-up answer · advance/end session
+- Session read/end API: `GET /api/sessions/[id]`, `DELETE /api/sessions/[id]`, `POST /api/sessions/[id]/end`
+- Zustand interview store mirrors UI phase, active question, draft answers, progress, and follow-up state
+- Per-answer feedback generation streams through `POST /api/answers/[id]/feedback/generate`, persists `AnswerFeedback`, and renders live feedback + better answer
+- Session completion generates `SessionSummary`, updates `InterviewSession.overallScore/completedAt/status`, then shows `/practice/[sessionId]/complete`
+- History list/detail pages show past sessions with URL-driven filters (topic, min score, date range)
+- Dashboard renders overview cards (6 metrics), 30-day score trend, topic radar (≥3 topics), bottom-3 weak dimensions, and 3 recommended sessions linking to `/practice/new` with prefilled topic+difficulty
+- Error boundaries (`app/error.tsx`, `app/(app)/error.tsx`, `app/not-found.tsx`) catch crashes per route segment
+- Public `/demo` page shows a hand-crafted interview turn rendered with the real `FeedbackCard` — no auth, no DB
+- 429 responses surface a `<RateLimitBanner />` with live countdown in the interview shell (centralized via `RateLimitError` + `throwForFailedResponse`)
+- Feedback failure shows in-line **Retry feedback** / **Continue without feedback** notice; better-answer copy shows ✓ Copied confirm for 2s
 - Auth-gated `(app)` layout, sidebar, sign-out, resumable sessions
-- AI orchestrator with Zod-validated I/O, 1 retry, cost telemetry (`AICall` table)
+- AI orchestrator with Zod-validated I/O, `runAITask()` retry, `streamAITask()` streaming, cost telemetry (`AICall` table)
 - Rate limiter (falls open in dev if Upstash unset)
 - Per-tier provider routing: `LLM_CHEAP_PROVIDER` + `LLM_SMART_PROVIDER` env vars (default Groq)
 
@@ -43,10 +53,9 @@ Next.js **16** · React **19.2** · TypeScript · Tailwind v4 · shadcn/ui · Zu
 
 **Next concrete steps (priority order):**
 1. Finish seed extraction (blocked on LLM quota).
-2. Phase 02 remainder: switch question/answer routes to SSE streaming, wire follow-up prompt into flow, build Zustand state machine if needed for richer UX.
-3. Phase 03: `evaluate_answer` route + FeedbackCard component + session-complete + summary.
-4. Phase 04: dashboard.
-5. Phase 05: polish + deploy.
+2. **Manual QA** — keyboard nav, Lighthouse on dev build, walk through PRD §19 edge cases.
+3. **Deploy** — Vercel project + prod Supabase + `prisma migrate deploy` + seed prod bank.
+4. **Optional** — PostHog wiring (needs `NEXT_PUBLIC_POSTHOG_KEY`), CI workflow, portfolio README with screenshots.
 
 **Gotchas — don't relearn these:**
 - Next.js 16: middleware is `proxy.ts` (we use it); `cookies()`/`headers()`/`params`/`searchParams` are async.
@@ -62,7 +71,16 @@ Next.js **16** · React **19.2** · TypeScript · Tailwind v4 · shadcn/ui · Zu
 - Phase plans: `plans/260527-1730-ai-interview-coach-mvp/phase-{01..05}-*.md`
 - AI orchestrator: `src/lib/ai/orchestrator.ts` + `src/lib/ai/prompts/*` + `src/lib/ai/model-router.ts`
 - Question service: `src/features/interview/server/question-service.ts`
+- Streaming question service: `src/features/interview/server/question-stream-service.ts`
+- Session service: `src/features/interview/server/session-service.ts`
+- Follow-up route: `src/app/api/answers/[id]/followup/route.ts`
+- Zustand store: `src/features/interview/interview-store.ts`
 - Interview UI: `src/features/interview/interview-shell.tsx`
+- Feedback service: `src/features/feedback/server/feedback-service.ts`
+- Feedback UI: `src/features/feedback/components/feedback-card.tsx`
+- Summary service: `src/features/feedback/server/summary-service.ts`
+- Summary UI: `src/features/feedback/components/summary-view.tsx`
+- History service/UI: `src/features/history/server/history-service.ts`, `src/features/history/components/*`
 - Schemas (single source of truth for AI contracts): `src/features/interview/ai-schemas.ts`
 - Seed extraction: `scripts/extract-seed-from-html.ts` (+ `extract-seed-{types,parsers,llm-helpers}.ts`)
 - DB seed loader: `prisma/seed.ts`

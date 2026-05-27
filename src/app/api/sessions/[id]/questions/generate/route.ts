@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
-import { nextQuestion } from '@/features/interview/server/question-service';
+import { streamNextQuestion } from '@/features/interview/server/question-stream-service';
 import { guardAILimit } from '@/lib/rate-limit/guard';
 
 export const runtime = 'nodejs';
@@ -32,16 +32,7 @@ export async function POST(
   if (limited) return limited;
 
   try {
-    const question = await nextQuestion({ user, session });
-    return NextResponse.json({
-      questionId: question.id,
-      question: question.question,
-      topic: question.topic,
-      difficulty: question.difficulty,
-      type: question.type,
-      order: question.order,
-      expectedPoints: question.expectedPoints,
-    });
+    return streamNextQuestion({ user, session });
   } catch (err) {
     console.error('[questions.generate] failed:', err);
     return NextResponse.json(

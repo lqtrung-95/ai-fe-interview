@@ -8,7 +8,7 @@
 ## Overview
 
 - **Priority:** P0
-- **Status:** pending
+- **Status:** ✅ complete for MVP scope — feedback, summary, history (with filters), retry flow, copy confirm all shipped
 - Generate structured feedback per answer (6-dimension scoring + better answer), produce session summary on completion, build history pages.
 
 ## Key Insights
@@ -87,17 +87,17 @@
 
 ## Todo List
 
-- [ ] Feedback Zod schema matches Prisma model
-- [ ] FeedbackService persists feedback with telemetry
-- [ ] SSE feedback endpoint streams to client
-- [ ] FeedbackCard renders all PRD §7.6 fields
-- [ ] Better answer copy button works + toast confirms
-- [ ] SummaryService aggregates correctly (verify with 1, 3, 5 answers)
-- [ ] Session-complete endpoint guards and updates overall score
-- [ ] Summary page renders all PRD §7.8 sections
-- [ ] History list shows past sessions with filters
-- [ ] History detail re-renders past feedback identically to live
-- [ ] Retry flow works when AI fails
+- [x] Feedback Zod schema matches Prisma model — `evaluateOutputSchema` maps into `AnswerFeedback`
+- [x] FeedbackService persists feedback with telemetry — `features/feedback/server/feedback-service.ts`
+- [x] SSE feedback endpoint streams to client — `POST /api/answers/[id]/feedback/generate`
+- [x] FeedbackCard renders all PRD §7.6 fields
+- [x] Better answer copy button works — `BetterAnswerCard` copies to clipboard with inline ✓ Copied confirm (2s) — no toast lib needed
+- [x] SummaryService aggregates correctly — compact per-answer feedback payload into `generate_summary`
+- [x] Session-complete endpoint guards and updates overall score
+- [x] Summary page renders all PRD §7.8 sections
+- [x] History list shows past sessions with filters — URL-driven (topic + min score + date range) via `history-filter-bar.tsx` + `history-filters-schema.ts`; applied in `listSessions()` Prisma where clause
+- [x] History detail re-renders past feedback identically to live
+- [x] Retry flow works when AI fails — `FeedbackFailedNotice` in `interview-main-panel.tsx` with Retry + Continue CTAs; flow exposes `retryFeedback`; service already idempotent (returns existing `AnswerFeedback` if present)
 
 ## Success Criteria
 

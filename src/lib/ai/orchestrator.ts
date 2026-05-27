@@ -1,5 +1,5 @@
 import 'server-only';
-import { generateObject } from 'ai';
+import { generateObject, streamObject } from 'ai';
 import type { ZodSchema } from 'zod';
 import {
   type AITask,
@@ -20,15 +20,6 @@ import { buildFollowupPrompt } from './prompts/followup-prompt';
 import { buildEvaluatePrompt } from './prompts/evaluate-prompt';
 import { buildSummaryPrompt } from './prompts/summary-prompt';
 
-/**
- * Single choke point for every AI call in the app. Responsibilities:
- *   - Validate input via Zod
- *   - Route to provider/model by task tier
- *   - Generate structured output via Vercel AI SDK
- *   - One retry on validation failure
- *   - Always record cost telemetry (success or failure)
- */
-
 interface RunOptions {
   userId?: string;
   sessionId?: string;
@@ -39,17 +30,12 @@ export async function runAITask<T extends AITask>(
   options: RunOptions = {}
 ): Promise<AITaskResult<T>> {
   validateInput(task);
-
   const { model, modelId } = routeModel(task.type);
   const { system, user } = buildPrompt(task);
   const schema = outputSchemaFor(task) as unknown as ZodSchema<AITaskResult<T>>;
-
   const start = Date.now();
-  let attempt = 0;
   let lastErr: unknown = null;
-
-  while (attempt < 2) {
-    attempt++;
+  for (let attempt = 1; attempt <= 2; attempt++) {
     try {
       const result = await generateObject({
         model,
@@ -59,9 +45,7 @@ export async function runAITask<T extends AITask>(
         temperature: temperatureFor(task.type),
         maxOutputTokens: maxTokensFor(task.type),
       });
-
       const validated = schema.parse(result.object);
-
       await recordAICall({
         userId: options.userId,
         sessionId: options.sessionId,
@@ -72,18 +56,15 @@ export async function runAITask<T extends AITask>(
         latencyMs: Date.now() - start,
         succeeded: true,
       });
-
       return validated;
     } catch (err) {
       lastErr = err;
-      // Schema or generation error → one retry. Network/auth errors → bail immediately.
       if (attempt < 2 && isRetryableError(err)) {
         continue;
       }
       break;
     }
   }
-
   await recordAICall({
     userId: options.userId,
     sessionId: options.sessionId,
@@ -95,14 +76,48 @@ export async function runAITask<T extends AITask>(
     succeeded: false,
     errorReason: lastErr instanceof Error ? lastErr.message : String(lastErr),
   });
-
   throw lastErr instanceof Error ? lastErr : new Error('AI task failed');
 }
 
-// ----------------------------------------------------------------------------
-// Internal helpers
-// ----------------------------------------------------------------------------
-
+export function streamAITask<T extends AITask>(task: T, options: RunOptions = {}) {
+  validateInput(task);
+  const { model, modelId } = routeModel(task.type);
+  const { system, user } = buildPrompt(task);
+  const schema = outputSchemaFor(task) as unknown as ZodSchema<AITaskResult<T>>;
+  const start = Date.now();
+  return streamObject({
+    model,
+    schema,
+    system,
+    prompt: user,
+    temperature: temperatureFor(task.type),
+    maxOutputTokens: maxTokensFor(task.type),
+    onFinish: async ({ usage, error }) =>
+      recordAICall({
+        userId: options.userId,
+        sessionId: options.sessionId,
+        task: task.type,
+        modelId,
+        promptTokens: usage.inputTokens ?? 0,
+        completionTokens: usage.outputTokens ?? 0,
+        latencyMs: Date.now() - start,
+        succeeded: !error,
+        errorReason: error instanceof Error ? error.message : error ? String(error) : undefined,
+      }),
+    onError: async ({ error }) =>
+      recordAICall({
+        userId: options.userId,
+        sessionId: options.sessionId,
+        task: task.type,
+        modelId,
+        promptTokens: 0,
+        completionTokens: 0,
+        latencyMs: Date.now() - start,
+        succeeded: false,
+        errorReason: error instanceof Error ? error.message : String(error),
+      }),
+  });
+}
 function validateInput(task: AITask): void {
   switch (task.type) {
     case 'generate_question':

@@ -32,6 +32,7 @@ export default async function SessionPage({
 
   // Pick up the in-progress question if one exists (resume mid-session).
   const activeRow = session.questions.find((q) => !q.answer);
+  const completed = session.questions.filter((q) => q.answer).length;
   const initialQuestion = activeRow
     ? {
         questionId: activeRow.id,
@@ -56,6 +57,7 @@ export default async function SessionPage({
       <InterviewShell
         sessionId={session.id}
         initialQuestion={initialQuestion}
+        initialCompleted={completed}
         questionTarget={target}
       />
     </div>

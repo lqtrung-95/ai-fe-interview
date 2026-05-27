@@ -8,7 +8,7 @@
 ## Overview
 
 - **Priority:** P0 (ship blocker)
-- **Status:** pending
+- **Status:** 🟡 in-app polish done — analytics + deploy + manual QA still pending
 - Tighten the bolts: responsive QA, error boundaries, rate-limit validation, PostHog wiring, Vercel deployment, demo seed data, portfolio writeup.
 
 ## Key Insights
@@ -114,21 +114,21 @@
 
 ## Todo List
 
-- [ ] PostHog client + server initialized
-- [ ] All PRD §20 events fire correctly (verify in PostHog dashboard)
-- [ ] Loading/error/empty states present on every async surface
-- [ ] Error boundaries catch route-level failures
-- [ ] 429 rate limit UX in place
-- [ ] Demo session viewable at /demo without auth
-- [ ] Lighthouse ≥ 90 across categories on landing
-- [ ] Axe-core: zero serious or critical violations
-- [ ] Keyboard navigation works end-to-end
-- [ ] Vercel project deployed; custom env vars configured
-- [ ] Prod Supabase migrated + seeded
-- [ ] CI workflow passes on a sample PR
-- [ ] README written with screenshots + live link
-- [ ] All PRD §19 edge cases handled gracefully
-- [ ] PRD §26 Definition of Done — every box checked
+- [ ] PostHog client + server initialized — *deferred*; requires user-provided keys
+- [ ] All PRD §20 events fire correctly — *deferred*; depends on PostHog
+- [x] Loading/error/empty states present on every async surface — covered by existing per-page empty/loading + `InterviewEmptyState`, `DashboardEmptyState`, history empty state
+- [x] Error boundaries catch route-level failures — `src/app/error.tsx`, `src/app/(app)/error.tsx`, `src/app/not-found.tsx`
+- [x] 429 rate limit UX in place — `RateLimitError` + `throwForFailedResponse` helper + `<RateLimitBanner />` with cooldown countdown in `InterviewShell`
+- [x] Demo session viewable at /demo without auth — `(marketing)/demo/page.tsx` + `features/demo/demo-session-data.ts` (renders real `FeedbackCard`)
+- [ ] Lighthouse ≥ 90 across categories on landing — *requires deployed/built run*
+- [ ] Axe-core: zero serious or critical violations — *requires deployed/built run*
+- [ ] Keyboard navigation works end-to-end — *manual QA pass needed*
+- [ ] Vercel project deployed; custom env vars configured — *user action*
+- [ ] Prod Supabase migrated + seeded — *user action; depends on seed extraction*
+- [ ] CI workflow passes on a sample PR — *deferred*; can add `.github/workflows/ci.yml` on request
+- [ ] README written with screenshots + live link — *deferred*; needs deployed URL + screenshots
+- [ ] All PRD §19 edge cases handled gracefully — *manual QA pass needed*
+- [ ] PRD §26 Definition of Done — every box checked — *manual run-through needed*
 
 ## Success Criteria
 

@@ -1,0 +1,153 @@
+'use client';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { FeedbackCard } from '@/features/feedback/components/feedback-card';
+import type { FeedbackPayload } from '@/features/feedback/feedback-types';
+import { FollowupPanel } from './followup-panel';
+import type { ActiveQuestion } from './question-stream-types';
+
+interface Props {
+  current: ActiveQuestion | null;
+  completed: number;
+  questionTarget: number;
+  draft: string;
+  followUp: string;
+  followUpDraft: string;
+  feedback: FeedbackPayload | null;
+  isFollowUp: boolean;
+  isFeedback: boolean;
+  isSubmitting: boolean;
+  error: string | null;
+  onDraftChange: (value: string) => void;
+  onFollowUpDraftChange: (value: string) => void;
+  onSubmitAnswer: () => void;
+  onSubmitFollowUp: () => void;
+  onSkipFollowUp: () => void;
+  onRetryFeedback: () => void;
+  onContinue: () => void;
+  onEndSession: () => void;
+}
+
+export function InterviewMainPanel(props: Props) {
+  return (
+    <div className="space-y-6">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          {props.current && (
+            <Badge variant="outline">
+              {props.current.topic} · {props.current.difficulty}
+            </Badge>
+          )}
+          {props.current && (
+            <Badge variant="secondary">{props.current.type.replace('_', ' ')}</Badge>
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Question {props.completed + 1} of {props.questionTarget}
+        </p>
+        <Button variant="outline" onClick={props.onEndSession} disabled={props.isSubmitting}>
+          End session
+        </Button>
+      </header>
+
+      <section className="rounded-lg border border-border/60 bg-card p-6">
+        <p className="text-lg font-medium leading-relaxed">{props.current?.question}</p>
+      </section>
+
+      <section className="space-y-3">
+        <label htmlFor="answer" className="text-sm font-medium">Your answer</label>
+        <textarea
+          id="answer"
+          value={props.draft}
+          onChange={(e) => props.onDraftChange(e.target.value)}
+          placeholder="Walk through your thinking. Trade-offs, examples, edge cases."
+          rows={10}
+          disabled={props.isSubmitting || props.isFollowUp}
+          className="w-full resize-y rounded-md border border-border/60 bg-background p-3 text-sm focus:border-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+        />
+      </section>
+
+      {props.isFollowUp && (
+        <FollowupPanel
+          followUp={props.followUp}
+          value={props.followUpDraft}
+          onChange={props.onFollowUpDraftChange}
+        />
+      )}
+
+      {props.isFeedback && props.feedback && <FeedbackCard feedback={props.feedback} />}
+
+      {props.isFeedback && !props.feedback && (
+        <FeedbackFailedNotice
+          message={props.error ?? 'Feedback could not be generated.'}
+          onRetry={props.onRetryFeedback}
+          onContinue={props.onContinue}
+        />
+      )}
+
+      {props.error && !props.isFeedback && (
+        <p className="text-sm text-destructive" role="alert">
+          {props.error}
+        </p>
+      )}
+
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          {props.isFollowUp ? `${props.followUpDraft.length} chars` : `${props.draft.length} chars`}
+        </p>
+        {props.isFollowUp ? (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={props.onSkipFollowUp}>Skip</Button>
+            <Button onClick={props.onSubmitFollowUp} disabled={!props.followUpDraft.trim()}>
+              Submit follow-up
+            </Button>
+          </div>
+        ) : props.isFeedback && props.feedback ? (
+          <Button onClick={props.onContinue}>
+            Continue
+          </Button>
+        ) : props.isFeedback ? (
+          // Failed-feedback state — actions live in <FeedbackFailedNotice/> above.
+          <span />
+        ) : (
+          <Button
+            onClick={props.onSubmitAnswer}
+            disabled={props.isSubmitting || !props.draft.trim()}
+          >
+            {props.isSubmitting ? 'Submitting...' : 'Submit answer'}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FeedbackFailedNotice({
+  message,
+  onRetry,
+  onContinue,
+}: {
+  message: string;
+  onRetry: () => void;
+  onContinue: () => void;
+}) {
+  return (
+    <div
+      role="alert"
+      className="rounded-lg border border-destructive/40 bg-destructive/5 p-4"
+    >
+      <p className="text-sm font-medium text-destructive">Feedback didn’t come through.</p>
+      <p className="mt-1 text-sm text-muted-foreground">{message}</p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Your answer is saved — retry to score it, or continue and pick up momentum.
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Button onClick={onRetry}>Retry feedback</Button>
+        <Button variant="outline" onClick={onContinue}>
+          Continue without feedback
+        </Button>
+      </div>
+    </div>
+  );
+}

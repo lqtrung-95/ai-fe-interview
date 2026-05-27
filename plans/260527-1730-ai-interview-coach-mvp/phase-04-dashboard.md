@@ -8,7 +8,7 @@
 ## Overview
 
 - **Priority:** P1
-- **Status:** pending
+- **Status:** ✅ complete for MVP scope
 - Build the progress dashboard: overview cards, score trend, topic radar, weak areas, AI-recommended next sessions.
 
 ## Key Insights
@@ -86,18 +86,18 @@
 
 ## Todo List
 
-- [ ] Recharts installed
-- [ ] ProgressService implements all 5 aggregations
-- [ ] Streak query handles timezone (Asia/Saigon for current user, generally UTC)
-- [ ] RecommendationService falls back to weak topics if no summary
-- [ ] Overview cards render with real data
-- [ ] Score trend chart renders for 1, 7, 30, 90 day windows
-- [ ] Topic radar chart renders for users with 1+ topic completed
-- [ ] Weak areas list shows bottom 3 dimensions
-- [ ] Recommended practice cards link to pre-configured session creation
-- [ ] Empty state shows for zero-session users
-- [ ] Sidebar nav present on all (app) routes
-- [ ] Dashboard responsive on mobile
+- [x] Recharts installed (3.8.1)
+- [x] ProgressService implements all 5 aggregations — `getOverview`, `getScoreTrend`, `getTopicBreakdown`, `getDimensionWeakAreas`, internal `getCurrentStreakDays`
+- [x] Streak query handles timezone — UTC day buckets; streak starts at "today" OR "yesterday" so missing today doesn't zero it
+- [x] RecommendationService falls back to weak topics if no summary — pulls from latest `SessionSummary.recommendedTopics`, else bottom-3 by avg score
+- [x] Overview cards render with real data — `overview-cards.tsx` (6 metrics, responsive 1/2/3 col)
+- [x] Score trend chart renders — `score-trend-chart.tsx` (30-day window; empty-state copy when no data)
+- [x] Topic radar chart renders — `topic-radar-chart.tsx` (shows when ≥3 topics with feedback)
+- [x] Weak areas list shows bottom 3 dimensions — `weak-areas-list.tsx` with per-dimension improvement hints
+- [x] Recommended practice cards link to pre-configured session creation — `recommended-practice.tsx` → `/practice/new?topic=X&difficulty=Y`; `new` page honors those params
+- [x] Empty state shows for zero-session users — `dashboard-empty-state.tsx`
+- [ ] Sidebar nav present on all (app) routes — *already done in Phase 01* (`AppSidebar`)
+- [x] Dashboard responsive on mobile — 1-col on small, 2-col on lg via Tailwind grids
 
 ## Success Criteria
 

@@ -8,7 +8,7 @@
 ## Overview
 
 - **Priority:** P0
-- **Status:** pending
+- **Status:** complete for MVP scope
 - Build the AI orchestrator, session lifecycle endpoints, and the live interview UI with streaming responses.
 
 ## Key Insights
@@ -104,25 +104,27 @@
 - [x] `model-router.ts` returns correct model per task — per-tier env override (`LLM_CHEAP_PROVIDER`, `LLM_SMART_PROVIDER`)
 - [x] Cost meter writes `AICall` rows — `lib/ai/cost-meter.ts` with USD-per-million-token rates
 - [x] Orchestrator `runAITask()` validates I/O with Zod + 1 retry
-- [ ] Orchestrator `stream()` returns AsyncIterable — *not built*; current path is single-shot `generateObject`
+- [x] Orchestrator `stream()` returns AsyncIterable — `streamAITask()` uses AI SDK `streamObject`
 - [x] All 4 prompts implemented from PRD §9 — `lib/ai/prompts/{question,followup,evaluate,summary}-prompt.ts`
 - [x] User input sanitized — `lib/ai/sanitize.ts` (injection patterns + length cap)
-- [ ] Session-service CRUD complete — *partial*: `createSession` action exists; no read/update/end exposed yet
+- [x] Session-service read/end endpoints complete — `GET /api/sessions/[id]`, `DELETE /api/sessions/[id]`, and `POST /api/sessions/[id]/end`
 - [x] Question-service hybrid strategy implemented — `features/interview/server/question-service.ts` (70% seed, topic rotation, dedupe-by-session)
-- [ ] SSE question generation endpoint — *not built*: route returns single JSON response (`POST /api/sessions/[id]/questions/generate`)
+- [x] SSE question generation endpoint — `POST /api/sessions/[id]/questions/generate` streams partial objects and final persisted question
 - [x] Answer submission persists before any AI call — `POST /api/answers`
 - [ ] Middleware enforces auth + rate limit — *partial*: `proxy.ts` refreshes session; rate limit guard exists in `lib/rate-limit/guard.ts` but is called per-route, not from proxy
-- [ ] Zustand state machine — *not built*: `InterviewShell` uses local React state (sufficient for current scope; refactor when streaming/follow-up land)
+- [x] Zustand state machine — `features/interview/interview-store.ts` mirrors phase, question, draft, progress, and follow-up UI state
 - [x] Interview UI responsive — `features/interview/interview-shell.tsx`
+- [x] Interview UI consumes streamed questions — client SSE reader updates loading state with partial question text
 - [x] Page reload mid-session resumes correctly — server is source of truth, page picks up active question
-- [ ] Follow-up prompt wired into the flow — *not built*: prompt + schema exist, no UI/route yet
+- [x] Follow-up prompt wired into the flow — `POST /api/answers/[id]/followup` generates follow-up and saves follow-up answers
 
 ## How to finish Phase 02
 
-1. Switch `POST /api/sessions/[id]/questions/generate` to SSE — use AI SDK `streamObject` instead of `generateObject` in `runAITask`'s sibling `streamAITask` (need to add). Update `InterviewShell` to consume the stream.
-2. Wire follow-up: after answer submit, optionally call `/api/answers/[id]/followup` which runs `generate_followup` task; UI shows extra input.
-3. Expand session-service: read endpoint (`GET /api/sessions/[id]`), end endpoint (`POST .../end`), with ownership guards.
-4. Consider extracting Zustand store if state grows beyond what local state handles (timer, draft persistence, etc.).
+1. [x] Switch `POST /api/sessions/[id]/questions/generate` to SSE — `streamAITask()` added next to `runAITask`; route streams partial objects and final persisted question.
+2. [x] Update `InterviewShell` to consume the streamed question response.
+3. [x] Wire follow-up: after answer submit, optionally call `/api/answers/[id]/followup` which runs `generate_followup` task; UI shows extra input.
+4. [x] Expand session-service: read endpoint (`GET /api/sessions/[id]`), end endpoint (`POST .../end`), with ownership guards.
+5. [x] Consider extracting Zustand store if state grows beyond what local state handles (timer, draft persistence, etc.) — extracted for the Phase 02 flow state.
 
 ## Success Criteria
 
