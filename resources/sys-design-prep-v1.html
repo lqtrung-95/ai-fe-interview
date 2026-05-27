@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design — Ôn Tập Thực Chiến SDv2</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#12122a;--surface:#18183a;--card:#1f1f38;--border:#32325a;--accent:#7c74ff;--accent2:#ff7096;--accent3:#3fe882;--accent4:#fbb92a;--accent5:#38bdf8;--text:#f0f0ff;--muted:#9090c0;--code-bg:#0f0f26}
+*{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;min-height:100vh;line-height:1.6}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(124,116,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(124,116,255,.05) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
+header{position:sticky;top:0;z-index:100;height:56px;width:100%;border-bottom:1px solid var(--border);background:rgba(18,18,42,.95);backdrop-filter:blur(16px);display:flex;align-items:center;gap:16px;padding:0 28px}
+.logo{font-family:'Space Mono',monospace;font-weight:700;font-size:1.05rem;color:var(--accent)}.logo span{color:var(--accent2)}
+.tagline{color:var(--muted);font-size:.72rem;border-left:1px solid var(--border);padding-left:14px}
+.app{display:flex;min-height:calc(100vh - 56px);position:relative;z-index:1}
+aside{width:252px;flex-shrink:0;border-right:1px solid var(--border);padding:16px 0;background:var(--surface);position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;z-index:10}
+.nav-label{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);padding:10px 18px 4px;opacity:.7}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 18px;cursor:pointer;font-size:.8rem;color:var(--muted);border-left:2px solid transparent;transition:all .15s;user-select:none}
+.nav-item:hover{background:rgba(124,116,255,.07);color:var(--text)}.nav-item.active{background:rgba(124,116,255,.11);color:var(--accent);border-left-color:var(--accent)}
+.nav-item .icon{width:16px;text-align:center;font-size:.85rem;flex-shrink:0}.nav-badge{margin-left:auto;font-size:.6rem;background:var(--accent);color:#fff;padding:1px 5px;border-radius:20px}
+main{flex:1;padding:32px 44px;min-width:0;overflow-x:hidden}
+.page{display:none}.page.active{display:block;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.hero{background:linear-gradient(135deg,rgba(124,116,255,.13),rgba(255,112,150,.07),rgba(63,232,130,.05));border:1px solid var(--border);border-radius:14px;padding:36px;margin-bottom:28px}
+.hero h1{font-size:1.8rem;font-weight:800;line-height:1.2;margin-bottom:10px}.hero h1 span{color:var(--accent)}
+.hero p{color:var(--muted);font-size:.85rem;max-width:500px;line-height:1.75}
+.hero-stats{display:flex;gap:28px;margin-top:20px}.stat-num{font-family:'Space Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--accent)}.stat-label{font-size:.68rem;color:var(--muted);margin-top:2px}
+.progress-wrap{margin-top:20px}.progress-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width 1.2s}
+.progress-label{font-size:.7rem;color:var(--muted)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:28px}
+.topic-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;cursor:pointer;transition:all .2s}
+.topic-card:hover{transform:translateY(-3px);border-color:rgba(124,116,255,.5);box-shadow:0 8px 32px rgba(124,116,255,.1)}
+.topic-icon{font-size:1.6rem;margin-bottom:8px}.topic-title{font-weight:700;font-size:.88rem;margin-bottom:4px}
+.topic-desc{font-size:.72rem;color:var(--muted);line-height:1.55}.topic-tag{display:inline-block;margin-top:10px;font-size:.62rem;padding:2px 7px;border-radius:20px;background:rgba(124,116,255,.14);color:var(--accent)}
+h2.page-title{font-size:1.45rem;font-weight:800;margin-bottom:6px}.page-subtitle{color:var(--muted);font-size:.82rem;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.section-title{font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin:28px 0 14px;display:flex;align-items:center;gap:12px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.content-block{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:26px;margin-bottom:20px}
+.block-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}.block-header h3{margin-bottom:0;font-size:.95rem;font-weight:700}
+.badges{display:flex;gap:6px;flex-wrap:wrap}.badge{font-size:.6rem;padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-weight:700;letter-spacing:.5px}
+.b-blue{background:rgba(124,116,255,.18);color:var(--accent)}.b-red{background:rgba(255,112,150,.18);color:var(--accent2)}.b-green{background:rgba(63,232,130,.18);color:var(--accent3)}.b-yellow{background:rgba(251,185,42,.18);color:var(--accent4)}.b-sky{background:rgba(56,189,248,.18);color:var(--accent5)}
+.body-text{font-size:.84rem;color:#ababd8;line-height:1.87;margin-bottom:12px}.body-text strong{color:var(--text)}
+.body-text code{font-family:'JetBrains Mono',monospace;font-size:.78rem;background:rgba(124,116,255,.12);padding:1px 5px;border-radius:3px;color:var(--accent)}
+.diagram-wrap{overflow-x:auto;margin:14px 0;border-radius:10px}svg.diagram{display:block;border-radius:10px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:12px 0}
+.col-box{border-radius:9px;padding:14px;border:1px solid var(--border)}.col-box h4{font-size:.8rem;font-weight:700;margin-bottom:8px}
+.col-box.accent{border-color:rgba(124,116,255,.3);background:rgba(124,116,255,.04)}.col-box.green{border-color:rgba(63,232,130,.3);background:rgba(63,232,130,.04)}
+.col-box.red{border-color:rgba(255,112,150,.3);background:rgba(255,112,150,.04)}.col-box.yellow{border-color:rgba(251,185,42,.3);background:rgba(251,185,42,.04)}.col-box.sky{border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.04)}
+.checklist{list-style:none;display:flex;flex-direction:column;gap:5px}
+.checklist li{display:flex;align-items:flex-start;gap:8px;font-size:.81rem;line-height:1.7;color:#9898c8}.checklist li strong{color:var(--text)}
+.checklist li::before{content:'▸';color:var(--accent);flex-shrink:0;margin-top:1px;font-size:.75rem}
+.checklist li.g::before{content:'✓';color:var(--accent3)}.checklist li.r::before{content:'✗';color:var(--accent2)}
+.hbox{border-radius:8px;padding:13px 15px;font-size:.8rem;line-height:1.75;border-left:3px solid;margin:10px 0}.hbox strong{color:var(--text)}
+.hbox code{font-family:'JetBrains Mono',monospace;font-size:.76rem;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.hbox.info{border-color:var(--accent);background:rgba(124,116,255,.07);color:#ababd8}.hbox.warn{border-color:var(--accent4);background:rgba(251,185,42,.07);color:#ababd8}
+.hbox.tip{border-color:var(--accent3);background:rgba(63,232,130,.07);color:#ababd8}.hbox.danger{border-color:var(--accent2);background:rgba(255,112,150,.07);color:#ababd8}
+.tbl{width:100%;border-collapse:collapse;font-size:.79rem;margin:10px 0}.tbl th{background:rgba(124,116,255,.12);padding:9px 13px;text-align:left;font-weight:700;font-size:.72rem;color:var(--text)}
+.tbl td{padding:9px 14px;border-bottom:1px solid var(--border);color:#9898c8;vertical-align:top;font-size:.8rem}.tbl td strong{color:var(--text)}.tbl tr:last-child td{border-bottom:none}.tbl tr:hover td{background:rgba(124,116,255,.04)}.tbl .hi{color:var(--accent3);font-weight:600}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:9px;padding:16px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.76rem;line-height:1.75;color:#cdd6f4;margin:12px 0;tab-size:2}
+.kw{color:#cba6f7}.str{color:#a6e3a1}.cm{color:#6c7086}.num{color:#fab387}.fn{color:#89b4fa}.op{color:#89dceb}.ty{color:#f38ba8}
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.flow-node{padding:9px 20px;border-radius:8px;font-size:.78rem;font-weight:600;border:1.5px solid var(--accent);background:rgba(124,116,255,.09);color:var(--text);text-align:center;min-width:220px;line-height:1.5}
+.flow-node.yn{border-color:var(--accent4);background:rgba(251,185,42,.09)}.flow-node.gn{border-color:var(--accent3);background:rgba(63,232,130,.09)}.flow-node.rn{border-color:var(--accent2);background:rgba(255,112,150,.09)}
+.flow-arrow{color:var(--muted);font-size:1rem;line-height:1.8;text-align:center}.flow-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}.flow-row .flow-node{min-width:120px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.pill{padding:3px 10px;border-radius:20px;font-size:.69rem;border:1px solid var(--border);color:var(--muted)}
+.pill.a{border-color:rgba(124,116,255,.4);color:var(--accent);background:rgba(124,116,255,.08)}.pill.g{border-color:rgba(63,232,130,.4);color:var(--accent3);background:rgba(63,232,130,.08)}.pill.r{border-color:rgba(255,112,150,.4);color:var(--accent2);background:rgba(255,112,150,.08)}.pill.y{border-color:rgba(251,185,42,.4);color:var(--accent4);background:rgba(251,185,42,.08)}
+.timeline{display:flex;flex-direction:column;gap:0;margin:14px 0}.tl-item{display:flex;gap:14px}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:36px;flex-shrink:0}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:.7rem;font-weight:700;flex-shrink:0}
+.tl-line{flex:1;width:2px;background:var(--border);margin:2px 0}.tl-content{padding-bottom:20px;flex:1}.tl-title{font-weight:700;font-size:.88rem;margin-bottom:6px}.tl-body{font-size:.79rem;color:#ababd8;line-height:1.75}
+.formula{background:var(--code-bg);border:1px solid var(--border);border-radius:7px;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--accent3);margin:8px 0;text-align:center}
+.quiz-score-bar{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.score-big{font-family:'Space Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent)}.score-detail{font-size:.8rem;color:var(--muted)}
+.qfbtn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.75rem;cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s}
+.qfbtn:hover,.qfbtn.active{border-color:var(--accent);color:var(--accent);background:rgba(124,116,255,.1)}
+.quiz-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:14px}.quiz-card.answered{border-color:rgba(124,116,255,.3)}
+.qnum{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);margin-bottom:6px}.quiz-q{font-weight:600;font-size:.88rem;margin-bottom:14px;line-height:1.65;color:var(--text)}
+.quiz-opts{display:flex;flex-direction:column;gap:7px}.quiz-opt{padding:9px 14px;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-size:.8rem;transition:all .15s;color:#ababd8;background:transparent;text-align:left;font-family:'Sora',sans-serif;line-height:1.55}
+.quiz-opt:hover:not(:disabled){border-color:rgba(124,116,255,.5);background:rgba(124,116,255,.07);color:var(--text)}
+.quiz-opt.correct{border-color:var(--accent3)!important;background:rgba(63,232,130,.1)!important;color:var(--accent3)!important;font-weight:600}
+.quiz-opt.wrong{border-color:var(--accent2)!important;background:rgba(255,112,150,.08)!important;color:var(--accent2)!important}
+.quiz-explain{display:none;margin-top:12px;padding:12px 15px;background:rgba(124,116,255,.07);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:.79rem;line-height:1.8;color:#ababd8}
+.quiz-explain.show{display:block;animation:fadeUp .2s}.quiz-explain strong{color:var(--text)}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:720px){aside{display:none}main{padding:18px 16px}.two-col,.three-col{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header>
+  <div class="logo">SD<span>v2</span></div>
+  <div class="tagline">System Design Interview — Ôn tập thực chiến từ Atlassian, TikTok, Google</div>
+</header>
+<div class="app">
+<aside>
+<div><div class="nav-label">Tổng quan</div>
+<div class="nav-item active" onclick="nav('home')"><span class="icon">🏠</span>Trang chủ</div></div>
+<div><div class="nav-label">Buổi 1–3 · Nền tảng</div>
+<div class="nav-item" onclick="nav('principles')"><span class="icon">⚡</span>Principles &amp; CAP</div>
+<div class="nav-item" onclick="nav('lb')"><span class="icon">⚖️</span>Load Balancer</div>
+<div class="nav-item" onclick="nav('db')"><span class="icon">🗄️</span>Database Design</div>
+<div class="nav-item" onclick="nav('cache')"><span class="icon">🚀</span>Caching</div>
+<div class="nav-item" onclick="nav('stream')"><span class="icon">🌊</span>Stream Processing</div></div>
+<div><div class="nav-label">Buổi 4–6 · Hệ thống</div>
+<div class="nav-item" onclick="nav('networking')"><span class="icon">🌐</span>Networking</div>
+<div class="nav-item" onclick="nav('storage')"><span class="icon">💾</span>File Storage</div>
+<div class="nav-item" onclick="nav('framework')"><span class="icon">🗂️</span>Interview Framework</div></div>
+<div><div class="nav-label">Buổi 7–12 · Case Studies</div>
+<div class="nav-item" onclick="nav('tinyurl')"><span class="icon">🔗</span>TinyURL</div>
+<div class="nav-item" onclick="nav('youtube')"><span class="icon">▶️</span>YouTube</div>
+<div class="nav-item" onclick="nav('social')"><span class="icon">👥</span>Social Media</div>
+<div class="nav-item" onclick="nav('typeahead')"><span class="icon">🔎</span>Typeahead Search</div>
+<div class="nav-item" onclick="nav('messaging')"><span class="icon">💬</span>Messaging App</div>
+<div class="nav-item" onclick="nav('uber')"><span class="icon">🚗</span>Uber / Grab</div></div>
+<div><div class="nav-label">Luyện tập</div>
+<div class="nav-item" onclick="nav('quiz')"><span class="icon">🧠</span>Quiz <span class="nav-badge" id="qbadge">40+</span></div></div>
+</aside>
+<main>
+
+<div class="page active" id="page-home">
+<div class="hero">
+  <h1>Chinh phục <span>System Design</span><br>Interview thực chiến</h1>
+  <p>Toàn bộ giáo trình SDv2 với diagrams, code snippets và quiz ôn tập. Giảng viên từ Atlassian, TikTok, Google.</p>
+  <div class="hero-stats">
+    <div><div class="stat-num">14</div><div class="stat-label">Chủ đề</div></div>
+    <div><div class="stat-num">6</div><div class="stat-label">Case studies</div></div>
+    <div><div class="stat-num">40+</div><div class="stat-label">Quiz</div></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">Tiến độ: <span id="pctText">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+</div>
+<div class="section-title">Nền tảng lý thuyết</div>
+<div class="cards-grid">
+  <div class="topic-card" onclick="nav('principles')"><div class="topic-icon">⚡</div><div class="topic-title">Principles &amp; CAP</div><div class="topic-desc">Scalability, Availability, CAP, ACID vs BASE, Consistency models</div><div class="topic-tag">Buổi 1</div></div>
+  <div class="topic-card" onclick="nav('lb')"><div class="topic-icon">⚖️</div><div class="topic-title">Load Balancer</div><div class="topic-desc">L4 vs L7, Algorithms, Health checks, Rate limiting</div><div class="topic-tag">Buổi 2</div></div>
+  <div class="topic-card" onclick="nav('db')"><div class="topic-icon">🗄️</div><div class="topic-title">Database Design</div><div class="topic-desc">SQL vs NoSQL, Sharding, Replication, Indexing, Isolation levels</div><div class="topic-tag">Buổi 2</div></div>
+  <div class="topic-card" onclick="nav('cache')"><div class="topic-icon">🚀</div><div class="topic-title">Caching</div><div class="topic-desc">Redis, CDN, Eviction policies, Cache invalidation patterns</div><div class="topic-tag">Buổi 3</div></div>
+  <div class="topic-card" onclick="nav('stream')"><div class="topic-icon">🌊</div><div class="topic-title">Stream Processing</div><div class="topic-desc">Kafka architecture, partitions, consumer groups, delivery guarantees</div><div class="topic-tag">Buổi 3</div></div>
+</div>
+<div class="section-title">Hệ thống phân tán</div>
+<div class="cards-grid">
+  <div class="topic-card" onclick="nav('networking')"><div class="topic-icon">🌐</div><div class="topic-title">Networking</div><div class="topic-desc">TCP/UDP, DNS, HTTP/2, gRPC, WebSocket, SSE, API Gateway</div><div class="topic-tag">Buổi 4</div></div>
+  <div class="topic-card" onclick="nav('storage')"><div class="topic-icon">💾</div><div class="topic-title">File Storage &amp; Logging</div><div class="topic-desc">S3, Object Storage, ELK, Distributed Tracing, Metrics</div><div class="topic-tag">Buổi 5</div></div>
+  <div class="topic-card" onclick="nav('framework')"><div class="topic-icon">🗂️</div><div class="topic-title">Interview Framework</div><div class="topic-desc">4 steps, Requirements, Estimation cheat sheet, API design</div><div class="topic-tag">Buổi 6</div></div>
+</div>
+<div class="section-title">Case studies thực chiến</div>
+<div class="cards-grid">
+  <div class="topic-card" onclick="nav('tinyurl')"><div class="topic-icon">🔗</div><div class="topic-title">TinyURL</div><div class="topic-desc">Hashing, base62, redirect, analytics, rate limiting</div><div class="topic-tag">Buổi 7</div></div>
+  <div class="topic-card" onclick="nav('youtube')"><div class="topic-icon">▶️</div><div class="topic-title">YouTube</div><div class="topic-desc">Upload pipeline, transcoding, ABR streaming</div><div class="topic-tag">Buổi 8</div></div>
+  <div class="topic-card" onclick="nav('social')"><div class="topic-icon">👥</div><div class="topic-title">Social Media</div><div class="topic-desc">News feed, fanout on write/read, graph, notification</div><div class="topic-tag">Buổi 9</div></div>
+  <div class="topic-card" onclick="nav('typeahead')"><div class="topic-icon">🔎</div><div class="topic-title">Typeahead Search</div><div class="topic-desc">Trie, prefix tree, ranking, real-time suggestions</div><div class="topic-tag">Buổi 10</div></div>
+  <div class="topic-card" onclick="nav('messaging')"><div class="topic-icon">💬</div><div class="topic-title">Messaging App</div><div class="topic-desc">WebSocket, message ordering, group chat, Snowflake ID</div><div class="topic-tag">Buổi 11</div></div>
+  <div class="topic-card" onclick="nav('uber')"><div class="topic-icon">🚗</div><div class="topic-title">Uber / Grab</div><div class="topic-desc">GeoHash, H3, matching, surge pricing, real-time tracking</div><div class="topic-tag">Buổi 12</div></div>
+</div>
+</div>
+
+<div class="page" id="page-principles">
+<h2 class="page-title">⚡ System Design Principles</h2>
+<p class="page-subtitle">Buổi 1 — Nền tảng lý thuyết. Đây là câu hỏi đầu tiên interviewer sẽ hỏi.</p>
+<div class="content-block">
+<div class="block-header"><h3>CAP Theorem</h3><div class="badges"><span class="badge b-red">Must Know</span></div></div>
+<p class="body-text">Một hệ thống phân tán <strong>không thể đồng thời đảm bảo cả 3</strong>: Consistency, Availability, Partition Tolerance. Chỉ được chọn 2 trong 3. Trong thực tế, Partition Tolerance là bắt buộc → luôn chọn giữa <strong>CP</strong> hoặc <strong>AP</strong>.</p>
+<div class="two-col">
+<div class="col-box accent"><h4 style="color:var(--accent)">CP Systems</h4><p class="body-text" style="margin:0">Khi có network partition → từ chối phục vụ để giữ consistency. Banking, ZooKeeper, etcd, HBase.</p></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">AP Systems</h4><p class="body-text" style="margin:0">Khi có network partition → vẫn phục vụ nhưng có thể return stale data. Cassandra, DynamoDB, CouchDB.</p></div>
+</div>
+<div class="hbox info">📌 <strong>Interview tip:</strong> Đừng chỉ nói &quot;strong&quot; hay &quot;eventual&quot;. Hỏi ngược: &quot;Use case này cần read-your-writes không?&quot; — điều này cho thấy hiểu sâu.</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Scalability — Vertical vs Horizontal</h3><div class="badges"><span class="badge b-blue">Core</span></div></div>
+<table class="tbl"><tr><th>Tiêu chí</th><th>Vertical (Scale Up)</th><th>Horizontal (Scale Out)</th></tr>
+<tr><td><strong>Cách làm</strong></td><td>Nâng cấp CPU, RAM máy hiện tại</td><td>Thêm nhiều server mới</td></tr>
+<tr><td><strong>Giới hạn</strong></td><td>Bị giới hạn bởi hardware max</td><td>Gần như không giới hạn</td></tr>
+<tr><td><strong>SPOF</strong></td><td style="color:var(--accent2)">Có! Toàn bộ traffic vào 1 máy</td><td style="color:var(--accent3)">Không — nhiều instances</td></tr>
+<tr><td><strong>Downtime</strong></td><td>Cần restart khi upgrade</td><td>Rolling deploy, zero downtime</td></tr>
+<tr><td><strong>Dùng khi</strong></td><td>Database ban đầu, bắt đầu đơn giản</td><td>Web servers, API, microservices</td></tr>
+</table>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Availability SLA — Số Nines</h3><div class="badges"><span class="badge b-green">Metrics</span></div></div>
+<table class="tbl"><tr><th>Tên</th><th>Availability</th><th>Downtime/năm</th><th>Downtime/tháng</th><th>Use case</th></tr>
+<tr><td>2 nines</td><td>99%</td><td>3.65 ngày</td><td>7.2 giờ</td><td>Internal tools</td></tr>
+<tr><td>3 nines</td><td>99.9%</td><td>8.76 giờ</td><td>43.8 phút</td><td>Startup MVP</td></tr>
+<tr><td class="hi">4 nines ★</td><td class="hi">99.99%</td><td class="hi">52.56 phút</td><td class="hi">4.38 phút</td><td>Big Tech standard</td></tr>
+<tr><td>5 nines</td><td>99.999%</td><td>5.26 phút</td><td>26.3 giây</td><td>Mission critical</td></tr>
+</table>
+<div class="hbox warn">⚠️ <strong>Serial availability:</strong> 2 components 99% nối tiếp = 99%×99% = 98.01%. Parallel (redundancy) = 1-(1-99%)² = 99.99%. Đây là lý do cần redundancy!</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>ACID vs BASE</h3><div class="badges"><span class="badge b-blue">Database</span></div></div>
+<div class="two-col">
+<div class="col-box accent"><h4 style="color:var(--accent)">ACID — SQL Databases</h4>
+<ul class="checklist"><li><strong>Atomicity:</strong> All-or-nothing transaction</li><li><strong>Consistency:</strong> DB luôn ở trạng thái valid</li><li><strong>Isolation:</strong> Concurrent transactions không ảnh hưởng nhau</li><li><strong>Durability:</strong> Committed data không mất kể cả khi crash</li></ul>
+<div class="pills"><span class="pill a">MySQL</span><span class="pill a">PostgreSQL</span><span class="pill a">Oracle</span></div></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">BASE — NoSQL Databases</h4>
+<ul class="checklist"><li><strong>Basically Available:</strong> Luôn phục vụ dù có thể lỗi nhỏ</li><li><strong>Soft state:</strong> State có thể thay đổi theo thời gian</li><li><strong>Eventually consistent:</strong> Cuối cùng tất cả replicas sẽ đồng bộ</li></ul>
+<div class="pills"><span class="pill g">Cassandra</span><span class="pill g">DynamoDB</span><span class="pill g">CouchDB</span></div></div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Numbers Every Engineer Should Know</h3><div class="badges"><span class="badge b-yellow">Reference</span></div></div>
+<table class="tbl"><tr><th>Operation</th><th>Latency</th><th>Ghi nhớ</th></tr>
+<tr><td>L1 cache reference</td><td>~0.5 ns</td><td>Fastest</td></tr>
+<tr><td>RAM access</td><td>~100 ns</td><td>200× L1</td></tr>
+<tr><td>SSD random read</td><td>~100 μs</td><td>1000× RAM</td></tr>
+<tr><td>HDD seek</td><td>~10 ms</td><td>100× SSD — tránh random I/O!</td></tr>
+<tr><td>Same datacenter network</td><td>~500 μs</td><td>0.5ms</td></tr>
+<tr><td>Cross-region (US→EU)</td><td>~150 ms</td><td>Tốc độ ánh sáng có giới hạn</td></tr>
+<tr><td>Redis GET</td><td>~1 ms</td><td>Rất nhanh cho app layer</td></tr>
+<tr><td>MySQL indexed query</td><td>~1-10 ms</td><td>Phụ thuộc nhiều yếu tố</td></tr>
+</table>
+</div>
+</div>
+
+<div class="page" id="page-lb">
+<h2 class="page-title">⚖️ Load Balancer</h2>
+<p class="page-subtitle">Buổi 2 — Phân phối traffic thông minh, loại bỏ SPOF</p>
+<div class="content-block">
+<div class="block-header"><h3>L4 vs L7 Load Balancer</h3><div class="badges"><span class="badge b-red">Core</span></div></div>
+<div class="two-col">
+<div class="col-box accent"><h4 style="color:var(--accent)">L4 — Transport Layer</h4>
+<ul class="checklist"><li>Dựa trên <strong>IP + TCP/UDP port</strong></li><li>Không đọc nội dung HTTP request</li><li>Nhanh hơn, ít overhead</li><li class="g">Dùng khi cần throughput cao, low latency</li></ul>
+<div class="pills"><span class="pill a">AWS NLB</span><span class="pill a">HAProxy TCP</span></div></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">L7 — Application Layer</h4>
+<ul class="checklist"><li>Đọc được <strong>HTTP headers, URL, cookies, body</strong></li><li>Content-based routing (A/B testing, canary)</li><li>SSL termination</li><li class="g">Dùng cho microservices, API gateway, web apps</li></ul>
+<div class="pills"><span class="pill g">AWS ALB</span><span class="pill g">Nginx</span><span class="pill g">Envoy</span></div></div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Load Balancing Algorithms</h3><div class="badges"><span class="badge b-blue">Algorithms</span></div></div>
+<table class="tbl"><tr><th>Algorithm</th><th>Cách hoạt động</th><th>Use case</th></tr>
+<tr><td><strong>Round Robin</strong></td><td>Lần lượt gửi tới từng server</td><td>Stateless servers đồng nhất</td></tr>
+<tr><td><strong>Weighted Round Robin</strong></td><td>Server mạnh nhận nhiều request hơn</td><td>Servers có specs khác nhau</td></tr>
+<tr><td class="hi"><strong>Least Connections ★</strong></td><td>Gửi tới server ít connections nhất</td><td>Long-lived connections (chat, streaming)</td></tr>
+<tr><td><strong>IP Hash</strong></td><td>Hash IP → cùng server (sticky session)</td><td>Cần giữ session</td></tr>
+<tr><td><strong>Random with 2 choices</strong></td><td>Chọn ngẫu nhiên 2 server, gửi tới server ít connections hơn</td><td>Large clusters — gần optimal</td></tr>
+</table>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Rate Limiting Algorithms</h3><div class="badges"><span class="badge b-yellow">Security</span></div></div>
+<table class="tbl"><tr><th>Algorithm</th><th>Mô tả</th><th>Pros / Cons</th></tr>
+<tr><td><strong>Token Bucket</strong></td><td>Bucket có N tokens, refill đều. Burst allowed.</td><td>✅ Cho phép burst ✅ Smooth rate</td></tr>
+<tr><td><strong>Leaky Bucket</strong></td><td>Queue + fixed output rate. Overflow → drop.</td><td>✅ Consistent output ❌ Không handle burst</td></tr>
+<tr><td class="hi"><strong>Sliding Window Counter ★</strong></td><td>Đếm requests trong sliding time window</td><td>✅ Chính xác ❌ Memory cao (Redis sorted set)</td></tr>
+<tr><td><strong>Fixed Window</strong></td><td>Đếm requests trong fixed time slots</td><td>✅ Simple ❌ Burst tại boundary (2× rate)</td></tr>
+</table>
+<div class="hbox info">🔑 <strong>LB itself là SPOF!</strong> → Dùng Active-Passive LB pair với floating IP (keepalived/VRRP), hoặc DNS-based LB với health check routing.</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Global Load Balancing (Multi-Region)</h3><div class="badges"><span class="badge b-green">Scale</span></div></div>
+<table class="tbl"><tr><th>Strategy</th><th>Cách hoạt động</th><th>Use case</th></tr>
+<tr><td><strong>Geolocation routing</strong></td><td>Route dựa trên IP geography</td><td>GDPR data residency, language-specific content</td></tr>
+<tr><td class="hi"><strong>Latency-based ★</strong></td><td>Route đến DC có lowest latency thực tế</td><td>Performance — best for most apps</td></tr>
+<tr><td><strong>Failover routing</strong></td><td>Primary DC, failover sang Secondary khi health check fail</td><td>Disaster Recovery</td></tr>
+<tr><td><strong>Weighted routing</strong></td><td>Split traffic theo % (90/10, 50/50)</td><td>A/B testing, canary deployment</td></tr>
+</table>
+</div>
+</div>
+
+<div class="page" id="page-db">
+<h2 class="page-title">🗄️ Database Design</h2>
+<p class="page-subtitle">Buổi 2 — SQL vs NoSQL, Sharding, Replication, Isolation levels</p>
+<div class="content-block">
+<div class="block-header"><h3>SQL vs NoSQL — Khi nào chọn gì?</h3><div class="badges"><span class="badge b-red">Core Decision</span></div></div>
+<table class="tbl"><tr><th>Tiêu chí</th><th>SQL (Relational)</th><th>NoSQL</th></tr>
+<tr><td><strong>Schema</strong></td><td>Cố định, cần migration khi thay đổi</td><td>Flexible, schema-less</td></tr>
+<tr><td><strong>ACID</strong></td><td>✅ Full ACID support</td><td>⚠️ Partial hoặc eventual consistency</td></tr>
+<tr><td><strong>Scaling</strong></td><td>Vertical chủ yếu, sharding phức tạp</td><td>Horizontal dễ, built-in sharding</td></tr>
+<tr><td><strong>Joins</strong></td><td>✅ Complex JOIN, aggregation</td><td>❌ No JOIN, denormalized</td></tr>
+<tr><td><strong>Use case ✅</strong></td><td>Finance, ERP, user accounts, orders</td><td>Social feed, IoT, logs, real-time</td></tr>
+</table>
+<div class="three-col" style="margin-top:14px">
+<div class="col-box accent"><h4 style="color:var(--accent)">Document Store</h4><p class="body-text" style="margin:0">JSON documents. Flexible schema.<br><strong>MongoDB, CouchDB</strong><br>Use: profiles, catalog</p></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">Wide-Column</h4><p class="body-text" style="margin:0">Rows + dynamic columns.<br><strong>Cassandra, HBase</strong><br>Use: messages, events, logs</p></div>
+<div class="col-box yellow"><h4 style="color:var(--accent4)">Key-Value</h4><p class="body-text" style="margin:0">Đơn giản nhất. Get/Set by key.<br><strong>Redis, DynamoDB</strong><br>Use: cache, sessions, counters</p></div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Database Sharding</h3><div class="badges"><span class="badge b-red">Scaling</span></div></div>
+<p class="body-text">Sharding chia data ra nhiều database servers để scale horizontally. Mỗi shard chứa một phần dataset.</p>
+<table class="tbl"><tr><th>Strategy</th><th>Cách hoạt động</th><th>Pros / Cons</th></tr>
+<tr><td><strong>Hash-based</strong></td><td>shard = hash(key) % N</td><td>✅ Phân phối đều ❌ Khó thêm shard</td></tr>
+<tr><td><strong>Range-based</strong></td><td>A-M → shard 1, N-Z → shard 2</td><td>✅ Dễ range query ❌ Hotspot risk</td></tr>
+<tr><td class="hi"><strong>Consistent Hashing ★</strong></td><td>Nodes trên ring, key → nearest node theo clockwise</td><td>✅ Thêm/bớt shard chỉ move K/N keys</td></tr>
+</table>
+<div class="hbox warn">⚠️ <strong>Đừng shard sớm!</strong> Thứ tự scaling: Index → Cache → Read Replicas → Vertical → Sharding. Hầu hết apps không cần sharding đến 50M+ users.</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Master-Slave Replication</h3><div class="badges"><span class="badge b-green">HA</span></div></div>
+<ul class="checklist">
+<li>Tất cả <strong>writes</strong> đi qua Master. Master ghi binlog → slaves replicate async.</li>
+<li>Tất cả <strong>reads</strong> phân phối cho Slaves → giảm tải Master (read:write thường 10:1)</li>
+<li>Master fail → promote Slave lên Master mới (auto với MHA/Orchestrator)</li>
+<li class="r"><strong>Replication lag:</strong> Slave có thể trả stale data trong vài ms-giây. Cần read-your-writes → đọc từ Master.</li>
+</ul>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Transaction Isolation Levels</h3><div class="badges"><span class="badge b-blue">ACID</span></div></div>
+<table class="tbl"><tr><th>Level</th><th>Dirty Read</th><th>Non-Repeatable</th><th>Phantom Read</th><th>Perf</th></tr>
+<tr><td><strong>READ UNCOMMITTED</strong></td><td style="color:var(--accent2)">Có thể</td><td style="color:var(--accent2)">Có thể</td><td style="color:var(--accent2)">Có thể</td><td style="color:var(--accent3)">Tốt nhất</td></tr>
+<tr><td><strong>READ COMMITTED</strong></td><td style="color:var(--accent3)">Không</td><td style="color:var(--accent2)">Có thể</td><td style="color:var(--accent2)">Có thể</td><td>Tốt</td></tr>
+<tr><td><strong>REPEATABLE READ</strong></td><td style="color:var(--accent3)">Không</td><td style="color:var(--accent3)">Không</td><td style="color:var(--accent2)">Có thể</td><td>Trung bình</td></tr>
+<tr><td><strong>SERIALIZABLE</strong></td><td style="color:var(--accent3)">Không</td><td style="color:var(--accent3)">Không</td><td style="color:var(--accent3)">Không</td><td style="color:var(--accent2)">Chậm nhất</td></tr>
+</table>
+<div class="hbox info">📌 <strong>PostgreSQL default:</strong> READ COMMITTED. <strong>MySQL InnoDB default:</strong> REPEATABLE READ. MVCC giúp reads không block writes.</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Database Indexing</h3><div class="badges"><span class="badge b-blue">Performance</span></div></div>
+<pre><span class="cm">-- Không có index: full scan O(n)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> email = <span class="str">'alice@example.com'</span>;
+
+<span class="cm">-- Tạo index: O(log n)</span>
+<span class="kw">CREATE INDEX</span> idx_users_email <span class="kw">ON</span> users(email);
+
+<span class="cm">-- Composite index — leftmost prefix rule!</span>
+<span class="kw">CREATE INDEX</span> idx_posts <span class="kw">ON</span> posts(user_id, created_at <span class="kw">DESC</span>);
+<span class="cm">-- OK: WHERE user_id=? ORDER BY created_at DESC
+-- NOT OK: WHERE created_at=?  (skips leftmost column)</span>
+
+<span class="cm">-- ❌ Function trên indexed column → không dùng được index</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders <span class="kw">WHERE</span> <span class="fn">YEAR</span>(created_at) = <span class="num">2024</span>;
+<span class="cm">-- ✅ Dùng range query thay thế</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> orders <span class="kw">WHERE</span> created_at <span class="kw">BETWEEN</span> <span class="str">'2024-01-01'</span> <span class="kw">AND</span> <span class="str">'2024-12-31'</span>;</pre>
+<div class="hbox warn">⚠️ Index có chi phí: write chậm hơn, tốn storage. Chỉ index columns trong WHERE, JOIN ON, ORDER BY thường xuyên.</div>
+</div>
+</div>
+
+<div class="page" id="page-cache">
+<h2 class="page-title">🚀 Caching</h2>
+<p class="page-subtitle">Buổi 3 — Tăng tốc read, giảm tải DB. Cache là thứ mọi hệ thống lớn đều cần.</p>
+<div class="content-block">
+<div class="block-header"><h3>Cache Strategies</h3><div class="badges"><span class="badge b-red">Core Patterns</span></div></div>
+<div class="two-col">
+<div class="col-box accent"><h4 style="color:var(--accent)">Cache-Aside (Lazy Loading) ★</h4>
+<div class="flow"><div class="flow-node" style="min-width:180px;font-size:.73rem">App: GET user:123</div><div class="flow-arrow">↓</div><div class="flow-node rn" style="min-width:180px;font-size:.73rem">Cache HIT? → return ngay ✅</div><div class="flow-arrow">↓ MISS</div><div class="flow-node yn" style="min-width:180px;font-size:.73rem">Read from DB</div><div class="flow-arrow">↓</div><div class="flow-node gn" style="min-width:180px;font-size:.73rem">SET cache (TTL) → return</div></div>
+<div class="pills" style="margin-top:8px"><span class="pill a">Most common</span><span class="pill r">Stale data risk</span></div></div>
+<div>
+<div class="col-box green" style="margin-bottom:12px"><h4 style="color:var(--accent3)">Write-Through</h4>
+<p class="body-text" style="margin:0">Write đồng thời vào cache và DB. Cache luôn up-to-date nhưng write latency tăng.</p>
+<div class="pills" style="margin-top:6px"><span class="pill g">Consistent</span><span class="pill r">Write latency tăng</span></div></div>
+<div class="col-box yellow"><h4 style="color:var(--accent4)">Write-Back (Write-Behind)</h4>
+<p class="body-text" style="margin:0">Write cache → ACK ngay. Async write to DB. Nhanh nhất nhưng risk mất data nếu cache crash.</p>
+<div class="pills" style="margin-top:6px"><span class="pill y">Fast writes</span><span class="pill r">Data loss risk</span></div></div>
+</div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Cache Problems — Pitfalls cần tránh</h3><div class="badges"><span class="badge b-red">Common Issues</span></div></div>
+<div class="three-col">
+<div class="col-box red"><h4 style="color:var(--accent2)">🔥 Cache Stampede</h4>
+<p class="body-text" style="margin:0">Key expire → nhiều requests cùng miss → hammer DB.<br><strong>Fix:</strong> Mutex lock hoặc jitter TTL (<code>TTL = base + random(0,300)</code>).</p></div>
+<div class="col-box yellow"><h4 style="color:var(--accent4)">🕳️ Cache Penetration</h4>
+<p class="body-text" style="margin:0">Request key KHÔNG TỒN TẠI trong DB → bypass cache liên tục.<br><strong>Fix:</strong> Cache null values hoặc Bloom Filter.</p></div>
+<div class="col-box accent"><h4 style="color:var(--accent)">💥 Cache Avalanche</h4>
+<p class="body-text" style="margin:0">Nhiều keys expire CÙNG LÚC → DB spike.<br><strong>Fix:</strong> Jitter: <code>TTL = base + random(0, 300)</code>.</p></div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Redis Data Types &amp; Use Cases</h3><div class="badges"><span class="badge b-green">Redis</span></div></div>
+<table class="tbl"><tr><th>Type</th><th>Commands</th><th>Use case thực tế</th></tr>
+<tr><td><strong>String</strong></td><td><code>SET key val EX 3600</code>, <code>INCR</code>, <code>SETNX</code></td><td>Cache, session token, distributed lock, counter</td></tr>
+<tr><td><strong>Hash</strong></td><td><code>HSET user:1 name "Alice"</code>, <code>HGETALL</code></td><td>User profile cache, object fields</td></tr>
+<tr><td><strong>List</strong></td><td><code>LPUSH queue job1</code>, <code>RPOP</code></td><td>Task queue, recent items, activity feed</td></tr>
+<tr><td><strong>Set</strong></td><td><code>SADD online uid1</code>, <code>SISMEMBER</code></td><td>Online users, unique tags, mutual friends</td></tr>
+<tr><td class="hi"><strong>Sorted Set ★</strong></td><td><code>ZADD leaderboard 1000 "u1"</code>, <code>ZRANK</code></td><td>Leaderboard, rate limiting (sliding window), timeline</td></tr>
+<tr><td><strong>HyperLogLog</strong></td><td><code>PFADD hll e1 e2</code>, <code>PFCOUNT hll</code></td><td>Unique visitor count (±1% error, ~12KB)</td></tr>
+</table>
+<pre><span class="cm">// Sliding window rate limiting với Sorted Set</span>
+<span class="kw">MULTI</span>
+  <span class="fn">ZREMRANGEBYSCORE</span> rate:user1 0 (now - window_ms)
+  <span class="fn">ZADD</span> rate:user1 now now
+  <span class="fn">ZCARD</span> rate:user1   <span class="cm">// nếu > limit → reject</span>
+  <span class="fn">EXPIRE</span> rate:user1 <span class="num">60</span>
+<span class="kw">EXEC</span></pre>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>CDN — Content Delivery Network</h3><div class="badges"><span class="badge b-sky">Edge Caching</span></div></div>
+<div class="two-col">
+<div><p class="body-text"><strong>Push CDN:</strong> Chủ động push content lên CDN. Phù hợp static assets ít thay đổi (CSS, JS bundles).</p>
+<p class="body-text"><strong>Pull CDN:</strong> CDN tự fetch từ origin khi miss. Phù hợp content dynamic.</p></div>
+<div><pre style="font-size:.72rem"><span class="cm">// Static — cache lâu</span>
+Cache-Control: <span class="str">public, max-age=31536000, immutable</span>
+<span class="cm">// HTML — không cache</span>
+Cache-Control: <span class="str">no-cache, must-revalidate</span>
+<span class="cm">// API responses</span>
+Cache-Control: <span class="str">private, max-age=300</span></pre></div>
+</div>
+</div>
+</div>
+
+<div class="page" id="page-stream">
+<h2 class="page-title">🌊 Stream Processing</h2>
+<p class="page-subtitle">Buổi 3 — Kafka, message queues, xử lý event realtime</p>
+<div class="content-block">
+<div class="block-header"><h3>Message Queue vs Event Streaming</h3><div class="badges"><span class="badge b-blue">Concepts</span></div></div>
+<div class="two-col">
+<div class="col-box yellow"><h4 style="color:var(--accent4)">Message Queue (RabbitMQ, SQS)</h4>
+<ul class="checklist"><li>Messages được consume <strong>một lần</strong> rồi xóa</li><li>Point-to-point hoặc pub/sub</li><li>Tốt cho: task queues, email, job scheduling</li><li class="r">Không replay được</li></ul></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">Event Streaming (Kafka)</h4>
+<ul class="checklist"><li>Messages được <strong>lưu lâu dài</strong> (7+ ngày)</li><li>Nhiều consumer groups đọc độc lập</li><li>Tốt cho: event sourcing, audit log, analytics</li><li class="g">Có thể replay từ đầu</li></ul></div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Kafka Core Concepts</h3><div class="badges"><span class="badge b-red">Architecture</span></div></div>
+<table class="tbl"><tr><th>Concept</th><th>Giải thích</th></tr>
+<tr><td><strong>Topic</strong></td><td>Kênh nhận/gửi messages. Ví dụ: "user-clicks", "orders", "notifications"</td></tr>
+<tr><td><strong>Partition</strong></td><td>Chia topic thành segments. Messages trong cùng partition có ordering đảm bảo. Nhiều partitions = parallelism cao hơn.</td></tr>
+<tr><td><strong>Offset</strong></td><td>ID tuần tự của message trong partition. Consumer track offset đã đọc đến đâu.</td></tr>
+<tr><td><strong>Consumer Group</strong></td><td>Nhiều consumers cùng group chia nhau đọc partitions. Mỗi partition chỉ đọc bởi 1 consumer trong group.</td></tr>
+<tr><td><strong>Replication Factor</strong></td><td>Số bản copy. RF=3 → 1 leader + 2 followers. Leader fail → follower promote.</td></tr>
+</table>
+<div class="hbox info">📌 <strong>Ordering:</strong> Chỉ đảm bảo trong cùng partition. Muốn related events theo thứ tự → dùng cùng partition key (vd: user_id làm key → tất cả events của user → 1 partition).</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Delivery Guarantees</h3><div class="badges"><span class="badge b-yellow">Reliability</span></div></div>
+<table class="tbl"><tr><th>Guarantee</th><th>Mô tả</th><th>Risk</th><th>Cách đạt</th></tr>
+<tr><td><strong>At-most-once</strong></td><td>Gửi 1 lần, không retry</td><td>Message loss</td><td>Fire and forget</td></tr>
+<tr><td><strong>At-least-once</strong></td><td>Retry đến khi có ack → có thể duplicate</td><td>Duplicate messages</td><td>Idempotent consumer</td></tr>
+<tr><td class="hi"><strong>Exactly-once ★</strong></td><td>Mỗi message xử lý đúng 1 lần</td><td>Phức tạp nhất</td><td>Kafka transactions + idempotent producer</td></tr>
+</table>
+<div class="hbox tip">💡 Thực tế: Hầu hết dùng <strong>at-least-once + idempotent consumers</strong>. Idempotent = lưu processed message_id → skip nếu đã xử lý.</div>
+</div>
+</div>
+
+<div class="page" id="page-networking">
+<h2 class="page-title">🌐 Networking</h2>
+<p class="page-subtitle">Buổi 4 — Protocols, API styles, real-time communication patterns</p>
+<div class="content-block">
+<div class="block-header"><h3>TCP vs UDP</h3><div class="badges"><span class="badge b-blue">Transport Layer</span></div></div>
+<table class="tbl"><tr><th>Feature</th><th>TCP</th><th>UDP</th></tr>
+<tr><td>Connection</td><td>3-way handshake (SYN→SYN-ACK→ACK)</td><td>Connectionless, stateless</td></tr>
+<tr><td>Reliability</td><td>✅ Guaranteed delivery + retransmit</td><td>❌ Best effort, may lose packets</td></tr>
+<tr><td>Ordering</td><td>✅ In-order delivery</td><td>❌ Out-of-order possible</td></tr>
+<tr><td>Speed</td><td>Slower (handshake + ack overhead)</td><td>Faster</td></tr>
+<tr><td>Use cases</td><td>HTTP/S, DB, file transfer, email</td><td>DNS, video streaming, gaming, VoIP, QUIC</td></tr>
+</table>
+<div class="hbox info">📌 HTTP/3 (QUIC) chạy trên UDP nhưng tự implement reliability ở application layer, giải quyết TCP head-of-line blocking.</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>REST vs gRPC vs GraphQL</h3><div class="badges"><span class="badge b-blue">API Protocols</span></div></div>
+<table class="tbl"><tr><th>Feature</th><th>REST</th><th>gRPC</th><th>GraphQL</th></tr>
+<tr><td><strong>Protocol</strong></td><td>HTTP/1.1 + JSON</td><td>HTTP/2 + Protobuf</td><td>HTTP + JSON</td></tr>
+<tr><td><strong>Performance</strong></td><td>OK</td><td>🚀 ~10× faster (binary)</td><td>OK</td></tr>
+<tr><td><strong>Streaming</strong></td><td>Limited (SSE)</td><td>✅ Bi-directional</td><td>✅ Subscriptions</td></tr>
+<tr><td><strong>Overfetching</strong></td><td>Common</td><td>Controlled</td><td>✅ Request only needed fields</td></tr>
+<tr><td><strong>Browser</strong></td><td>✅ Native</td><td>⚠️ Needs grpc-web proxy</td><td>✅ Native</td></tr>
+<tr><td><strong>Best for</strong></td><td>Public APIs, simple CRUD</td><td>Internal microservices</td><td>Complex data, mobile</td></tr>
+</table>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Real-time Communication Patterns</h3><div class="badges"><span class="badge b-red">Realtime</span></div></div>
+<table class="tbl"><tr><th>Pattern</th><th>Cơ chế</th><th>Server→Client</th><th>Client→Server</th><th>Use case</th></tr>
+<tr><td><strong>Short Polling</strong></td><td>Client hỏi định kỳ</td><td>✅ mỗi poll</td><td>✅</td><td>Simple dashboard, 30s interval</td></tr>
+<tr><td><strong>Long Polling</strong></td><td>Request open đến khi có data</td><td>✅ khi có event</td><td>✅</td><td>Notifications, chat fallback</td></tr>
+<tr><td><strong>SSE</strong></td><td>HTTP stream từ server, one-way</td><td>✅ Persistent stream</td><td>❌</td><td>Live feeds, progress updates</td></tr>
+<tr><td class="hi"><strong>WebSocket ★</strong></td><td>Persistent bi-directional TCP</td><td>✅</td><td>✅</td><td>Chat, gaming, collaborative editing</td></tr>
+</table>
+<pre><span class="cm">// WebSocket handshake</span>
+<span class="kw">GET</span> /chat HTTP/1.1
+Upgrade: websocket
+Connection: Upgrade
+<span class="cm">// Server: 101 Switching Protocols → full duplex binary/text frames</span></pre>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>API Gateway</h3><div class="badges"><span class="badge b-blue">Architecture</span></div></div>
+<p class="body-text">API Gateway là entry point duy nhất cho tất cả client requests, thực hiện cross-cutting concerns tập trung:</p>
+<div class="two-col">
+<ul class="checklist">
+<li><strong>Authentication/Authorization:</strong> Verify JWT/API Key trước khi forward</li>
+<li><strong>Rate Limiting:</strong> Giới hạn requests per user/IP/API key</li>
+<li><strong>Request routing:</strong> /api/users → User Service, /api/orders → Order Service</li>
+<li><strong>SSL Termination:</strong> Decrypt HTTPS một lần</li>
+</ul>
+<ul class="checklist">
+<li><strong>Load balancing:</strong> Distribute across service instances</li>
+<li><strong>Caching:</strong> Cache responses cho repeated identical requests</li>
+<li><strong>Circuit breaking:</strong> Fail fast khi downstream quá tải</li>
+<li><strong>Observability:</strong> Centralized logging, metrics, tracing</li>
+</ul>
+</div>
+<div class="pills"><span class="pill a">AWS API Gateway</span><span class="pill a">Kong</span><span class="pill a">Nginx</span><span class="pill a">Envoy</span><span class="pill g">Istio (service mesh)</span></div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>DNS Record Types</h3><div class="badges"><span class="badge b-sky">Infrastructure</span></div></div>
+<table class="tbl"><tr><th>Record</th><th>Mô tả</th><th>Ví dụ</th></tr>
+<tr><td><strong>A</strong></td><td>Domain → IPv4</td><td>api.example.com → 192.0.2.1</td></tr>
+<tr><td><strong>AAAA</strong></td><td>Domain → IPv6</td><td>api.example.com → 2001:db8::1</td></tr>
+<tr><td><strong>CNAME</strong></td><td>Alias → another domain</td><td>www → example.com</td></tr>
+<tr><td><strong>MX</strong></td><td>Mail exchange server</td><td>→ mail.example.com</td></tr>
+<tr><td><strong>TXT</strong></td><td>Text data (SPF, DKIM, verification)</td><td>"v=spf1 include:..."</td></tr>
+</table>
+<div class="hbox info">📌 <strong>TTL:</strong> Short TTL (60s) → changes propagate nhanh nhưng tăng DNS query load. Long TTL (86400s) → ít queries hơn nhưng failover chậm.</div>
+</div>
+</div>
+
+<div class="page" id="page-storage">
+<h2 class="page-title">💾 File Storage &amp; Observability</h2>
+<p class="page-subtitle">Buổi 5 — Object Storage, ELK Stack, Distributed Tracing</p>
+<div class="content-block">
+<div class="block-header"><h3>Storage Types</h3><div class="badges"><span class="badge b-blue">Storage</span></div></div>
+<table class="tbl"><tr><th>Type</th><th>Cơ chế</th><th>Best for</th><th>Examples</th></tr>
+<tr><td><strong>Block Storage</strong></td><td>Fixed-size blocks, raw storage</td><td>OS volumes, databases cần low latency</td><td>AWS EBS, SAN</td></tr>
+<tr><td><strong>File Storage (NAS)</strong></td><td>Hierarchical file system, shared</td><td>Shared files, home directories</td><td>AWS EFS, NFS, HDFS</td></tr>
+<tr><td class="hi"><strong>Object Storage ★</strong></td><td>Flat namespace, key → blob + metadata</td><td>Media files, backups, static assets</td><td>AWS S3, GCS, MinIO</td></tr>
+</table>
+<div class="hbox tip">💡 Mặc định dùng S3/Object Storage cho user uploads, videos, images. Đừng lưu files vào DB (BLOB) hoặc local disk server (stateful, không scale).</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>3 Pillars of Observability</h3><div class="badges"><span class="badge b-green">Monitoring</span></div></div>
+<div class="three-col">
+<div class="col-box accent"><h4 style="color:var(--accent)">📊 Metrics</h4>
+<ul class="checklist"><li><strong>RED method:</strong> Rate, Errors, Duration</li><li><strong>USE method:</strong> Utilization, Saturation, Errors</li><li>Tools: <strong>Prometheus</strong> + <strong>Grafana</strong></li><li>Alert khi metric vượt threshold → PagerDuty</li></ul></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">📝 Logging</h4>
+<ul class="checklist"><li><strong>ELK Stack:</strong> Logstash → Elasticsearch → Kibana</li><li>Structured logs: JSON format, dễ query</li><li>Log levels: DEBUG, INFO, WARN, ERROR, FATAL</li><li>Sampling: 1% INFO, 100% ERROR</li></ul></div>
+<div class="col-box yellow"><h4 style="color:var(--accent4)">🔍 Tracing</h4>
+<ul class="checklist"><li><strong>Trace ID:</strong> Unique ID theo suốt request journey</li><li><strong>Span:</strong> Đơn vị công việc trong 1 service</li><li>Tools: <strong>Jaeger</strong>, <strong>Zipkin</strong>, AWS X-Ray</li><li>Tìm latency bottleneck, cross-service errors</li></ul></div>
+</div>
+<pre style="margin-top:12px"><span class="cm">// Structured log example</span>
+{
+  <span class="str">"timestamp"</span>: <span class="str">"2024-01-15T10:30:45Z"</span>,
+  <span class="str">"level"</span>: <span class="str">"ERROR"</span>,
+  <span class="str">"service"</span>: <span class="str">"payment-service"</span>,
+  <span class="str">"trace_id"</span>: <span class="str">"abc-123"</span>,  <span class="cm">// link to distributed trace</span>
+  <span class="str">"user_id"</span>: <span class="num">42</span>,
+  <span class="str">"message"</span>: <span class="str">"Payment failed: insufficient funds"</span>
+}</pre>
+</div>
+</div>
+
+<div class="page" id="page-framework">
+<h2 class="page-title">🗂️ Interview Framework</h2>
+<p class="page-subtitle">Buổi 6 — 4 bước tiếp cận. Đây là điều quyết định pass/fail.</p>
+<div class="content-block">
+<div class="block-header"><h3>The 4-Step Framework</h3><div class="badges"><span class="badge b-red">Must Follow</span></div></div>
+<div class="timeline">
+<div class="tl-item"><div class="tl-left"><div class="tl-dot" style="background:rgba(255,112,150,.15);border:1.5px solid var(--accent2);color:var(--accent2)">1</div><div class="tl-line"></div></div>
+<div class="tl-content"><div class="tl-title" style="color:var(--accent2)">Clarify Requirements — 5 phút</div>
+<div class="tl-body"><p style="margin-bottom:8px"><strong>Functional (What to build):</strong> Core features, User types, Data patterns (read/write heavy?)</p>
+<p><strong>Non-Functional (How well):</strong> Scale (users/QPS), Latency (p99 target), Availability (99.9% vs 99.99%?), Consistency (strong vs eventual?)</p></div></div></div>
+<div class="tl-item"><div class="tl-left"><div class="tl-dot" style="background:rgba(251,185,42,.15);border:1.5px solid var(--accent4);color:var(--accent4)">2</div><div class="tl-line"></div></div>
+<div class="tl-content"><div class="tl-title" style="color:var(--accent4)">Capacity Estimation — 5 phút</div>
+<div class="tl-body">
+<div class="formula">Write QPS = Total requests per day / 86,400</div>
+<div class="formula">Storage = # items × avg item size × retention period</div>
+<div class="formula">Bandwidth = QPS × avg response size</div>
+</div></div></div>
+<div class="tl-item"><div class="tl-left"><div class="tl-dot" style="background:rgba(124,116,255,.15);border:1.5px solid var(--accent);color:var(--accent)">3</div><div class="tl-line"></div></div>
+<div class="tl-content"><div class="tl-title" style="color:var(--accent)">High-Level Design — 15 phút</div>
+<div class="tl-body"><ul class="checklist"><li>Identify components: Client, API Gateway, Services, DB, Cache, CDN, Queue</li><li>Design APIs: endpoint, method, request/response schema</li><li>Data model: tables/collections chính, relationships</li><li>Describe data flow cho core use cases</li></ul></div></div></div>
+<div class="tl-item"><div class="tl-left"><div class="tl-dot" style="background:rgba(63,232,130,.15);border:1.5px solid var(--accent3);color:var(--accent3)">4</div></div>
+<div class="tl-content"><div class="tl-title" style="color:var(--accent3)">Deep Dive — 20 phút</div>
+<div class="tl-body"><ul class="checklist"><li>Bottlenecks: reads nhiều → cache; writes nhiều → queue; hot data → sharding</li><li>Scale từng component</li><li>Edge cases: server failure, network partition, thundering herd</li><li>Trade-offs: Consistency vs Availability, Latency vs Throughput</li></ul></div></div></div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Estimation Cheat Sheet</h3><div class="badges"><span class="badge b-yellow">Math</span></div></div>
+<div class="two-col">
+<div>
+<p class="body-text"><strong>Time conversions</strong></p>
+<pre style="font-size:.73rem">1 day  = 86,400 sec ≈ 10⁵
+1 month ≈ 2.5M sec
+1 year  ≈ 30M sec</pre>
+<p class="body-text" style="margin-top:8px"><strong>Typical object sizes</strong></p>
+<pre style="font-size:.73rem">Tweet/short text  ≈ 300 bytes
+User profile row  ≈ 1 KB
+Thumbnail image   ≈ 200 KB
+HD photo          ≈ 3 MB
+1 min video       ≈ 10 MB (compressed)</pre>
+</div>
+<div>
+<p class="body-text"><strong>Twitter example (100M tweet/day)</strong></p>
+<pre style="font-size:.73rem">Write QPS: 100M / 86,400 ≈ 1,160/s
+Read QPS (10:1): ≈ 11,600/s
+Peak (3×): ≈ 35,000/s
+
+Storage/day: 100M × 300B = 30 GB
+Storage/year: 30GB × 365 ≈ 11 TB
+
+Media (10% tweets): 10M × 200KB = 2TB/day</pre>
+</div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>API Design Best Practices</h3><div class="badges"><span class="badge b-blue">API</span></div></div>
+<pre><span class="kw">POST</span>   /api/v1/posts                    <span class="cm">// Create</span>
+<span class="kw">GET</span>    /api/v1/posts/{post_id}           <span class="cm">// Read one</span>
+<span class="kw">GET</span>    /api/v1/users/{user_id}/feed      <span class="cm">// Read feed</span>
+<span class="kw">PATCH</span>  /api/v1/posts/{post_id}           <span class="cm">// Partial update</span>
+<span class="kw">DELETE</span> /api/v1/posts/{post_id}           <span class="cm">// Delete</span>
+
+<span class="cm">// Cursor-based pagination (preferred over offset)</span>
+<span class="kw">GET</span> /posts?cursor=<span class="str">eyJpZCI6MTIzfQ</span>&amp;limit=<span class="num">20</span>
+<span class="cm">// Response:</span>
+{ <span class="str">"data"</span>: [...], <span class="str">"next_cursor"</span>: <span class="str">"..."</span>, <span class="str">"has_more"</span>: <span class="kw">true</span> }</pre>
+<div class="hbox warn">⚠️ <strong>Offset pagination vấn đề:</strong> OFFSET 10000 LIMIT 20 → DB scan 10,020 rows. Với large datasets → rất chậm. Dùng cursor-based (WHERE id &gt; last_id) thay thế.</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Top 10 Lỗi Thường Gặp</h3><div class="badges"><span class="badge b-red">Avoid!</span></div></div>
+<div class="two-col">
+<ul class="checklist">
+<li class="r"><strong>Bắt đầu code ngay</strong> mà chưa clarify requirements</li>
+<li class="r"><strong>Over-engineer từ đầu</strong> — start simple, scale when needed</li>
+<li class="r"><strong>Bỏ qua estimation</strong> — không biết scale → design sai</li>
+<li class="r"><strong>Không nói trade-offs</strong> — interviewer muốn nghe đánh đổi</li>
+<li class="r"><strong>Quên SPOF</strong> — LB, DB, cache đều có thể là SPOF</li>
+</ul>
+<ul class="checklist">
+<li class="r"><strong>Không hỏi consistency</strong> requirements — ảnh hưởng lớn đến design</li>
+<li class="r"><strong>Thiếu data model</strong> — HLD không có schema là chưa hoàn chỉnh</li>
+<li class="r"><strong>Bỏ qua security</strong> — auth, rate limiting, encryption</li>
+<li class="r"><strong>Không có monitoring</strong> — metrics, logs, alerts là mandatory</li>
+<li class="r"><strong>Nói nhiều, vẽ ít</strong> — diagram &gt; 1000 words</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div class="page" id="page-tinyurl">
+<h2 class="page-title">🔗 Case Study: TinyURL</h2>
+<p class="page-subtitle">Buổi 7 — Design a URL shortening service (bit.ly / tinyurl.com)</p>
+<div class="content-block">
+<div class="block-header"><h3>Requirements &amp; Estimation</h3><div class="badges"><span class="badge b-yellow">Step 1-2</span></div></div>
+<div class="two-col">
+<div><p class="body-text"><strong>Functional:</strong></p><ul class="checklist"><li>Input long URL → generate short URL (7 chars)</li><li>Redirect short URL → original URL</li><li>Custom alias, URL expiration</li><li>Analytics: click count, geo, device</li></ul></div>
+<div><pre style="font-size:.73rem">Write QPS: 100M / 86,400 ≈ 1,160/s
+Read QPS (10:1): ≈ 11,600/s
+
+Storage (5 years):
+100M × 365 × 5 = 182.5B URLs
+× 500 bytes avg = 91.25 TB
+
+Short URL namespace:
+base62 × 7 chars = 62^7 ≈ 3.5 trillion</pre></div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Key Design Decisions</h3><div class="badges"><span class="badge b-red">Deep Dive</span></div></div>
+<table class="tbl"><tr><th>Approach</th><th>Cách làm</th><th>Pros / Cons</th></tr>
+<tr><td><strong>Hash + Encode</strong></td><td>MD5(longURL) → take first 7 chars, base62 encode</td><td>✅ Deterministic ❌ Collision possible</td></tr>
+<tr><td class="hi"><strong>ID Generator ★</strong></td><td>Auto-increment ID hoặc Snowflake → base62 encode → 7 chars</td><td>✅ Guaranteed unique ✅ Simple</td></tr>
+<tr><td><strong>Pre-generated pool</strong></td><td>Worker pre-generate codes → "unused" pool</td><td>✅ Fast ✅ No collision ❌ Cần manage pool</td></tr>
+</table>
+<pre><span class="cm">// ID → base62 encode</span>
+<span class="kw">const</span> CHARS = <span class="str">'0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'</span>;
+<span class="kw">function</span> <span class="fn">encode</span>(id) {
+  <span class="kw">let</span> result = <span class="str">''</span>;
+  <span class="kw">while</span> (id > <span class="num">0</span>) { result = CHARS[id % <span class="num">62</span>] + result; id = Math.<span class="fn">floor</span>(id / <span class="num">62</span>); }
+  <span class="kw">return</span> result.<span class="fn">padStart</span>(<span class="num">7</span>, <span class="str">'0'</span>); <span class="cm">// "1LY7VK0"</span>
+}</pre>
+<div class="two-col">
+<div class="col-box yellow"><h4 style="color:var(--accent4)">301 Moved Permanently</h4><p class="body-text" style="margin:0">Browser cache redirect → click sau không qua server. Tiết kiệm bandwidth nhưng <strong>không track được analytics</strong>.</p></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">302 Found (Temporary) ★</h4><p class="body-text" style="margin:0">Browser không cache → mỗi click đều qua server. <strong>Track analytics được</strong>. Dùng cho bit.ly-like services.</p></div>
+</div>
+<div class="hbox tip">💡 <strong>Analytics:</strong> Thay vì UPDATE view_count += 1 (write contention), dùng: click event → Kafka → Flink aggregate → write summary mỗi phút.</div>
+</div>
+</div>
+
+<div class="page" id="page-youtube">
+<h2 class="page-title">▶️ Case Study: YouTube</h2>
+<p class="page-subtitle">Buổi 8 — Video platform phục vụ 5 tỉ views/ngày</p>
+<div class="content-block">
+<div class="block-header"><h3>Video Upload &amp; Transcoding Pipeline</h3><div class="badges"><span class="badge b-red">Core Flow</span></div></div>
+<div class="flow">
+<div class="flow-node" style="font-size:.78rem">User uploads raw video (up to 50GB) via resumable upload</div>
+<div class="flow-arrow">↓ chunked upload (5MB chunks, retry on fail)</div>
+<div class="flow-node yn" style="font-size:.78rem">Raw Storage (S3) → trigger event to Message Queue</div>
+<div class="flow-arrow">↓ multiple workers pull in parallel</div>
+<div class="flow-node" style="font-size:.78rem">Transcoding Farm (auto-scaling worker pool)</div>
+<div class="flow-arrow">↓ encode parallel</div>
+<div class="flow-row">
+<div class="flow-node gn" style="font-size:.72rem">360p H.264</div>
+<div class="flow-node gn" style="font-size:.72rem">720p H.264</div>
+<div class="flow-node gn" style="font-size:.72rem">1080p H.264</div>
+<div class="flow-node gn" style="font-size:.72rem">4K VP9/AV1</div>
+</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node yn" style="font-size:.78rem">Upload all variants to CDN</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node gn" style="font-size:.78rem">Update DB: status = "published", notify subscribers</div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Adaptive Bitrate Streaming (ABR)</h3><div class="badges"><span class="badge b-green">Streaming</span></div></div>
+<p class="body-text">Player tự động chọn quality phù hợp bandwidth. Video được chia thành segments 2-6 giây, mỗi segment có nhiều quality levels:</p>
+<pre style="font-size:.73rem"><span class="cm">// HLS Manifest (.m3u8)</span>
+#EXTM3U
+#EXT-X-STREAM-INF:BANDWIDTH=<span class="num">500000</span>,RESOLUTION=<span class="str">640x360</span>
+https://cdn.youtube.com/vid123/360p.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=<span class="num">2000000</span>,RESOLUTION=<span class="str">1280x720</span>
+https://cdn.youtube.com/vid123/720p.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=<span class="num">8000000</span>,RESOLUTION=<span class="str">1920x1080</span>
+https://cdn.youtube.com/vid123/1080p.m3u8</pre>
+<div class="hbox tip">💡 <strong>View count:</strong> Không UPDATE rows trực tiếp (write contention). Dùng Redis INCR → batch flush to DB mỗi 30s + stream to Kafka cho analytics.</div>
+</div>
+</div>
+
+<div class="page" id="page-social">
+<h2 class="page-title">👥 Case Study: Social Media</h2>
+<p class="page-subtitle">Buổi 9 — Facebook/Instagram/Twitter — News feed, fanout</p>
+<div class="content-block">
+<div class="block-header"><h3>Fanout Problem — News Feed</h3><div class="badges"><span class="badge b-red">Hard Problem</span></div></div>
+<div class="two-col">
+<div class="col-box red"><h4 style="color:var(--accent2)">Fanout on Write (Push)</h4>
+<p class="body-text" style="margin-bottom:8px">Khi post → write vào ALL followers' feed.</p>
+<ul class="checklist"><li class="g">Read cực nhanh (pre-built)</li><li class="r">Celebrity 10M followers = 10M writes/post!</li><li class="r">Waste storage</li></ul></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">Fanout on Read (Pull)</h4>
+<p class="body-text" style="margin-bottom:8px">Khi load feed → fetch từ all followees.</p>
+<ul class="checklist"><li class="g">Celebrity ok (ít writes)</li><li class="r">Read chậm, complex merging</li><li class="r">1000 followees = 1000 queries</li></ul></div>
+</div>
+<div class="col-box accent" style="margin-top:12px"><h4 style="color:var(--accent)">🔀 Hybrid (Twitter/Facebook) ★</h4>
+<ul class="checklist">
+<li><strong>Regular users (&lt;1M followers):</strong> Fanout on Write. Pre-built feed cached Redis.</li>
+<li><strong>Celebrities (&gt;1M followers):</strong> Fanout on Read.</li>
+<li>Khi load feed: đọc pre-built + fetch celebrity posts + merge by timestamp.</li>
+</ul>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Data Storage Strategy</h3><div class="badges"><span class="badge b-blue">Storage</span></div></div>
+<table class="tbl"><tr><th>Data</th><th>Storage</th><th>Lý do</th></tr>
+<tr><td><strong>User profiles</strong></td><td>MySQL + Redis cache</td><td>ACID, structured</td></tr>
+<tr><td><strong>Posts/content</strong></td><td>Cassandra (wide-column)</td><td>High write throughput, time-series query</td></tr>
+<tr><td><strong>News feed cache</strong></td><td>Redis Sorted Set (score = timestamp)</td><td>Fast read, O(log n) insert</td></tr>
+<tr><td><strong>Media</strong></td><td>S3 + CDN</td><td>Binary blobs, geo-distributed</td></tr>
+<tr><td><strong>Search</strong></td><td>Elasticsearch</td><td>Full-text, hashtags</td></tr>
+</table>
+</div>
+</div>
+
+<div class="page" id="page-typeahead">
+<h2 class="page-title">🔎 Case Study: Typeahead Search</h2>
+<p class="page-subtitle">Buổi 10 — Real-time search suggestions (Google autocomplete)</p>
+<div class="content-block">
+<div class="block-header"><h3>Core Data Structure: Trie</h3><div class="badges"><span class="badge b-red">Algorithm</span></div></div>
+<p class="body-text">Trie (prefix tree) là cấu trúc tối ưu để tìm kiếm theo prefix. Mỗi node là một ký tự, path từ root tạo thành prefix. Mỗi node lưu <strong>top-K suggestions</strong> để tránh traverse toàn bộ subtree.</p>
+<div class="two-col">
+<div><p class="body-text"><strong>Query Serving (Read — p99 &lt;50ms):</strong></p>
+<div class="flow">
+<div class="flow-node" style="min-width:200px;font-size:.75rem">User types "syst"</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node gn" style="min-width:200px;font-size:.75rem">Check Redis prefix cache first</div>
+<div class="flow-arrow">↓ MISS</div>
+<div class="flow-node yn" style="min-width:200px;font-size:.75rem">Query Trie Service (in-memory)</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node" style="min-width:200px;font-size:.75rem">Return top-5 by score</div>
+</div></div>
+<div><p class="body-text"><strong>Trie Update (async, không block read):</strong></p>
+<div class="flow">
+<div class="flow-node" style="min-width:200px;font-size:.75rem">User completes search</div>
+<div class="flow-arrow">↓ async</div>
+<div class="flow-node yn" style="min-width:200px;font-size:.75rem">Kafka: log search event</div>
+<div class="flow-arrow">↓ hourly/daily batch</div>
+<div class="flow-node gn" style="min-width:200px;font-size:.75rem">MapReduce: tính frequency</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node" style="min-width:200px;font-size:.75rem">Rebuild Trie → swap (blue-green)</div>
+</div></div>
+</div>
+<div class="hbox tip">💡 <strong>Sharding:</strong> Chia alphabet range — a-m → shard 1, n-z → shard 2. Mỗi shard load Trie vào memory từ RocksDB.</div>
+</div>
+</div>
+
+<div class="page" id="page-messaging">
+<h2 class="page-title">💬 Case Study: Messaging App</h2>
+<p class="page-subtitle">Buổi 11 — Zalo / WhatsApp / Facebook Messenger</p>
+<div class="content-block">
+<div class="block-header"><h3>Architecture Overview</h3><div class="badges"><span class="badge b-red">Core</span></div></div>
+<div class="flow">
+<div class="flow-node" style="font-size:.78rem">User A gửi message</div>
+<div class="flow-arrow">↓ WebSocket</div>
+<div class="flow-node yn" style="font-size:.78rem">Chat Server 1 (giữ A's WebSocket, ~100K connections)</div>
+<div class="flow-arrow">↓ lookup Service Discovery: userB → server2</div>
+<div class="flow-node" style="font-size:.78rem">Message Queue (Kafka) → Message Store (Cassandra)</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-node gn" style="font-size:.78rem">Chat Server 2 push to B's WebSocket</div>
+<div class="flow-arrow">↓ B offline?</div>
+<div class="flow-node yn" style="font-size:.78rem">Push Service → APNs/FCM notification</div>
+</div>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Snowflake ID — Message Ordering</h3><div class="badges"><span class="badge b-blue">ID Generation</span></div></div>
+<p class="body-text">64-bit integer: <strong>41 bits timestamp</strong> + <strong>10 bits machine_id</strong> + <strong>12 bits sequence</strong></p>
+<ul class="checklist">
+<li>Time-sortable: sort by ID = sort by time → không cần created_at để sort</li>
+<li>Globally unique: không cần central coordinator</li>
+<li>High throughput: 4096 IDs/ms per machine</li>
+<li>64-bit int: nhỏ và fast hơn UUID (128-bit)</li>
+</ul>
+<pre><span class="cm">// Group chat schema (Cassandra)</span>
+<span class="kw">CREATE TABLE</span> group_messages (
+  group_id    <span class="ty">UUID</span>,
+  message_id  <span class="ty">BIGINT</span>,     <span class="cm">-- Snowflake ID (sortable!)</span>
+  sender_id   <span class="ty">UUID</span>,
+  content     <span class="ty">TEXT</span>,
+  created_at  <span class="ty">TIMESTAMP</span>,
+  PRIMARY KEY ((group_id), message_id)
+) WITH CLUSTERING ORDER BY (message_id <span class="kw">DESC</span>);</pre>
+</div>
+</div>
+
+<div class="page" id="page-uber">
+<h2 class="page-title">🚗 Case Study: Uber / Grab</h2>
+<p class="page-subtitle">Buổi 12 — Real-time geo-matching, location tracking</p>
+<div class="content-block">
+<div class="block-header"><h3>Geospatial Indexing</h3><div class="badges"><span class="badge b-red">Core Algorithm</span></div></div>
+<div class="three-col">
+<div class="col-box red"><h4 style="color:var(--accent2)">Naive: Brute Force</h4><p class="body-text" style="margin:0">Scan tất cả drivers, tính distance. O(N) với N = 1M → quá chậm.</p></div>
+<div class="col-box yellow"><h4 style="color:var(--accent4)">GeoHash</h4><p class="body-text" style="margin:0">Encode lat/lng thành string prefix. Vấn đề: boundary — 2 points rất gần nhưng prefix khác nhau.</p></div>
+<div class="col-box green"><h4 style="color:var(--accent3)">H3 (Uber) ★</h4><p class="body-text" style="margin:0">Hexagonal grid. 6 neighbors đều nhau, không có corner problem. Uber open-sourced H3.</p></div>
+</div>
+<pre style="margin-top:12px"><span class="cm">// Redis GEOADD + GEOSEARCH</span>
+<span class="fn">GEOADD</span> drivers:available <span class="num">106.6297</span> <span class="num">10.8231</span> <span class="str">"driver:42"</span>
+<span class="fn">GEOSEARCH</span> drivers:available FROMLONLAT <span class="num">106.6300</span> <span class="num">10.8235</span>
+          BYRADIUS <span class="num">5</span> km ASC COUNT <span class="num">10</span> WITHCOORD WITHDIST</pre>
+</div>
+<div class="content-block">
+<div class="block-header"><h3>Trip State Machine</h3><div class="badges"><span class="badge b-blue">States</span></div></div>
+<div class="flow">
+<div class="flow-row">
+<div class="flow-node" style="font-size:.75rem;min-width:130px">requested</div>
+<div class="flow-node yn" style="font-size:.75rem;min-width:130px">searching_driver</div>
+<div class="flow-node gn" style="font-size:.75rem;min-width:130px">driver_accepted</div>
+</div>
+<div class="flow-arrow">↓</div>
+<div class="flow-row">
+<div class="flow-node gn" style="font-size:.75rem;min-width:130px">driver_arrived</div>
+<div class="flow-node gn" style="font-size:.75rem;min-width:130px">in_trip</div>
+<div class="flow-node gn" style="font-size:.75rem;min-width:130px">completed</div>
+<div class="flow-node rn" style="font-size:.75rem;min-width:130px">cancelled</div>
+</div>
+</div>
+<div class="hbox info">🔑 Mỗi state transition dùng distributed lock (Redis SETNX) để tránh race condition. State machine là idempotent — retry-safe.</div>
+</div>
+</div>
+
+<div class="page" id="page-quiz">
+<h2 class="page-title">🧠 Quiz — Ôn tập kiến thức</h2>
+<p class="page-subtitle">Click đáp án để xem giải thích chi tiết.</p>
+<div class="quiz-score-bar">
+  <div class="score-big" id="scoreDisplay">0/0</div>
+  <div>
+    <div class="score-detail">Điểm số hiện tại</div>
+    <div class="score-detail" id="scorePercent" style="color:var(--accent3);margin-top:2px">—</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="qfbtn active" onclick="filterQuiz(this,'all')">Tất cả</button>
+    <button class="qfbtn" onclick="filterQuiz(this,'principles')">Principles</button>
+    <button class="qfbtn" onclick="filterQuiz(this,'db')">Database</button>
+    <button class="qfbtn" onclick="filterQuiz(this,'cache')">Cache</button>
+    <button class="qfbtn" onclick="filterQuiz(this,'case')">Case Studies</button>
+    <button class="qfbtn" onclick="resetQuiz()" style="color:var(--accent2);border-color:rgba(255,112,150,.3)">↺ Reset</button>
+  </div>
+</div>
+<div id="quizContainer"></div>
+</div>
+
+</main>
+</div>
+
+<script>
+const QUIZ=[
+{id:1,cat:'principles',q:'CAP Theorem: Tại sao hầu hết hệ thống phải chọn giữa CP và AP thay vì CA?',opts:['CA quá tốn kém về phần cứng','Network Partition là điều không thể tránh trong distributed systems','C và A luôn mâu thuẫn dù không có partition','CA chỉ áp dụng cho single-node'],ans:1,exp:'Network Partition không thể tránh khỏi trong bất kỳ distributed system nào. Vì vậy Partition Tolerance (P) gần như bắt buộc. Khi có partition: tiếp tục phục vụ với possible inconsistency (AP) hoặc từ chối phục vụ để giữ consistency (CP).'},
+{id:2,cat:'principles',q:'Hệ thống A có 99.9% availability, hệ thống B có 99.5%. Nếu request phải đi qua cả A rồi B (serial), availability tổng là bao nhiêu?',opts:['99.9%','99.5%','99.4%','99.0%'],ans:2,exp:'Serial availability = A × B = 99.9% × 99.5% = 0.999 × 0.995 = 0.994005 ≈ 99.4%. Mỗi dependency thêm vào đều giảm overall availability — đây là lý do cần circuit breaker và graceful degradation.'},
+{id:3,cat:'principles',q:'Sự khác biệt quan trọng nhất giữa Vertical và Horizontal Scaling?',opts:['Cost khác nhau','Vertical tạo SPOF, Horizontal giảm SPOF bằng redundancy','Horizontal phức tạp hơn về mặt kỹ thuật','Vertical không work với cloud'],ans:1,exp:'Vertical scaling đặt toàn bộ traffic vào 1 máy → SPOF nghiêm trọng. Horizontal scaling phân phối traffic qua nhiều servers → 1 server fail, traffic route sang servers còn lại. Đây là nền tảng của High Availability.'},
+{id:4,cat:'principles',q:'Eventual Consistency nghĩa là gì trong thực tế?',opts:['Data nhất quán sau đúng 1 giây','Nếu không có write mới, các replicas cuối cùng sẽ converge về cùng giá trị','Data có thể không bao giờ nhất quán','Chỉ 1 replica lưu data'],ans:1,exp:'Eventual Consistency đảm bảo: nếu không có write mới, sau một khoảng thời gian TẤT CẢ replicas sẽ converge. Không cam kết về thời gian cụ thể — có thể ms, có thể giây. Phù hợp khi business logic cho phép stale reads (like counts, social feeds).'},
+{id:5,cat:'principles',q:'Circuit Breaker pattern hoạt động như thế nào?',opts:['Tắt hẳn service khi có lỗi','Monitor failure rate → OPEN khi vượt threshold (fail fast) → HALF-OPEN sau timeout (test) → CLOSED nếu recover','Chuyển traffic sang backup server','Thêm retry logic vào mọi request'],ans:1,exp:'3 states: CLOSED (normal) → OPEN khi failure rate vượt threshold (reject ngay, không wait timeout) → HALF-OPEN sau timeout (thử 1 request) → CLOSED nếu success, OPEN lại nếu fail. Tránh cascade failure và giải phóng tài nguyên.'},
+{id:6,cat:'db',q:'Khi nào nên dùng NoSQL thay vì SQL?',opts:['Cần many complex JOINs và foreign keys','Banking system cần ACID transactions','Social media feed cần horizontal scale với 100M+ users và flexible schema','E-commerce orders cần consistency cho payment'],ans:2,exp:'Social media feed là use case điển hình cho NoSQL (Cassandra): horizontal scale cực cao, schema flexible, write throughput rất cao, query pattern đơn giản. Banking/Payment và e-commerce orders cần ACID → SQL. Complex JOINs → SQL.'},
+{id:7,cat:'db',q:'Consistent Hashing giải quyết vấn đề gì trong sharding?',opts:['Tăng tốc query trên mỗi shard','Giảm data phải migrate khi thêm/bớt shard','Đảm bảo ACID cross-shard','Tự động tạo index'],ans:1,exp:'Hash-based sharding thông thường (shard = hash(key) % N): khi thêm 1 shard → gần 100% keys phải remapped. Consistent Hashing: nodes trên ring, thêm node chỉ move ~K/N keys. Đây là lý do Cassandra, DynamoDB, Redis Cluster đều dùng.'},
+{id:8,cat:'db',q:'Replication lag là gì và cách xử lý?',opts:['Master ghi quá chậm','Slave có thể trả data cũ hơn Master do async replication delay. Fix: đọc từ Master cho critical reads','Slave không nhận write requests','Master và Slave không đồng bộ schema'],ans:1,exp:'Trong Master-Slave, writes đến Master → replicate async sang Slaves. Trong khoảng đó, read từ Slave có thể nhận data cũ. Fix: (1) Read from Master trong vài giây sau write, (2) sticky sessions, (3) semi-sync replication.'},
+{id:9,cat:'db',q:'Composite index (a, b, c). Query nào KHÔNG được tối ưu bởi index này?',opts:['WHERE a=1 AND b=2 AND c=3','WHERE a=1 AND b=2','WHERE b=2 AND c=3','WHERE a=1'],ans:2,exp:'Leftmost prefix rule: index (a,b,c) được dùng khi query có a, a+b, hoặc a+b+c. Query "WHERE b=2 AND c=3" bỏ qua cột đầu tiên (a) → không dùng được index, phải full table scan. Thứ tự columns trong composite index rất quan trọng!'},
+{id:10,cat:'db',q:'N+1 Query Problem là gì?',opts:['Query trả về N+1 rows thay vì N','1 query lấy N items, sau đó N queries cho details → total N+1 queries. Fix: JOIN hoặc batch loading','Query timeout sau N+1 seconds','N+1 là số retry tối đa'],ans:1,exp:'Load 10 posts (1 query) → mỗi post load author (10 queries) = 11 queries. Với 100 posts = 101 queries. Fix: (1) Eager loading với JOIN: 1 query lấy tất cả. (2) Batch: WHERE id IN (...). (3) DataLoader pattern trong GraphQL.'},
+{id:11,cat:'cache',q:'Cache-Aside khác Write-Through như thế nào?',opts:['Cache-Aside nhanh hơn cho reads','Cache-Aside: app tự quản lý, lazy load. Write-Through: write đồng thời vào cache và DB','Cache-Aside không có TTL','Không có sự khác biệt'],ans:1,exp:'Cache-Aside (Lazy): miss → read DB → write cache → return. Chỉ cache khi được request. Write-Through: mỗi write đồng thời vào cache và DB, luôn up-to-date nhưng write latency tăng. Write-Back: write cache → ACK ngay, async flush to DB.'},
+{id:12,cat:'cache',q:'Thundering Herd problem là gì?',opts:['Cache lưu quá nhiều data','Nhiều requests cùng cache miss → tất cả đổ vào DB. Fix: mutex lock hoặc jitter TTL','Cache bị hack','Quá nhiều write invalidate cache'],ans:1,exp:'Hot key expire → nhiều requests đồng thời miss cache → spike tải DB cực lớn. Fix: (1) Mutex/SETNX: chỉ 1 request populate cache, others wait. (2) Jitter: TTL = base + random(0,300). (3) Serve stale data trong khi background fetch mới.'},
+{id:13,cat:'cache',q:'Redis Sorted Set dùng cho Leaderboard vì?',opts:['Sort alphabetical','O(log N) insert/update và O(log N + K) range query theo score. Atomic operations tránh race condition.','Không duplicate entries','Auto sync với DB'],ans:1,exp:'ZADD O(log N), ZRANK O(log N), ZREVRANGE O(log N + K). ZADD leaderboard 1500 "user:42" → update score. ZREVRANK → vị trí hiện tại. ZREVRANGE 0 9 → top 10. Atomic → no race condition khi nhiều servers update cùng lúc.'},
+{id:14,cat:'cache',q:'Cache Penetration và Bloom Filter?',opts:['Cache đầy; BF tăng size','Request key không tồn tại trong DB bypass cache liên tục; BF check key tồn tại trước khi query DB','Cache crash; BF là backup','Write quá nhiều; BF batch writes'],ans:1,exp:'Cache Penetration: request key không tồn tại → miss cache → query DB mỗi lần → DB overload. Fix 1: Cache null với short TTL. Fix 2: Bloom Filter — probabilistic structure, O(1) check "might exist" vs "definitely not exist". Zero false negative → BF nói "not exist" → skip DB hoàn toàn.'},
+{id:15,cat:'cache',q:'Khi cache hit rate giảm từ 99% xuống 95%, DB load thay đổi thế nào?',opts:['Giảm 5%','Tăng 5x: 99% hit → DB nhận 1% traffic; 95% hit → DB nhận 5% — tăng 5 lần','Tăng 5%','Không thay đổi nhiều'],ans:1,exp:'10,000 RPS: 99% hit → DB nhận 100 RPS. 95% hit → DB nhận 500 RPS — tăng 5x! 90% hit → 1000 RPS — tăng 10x! DB được design để handle 100 RPS, đột nhiên 500 RPS → overload. Đây là lý do monitoring cache hit rate là critical metric.'},
+{id:16,cat:'principles',q:'Kafka ordering chỉ được đảm bảo trong cùng partition vì?',opts:['Limitation của Zookeeper','Mỗi partition có 1 leader xử lý writes theo thứ tự. Cross-partition không có coordinator để đảm bảo global order','Kafka không support ordering','Consumer groups tự sort messages'],ans:1,exp:'Partition là log append-only với offset tăng dần → ordering đảm bảo trong partition. Nhiều partitions → consumer đọc parallel → không có global ordering. Fix: dùng partition key (vd: user_id) → related events về cùng partition → ordering guaranteed.'},
+{id:17,cat:'principles',q:'At-least-once delivery yêu cầu consumer idempotent. Cách implement hiệu quả nhất?',opts:['Transaction trong DB','Check trùng lặp bằng content','Lưu processed message_id, upsert với unique constraint trên message_id','Distributed lock cho mỗi message'],ans:2,exp:'Idempotent consumer: xử lý cùng message nhiều lần vẫn ra kết quả như 1 lần. Tốt nhất: "INSERT INTO orders (message_id, ...) ON CONFLICT (message_id) DO NOTHING" — atomic check-and-insert, database unique constraint đảm bảo. Hoặc lưu processed_ids vào Redis Set (SADD) và check (SISMEMBER).'},
+{id:18,cat:'principles',q:'HTTP/2 giải quyết HOL blocking của HTTP/1.1 nhưng vẫn còn HOL ở đâu?',opts:['HTTP/2 không giải quyết gì','HTTP/2 giải quyết HTTP-level HOL (multiplexing) nhưng TCP-level HOL vẫn còn: packet loss block tất cả streams','HTTP/2 giải quyết cả 2 levels','HTTP/2 không cần TCP'],ans:1,exp:'HTTP/1.1 HOL: 1 request/connection. HTTP/2: multiplexing trên 1 TCP connection → giải quyết HTTP level. Nhưng nếu 1 TCP packet mất, toàn bộ streams phải wait retransmission — TCP HOL. HTTP/3 (QUIC over UDP): mỗi stream độc lập, packet loss của stream A không block stream B.'},
+{id:19,cat:'principles',q:'WebSocket vs SSE — khi nào dùng SSE?',opts:['SSE tốt hơn mọi trường hợp','Server→client push only (live feed, notifications). WebSocket khi cần bidirectional (chat, gaming)','SSE cho mobile, WebSocket cho desktop','SSE hỗ trợ binary tốt hơn'],ans:1,exp:'SSE: HTTP streaming, auto-reconnect, works over HTTP/2, simple. Chỉ server→client. Client phải dùng separate HTTP request để gửi. WebSocket: full-duplex binary, lower overhead per message, tốt hơn cho high-frequency bidirectional. Dùng SSE: live news, stock prices, progress. Dùng WebSocket: chat, gaming, collaborative editing.'},
+{id:20,cat:'case',q:'TinyURL: tại sao base62 encoding được dùng?',opts:['MD5 quá chậm','MD5 output là 32 hex chars — quá dài. base62, 7 chars = 62^7 ≈ 3.5 trillion combinations, compact và URL-safe','base62 dễ đọc hơn','MD5 không unique'],ans:1,exp:'MD5 tạo 128-bit hash, encode hex = 32 chars — quá dài cho short URL. Base62 (a-z, A-Z, 0-9) encode số thành string ngắn: 62^7 ≈ 3.5 trillion unique codes. Auto-increment ID → encode base62 = guaranteed unique, không cần hash. Ví dụ: ID 1234567890 → base62 = "1LY7VK" (7 chars).'},
+{id:21,cat:'case',q:'YouTube ABR Streaming: khi bandwidth giảm, hệ thống xử lý thế nào?',opts:['Video buffer và dừng','Player detect bandwidth giảm → switch quality thấp hơn cho segments tiếp theo, seamless','Server gửi quality thấp từ đầu','Video bị lag không xử lý'],ans:1,exp:'ABR (HLS/MPEG-DASH): video pre-encode thành nhiều quality (360p→4K), chia segments 2-6s. Player đo download speed realtime → chọn quality cho segment tiếp theo. Transition seamless vì chỉ future segments bị affected. Buffer level cũng được tính: buffer thấp → switch down aggressively.'},
+{id:22,cat:'case',q:'Facebook dùng Hybrid Fanout cho news feed. Tại sao?',opts:['Celebrities cần data mới nhất','Celebrity 10M+ followers — fanout on write = 10M writes/post, không scalable. Fanout on read cho celebrities ít tốn hơn','Regular users cần realtime hơn','Schema khác nhau'],ans:1,exp:'Fanout on Write: write vào feed tất cả followers. Celebrity 10M followers × 5 posts/day = 50M writes/day chỉ từ 1 user — unsustainable. Hybrid: regular users (<threshold) → push (fast read). Celebrities → pull + merge at read time. Khi load feed: pre-built cache + fetch from celebrities + merge sort.'},
+{id:23,cat:'case',q:'Tại sao không update Trie realtime sau mỗi search?',opts:['Trie không support concurrent modification','Realtime update cần lock → block reads. Một query đơn không đủ signal. Batch hourly là tốt hơn và ít overhead hơn','Search volume quá thấp','DB không support Trie'],ans:1,exp:'Trie in-memory, update cần lock → contention với reads. Một single query không đủ signal để thay đổi suggestions — cần aggregate nhiều searches để xác định trending. Best: log all searches → Kafka → hourly MapReduce → rebuild Trie → blue-green swap. Trending/breaking topics → near-realtime update (vài phút).'},
+{id:24,cat:'case',q:'Snowflake ID ưu điểm chính so với UUID?',opts:['Secure hơn UUID','64-bit integer, time-sortable, globally unique không cần coordination, throughput 4096/ms per machine','Nhỏ hơn UUID','Tự động increment'],ans:1,exp:'Snowflake = 41-bit timestamp + 10-bit machine_id + 12-bit sequence. Time-sortable: sort by ID = sort by time. Globally unique không cần central coordinator. 4096 IDs/ms per machine. 64-bit int nhỏ hơn UUID 128-bit → faster DB operations. Trong messaging: partition by conversation_id, cluster by message_id → efficient range queries.'},
+{id:25,cat:'case',q:'Uber dùng H3 thay vì GeoHash vì?',opts:['H3 là open source của Uber','GeoHash có boundary problem — 2 điểm rất gần nhưng prefix khác. H3 hexagonal grid: 6 neighbors đều nhau, không có corner problem','GeoHash không hỗ trợ Redis','H3 chính xác hơn GPS'],ans:1,exp:'GeoHash boundary: 2 locations ở 2 sides của cell boundary → prefix hoàn toàn khác → naive prefix search miss. GeoHash square cells có "corner problem": khoảng cách đến corners vs edges của neighboring cells không đều. H3 hexagonal: 6 neighbors equidistant, không có corner anomaly. Redis vẫn dùng GEOADD/GEOSEARCH với haversine distance.'},
+{id:26,cat:'principles',q:'ACID: tại sao cần Durability?',opts:['Để tăng performance','Committed data phải survive crashes — ghi vào disk trước khi ACK. WAL (Write-Ahead Log) ghi log trước, flush data sau để balance durability và performance','Để support concurrent transactions','Để prevent dirty reads'],ans:1,exp:'Durability: committed transaction không bao giờ bị mất kể cả khi server crash ngay sau đó. WAL: ghi log entry (sequential I/O, nhanh) → ACK commit → background flush data files (random I/O, chậm). Nếu crash: replay WAL để recover. PostgreSQL binlog, MySQL binlog đều là WAL implementations.'},
+{id:27,cat:'db',q:'MVCC (Multi-Version Concurrency Control) benefit chính?',opts:['Tăng tốc write operations','Readers không block writers, writers không block readers — mỗi transaction thấy consistent snapshot → concurrency cao mà không cần lock','Giảm storage','Prevent all anomalies'],ans:1,exp:'MVCC: mỗi row có multiple versions với timestamp. Transaction thấy snapshot tại thời điểm bắt đầu. User A đọc row → User B update và commit → User A đọc lại vẫn thấy giá trị cũ (snapshot isolation). Readers không cần lock → concurrent reads/writes không block nhau. PostgreSQL, MySQL InnoDB đều dùng MVCC.'},
+{id:28,cat:'cache',q:'LFU tốt hơn LRU trong trường hợp nào?',opts:['LFU luôn tốt hơn','Viral/trending content với skewed frequency — LFU giữ popular items, LRU có thể evict chúng nếu không được access gần đây','Khi memory nhỏ','Khi access pattern uniform'],ans:1,exp:'LRU evict item lâu nhất không được access — không tốt khi scan qua large dataset evict hot items. LFU evict item có frequency thấp nhất — viral video 1M views không bị evict dù không access trong 1 giờ. Điểm yếu LFU: cache pollution (old popular items mãi chiếm slot), cold start (new items luôn frequency thấp). Redis 4.0+ có LFU-approximate.'},
+{id:29,cat:'case',q:'Tại sao không UPDATE view_count += 1 mỗi redirect trong TinyURL?',opts:['UPDATE không hỗ trợ +1','10K req/s trên cùng row → write lock contention cực lớn → DB bottleneck. Fix: Redis INCR + batch flush hoặc event streaming','Analytics không quan trọng','DB không đủ storage'],ans:1,exp:'UPDATE row đơn lẻ với 10K concurrent requests = row-level lock contention, DB chậm toàn hệ thống. Fix: (1) Redis INCR: atomic, in-memory, cực nhanh → batch flush to DB mỗi N seconds. (2) Event streaming: click → Kafka → consumer aggregate → write analytics DB. (3) Pre-sharded counters để giảm contention N lần.'},
+{id:30,cat:'principles',q:'Idempotency Key trong Payment APIs quan trọng vì?',opts:['Để encrypt payment','Nếu request fail/timeout và retry, cùng key đảm bảo charge chỉ 1 lần dù gửi nhiều lần','Tăng tốc processing','Authenticate client'],ans:1,exp:'Client gửi POST /payments → server charge thành công → response timeout → client không biết → retry → user bị charge 2 lần! Với Idempotency-Key (UUID client generate): server lưu {key → result} (TTL 24h). Retry với cùng key → return cached result, không charge lại. Stripe, PayPal đều implement. Pattern áp dụng mọi non-idempotent operation.'},
+{id:31,cat:'db',q:'Cursor-based pagination tốt hơn offset-based vì?',opts:['Cursor đơn giản hơn','OFFSET: DB scan và skip N rows (chậm với large offset). Cursor: WHERE id > last_id LIMIT N chỉ scan N rows. Không bị data shifting khi items được insert/delete','Cursor hỗ trợ backward tốt hơn','Offset không work với JSON'],ans:1,exp:'OFFSET 10000 LIMIT 20: DB scan 10,020 rows, discard 10,000 → O(N). Cursor-based: WHERE id > {cursor} ORDER BY id LIMIT 20 → O(log N + page_size) nhờ index. Thêm nữa: offset có "shifting" bug — item mới insert giữa pages → items bị skip hoặc duplicate. Cursor stable vì based on unique ID. Trade-off: không nhảy tới page 50 tùy ý.'},
+{id:32,cat:'principles',q:'Service Mesh khác API Gateway như thế nào?',opts:['Không khác gì','API Gateway: north-south (external→internal), centralized auth/rate limiting. Service Mesh: east-west (service→service), sidecar proxy, mTLS tự động','Service Mesh mạnh hơn API Gateway','Service Mesh chỉ cho development'],ans:1,exp:'API Gateway: entry point cho external clients, một gateway per API surface. Service Mesh (Istio/Linkerd): inject sidecar proxy (Envoy) vào mỗi pod, handle service-to-service communication — mTLS, circuit breaking, retries, distributed tracing tự động. Không phải either/or — nhiều hệ thống dùng cả hai: API Gateway cho external, Service Mesh cho internal.'},
+{id:33,cat:'case',q:'Chat Server chỉ giữ ~100K WebSocket connections vì?',opts:['100K là giới hạn TCP','Memory (~10-64KB/connection) + file descriptor limits. 100K connections = 1-6GB RAM. Sweet spot cân bằng resource và reliability','WebSocket giới hạn 100K','Load balancer giới hạn'],ans:1,exp:'Mỗi WebSocket cần: TCP socket fd + send/receive buffers (~4-16KB each) + connection state (~2KB) = 10-64KB total. OS default fd limit ~65,536 (tăng được). 100K connections = 1-6GB RAM. 100K là số phổ biến để balance. 10M concurrent users cần ~100 Chat Servers. Service Discovery (ZooKeeper/etcd) track "user X → server Y" để route đúng.'},
+{id:34,cat:'principles',q:'Back-of-envelope: Twitter 100M tweet/day, read:write = 10:1. Cần bao nhiêu app servers nếu mỗi server handle 1000 QPS?',opts:['1 server đủ','~35-70 read servers: Write 1,160/s, Read 11,600/s, Peak 3× = 35K QPS. Cache 95% → DB nhận 1,750 QPS thực sự','100 servers','Không đủ thông tin'],ans:1,exp:'Write QPS = 100M/86,400 ≈ 1,160/s. Read QPS = 11,600/s. Peak (3×) = 35,000 read QPS. App servers: 35,000/1,000 = 35 servers. Nhưng thêm buffer capacity (70 servers để không run at 100%). Cache hit rate 95% → DB chỉ nhận 5% = 1,750 QPS → 2-3 DB servers. Estimation không cần exact, cần reasonable và defend được.'},
+{id:35,cat:'case',q:'Fanout on Write vấn đề với celebrity users?',opts:['Celebrities cần privacy hơn','10M followers × 1 post = 10M DB writes. Beyoncé 5 posts/day = 50M writes/day từ 1 user — không scalable với thông thường DB writes','Celebrity data nhạy cảm hơn','Write đắt về CPU hơn read'],ans:1,exp:'Fanout on Write: khi post → write vào feed table của TẤT CẢ followers. Celebrity với 10M followers và post thường xuyên → hàng trăm triệu writes/day chỉ từ ít users. Fix: Hybrid — regular users (<threshold) dùng write fanout, celebrities dùng read fanout. Merge at read time: pre-built feed + celebrity posts → merge sort by timestamp.'},
+{id:36,cat:'db',q:'Write-Ahead Log (WAL) giúp gì?',opts:['Tăng tốc reads','Ghi log TRƯỚC khi thay đổi data files. Crash sau commit: replay WAL để recover → đảm bảo Durability mà không mất data đã commit','Giúp replication nhanh hơn','Nén data'],ans:1,exp:'WAL: commit → write log entry (sequential I/O, nhanh) → ACK → background flush data (random I/O, chậm). Crash sau commit nhưng trước flush: restart → replay WAL → recover. WAL cũng là cơ sở của: Streaming Replication (gửi WAL sang standby), Point-in-time recovery, Logical replication. MySQL gọi là Binary Log (binlog).'},
+{id:37,cat:'cache',q:'Redis Cluster vs Redis Sentinel?',opts:['Không khác gì','Sentinel: HA với failover cho single master. Cluster: horizontal sharding + HA, data phân tán trên nhiều masters với 16384 hash slots','Sentinel mạnh hơn về performance','Cluster chỉ cho development'],ans:1,exp:'Sentinel: monitor master + replicas, auto failover khi master fail. HA nhưng không scale writes (1 master). Cluster: chia 16384 hash slots trên nhiều masters. Scale writes horizontally. Phức tạp hơn: multi-key operations cần keys cùng slot (hash tags: {user}:name, {user}:age). Dùng Sentinel khi dataset vừa, Cluster khi dataset > RAM 1 server hoặc cần scale write throughput.'},
+{id:38,cat:'case',q:'YouTube pre-transcode video thay vì on-the-fly vì?',opts:['On-the-fly không possible','Pre-transcode: CPU-intensive một lần khi upload → store variants. On-the-fly: encode cho mỗi stream × 5B views/day = không scalable. Pre-encoded segments cũng cache tốt hơn trên CDN','On-the-fly đắt hơn về storage','Pre-transcode không support 4K'],ans:1,exp:'Transcoding cực kỳ CPU-intensive. Pre-transcode: encode 1 lần, store tất cả quality variants → serving chỉ là read từ CDN, không compute. CDN cache rất hiệu quả (same bytes cho tất cả users xem cùng quality, cùng region). On-the-fly với 5B views/day: encode × views = impossible. Chỉ live streaming mới cần real-time transcoding (với hardware encoders).'},
+{id:39,cat:'principles',q:'Saga Pattern giải quyết distributed transactions như thế nào?',opts:['Dùng 2-phase commit (2PC)','Chia thành chuỗi local transactions, mỗi bước có compensating transaction. Fail ở step N → chạy compensating transactions từ N-1 về 1','Đặt tất cả vào 1 monolithic transaction','Dùng eventual consistency và ignore failures'],ans:1,exp:'2PC blocking và có coordinator SPOF. Saga: (1) Choreography — mỗi service publish event, service tiếp theo react. Fail → publish compensating event. (2) Orchestration — central Saga Orchestrator điều phối và gọi compensating actions. Ví dụ: Order → Reserve Inventory → Process Payment. Payment fail → Cancel Inventory → Cancel Order. Compensating transactions phải idempotent.'},
+{id:40,cat:'case',q:'Like count trên social media thường không exact realtime vì?',opts:['Technical limitation của databases','Trade-off có chủ ý: exact count cần strong consistency (costly). Approximate với eventual consistency đủ dùng. 999 vs 1001 likes không ảnh hưởng UX','Like count không quan trọng','DB không support counting'],ans:1,exp:'Exact realtime: mỗi like → atomic increment → sync tất cả replicas ngay lập tức → với viral post 10M likes trong 1h (2,778 likes/sec) = massive write contention + cross-region sync = rất expensive. Fix: Redis INCR local → batch flush to DB mỗi 30s. HyperLogLog cho approximate unique counts. Different freshness: poster thấy near-realtime, others thấy slightly delayed. Facebook, Twitter accept vài giây lag — users không care.'}
+];
+
+let score={correct:0,total:0},answered={},visited=new Set(),currentFilter='all';
+
+function nav(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')===`nav('${id}')`)n.classList.add('active');
+  });
+  visited.add(id);
+  const total=14,pct=Math.round(visited.size/total*100);
+  const fill=document.getElementById('progressFill'),txt=document.getElementById('pctText');
+  if(fill)fill.style.width=pct+'%';
+  if(txt)txt.textContent=pct+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderQuiz(filter){
+  currentFilter=filter||'all';
+  const container=document.getElementById('quizContainer');
+  if(!container)return;
+  const questions=filter==='all'?QUIZ:QUIZ.filter(q=>q.cat===filter);
+  container.innerHTML=questions.map((q,idx)=>{
+    const isAnswered=answered[q.id]!==undefined,userAns=answered[q.id];
+    const catNames={principles:'Principles',db:'Database',cache:'Cache',case:'Case Study'};
+    return `<div class="quiz-card ${isAnswered?'answered':''}" id="qcard-${q.id}">
+<div class="qnum">Q${idx+1} · ${catNames[q.cat]||q.cat}</div>
+<div class="quiz-q">${q.q}</div>
+<div class="quiz-opts">${q.opts.map((opt,i)=>{
+  let cls='';
+  if(isAnswered){if(i===q.ans)cls='correct';else if(i===userAns&&i!==q.ans)cls='wrong';}
+  return `<button class="quiz-opt ${cls}" onclick="answerQ(${q.id},${i})" ${isAnswered?'disabled':''}>${String.fromCharCode(65+i)}. ${opt}</button>`;
+}).join('')}</div>
+${isAnswered?`<div class="quiz-explain show"><strong>${userAns===q.ans?'✅ Chính xác!':'❌ Chưa đúng.'}</strong> ${q.exp}</div>`:'<div class="quiz-explain"></div>'}
+</div>`;
+  }).join('');
+}
+
+function answerQ(qid,choice){
+  if(answered[qid]!==undefined)return;
+  const q=QUIZ.find(x=>x.id===qid);
+  answered[qid]=choice;
+  if(choice===q.ans)score.correct++;
+  score.total++;
+  document.querySelectorAll(`#qopts-${qid} .quiz-opt`);
+  const opts=document.querySelectorAll(`#qcard-${qid} .quiz-opt`);
+  opts.forEach((btn,i)=>{
+    btn.disabled=true;
+    if(i===q.ans)btn.classList.add('correct');
+    else if(i===choice&&i!==q.ans)btn.classList.add('wrong');
+  });
+  const exp=document.querySelector(`#qcard-${qid} .quiz-explain`);
+  if(exp){exp.innerHTML=`<strong>${choice===q.ans?'✅ Chính xác!':'❌ Chưa đúng.'}</strong> ${q.exp}`;exp.classList.add('show');}
+  document.getElementById(`qcard-${qid}`).classList.add('answered');
+  const el=document.getElementById('scoreDisplay'),pct=document.getElementById('scorePercent');
+  if(el)el.textContent=`${score.correct}/${score.total}`;
+  if(pct&&score.total>0){
+    const p=Math.round(score.correct/score.total*100);
+    pct.textContent=`${p}% — ${p>=80?'🎉 Xuất sắc!':p>=60?'👍 Khá tốt!':'📚 Cần ôn thêm'}`;
+    pct.style.color=p>=80?'var(--accent3)':p>=60?'var(--accent4)':'var(--accent2)';
+  }
+}
+
+function filterQuiz(btn,cat){
+  document.querySelectorAll('.qfbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderQuiz(cat);
+}
+
+function resetQuiz(){
+  answered={};score={correct:0,total:0};
+  renderQuiz(currentFilter);
+  document.getElementById('scoreDisplay').textContent='0/0';
+  document.getElementById('scorePercent').textContent='—';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderQuiz('all');
+  visited.clear();
+  const fill=document.getElementById('progressFill'),txt=document.getElementById('pctText');
+  if(fill)fill.style.width='0%';
+  if(txt)txt.textContent='0%';
+});
+</script>
+</body>
+</html>

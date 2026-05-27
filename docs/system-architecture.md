@@ -24,7 +24,7 @@ Non-goals (MVP): mobile app, video, payments, live coding sandbox, peer matching
 
 | Layer | Choice | Justification |
 |---|---|---|
-| Framework | Next.js 15 (App Router) | RSC streaming, SSE built-in, edge middleware, single deploy |
+| Framework | Next.js 16 (App Router) + React 19.2 | RSC streaming, SSE built-in, Turbopack default, single deploy. Note: `proxy.ts` replaces `proxy.ts`; `cookies()`/`headers()`/`params`/`searchParams` are all async. |
 | Language | TypeScript (strict) | AI JSON contracts require schema enforcement |
 | Styling | Tailwind v4 + shadcn/ui | "Calm/focused" design principle (PRD §12.1) |
 | Server cache | TanStack Query v5 | Streaming-aware, optimistic mutations |

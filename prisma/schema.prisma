@@ -1,0 +1,205 @@
+// AI Interview Coach — Prisma schema
+// Source: docs/system-architecture.md §6 Data Model
+// Supabase Postgres backend. Supabase Auth UUIDs bridge to User.id via webhook.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7: connection URL lives in prisma.config.ts; runtime uses the driver adapter.
+}
+
+// ============================================================================
+// Identity
+// ============================================================================
+
+model User {
+  id                String   @id // matches Supabase auth.users.id (UUID)
+  email             String   @unique
+  name              String?
+  image             String?
+  level             Level    @default(mid)
+  targetRole        String?
+  targetCompanyType String?
+  preferredTopics   String[] @default([])
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  sessions InterviewSession[]
+}
+
+// ============================================================================
+// Interview lifecycle
+// ============================================================================
+
+model InterviewSession {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode         SessionMode
+  topics       String[]
+  difficulty   Difficulty
+  status       SessionStatus @default(in_progress)
+  overallScore Float?
+  startedAt    DateTime      @default(now())
+  completedAt  DateTime?
+
+  questions InterviewQuestion[]
+  summary   SessionSummary?
+
+  @@index([userId, startedAt])
+}
+
+model InterviewQuestion {
+  id             String       @id @default(cuid())
+  sessionId      String
+  session        InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  topic          String
+  subtopic       String?
+  difficulty     Difficulty
+  type           QuestionType
+  question       String       @db.Text
+  expectedPoints String[]
+  order          Int
+  seedQuestionId String?
+
+  answer UserAnswer?
+
+  @@index([sessionId, order])
+}
+
+model UserAnswer {
+  id             String   @id @default(cuid())
+  questionId     String   @unique
+  question       InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  sessionId      String
+  userId         String
+  answer         String   @db.Text
+  followUpAnswer String?  @db.Text
+  createdAt      DateTime @default(now())
+
+  feedback AnswerFeedback?
+
+  @@index([userId, createdAt])
+}
+
+model AnswerFeedback {
+  id       String     @id @default(cuid())
+  answerId String     @unique
+  answer   UserAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+
+  overallScore          Float
+  scoreCorrectness      Int
+  scoreCompleteness     Int
+  scoreClarity          Int
+  scoreDepth            Int
+  scoreTradeoffThinking Int
+  scoreCommunication    Int
+
+  whatWentWell            String[]
+  whatWasMissing          String[]
+  technicalCorrections    String[]
+  improvementSuggestions  String[]
+  betterAnswer            String   @db.Text
+  seniorLevelAddition     String?  @db.Text
+  recommendedNextPractice String[]
+
+  // Telemetry
+  modelUsed   String
+  tokensUsed  Int
+  createdAt   DateTime @default(now())
+}
+
+model SessionSummary {
+  id                String           @id @default(cuid())
+  sessionId         String           @unique
+  session           InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  overallScore      Float
+  strongAreas       String[]
+  weakAreas         String[]
+  repeatedMistakes  String[]
+  recommendedTopics String[]
+  actionItems       String[]
+  createdAt         DateTime @default(now())
+}
+
+// ============================================================================
+// Seed bank (PRD §7.10) — content extracted from resources/*.html, EN-only.
+// ============================================================================
+
+model SeedQuestion {
+  id             String       @id
+  topic          String
+  subtopic       String?
+  difficulty     Difficulty
+  type           QuestionType
+  question       String       @db.Text
+  expectedPoints String[]
+  followUps      String[]
+  rubric         Json
+  tags           String[]     @default([]) // e.g. ["web3"]
+  sourceFile     String?      // provenance: which resources/*.html
+  createdAt      DateTime     @default(now())
+
+  @@index([topic, difficulty])
+}
+
+// ============================================================================
+// Cost & observability
+// ============================================================================
+
+model AICall {
+  id               String   @id @default(cuid())
+  userId           String?
+  sessionId        String?
+  task             String   // 'generate_question' | 'evaluate_answer' | ...
+  model            String
+  promptTokens     Int
+  completionTokens Int
+  costUsd          Decimal  @db.Decimal(10, 6)
+  latencyMs        Int
+  succeeded        Boolean
+  errorReason      String?
+  createdAt        DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([task, createdAt])
+}
+
+// ============================================================================
+// Enums
+// ============================================================================
+
+enum Level {
+  junior
+  mid
+  senior
+}
+
+enum Difficulty {
+  junior
+  mid
+  senior
+}
+
+enum SessionMode {
+  quick
+  standard
+  deep_coaching
+}
+
+enum SessionStatus {
+  in_progress
+  completed
+  ended_early
+}
+
+enum QuestionType {
+  conceptual
+  debugging
+  system_design
+  behavioral
+  tradeoff
+}
