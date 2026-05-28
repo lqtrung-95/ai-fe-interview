@@ -13,7 +13,7 @@ interface Props {
  */
 export function RecommendedPractice({ recommendations }: Props) {
   return (
-    <section className="rounded-lg border border-border/60 bg-card p-4">
+    <section className="rounded-lg border border-border/70 bg-card p-4 shadow-sm">
       <h2 className="text-sm font-medium">Recommended next sessions</h2>
       {recommendations.length === 0 ? (
         <p className="mt-2 px-2 py-8 text-center text-sm text-muted-foreground">
@@ -24,7 +24,7 @@ export function RecommendedPractice({ recommendations }: Props) {
           {recommendations.map((rec) => (
             <article
               key={rec.topic}
-              className="flex flex-col rounded-md border border-border/60 bg-background p-4"
+              className="flex flex-col rounded-md border border-border/70 bg-background p-4"
             >
               <p className="text-sm font-semibold">{rec.topic}</p>
               <p className="mt-1 flex-1 text-xs text-muted-foreground">{rec.reason}</p>

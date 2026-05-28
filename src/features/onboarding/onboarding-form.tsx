@@ -11,14 +11,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
-const LEVELS: Array<{ value: 'junior' | 'mid' | 'senior'; label: string }> = [
+const LEVELS: Array<{ value: 'junior' | 'mid' | 'senior' | 'staff'; label: string }> = [
   { value: 'junior', label: 'Junior' },
   { value: 'mid', label: 'Mid-level' },
   { value: 'senior', label: 'Senior' },
+  { value: 'staff', label: 'Staff' },
 ];
 
 interface Defaults {
-  level?: 'junior' | 'mid' | 'senior';
+  level?: 'junior' | 'mid' | 'senior' | 'staff';
   targetRole?: string | null;
   targetCompanyType?: string | null;
   preferredTopics?: string[];
@@ -28,7 +29,7 @@ export function OnboardingForm({ defaults }: { defaults: Defaults }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const [level, setLevel] = useState<'junior' | 'mid' | 'senior'>(defaults.level ?? 'mid');
+  const [level, setLevel] = useState<'junior' | 'mid' | 'senior' | 'staff'>(defaults.level ?? 'mid');
   const [role, setRole] = useState<string>(defaults.targetRole ?? ONBOARDING_ROLES[1]);
   const [company, setCompany] = useState<string>(defaults.targetCompanyType ?? 'General');
   const [topics, setTopics] = useState<string[]>(defaults.preferredTopics ?? ['React', 'JavaScript']);

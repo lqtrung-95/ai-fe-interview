@@ -71,7 +71,7 @@ export function ScoreTrendChart({ data }: Props) {
 
 function ChartShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border border-border/60 bg-card p-4">
+    <section className="rounded-lg border border-border/70 bg-card p-4 shadow-sm">
       <h2 className="text-sm font-medium">{title}</h2>
       <div className="mt-2">{children}</div>
     </section>

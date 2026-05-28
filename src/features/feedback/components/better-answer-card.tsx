@@ -22,7 +22,7 @@ export function BetterAnswerCard({ answer }: Props) {
   }
 
   return (
-    <section className="space-y-3 rounded-lg border border-border/60 bg-background p-4">
+    <section className="space-y-3 rounded-lg border border-border/70 bg-background p-4">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-sm font-semibold">Better answer</h3>
         <Button

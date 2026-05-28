@@ -31,8 +31,10 @@ export interface DimensionAverage {
   avgScore: number;
 }
 
+import type { Level } from '@prisma/client';
+
 export interface RecommendedTopic {
   topic: string;
   reason: string;
-  difficulty: 'junior' | 'mid' | 'senior';
+  difficulty: Level;
 }

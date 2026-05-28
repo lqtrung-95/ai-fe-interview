@@ -17,7 +17,7 @@ const DIMENSIONS = [
 
 export function FeedbackCard({ feedback }: Props) {
   return (
-    <article className="space-y-5 rounded-lg border border-border/60 bg-card p-5">
+    <article className="space-y-5 rounded-lg border border-border/70 bg-card p-5 shadow-sm">
       <header className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Feedback</p>

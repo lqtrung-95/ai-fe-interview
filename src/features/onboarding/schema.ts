@@ -26,7 +26,7 @@ export const ONBOARDING_ROLES = [
 ] as const;
 
 export const onboardingSchema = z.object({
-  level: z.enum(['junior', 'mid', 'senior']),
+  level: z.enum(['junior', 'mid', 'senior', 'staff']),
   targetRole: z.enum(ONBOARDING_ROLES),
   targetCompanyType: z.enum(ONBOARDING_COMPANY_TYPES),
   preferredTopics: z

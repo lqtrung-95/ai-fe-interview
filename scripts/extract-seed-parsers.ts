@@ -64,8 +64,13 @@ function normalizeLevel(raw: string): Difficulty {
 }
 
 /**
- * fe-prep.html embeds a `DATA_META = [{cat, level, q}, ...]` and a parallel `DATA`
- * with answers. We extract via regex (DOM not needed — it's a JS literal).
+ * fe-prep.html embeds `DATA_META = [{cat, level, q}, ...]` and `DATA_HTML_B64`
+ * (parallel base64-encoded answer HTML per question). We extract both.
+ *
+ * Each answer HTML contains:
+ *  - `.eli5`        → child-friendly explanation (Vietnamese text, stripped of label)
+ *  - `.diagram svg` → SVG diagram (language-agnostic, stored as-is)
+ *  - remaining body → detailed technical explanation (Vietnamese HTML → translated)
  */
 export async function parseFePrep(path: string): Promise<SeedQuestion[]> {
   const html = readFileSync(path, 'utf8');
@@ -82,13 +87,19 @@ export async function parseFePrep(path: string): Promise<SeedQuestion[]> {
     return [];
   }
 
+  // Extract parallel base64 answer array (single line in source).
+  const b64Match = html.match(/const\s+DATA_HTML_B64\s*=\s*(\[.*?\]);/);
+  let b64Array: string[] = [];
+  if (b64Match) {
+    try { b64Array = JSON.parse(b64Match[1]) as string[]; } catch { /* proceed without */ }
+  }
+
   const out: SeedQuestion[] = [];
-  for (const m of metas) {
+  for (const [i, m] of metas.entries()) {
     const topic = canonicalTopic(m.cat);
     if (!topic) continue;
 
     const questionEn = await translateToEnglish(m.q);
-    // We don't have an answer per question here; ask LLM to derive expectedPoints.
     const derived = await generateQuestionsFromSection({
       topic,
       heading: questionEn,
@@ -98,8 +109,48 @@ export async function parseFePrep(path: string): Promise<SeedQuestion[]> {
     const first = derived[0];
     if (!first) continue;
 
+    // ── Rich study content from base64-encoded answer HTML ───────────────────
+    let childExplanation: string | undefined;
+    let detailedExplanation: string | undefined;
+    let diagramSvg: string | undefined;
+
+    const rawB64 = b64Array[i];
+    if (rawB64) {
+      try {
+        const answerHtml = Buffer.from(rawB64, 'base64').toString('utf8');
+        const $a = cheerio.load(`<div id="root">${answerHtml}</div>`);
+
+        // 1. ELI5: extract plain text (strip "🧸 Hiểu như trẻ con" label span).
+        const $eli5 = $a('.eli5');
+        if ($eli5.length) {
+          $eli5.find('.label').remove();
+          const eli5Text = $eli5.text().replace(/\s+/g, ' ').trim();
+          if (eli5Text.length > 20) {
+            childExplanation = await translateToEnglish(eli5Text);
+          }
+        }
+
+        // 2. Diagram: extract raw SVG element from .diagram div.
+        const svgEl = $a('.diagram svg');
+        if (svgEl.length) {
+          diagramSvg = $a.html(svgEl) ?? undefined;
+        }
+
+        // 3. Detailed body: remaining HTML minus .eli5 and .diagram.
+        //    LLM translates Vietnamese text nodes while preserving HTML structure.
+        $a('.eli5').remove();
+        $a('.diagram').remove();
+        const bodyHtml = $a('#root').html()?.trim() ?? '';
+        if (bodyHtml.length > 50) {
+          detailedExplanation = await translateToEnglish(bodyHtml);
+        }
+      } catch {
+        // Non-fatal: question still gets seeded, just without rich study content.
+      }
+    }
+
     out.push({
-      id: `fe-prep-${slugify(m.cat)}-${slugify(m.q).slice(0, 40)}`,
+      id: `fe-prep-${slugify(topic)}-${slugify(questionEn).slice(0, 40)}`,
       topic,
       difficulty: first.difficulty ?? normalizeLevel(m.level),
       type: first.type ?? 'conceptual',
@@ -109,6 +160,11 @@ export async function parseFePrep(path: string): Promise<SeedQuestion[]> {
       rubric: {},
       tags: [],
       sourceFile,
+      // HTML-extracted content takes precedence; LLM-generated is the fallback.
+      childExplanation: childExplanation ?? first.childExplanation,
+      detailedExplanation: detailedExplanation ?? first.detailedExplanation,
+      diagramSvg,
+      diagramMermaid: first.diagramMermaid,
     });
   }
   return out;
@@ -117,6 +173,7 @@ export async function parseFePrep(path: string): Promise<SeedQuestion[]> {
 /**
  * Prose-style files (fe-prep-2.html, sys-design-prep-v1.html, fun-xyz-prep.html).
  * Walks h2/h3 sections, translates to EN, asks LLM to derive 1-3 questions per section.
+ * The LLM also generates `childExplanation` (ELI5) alongside each question.
  */
 export async function parseProseFile(args: {
   path: string;
@@ -173,6 +230,9 @@ export async function parseProseFile(args: {
         rubric: {},
         tags: args.tags ?? [],
         sourceFile,
+        childExplanation: q.childExplanation,
+        detailedExplanation: q.detailedExplanation,
+        diagramMermaid: q.diagramMermaid,
       });
     }
   }

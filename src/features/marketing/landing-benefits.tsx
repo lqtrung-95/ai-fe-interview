@@ -25,13 +25,13 @@ const BENEFITS = [
 
 export function LandingBenefits() {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-16">
-      <div className="grid gap-5 sm:grid-cols-2">
+    <section className="mx-auto max-w-6xl px-6 py-10">
+      <div className="grid overflow-hidden rounded-lg border border-border/70 bg-card sm:grid-cols-2 lg:grid-cols-4">
         {BENEFITS.map((b) => {
           const Icon = b.icon;
           return (
-            <div key={b.title} className="group rounded-xl border border-border/60 bg-card p-6 transition-shadow hover:shadow-md">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div key={b.title} className="group border-border/70 p-6 transition-colors hover:bg-muted/40 sm:border-r">
+              <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
               </div>
               <h3 className="font-semibold">{b.title}</h3>

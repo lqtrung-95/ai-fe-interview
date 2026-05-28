@@ -31,14 +31,19 @@ export default async function DashboardPage() {
     overview.totalQuestionsAnswered > 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
-      <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome back{user.name ? `, ${user.name}` : ''}.
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Your interview prep at a glance — trends, weak spots, and what to drill next.
-        </p>
+    <div className="mx-auto max-w-5xl px-6 py-10">
+      <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Welcome back{user.name ? `, ${user.name}` : ''}.
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your next best practice based on your recent performance.
+          </p>
+        </div>
+        <span className="rounded-md border border-border/70 bg-card px-3 py-2 text-xs text-muted-foreground">
+          Last 30 days
+        </span>
       </header>
 
       {!hasAnyData ? (

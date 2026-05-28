@@ -6,7 +6,12 @@ import type { Level } from '@prisma/client';
 
 export const metadata = { title: 'Start a session' };
 
-const VALID_DIFFICULTIES: ReadonlyArray<Level> = ['junior', 'mid', 'senior'];
+const VALID_DIFFICULTIES: ReadonlyArray<string> = ['junior', 'mid', 'senior'];
+// Staff users practice at senior difficulty (no staff-rated questions exist).
+type SessionDifficulty = 'junior' | 'mid' | 'senior';
+function toSessionDifficulty(level: Level): SessionDifficulty {
+  return level === 'staff' ? 'senior' : level;
+}
 
 export default async function NewSessionPage({
   // Next.js 16: searchParams is async.
@@ -31,20 +36,19 @@ export default async function NewSessionPage({
   const requestedTopic = params.topic && (ONBOARDING_TOPICS as readonly string[]).includes(params.topic)
     ? params.topic
     : null;
-  const requestedDifficulty = params.difficulty && (VALID_DIFFICULTIES as string[]).includes(params.difficulty)
-    ? (params.difficulty as Level)
+  const requestedDifficulty = params.difficulty && VALID_DIFFICULTIES.includes(params.difficulty)
+    ? (params.difficulty as SessionDifficulty)
     : null;
 
   const defaultTopics = requestedTopic ? [requestedTopic] : user.preferredTopics;
-  const defaultDifficulty = requestedDifficulty ?? user.level;
+  const defaultDifficulty: SessionDifficulty = toSessionDifficulty(requestedDifficulty ?? user.level);
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-6 py-10">
       <header className="mb-8">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">New session</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">Pick what you want to practice</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">New practice session</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Three things: how long, how hard, what topics. We'll do the rest.
+          Let&apos;s set up your session.
         </p>
       </header>
       <TopicSelectionForm

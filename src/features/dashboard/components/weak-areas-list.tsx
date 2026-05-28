@@ -15,7 +15,7 @@ interface Props {
 
 export function WeakAreasList({ dimensions }: Props) {
   return (
-    <section className="rounded-lg border border-border/60 bg-card p-4">
+    <section className="rounded-lg border border-border/70 bg-card p-4 shadow-sm">
       <h2 className="text-sm font-medium">Where to focus</h2>
       {dimensions.length === 0 ? (
         <p className="mt-2 px-2 py-8 text-center text-sm text-muted-foreground">
@@ -24,7 +24,7 @@ export function WeakAreasList({ dimensions }: Props) {
       ) : (
         <ul className="mt-3 space-y-2">
           {dimensions.map((d) => (
-            <li key={d.dimension} className="rounded-md border border-border/60 bg-background p-3">
+            <li key={d.dimension} className="rounded-md border border-border/70 bg-background p-3">
               <div className="flex items-baseline justify-between gap-3">
                 <p className="font-medium">{d.label}</p>
                 <p className="text-sm tabular-nums text-muted-foreground">

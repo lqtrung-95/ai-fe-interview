@@ -1,583 +1,630 @@
 [
   {
-    "id": "fe-prep-testing-kim-tu-thap-testing-unit-integration-e2e",
+    "id": "fe-prep-testing-testing-pyramid-how-to-balance-unit-inte",
     "topic": "Testing",
     "difficulty": "mid",
     "type": "conceptual",
-    "question": "Explain the testing pyramid and the purpose of each layer: unit, integration, and end-to-end tests.",
+    "question": "How do you balance unit, integration, and end-to-end testing in a frontend application?",
     "expectedPoints": [
-      "Describes the three layers: unit, integration, e2e.",
-      "Explains unit tests focus on individual functions/classes.",
-      "Explains integration tests verify interactions between units.",
-      "Explains e2e tests validate the entire system from user perspective.",
-      "Mentions the pyramid shape implies more unit tests, fewer e2e tests."
+      "Explain the testing pyramid and its layers.",
+      "Discuss the importance of unit tests for individual components.",
+      "Describe how integration tests ensure components work together.",
+      "Explain the role of end-to-end tests in simulating user interactions.",
+      "Discuss trade-offs between test coverage and test maintenance."
     ],
     "followUps": [
-      "Why is it recommended to have more unit tests than e2e tests?",
-      "How would you decide what to test at each layer?"
+      "Can you give an example of when you might prioritize one type of test over another?",
+      "How do you ensure your tests remain maintainable as the application grows?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep.html"
+    "sourceFile": "fe-prep.html",
+    "childExplanation": "Testing a vehicle: checking each individual bolt (unit) is quick and numerous, testing the assembled engine (integration) is less frequent, while taking the entire car for a test drive on the road (e2e) is slow and costly, so it is done the least. The higher the level of testing, the more realistic it becomes, but it also takes more time and is more expensive.",
+    "detailedExplanation": "<ul>\n      <li><strong>Unit</strong> (most): tests individual functions/components. Fast, inexpensive, stable.</li>\n      <li><strong>Integration</strong> (medium): tests multiple components working together (e.g., component + hook + mock API). The best balance for front-end.</li>\n      <li><strong>E2E</strong> (least): tests the entire real user flow in the browser (Playwright/Cypress). Slow, prone to being \"flaky,\" but catches integration bugs.</li>\n</ul>\n\n<div class=\"pitfall\"><span class=\"label\">Modern Senior Mindset</span><p>The current trend (Testing Library) emphasizes testing <em>user-visible behavior</em>, not implementation details (internal state). Many front-end teams lean towards the \"testing trophy\" — investing the most in <strong>integration tests</strong> because they provide high reliability at a reasonable cost. Presenting this viewpoint shows you are up-to-date.</p></div>\n<div class=\"ladder\"><span class=\"label\">🪜 Deep Dive Ladder — Self-Interview</span><p class=\"ladder-intro\">Don't stop at definitions. Answer each question yourself before looking at the sample answers — the bottleneck is the true depth.</p><ol class=\"ladder-list\"><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">1</span><span class=\"lq-text\">Why the pyramid shape — why are there fewer tests as you go higher?</span><button class=\"lq-toggle\" data-target=\"lq-26-0\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-26-0\" hidden=\"\"><div class=\"lq-ans-inner\">Unit tests: quick to write, fast to run, easy to maintain — numerous without high cost. Integration tests: slower, more complex — moderate amount. E2E: slowest, most flaky, most resource-intensive — hence the least. It is also a pyramid due to ROI: many unit tests for broad coverage at low cost.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">2</span><span class=\"lq-text\">Why do modern front-ends lean towards 'testing trophy' instead of the classic pyramid?</span><button class=\"lq-toggle\" data-target=\"lq-26-1\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-26-1\" hidden=\"\"><div class=\"lq-ans-inner\">Front-end tests often mock modules (API, router) too much → unit tests are completely isolated → cannot catch integration bugs. The Testing Library was created to encourage testing at the component + hook + API-mock (integration) level → capturing real behavior at a reasonable cost. Kent C. Dodds' \"testing trophy\": many integration tests, some unit tests, few E2E tests.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">3</span><span class=\"lq-text\">What causes E2E tests to be 'flaky' and why does it lead teams to lose trust in testing?</span><button class=\"lq-toggle\" data-target=\"lq-26-2\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-26-2\" hidden=\"\"><div class=\"lq-ans-inner\">Flaky tests: sometimes pass, sometimes fail, with no code changes. Causes: timing (animation, async), shared state between tests, environment dependency, network issues. Teams start to ignore failed tests → \"red is normal\" → losing the entire value of CI. Flaky tests are worse than having no tests because they create false security.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">4</span><span class=\"lq-text\">Is 100% coverage a good goal? Why or why not?</span><button class=\"lq-toggle\" data-target=\"lq-26-3\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-26-3\" hidden=\"\"><div class=\"lq-ans-inner\">100% coverage does not guarantee quality. Coverage measures lines executed, not correct behavior. A test like <code>expect(fn()).toBeDefined()</code> achieves 100% coverage but asserts nothing useful. Seniors aim for sufficient coverage for critical paths and high-risk areas, not chasing absolute numbers.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">5</span><span class=\"lq-text\">When does writing tests become more costly than the value they provide?</span><button class=\"lq-toggle\" data-target=\"lq-26-4\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-26-4\" hidden=\"\"><div class=\"lq-ans-inner\">When code changes rapidly (early stage, prototype), tests often become out-of-date → maintaining tests costs more than writing them. When business logic is simple and low-risk. When tests are much harder to write due to design (tightly coupled code, side effects everywhere) → this signals a need to refactor code, not to abandon tests.</div></div></li></ol></div>",
+    "diagramMermaid": "flowchart TD\n  subgraph Pyramid\n    UnitTests[Unit Tests]\n    IntegrationTests[Integration Tests]\n    E2ETests[End-to-End Tests]\n  end\n  UnitTests --> IntegrationTests --> E2ETests\n  Pyramid --> Balance[Balance Testing Types]"
   },
   {
-    "id": "fe-prep-testing-vi-sao-nen-test-theo-hanh-vi-khong-test-",
+    "id": "fe-prep-testing-why-should-we-test-based-on-behavior-rat",
     "topic": "Testing",
     "difficulty": "mid",
     "type": "conceptual",
-    "question": "Why should we prefer behavior-driven testing over implementation detail testing?",
+    "question": "Why is behavior-driven testing preferred over testing implementation details?",
     "expectedPoints": [
-      "Improves understanding of customer requirements and how the application meets them.",
-      "Reduces dependency on implementation details, making the application more flexible to changes.",
-      "Enhances maintainability by making tests easier to update when code changes.",
-      "Reduces test duplication, saving time and effort.",
-      "Increases confidence in deployment with a robust behavior test suite."
+      "Behavior-driven testing focuses on user experience and outcomes.",
+      "It ensures tests remain valid even if internal code changes.",
+      "Behavior-driven tests are easier to understand and maintain.",
+      "Testing implementation details can lead to brittle tests.",
+      "Behavior-driven tests align more closely with business requirements."
     ],
     "followUps": [
-      "Can you give an example where behavior testing catches a bug that unit testing might miss?",
-      "How do you balance behavior tests with unit tests in a real project?"
+      "How can testing implementation details lead to brittle tests?",
+      "Can you give an example of a behavior-driven test?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep.html"
+    "sourceFile": "fe-prep.html",
+    "childExplanation": "When testing a flashlight, you press the button and see if it lights up (behavior). You do not disassemble it to count how many wires are inside (details). This is because if the manufacturer changes the wiring but the flashlight still works, your test should not report \"broken.\"",
+    "detailedExplanation": "<p>Tests should focus on what the <strong>user can observe</strong> (visible text, clickable buttons, correct form submission), rather than internal state or private function names.</p>\n\n<pre><span class=\"cm\">// ❌ Implementation detail test — breaks on refactor</span>\n<span class=\"fn\">expect</span>(<span class=\"var\">wrapper</span>.<span class=\"fn\">state</span>(<span class=\"str\">'count'</span>)).<span class=\"fn\">toBe</span>(<span class=\"num\">1</span>);\n\n<span class=\"cm\">// ✅ Behavior test — resilient</span>\n<span class=\"fn\">fireEvent</span>.<span class=\"fn\">click</span>(<span class=\"fn\">screen</span>.<span class=\"fn\">getByRole</span>(<span class=\"str>'button'</span>));\n<span class=\"fn\">expect</span>(<span class=\"fn\">screen</span>.<span class=\"fn\">getByText</span>(<span class=\"str>'Liked (1)'</span>)).<span class=\"fn\">toBeInTheDocument</span>();</pre>\n\n<div class=\"pitfall\"><span class=\"label\">Senior mindset</span><p>Tests tied to implementation make developers <em>fear refactoring</em> because tests break even if the app functions correctly — this is \"brittle testing.\" Prioritize querying by role (<code>getByRole</code>) instead of test-id, as it tests behavior while also checking accessibility.</p></div>\n<div class=\"ladder\"><span class=\"label\">🪜 Deep dive ladder — self-interview</span><p class=\"ladder-intro\">Don't stop at definitions. Answer each question before looking at the sample answers — the bottleneck reveals true depth.</p><ol class=\"ladder-list\"><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">1</span><span class=\"lq-text\">Why does testing implementation details make developers fear refactoring — what is the specific mechanism?</span><button class=\"lq-toggle\" data-target=\"lq-27-0\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-27-0\" hidden=\"\"><div class=\"lq-ans-inner\">Testing tied to implementation: component uses <code>useState</code>, test checks <code>wrapper.state()</code>. Refactor to <code>useReducer</code> → test breaks even if the UI remains unchanged. Developers must fix tests before refactoring → refactoring becomes painful → people avoid refactoring → code rots. Behavior testing: test button click → expect UI to change → internal refactoring is completely free.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">2</span><span class=\"lq-text\">Why is getByRole better than getByTestId — what additional checks does it perform?</span><button class=\"lq-toggle\" data-target=\"lq-27-1\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-27-1\" hidden=\"\"><div class=\"lq-ans-inner\"><code>getByRole</code> queries by ARIA role (button, textbox, heading) — this is also how screen readers find elements. If the test passes using <code>getByRole('button')</code>, that element is accessible to screen readers. <code>getByTestId</code> only searches by data attribute — it is not related to accessibility, and the test may pass while the element is not accessible.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">3</span><span class=\"lq-text\">What limitations does behavior testing have — what does it NOT capture?</span><button class=\"lq-toggle\" data-target=\"lq-27-2\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-27-2\" hidden=\"\"><div class=\"lq-ans-inner\">Behavior testing does not capture: performance regression (component renders correctly but slowly), visual regression (text is correct but layout is broken), accessibility of screen reader reading order, SEO (heading structure, meta tags). Additional methods needed: visual testing (Chromatic/Percy), performance benchmarks, manual a11y audit.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">4</span><span class=\"lq-text\">What type does snapshot testing belong to and why is it controversial?</span><button class=\"lq-toggle\" data-target=\"lq-27-3\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-27-3\" hidden=\"\"><div class=\"lq-ans-inner\">Snapshot testing captures the serialized output of a component. It is \"implementation detail\" because any change in markup (even adding a className that does not affect behavior) will fail the test. It often leads to \"snapshot updates\" blindly without review. More useful for: testing output of pure functions, serialized formats, or in combination with visual testing.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">5</span><span class=\"lq-text\">The boundary between 'behavior' and 'implementation' can sometimes be blurry — can you provide a difficult example to distinguish?</span><button class=\"lq-toggle\" data-target=\"lq-27-4\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-27-4\" hidden=\"\"><div class=\"lq-ans-inner\">For example: testing a component with animation — testing \"button disabled while submitting\" is behavior, but should we test if the CSS class <code>is-loading</code> is added? Is that \"behavior\" (visual feedback) or \"implementation\" (class name)? The answer depends: if the class name drives behavior (CSS animation), testing it makes sense. If it is just styling, then it does not.</div></div></li></ol></div>",
+    "diagramMermaid": "flowchart LR\nA[User Interaction] --> B[Behavior-Driven Test]\nB --> C[Expected Outcome]\nsubgraph Internal Code\nD[Implementation Details]\nend\nD --> C\nC --> E[User Experience]"
   },
   {
-    "id": "fe-prep-testing-mock-stub-spy-khac-nhau-ra-sao-khi-nao-n",
+    "id": "fe-prep-testing-what-are-the-differences-between-mock-st",
     "topic": "Testing",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "Explain the differences between mock, stub, and spy in testing, and describe scenarios where each is most appropriate.",
+    "question": "What are the differences between mock, stub, and spy, and when should you use mocks?",
     "expectedPoints": [
-      "Mock: replaces real object, verifies interactions (e.g., method calls, arguments).",
-      "Stub: provides predefined responses, used to control indirect inputs.",
-      "Spy: wraps real object, records calls for verification without full replacement.",
-      "Mock is best for behavior verification; stub for state verification; spy for partial mocking.",
-      "Use mocks when testing interactions with external dependencies; stubs for isolating unit under test; spies when you need real behavior plus tracking."
+      "Explain what a mock is and its purpose in testing.",
+      "Describe what a stub is and how it differs from a mock.",
+      "Define what a spy is and its typical use case.",
+      "Discuss scenarios where using mocks is appropriate.",
+      "Highlight potential pitfalls of overusing mocks."
     ],
     "followUps": [
-      "How would you decide between using a mock and a stub in a unit test?",
-      "Can you give an example where using a spy is more appropriate than a mock?"
+      "Can you give an example of when a spy would be more appropriate than a mock?",
+      "How might overusing mocks affect the maintainability of tests?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep.html"
+    "sourceFile": "fe-prep.html",
+    "childExplanation": "In a rehearsal scenario lacking real actors: a stub is a stand-in that delivers a predetermined line. A spy is someone who records \"who made phone calls and how many times.\" A mock is a full stand-in actor who not only delivers lines but is also checked for adherence to the script.",
+    "detailedExplanation": "<ul>\n      <li><strong>Stub</strong>: replaces a function with a version that returns a fixed value (controls input).</li>\n      <li><strong>Spy</strong>: monitors whether a <em>real</em> function is called, with what parameters, and how many times.</li>\n      <li><strong>Mock</strong>: combines both + sets expectations on how it is called.</li>\n</ul>\n\n<pre><span class=\"kw\">const</span> <span class=\"var\">fetchSpy</span> = <span class=\"fn\">jest.spyOn</span>(<span class=\"var\">api</span>, <span class=\"str\">'getUser'</span>)\n  .<span class=\"fn\">mockResolvedValue</span>({ <span class=\"var\">name</span>: <span class=\"str\">'A'</span> });   <span class=\"cm\">// stub result</span>\n\n<span class=\"kw\">await</span> <span class=\"fn\">loadUser</span>();\n<span class=\"fn\">expect</span>(<span class=\"var\">fetchSpy</span>).<span class=\"fn\">toHaveBeenCalledWith</span>(<span class=\"str>'123'</span>);  <span class=\"cm\">// spy on the call</span></pre>\n\n<div class=\"pitfall\"><span class=\"label\">Senior Mindset</span><p>Mocking too much ⇒ tests are \"green\" but do not reflect reality (testing the mock instead of the actual code). Modern trend: mock at the <em>network boundary</em> (using MSW to intercept HTTP) instead of mocking each module, to test closer to actual behavior.</p></div>\n<div class=\"ladder\"><span class=\"label\">🪜 Deep Dive Ladder — Self-Interview</span><p>Don't stop at definitions. Answer each question yourself before looking at the sample answers — the bottleneck is the true depth.</p><ol class=\"ladder-list\"><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">1</span><span class=\"lq-text\">Why does mocking too much lead to \"green\" tests that are worthless?</span><button class=\"lq-toggle\" data-target=\"lq-28-0\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-28-0\" hidden=\"\"><div class=\"lq-ans-inner\">Detailed mocks → tests couple with the implementation of the mocked module → refactor the module (rename functions, split files) → mocks break even if the logic remains unchanged. \"Green\" tests no longer prove that the behavior is correct — they only prove that the mock was called correctly. Each test becomes a spec of the implementation, not a spec of the behavior.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">2</span><span class=\"lq-text\">Why is mocking at the network boundary (MSW) better than mocking each module?</span><button class=\"lq-toggle\" data-target=\"lq-28-1\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-28-1\" hidden=\"\"><div class=\"lq-ans-inner\">Mocking modules: each test file mocks <code>import { fetchUser } from './api'</code> separately → couples with module structure. MSW (Mock Service Worker) intercepts HTTP at the network layer → tests do not know whether the implementation uses fetch/axios/etc. → can refactor completely without changing tests. Closer to real integration, more resilient to refactoring.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">3</span><span class=\"lq-text\">What problem does mocking time (fake timers) solve for async tests?</span><button class=\"lq-toggle\" data-target=\"lq-28-2\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-28-2\" hidden=\"\"><div class=\"lq-ans-inner\">Async tests depend on real time: testing a 300ms debounce must actually wait 300ms → tests are slow. Fake timers (<code>jest.useFakeTimers()</code>) allow manual time advancement (<code>jest.advanceTimersByTime(300)</code>) → tests become instant. Also useful for: setInterval, Date.now(), polling logic.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">4</span><span class=\"lq-text\">When should you NOT mock (losing what the test needs to verify)?</span><button class=\"lq-toggle\" data-target=\"lq-28-3\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-28-3\" hidden=\"\"><div class=\"lq-ans-inner\">You should not mock when: the mock obscures important behavior that needs to be tested (e.g., mocking a database instead of using a real test database), when the mock is too complex and deviates from reality, or when trying to test integration (the integration point is what needs to be tested). Mocking is a tradeoff — faster but further from reality.</div></div></li><li class=\"lq-item\"><div class=\"lq-row\"><span class=\"ln\">5</span><span class=\"lq-text\">Testing with many mocks versus real integration tests — where is the tradeoff between reliability and speed?</span><button class=\"lq-toggle\" data-target=\"lq-28-4\" aria-expanded=\"false\">View answer</button></div><div class=\"lq-ans\" id=\"lq-28-4\" hidden=\"\"><div class=\"lq-ans-inner\">Mocks: fast, isolated, not dependent on external factors, but far from reality → false confidence. Real integration tests: slower, complex setup, but catch real bugs. Balance: mock at the outermost boundary (HTTP, DB) to keep tests fast while testing internal logic properly. Do not mock in the middle of logic — that is \"testing the mock, not the code\".</div></div></li></ol></div>",
+    "diagramMermaid": "flowchart LR\n    A[Testing] --> B[Mocks]\n    A --> C[Stubs]\n    A --> D[Spies]\n    B --> E[Simulate behavior]\n    C --> F[Predefined responses]\n    D --> G[Monitor real objects]"
   },
   {
-    "id": "fe-prep-2-kien-truc-client-pho-bien-layered-thuong-bao-gom-cac-lop-sau-how-would-you-test-each-layer-",
+    "id": "fe-prep-2-common-client-architecture-layered-how-would-you-test-the-data-fl",
     "topic": "Testing",
-    "subtopic": "Kiến trúc client phổ biến (layered) thường bao gồm các lớp sau:\n\n- **Lớp giao diện (Presentation Layer)**: chịu trách nhiệm xử lý giao diện người dùng, bao gồm các thành phần như UI, layout và giao tiếp với người dùng.\n- **Lớp logic nghiệp vụ (Business Logic Layer)**: chứa các quy tắc và logic nghiệp vụ của ứng dụng, bao gồm các chức năng như tính toán, kiểm tra và xử lý dữ liệu.\n- **Lớp dữ liệu (Data Access Layer)**: chịu trách nhiệm truy cập và quản lý dữ liệu, bao gồm các thành phần như cơ sở dữ liệu, API và lưu trữ dữ liệu.\n- **Lớp giao tiếp (Interface Layer)**: chịu trách nhiệm giao tiếp với các hệ thống khác, bao gồm các thành phần như API, mạng và giao tiếp với các hệ thống khác.\n\nKiến trúc này giúp phân tách các chức năng và trách nhiệm của ứng dụng, giảm thiểu sự phức tạp và tăng cường khả năng mở rộng và bảo trì.\n\nTrong thực tế, các lớp trên có thể được tổ chức và triển khai theo nhiều cách khác nhau, tùy thuộc vào yêu cầu và đặc điểm của ứng dụng.",
+    "subtopic": "Common client architecture (layered)",
     "difficulty": "senior",
     "type": "system_design",
-    "question": "How would you test each layer of a layered frontend architecture (e.g., View, View Model, State/Store, Data/Network) in a React SPA?",
+    "question": "How would you test the data flow in a layered client architecture for a SPA?",
     "expectedPoints": [
-      "View layer: unit test with shallow rendering or snapshot testing for presentational components.",
-      "View Model/Controller: test hooks or container components with mocked store and events.",
-      "State/Store layer: test reducers, selectors, and async actions with mock data.",
-      "Data/Network layer: test API clients with mocked HTTP responses, retry logic, and caching.",
-      "Integration tests: verify data flow from network to UI using mocked server responses."
+      "Identify each layer and its responsibilities.",
+      "Explain how to test data flow between layers.",
+      "Describe tools or methods for testing each layer.",
+      "Discuss how to handle asynchronous data flow.",
+      "Explain how to test event propagation back to the server."
     ],
     "followUps": [
-      "How would you test the interaction between the View Model and the Store?",
-      "What tradeoffs exist between mocking the network layer vs. using a real API in tests?"
+      "How can you ensure each layer is independently testable?",
+      "What challenges might arise when testing asynchronous data flows?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine your app is like a big water slide with different sections. Water (data) starts at the top and flows down through each section (layer). You need to make sure the water flows smoothly from one section to the next and that each section works well on its own. If something goes wrong, you want to be able to fix just one section without taking apart the whole slide.",
+    "detailedExplanation": "<h4>Understanding Layered Architecture</h4><p>A layered architecture in a Single Page Application (SPA) separates the application into distinct layers, each with specific responsibilities. These layers include the Data/Network Layer, State/Store Layer, View Model/Controller, and View/UI Components. Data flows from the server through these layers to the UI, while user events flow back to the server.</p><h4>Testing Each Layer</h4><p>Testing involves ensuring that each layer correctly processes and passes data to the next. For the Data/Network Layer, you might use tools like <code>Jest</code> or <code>Mocha</code> to mock API calls and test data fetching logic. The State/Store Layer can be tested by verifying state updates and selector logic using tools like <code>Redux Test Utils</code>. The View Model/Controller layer involves testing business logic and event handling, often with <code>React Testing Library</code> or <code>Enzyme</code>. Finally, the View/UI Components can be tested for correct rendering using snapshot tests.</p><h4>Importance in Production</h4><p>Testing ensures that each layer functions correctly and independently, which is crucial for maintaining and scaling applications. A common pitfall is not testing asynchronous data flows, which can lead to unexpected behavior in production. Proper testing helps catch these issues early, ensuring a smooth user experience.</p>",
+    "diagramMermaid": "flowchart TD\n  subgraph Server\n    A[Server / API / CDN]\n  end\n  subgraph Client Application\n    B[Data / Network Layer]\n    C[State / Store Layer]\n    D[View Model / Controller]\n    E[View / UI Components]\n  end\n  A --> B --> C --> D --> E\n  E --> D --> C --> B --> A"
   },
   {
-    "id": "fe-prep-2-container-vs-presentational-pattern-in-software-development--in-a-react-application-when-wo",
+    "id": "fe-prep-2-container-presentational-pattern-how-does-the-container-present",
     "topic": "Testing",
-    "subtopic": "**Container vs Presentational Pattern**\n\nIn software development, particularly in React, two popular patterns are used to structure components: Container and Presentational. Understanding the differences between these patterns is essential for building maintainable and scalable applications.\n\n**Container Pattern**\n\nA Container component is responsible for managing the state and side effects of a component. It acts as a container for the Presentational component, handling tasks such as:\n\n- Fetching data from APIs\n- Managing state changes\n- Handling events and side effects\n\nThe Container component typically uses hooks like `useState` and `useEffect` to manage state and side effects. It then passes the necessary props to the Presentational component.\n\n**Presentational Pattern**\n\nA Presentational component, on the other hand, is solely responsible for rendering the UI. It receives props from the Container component and displays the data without worrying about state management or side effects.\n\nThe Presentational component should be as simple as possible, focusing on rendering the UI. It should not contain any logic related to state management or side effects.\n\n**Benefits of Container-Presentational Pattern**\n\nUsing the Container-Presentational pattern offers several benefits, including:\n\n- Separation of Concerns: The Container component handles state management and side effects, while the Presentational component focuses on rendering the UI.\n- Reusability: Presentational components can be reused across the application without worrying about the underlying state management.\n- Easier Testing: With the Container-Presentational pattern, it's easier to test the Presentational component in isolation.\n\n**Example**\n\nSuppose we have a `UserProfile` component that displays a user's profile information. We can use the Container-Presentational pattern to structure this component:\n\n```jsx\n// Container component\nimport { useState, useEffect } from 'react';\n\nfunction UserProfileContainer() {\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    // Fetch user data from API\n    fetchUser().then((data) => setUser(data));\n  }, []);\n\n  return <UserProfile user={user} />;\n}\n\n// Presentational component\nfunction UserProfile({ user }) {\n  if (!user) return <div>Loading...</div>;\n\n  return (\n    <div>\n      <h1>{user.name}</h1>\n      <p>{user.email}</p>\n    </div>\n  );\n}\n```\n\nIn this example, the `UserProfileContainer` component handles the state management and side effects, while the `UserProfile` component focuses on rendering the UI.",
+    "subtopic": "Container / Presentational pattern",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How does the Container/Presentational pattern improve frontend testing and maintainability?",
+    "expectedPoints": [
+      "Separates concerns between logic and UI",
+      "Makes UI components reusable",
+      "Facilitates easier testing by isolating logic",
+      "Allows independent updates to logic and UI",
+      "Reduces complexity in component design"
+    ],
+    "followUps": [
+      "Can you give an example of a presentational component?",
+      "How would you refactor a component to follow this pattern?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a toy robot. The robot's brain is like the container, deciding what to do. The robot's body is like the presentational part, just showing what the brain tells it to do. Separating them makes it easier to fix or change one without affecting the other.",
+    "detailedExplanation": "<h4>Understanding the Container/Presentational Pattern</h4> <p>The <strong>Container/Presentational pattern</strong> is a design strategy in frontend development that separates components into two categories: containers and presentational components. <strong>Container components</strong> manage the data and logic, such as fetching data from an API or handling user input. They are not concerned with how the data is displayed. <strong>Presentational components</strong>, on the other hand, focus solely on how the data is displayed. They receive data through props and are typically stateless, making them easier to test and reuse.</p> <p>This pattern is important in production because it enhances <strong>reusability</strong> and <strong>maintainability</strong>. By decoupling logic from UI, developers can update the logic or API without affecting the UI, and vice versa. This separation also simplifies testing, as presentational components can be tested in isolation without worrying about the underlying logic.</p> <p>A common pitfall is overcomplicating the separation, which can lead to unnecessary complexity. It's important to apply this pattern judiciously, ensuring that the division of responsibilities is clear and justified.</p>",
+    "diagramMermaid": "flowchart LR\n    subgraph Container\n    A[Handles Data & Logic]\n    B[Calls API]\n    C[Manages State]\n    end\n    subgraph Presentational\n    D[Receives Props]\n    E[Renders UI]\n    end\n    A --> D\n    B --> A\n    C --> A\n    D --> E"
+  },
+  {
+    "id": "fe-prep-2-when-to-use-micro-frontends-what-are-the-main-challenges-o",
+    "topic": "Testing",
+    "subtopic": "When to use Micro-frontends?",
     "difficulty": "senior",
     "type": "tradeoff",
-    "question": "In a React application, when would you choose to use the Container/Presentational pattern over custom hooks for separating logic from UI? What are the trade-offs?",
+    "question": "What are the main challenges of using micro-frontends in large organizations?",
     "expectedPoints": [
-      "Container/Presentational pattern separates stateful logic (Container) from pure UI (Presentational), improving reusability and testability.",
-      "Custom hooks can encapsulate logic without requiring a wrapper component, reducing nesting and simplifying component trees.",
-      "Trade-off: Container/Presentational can lead to prop drilling and extra components, while hooks may mix concerns if not used carefully.",
-      "Pattern is most beneficial when the same UI is used with different data sources or when UI components are shared across projects (e.g., design systems).",
-      "With hooks, the pattern is less necessary for simple cases, but still useful for complex state management or when multiple containers share a presentational component."
+      "Increased build complexity",
+      "Potential for duplicate bundles",
+      "Integration complexity",
+      "Inconsistent user experience"
     ],
     "followUps": [
-      "How would you test a Presentational component in isolation?",
-      "Can you refactor the given example to use a custom hook instead of a Container component?"
+      "How can teams mitigate the risk of inconsistent UX in micro-frontends?",
+      "What strategies can be used to manage duplicate bundles?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a big Lego castle, and each of your friends is building a different part of it. It's great because everyone can work at the same time, but it can be tricky to make sure all the pieces fit together perfectly and look like they belong to the same castle. That's what happens with micro-frontends in software.",
+    "detailedExplanation": "<h4>Understanding Micro-frontends</h4><p><strong>Micro-frontends</strong> involve breaking a large application into smaller, independent parts. Each part is owned by a different team, and they can even use different frameworks. This approach is beneficial for large organizations with multiple teams because it allows for independent deployment and development.</p><h4>Challenges in Production</h4><p>While micro-frontends offer flexibility, they introduce several challenges. <ul><li><strong>Increased build complexity:</strong> Each team needs to manage its own build process, which can complicate the overall build pipeline.</li><li><strong>Duplicate bundles:</strong> Different teams might use the same libraries, leading to larger bundle sizes.</li><li><strong>Integration complexity:</strong> Ensuring all parts work together seamlessly can be difficult.</li><li><strong>Inconsistent user experience:</strong> Different teams might implement different styles or interactions, leading to a fragmented user experience.</li></ul></p><h4>Common Pitfall</h4><p>A common pitfall is not establishing clear guidelines for shared resources and design consistency, which can lead to a disjointed application.</p>",
+    "diagramMermaid": "flowchart LR\n    subgraph Large Application\n    A[Micro-frontend 1] --> B[Micro-frontend 2]\n    B --> C[Micro-frontend 3]\n    end\n    A --> D[Independent Deployment]\n    B --> D\n    C --> D\n    D --> E[Integration Challenges]"
   },
   {
-    "id": "fe-prep-2-dung-micro-frontends-khi-ban-can-toi-uu-hoa-hieu-suat-ung-du-what-are-the-main-trade-offs-o",
+    "id": "fe-prep-2-design-tokens-the-heart-of-theming-why-should-semantic-tokens-be-",
     "topic": "Testing",
-    "subtopic": "Dùng Micro-frontends khi bạn cần:\n\n- Tối ưu hóa hiệu suất ứng dụng bằng cách giảm tải trên một ứng dụng duy nhất\n- Cải thiện khả năng mở rộng và dễ dàng tích hợp các tính năng mới\n- Tăng cường bảo mật bằng cách cô lập các ứng dụng độc lập\n- Giảm thiểu thời gian tải trang và cải thiện trải nghiệm người dùng\n- Dễ dàng quản lý và cập nhật các ứng dụng độc lập\n\nMicro-frontends phù hợp với các dự án lớn, phức tạp, cần tích hợp nhiều tính năng độc lập và cần tối ưu hóa hiệu suất.",
-    "difficulty": "senior",
-    "type": "tradeoff",
-    "question": "What are the main trade-offs of using micro-frontends in a large-scale application?",
-    "expectedPoints": [
-      "Mentions benefits: independent deployment, team autonomy, scalability.",
-      "Identifies drawbacks: bundle duplication, integration complexity, UX inconsistency.",
-      "Explains when micro-frontends are appropriate (large, complex projects with multiple teams).",
-      "Acknowledges increased build and deployment complexity.",
-      "Discusses impact on performance and user experience."
-    ],
-    "followUps": [
-      "How would you handle shared dependencies to avoid bundle duplication?",
-      "What strategies can ensure UX consistency across micro-frontends?"
-    ],
-    "rubric": {},
-    "tags": [],
-    "sourceFile": "fe-prep-2.html"
-  },
-  {
-    "id": "fe-prep-2-core-accessibility-checklist-1-am-bao-tinh-kha-dung-cua-tran-what-are-the-key-aspects-of-a-",
-    "topic": "Testing",
-    "subtopic": "Core Accessibility Checklist:\n\n1. **Đảm bảo tính khả dụng của trang web** (Ensure Web Accessibility):\n   - Sử dụng thẻ `<title>` để mô tả trang web.\n   - Sử dụng thẻ `<meta name=\"description\">` để mô tả nội dung trang web.\n   - Sử dụng thẻ `<meta name=\"viewport\">` để điều chỉnh kích thước màn hình.\n\n2. **Tính khả dụng của hình ảnh** (Image Accessibility):\n   - Sử dụng thẻ `<img>` để mô tả hình ảnh.\n   - Sử dụng thuộc tính `alt` để mô tả hình ảnh.\n   - Sử dụng thuộc tính `title` để mô tả hình ảnh.\n\n3. **Tính khả dụng của bảng và bảng biểu** (Table and Chart Accessibility):\n   - Sử dụng thẻ `<table>` để mô tả bảng.\n   - Sử dụng thẻ `<th>` để mô tả tiêu đề bảng.\n   - Sử dụng thẻ `<td>` để mô tả dữ liệu bảng.\n\n4. **Tính khả dụng của nút và liên kết** (Button and Link Accessibility):\n   - Sử dụng thẻ `<button>` để mô tả nút.\n   - Sử dụng thẻ `<a>` để mô tả liên kết.\n   - Sử dụng thuộc tính `href` để mô tả liên kết.\n\n5. **Tính khả dụng của form** (Form Accessibility):\n   - Sử dụng thẻ `<form>` để mô tả form.\n   - Sử dụng thẻ `<label>` để mô tả nhãn form.\n   - Sử dụng thuộc tính `name` để mô tả trường form.\n\n6. **Tính khả dụng của JavaScript** (JavaScript Accessibility):\n   - Sử dụng `aria-live` để cập nhật nội dung động.\n   - Sử dụng `aria-atomic` để cập nhật nội dung động.\n   - Sử dụng `useCallback` để tránh tạo stale closure.\n\n7. **Tính khả dụng của React** (React Accessibility):\n   - Sử dụng `useMemo` để tránh tạo stale closure.\n   - Sử dụng `useCallback` để tránh tạo stale closure.\n   - Sử dụng `useState` để cập nhật trạng thái.\n\n8. **Tính khả dụng của event loop** (Event Loop Accessibility):\n   - Sử dụng `requestAnimationFrame` để cập nhật nội dung động.\n   - Sử dụng `cancelAnimationFrame` để hủy cập nhật nội dung động.\n\n9. **Tính khả dụng của hydration** (Hydration Accessibility):\n   - Sử dụng `hydrate` để cập nhật nội dung động.\n   - Sử dụng `unhydrate` để hủy cập nhật nội dung động.\n\n10. **Kiểm tra tính khả dụng** (Test Accessibility):\n    - Sử dụng công cụ kiểm tra tính khả dụng như Lighthouse.\n    - Sử dụng công cụ kiểm tra tính khả dụng như WAVE.\n    - Sử dụng công cụ kiểm tra tính khả dụng như Accessibility Insights.",
+    "subtopic": "Design Tokens — the heart of theming.",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "What are the key aspects of a core accessibility checklist for a web application?",
+    "question": "Why should semantic tokens be separated from primitive tokens in a design system?",
     "expectedPoints": [
-      "Ensures semantic HTML (e.g., <button>, <nav>, <main>) before using ARIA.",
-      "Keyboard accessibility: all operations via keyboard, visible focus, logical tab order, no focus traps.",
-      "ARIA usage only when HTML is insufficient, with proper roles, labels, and live regions.",
-      "Color contrast meets WCAG 4.5:1 and respects prefers-reduced-motion.",
-      "Testing with tools like Lighthouse, WAVE, or Accessibility Insights."
+      "Allows easy theme changes",
+      "Prevents hardcoding in components",
+      "Supports consistent styling",
+      "Facilitates brand updates",
+      "Improves maintainability"
     ],
     "followUps": [
-      "Why is 'No ARIA is better than bad ARIA' important?",
-      "How would you test keyboard accessibility in a complex component?"
+      "How do semantic tokens improve collaboration across teams?",
+      "What are the risks of not using semantic tokens?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a box of crayons, and each crayon represents a color. Instead of calling each crayon by its color name, like 'blue', you call it 'favorite color'. This way, if you decide your favorite color changes, you only need to change one crayon, and everything you colored with 'favorite color' updates automatically.",
+    "detailedExplanation": "<h4>Understanding Semantic and Primitive Tokens</h4><p><strong>Semantic tokens</strong> are like labels that represent a specific role or purpose in your design, such as <code>--color-primary</code>. They map to <strong>primitive tokens</strong>, which are the actual color values like <code>--blue-500</code>. This separation allows you to change the underlying color scheme by simply reassigning the semantic token to a different primitive token.</p><p>This approach is crucial in production because it allows for easy theming and branding updates without modifying each component individually. For example, switching from a light to a dark theme can be done by changing the mapping of semantic tokens, ensuring all components update automatically.</p><p>A common pitfall is hardcoding colors directly into components, which makes global updates difficult and error-prone. By using semantic tokens, you ensure consistency and maintainability across your design system.</p>",
+    "diagramMermaid": "flowchart LR\n  subgraph Tokens\n    A[Primitive Token] --> B[Semantic Token]\n  end\n  B --> C[Component]\n  C --> D[Theme Change]\n  D --> B"
   },
   {
     "id": "fe-prep-2-testing-strategy-for-frontend-how-do-you-decide-what-to-test",
     "topic": "Testing",
     "subtopic": "Testing Strategy for Frontend",
     "difficulty": "senior",
-    "type": "conceptual",
-    "question": "How do you decide what to test in a frontend application, and at which layers (unit, integration, e2e) do you focus your efforts to maximize bug detection while minimizing maintenance cost?",
+    "type": "tradeoff",
+    "question": "How do you decide what to test in a frontend application?",
     "expectedPoints": [
-      "Emphasizes testing for confidence in refactoring/deployment, not 100% coverage.",
-      "Prioritizes integration tests for critical user flows over excessive unit tests.",
-      "Uses the testing trophy or pyramid to balance speed, reliability, and cost.",
-      "Considers business logic, state management, and user interactions as high-value test targets.",
-      "Avoids testing implementation details; focuses on behavior and outcomes."
+      "Identify critical user flows that need testing.",
+      "Explain the balance between unit, integration, and end-to-end tests.",
+      "Discuss the importance of testing components with complex logic.",
+      "Consider the cost of maintenance versus the benefit of testing.",
+      "Describe how testing increases confidence in refactoring."
     ],
     "followUps": [
-      "Can you give an example of a test that gave you high confidence but low maintenance?",
-      "How would you test a complex form with multiple validation rules and async submission?"
+      "How do you handle flaky tests?",
+      "What strategies do you use to keep test maintenance low?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a big Lego castle. Testing is like checking that the important parts, like the doors and towers, are built right. You don't need to check every single brick, just the ones that make sure the castle stands strong and works well.",
+    "detailedExplanation": "<h4>Testing Strategy</h4><p>In frontend development, <strong>testing</strong> is crucial not just for achieving high coverage but for ensuring confidence in your code when making changes or deploying. The goal is to identify what to test and at which level to catch the most bugs with the least maintenance cost.</p><h4>What to Test</h4><p>Focus on <strong>critical user flows</strong> and components with complex logic. These are areas where bugs can have the most impact on user experience. Testing should ensure that these parts function correctly under various scenarios.</p><h4>Levels of Testing</h4><p>There are different levels of testing: <strong>unit tests</strong> for individual components, <strong>integration tests</strong> for how components work together, and <strong>end-to-end tests</strong> for entire user flows. Balancing these helps maintain a robust application without excessive maintenance.</p><h4>Why It Matters</h4><p>Effective testing increases confidence when <strong>refactoring</strong> or deploying new features, as it helps catch regressions early. A common pitfall is over-testing, which can lead to high maintenance costs without significant benefits.</p>",
+    "diagramMermaid": "flowchart TD\n    A[Identify Critical Flows] --> B[Choose Test Level]\n    B --> C[Unit Tests]\n    B --> D[Integration Tests]\n    B --> E[End-to-End Tests]\n    C --> F[Complex Logic]\n    D --> F\n    E --> F"
   },
   {
-    "id": "fe-prep-2-testing-pyramid-and-the-trophy-variant-how-would-you-decide-the-distr",
+    "id": "fe-prep-2-testing-pyramid-and-the-variant-trophy-how-does-the-testing-pyramid-h",
     "topic": "Testing",
-    "subtopic": "Testing Pyramid (and the \"Trophy\" variant)",
-    "difficulty": "senior",
-    "type": "system_design",
-    "question": "How would you decide the distribution of tests across unit, integration, and E2E levels in a frontend application?",
-    "expectedPoints": [
-      "Mentions the testing pyramid or trophy model.",
-      "Explains trade-offs: unit tests are fast/cheap but isolated, E2E are slow/expensive but cover user flows.",
-      "Identifies integration tests as the 'sweet spot' for frontend.",
-      "Considers project context (e.g., criticality, team size, CI speed).",
-      "Avoids over-reliance on any single level."
-    ],
-    "followUps": [
-      "What would make you shift more tests to E2E?",
-      "How do you handle testing asynchronous logic or API calls?"
-    ],
-    "rubric": {},
-    "tags": [],
-    "sourceFile": "fe-prep-2.html"
-  },
-  {
-    "id": "fe-prep-2-each-type-of-test-catches-specific-bugs-how-would-you-test-a-login-for",
-    "topic": "Testing",
-    "subtopic": "Each type of test catches specific bugs.",
+    "subtopic": "Testing Pyramid (and the variant \"Trophy\")",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "How would you test a login form using React Testing Library? What queries would you use and why?",
+    "question": "How does the Testing Pyramid help in structuring frontend tests effectively?",
     "expectedPoints": [
-      "Uses getByRole or getByLabelText to find form elements",
-      "Avoids querying by class names or internal state",
-      "Simulates user interactions (e.g., fireEvent or userEvent)",
-      "Asserts on visible outcomes (e.g., success message) rather than internal state",
-      "Explains that this approach makes tests resilient to refactoring"
+      "Explain the three layers of the Testing Pyramid.",
+      "Describe the trade-offs between speed and cost at each layer.",
+      "Identify why unit tests are considered fast and cheap.",
+      "Explain the role of integration tests in the pyramid.",
+      "Discuss the importance of E2E tests despite being slow and costly."
     ],
     "followUps": [
-      "How would you handle async operations like API calls in this test?",
-      "What would you do if the form has no accessible labels?"
+      "How would you decide which layer to focus on for a new feature?",
+      "Can you give an example of a test case for each layer?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you are building a LEGO tower. At the bottom, you have lots of small, easy-to-build pieces (unit tests). In the middle, you have bigger sections that connect those pieces (integration tests). At the top, you have the whole tower, which takes longer to build and check (E2E tests). This way, you make sure everything works well together.",
+    "detailedExplanation": "<h4>Understanding the Testing Pyramid</h4><p>The <strong>Testing Pyramid</strong> is a strategy for organizing software tests to ensure efficient and effective testing. It consists of three layers: <strong>Unit Tests</strong>, <strong>Integration Tests</strong>, and <strong>End-to-End (E2E) Tests</strong>. Each layer serves a different purpose and has its own trade-offs.</p><p><strong>Unit Tests</strong> form the base of the pyramid. They focus on testing individual functions or components. These tests are fast, numerous, and inexpensive, making them ideal for catching bugs early.</p><p><strong>Integration Tests</strong> sit in the middle and test how different components work together. They are fewer in number than unit tests and take longer to run, but they help ensure that components interact correctly.</p><p><strong>End-to-End Tests</strong> are at the top and test the entire application flow from start to finish. These tests are the most expensive and slowest to run, but they are crucial for verifying that the application works as expected from a user's perspective.</p><p>A common pitfall is over-relying on E2E tests, which can slow down development due to their complexity and cost. Balancing the pyramid ensures efficient testing and faster feedback loops.</p>",
+    "diagramMermaid": "flowchart TD\n  subgraph Pyramid\n    A[Unit Tests]\n    B[Integration Tests]\n    C[E2E Tests]\n  end\n  A --> B --> C\n  A --> D[Fast & Cheap]\n  B --> E[Sweet Spot]\n  C --> F[Slow & Costly]"
   },
   {
-    "id": "fe-prep-2-three-pillars-to-monitor-how-would-you-design-a-monitor",
+    "id": "fe-prep-2-what-type-of-tests-catch-which-bugs-how-do-different-types-of-test",
     "topic": "Testing",
-    "subtopic": "Three pillars to monitor",
+    "subtopic": "What type of tests catch which bugs?",
     "difficulty": "senior",
-    "type": "system_design",
-    "question": "How would you design a monitoring strategy for a production frontend application to catch issues before they impact users?",
+    "type": "tradeoff",
+    "question": "How do different types of tests catch different bugs in a frontend application?",
     "expectedPoints": [
-      "Mentions error tracking for JS runtime errors, promise rejections, and API failures with grouping, stack traces, and breadcrumbs.",
-      "Discusses Real User Monitoring (RUM) for Core Web Vitals (LCP, INP, CLS) segmented by device, network, and region.",
-      "Includes analytics and funnel tracking to correlate performance with user behavior and business metrics.",
-      "Explains the difference between lab tests (Lighthouse) and RUM, and why both are needed.",
-      "Describes how to prioritize and act on data from these pillars (e.g., alerting, debugging, optimization)."
+      "Unit tests catch bugs in individual functions or utilities.",
+      "Component tests ensure components render and interact correctly.",
+      "Integration tests validate interactions between components.",
+      "E2E tests verify complete user flows like login to checkout.",
+      "Visual regression tests detect UI layout changes."
     ],
     "followUps": [
-      "How would you choose between Sentry and Rollbar for error tracking?",
-      "What metrics would you track in a funnel for an e-commerce checkout flow?"
+      "Why is it important to test like a user would interact?",
+      "How can you reduce flaky tests in E2E testing?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a toy robot. Unit tests are like checking if each part of the robot works on its own, like the arm or leg. Integration tests are like making sure the arm and leg work together. E2E tests are like watching the robot do a dance to make sure everything works together. Visual tests are like checking if the robot still looks the same after you paint it.",
+    "detailedExplanation": "<h4>Types of Tests</h4><p><strong>Unit tests</strong> focus on individual functions or utilities, ensuring they work as expected in isolation. They are fast and help catch bugs early in development.</p><p><strong>Component tests</strong> ensure that individual UI components render and behave correctly, often using tools like React Testing Library to simulate user interactions.</p><p><strong>Integration tests</strong> validate the interactions between multiple components or systems, ensuring they work together as intended.</p><p><strong>End-to-End (E2E) tests</strong> simulate real user scenarios from start to finish, such as logging in and completing a purchase, to ensure the entire application flow works correctly.</p><p><strong>Visual regression tests</strong> detect unintended changes in the UI's appearance, ensuring that updates don't break the visual layout.</p><h4>Why It Matters</h4><p>Each type of test serves a specific purpose in catching different kinds of bugs. Using a combination of these tests helps ensure a robust and reliable application. A common pitfall is relying too heavily on one type of test, which can lead to missed bugs or inefficient testing processes.</p>",
+    "diagramMermaid": "flowchart TD\n  subgraph Types of Tests\n    A[Unit Test]\n    B[Component Test]\n    C[Integration Test]\n    D[E2E Test]\n    E[Visual Test]\n  end\n  A --> F[Catch function bugs]\n  B --> G[Ensure component correctness]\n  C --> H[Validate component interactions]\n  D --> I[Verify user flows]\n  E --> J[Detect UI changes]"
   },
   {
-    "id": "fe-prep-2-performance-budget-set-limits-to-prevent-scope-creep-how-would-you-set-up-a-perform",
+    "id": "fe-prep-2-three-pillars-to-monitor-how-do-real-user-monitoring-ru",
     "topic": "Testing",
-    "subtopic": "Performance Budget — set limits to prevent \"scope creep\"",
+    "subtopic": "Three pillars to monitor.",
     "difficulty": "senior",
-    "type": "system_design",
-    "question": "How would you set up a performance budget in a CI/CD pipeline to prevent regressions, and how do you reconcile differences between lab data (Lighthouse) and field data (CrUX) when setting thresholds?",
+    "type": "conceptual",
+    "question": "How do Real User Monitoring (RUM) and Error Tracking complement each other in frontend applications?",
     "expectedPoints": [
-      "Define budgets for resource sizes (e.g., JS < 170KB) and metrics (e.g., LCP < 2.5s) using tools like Lighthouse CI or webpack.",
-      "Fail or warn the build when budgets are exceeded to prevent scope creep.",
-      "Explain that lab data is consistent for debugging, while field data (CrUX) reflects real users and is used by Google for ranking.",
-      "Set initial thresholds based on field data, then use lab data to catch regressions early.",
-      "Monitor both and adjust budgets over time based on field performance trends."
+      "Explain how RUM measures user experience metrics like Core Web Vitals.",
+      "Describe how Error Tracking captures runtime errors and promise rejections.",
+      "Discuss the importance of combining RUM and Error Tracking for comprehensive monitoring.",
+      "Provide examples of tools used for RUM and Error Tracking.",
+      "Explain how these tools help improve user experience and application performance."
     ],
     "followUps": [
-      "What would you do if a new feature causes the bundle to exceed the budget but improves user engagement?",
-      "How would you handle source maps in production for debugging without exposing source code?"
+      "What are some common pitfalls when using RUM and Error Tracking tools?",
+      "How can analytics data be used to improve the user experience?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a toy car track. Real User Monitoring is like watching how fast and smoothly the toy cars go around the track. Error Tracking is like checking if any cars crash or get stuck. Together, they help you make sure the track is fun and safe for all the cars.",
+    "detailedExplanation": "<h4>Understanding RUM and Error Tracking</h4><p><strong>Real User Monitoring (RUM)</strong> is a technique used to measure the actual user experience on a website by collecting data on metrics like Core Web Vitals (LCP, INP, CLS) from real users. This helps in understanding how the site performs across different devices, networks, and regions, providing insights into the real-world performance of the application.</p><p><strong>Error Tracking</strong> involves capturing and logging JavaScript runtime errors, promise rejections, and API errors. Tools like Sentry and Rollbar group these errors, provide stack traces, and breadcrumbs, which help developers understand and fix issues quickly.</p><p>Combining RUM and Error Tracking provides a comprehensive view of both performance and stability. While RUM focuses on user experience metrics, Error Tracking ensures that any issues affecting these metrics are identified and resolved. This combination is crucial in production environments to maintain a high-quality user experience and to quickly address any problems that arise.</p><p>A common pitfall is relying solely on one type of monitoring, which can lead to missing critical insights. For example, focusing only on RUM might overlook underlying errors that degrade performance.</p>",
+    "diagramMermaid": "flowchart LR\n  subgraph RUM\n    A[Real User Monitoring]\n    B[Core Web Vitals]\n  end\n  subgraph ErrorTracking\n    C[Error Tracking]\n    D[Runtime Errors]\n  end\n  A --> B\n  C --> D\n  A --> C\n  B --> D"
   },
   {
-    "id": "fe-prep-2-ci-cd-pipeline-deployment-strategy-how-would-you-deploy-a-new-fro",
+    "id": "fe-prep-2-performance-budget-set-limits-to-avoid-drifting-what-are-performance-budgets-a",
+    "topic": "Testing",
+    "subtopic": "Performance Budget — set limits to avoid \"drifting.\"",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "What are performance budgets and why are they important in frontend development?",
+    "expectedPoints": [
+      "Define performance budgets and their purpose.",
+      "Explain how performance budgets help prevent performance regression.",
+      "Discuss the difference between lab data and field data.",
+      "Describe the role of source maps in production.",
+      "Explain a common pitfall when using source maps."
+    ],
+    "followUps": [
+      "How do you set up a performance budget in a project?",
+      "What tools can be used to monitor performance budgets?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a piggy bank, and you decide you can only spend a certain amount of your allowance each week. This is like a performance budget for a website, where you set limits on how much data or time your website can use, so it doesn't get too slow or big. Just like sticking to your allowance helps you save money, sticking to a performance budget helps keep a website fast and efficient.",
+    "detailedExplanation": "<h4>Understanding Performance Budgets</h4><p><strong>Performance budgets</strong> are predefined limits set on various aspects of a website's performance, such as the size of scripts or the time it takes for a page to load. They act as guardrails to ensure that a website remains fast and efficient, preventing performance from degrading over time.</p><p>Performance budgets are crucial because they help developers avoid 'performance drift,' where small changes accumulate and gradually slow down a website. By setting and enforcing these limits, teams can maintain a consistent user experience.</p><p>There are two types of data to consider: <strong>lab data</strong> and <strong>field data</strong>. Lab data, like that from Lighthouse, is collected in a controlled environment and is useful for debugging. Field data, such as the Chrome User Experience Report (CrUX), comes from real users and is more reflective of actual user experiences, influencing SEO rankings.</p><p>In production, <strong>source maps</strong> are used to make minified code readable during debugging. However, a common pitfall is deploying source maps publicly, which can expose the source code. Instead, they should be uploaded privately to tools like Sentry.</p>",
+    "diagramMermaid": "flowchart LR\n    A[Performance Budgets] --> B[Set Limits]\n    B --> C[Prevent Drift]\n    A --> D[Lab Data]\n    A --> E[Field Data]\n    D --> F[Lighthouse]\n    E --> G[CrUX]\n    A --> H[Source Maps]"
+  },
+  {
+    "id": "fe-prep-2-ci-cd-pipeline-deployment-strategy-how-do-feature-flags-improve-d",
     "topic": "Testing",
     "subtopic": "CI/CD Pipeline & Deployment Strategy",
     "difficulty": "senior",
-    "type": "system_design",
-    "question": "How would you deploy a new frontend feature to production while minimizing risk and ensuring a smooth user experience for existing users?",
+    "type": "tradeoff",
+    "question": "How do feature flags improve deployment strategies in a CI/CD pipeline?",
     "expectedPoints": [
-      "Mentions canary or blue-green deployment to roll out to a subset of users first.",
-      "Describes using feature flags to decouple deploy from release, enabling gradual rollout and instant kill switch.",
-      "Addresses handling users on old tabs: versioned assets with content hash, keeping old files, and handling chunk load failure by reloading.",
-      "Explains rollback strategy: either via canary rollback or toggling feature flag off without redeploy.",
-      "Mentions monitoring and metrics to detect issues during rollout."
+      "Explain how feature flags separate deployment from feature release.",
+      "Describe the process of gradually enabling features using feature flags.",
+      "Discuss the benefits of feature flags for rollback and A/B testing.",
+      "Explain how feature flags can prevent user disruption during deployment.",
+      "Identify a common pitfall when using feature flags."
     ],
     "followUps": [
-      "What if a user on an old tab encounters a 'chunk load failed' error? How would you handle it?",
-      "How do you decide the percentage increments for canary rollout?"
+      "How do feature flags differ from traditional deployment methods?",
+      "What challenges might arise when managing feature flags?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a new toy, but you want to make sure it works before showing it to all your friends. You can first show it to just one friend and see if they like it. If they do, you can show it to more friends. If something goes wrong, you can quickly hide the toy again. This is like using feature flags in software.",
+    "detailedExplanation": "<h4>Understanding Feature Flags</h4><p><strong>Feature flags</strong> are a technique used in software development to enable or disable features in a codebase without deploying new code. This allows developers to separate the deployment of code from the release of features, providing greater control over how and when features are made available to users.</p><h4>How It Works</h4><p>Feature flags work by wrapping new or experimental code in conditional statements that check the status of a flag. If the flag is enabled, the new feature is activated; if not, the existing functionality remains unchanged. This allows for a gradual rollout of features, starting with a small percentage of users and increasing as confidence in the feature grows.</p><h4>Benefits in Production</h4><p>Using feature flags can significantly reduce the risk of deploying new features. They allow for quick rollbacks by simply disabling the flag, without the need to redeploy code. This is particularly useful for A/B testing, where different user groups can experience different versions of a feature.</p><h4>Common Pitfalls</h4><p>A common pitfall is the complexity of managing multiple flags, which can lead to technical debt if not carefully tracked and removed when no longer needed. It's crucial to have a strategy for maintaining and cleaning up feature flags to avoid clutter and confusion in the codebase.</p>",
+    "diagramMermaid": "flowchart LR\n  subgraph Deployment Process\n    A[Commit] --> B[Push PR]\n    B --> C[CI: Lint, Test, Build]\n    C --> D[Preview Deploy]\n    D --> E[Canary Release]\n    E --> F[Production Release]\n  end\n  subgraph Feature Flags\n    G[Feature Off] --> H[Feature On 1%]\n    H --> I[Feature On 50%]\n    I --> J[Feature On 100%]\n    J --> K[Rollback if Needed]\n  end\n  F --> G\n  F --> H\n  F --> I\n  F --> J\n  F --> K"
   },
   {
-    "id": "fe-prep-2-why-is-vite-fast-during-development-why-does-vite-achieve-near-ins",
+    "id": "fe-prep-2-why-is-vite-fast-during-development-why-is-vite-faster-than-webpac",
     "topic": "Testing",
     "subtopic": "Why is Vite fast during development?",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "Why does Vite achieve near-instant dev server startup even for large projects?",
+    "question": "Why is Vite faster than Webpack during development?",
     "expectedPoints": [
-      "Vite leverages native ES modules in modern browsers instead of bundling during development.",
-      "It only transforms and serves modules requested by the browser, not the entire application.",
-      "Uses esbuild for fast pre-bundling of dependencies and on-demand transformation.",
-      "No full bundling step is needed until production build (Rollup).",
-      "Contrasts with Webpack which bundles everything upfront, causing slow startup for large projects."
+      "Vite uses native ESM support in modern browsers.",
+      "Vite only transforms modules as requested.",
+      "Vite does not bundle during development.",
+      "Vite uses esbuild for fast transformations.",
+      "Vite provides instant server start and HMR."
     ],
     "followUps": [
-      "How does Vite handle HMR differently from Webpack?",
-      "What trade-offs does Vite make by not bundling during development?"
+      "How does Vite handle module requests differently from Webpack?",
+      "What role does esbuild play in Vite's speed?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a big box of toys, and you want to play with just one toy. Webpack makes you take out all the toys before you can play, which takes time. Vite lets you pick just the toy you want right away, so you can start playing much faster.",
+    "detailedExplanation": "<h4>Vite's Speed Advantage</h4><p><strong>Vite</strong> is a modern frontend build tool that offers a significant speed advantage during development compared to traditional bundlers like Webpack. This is primarily because Vite leverages the <strong>native ES modules (ESM)</strong> support in modern browsers. Instead of bundling all modules upfront, Vite serves modules on-demand as they are requested by the browser.</p><p>During development, Vite does not bundle the entire application. Instead, it uses <strong>esbuild</strong>, a highly efficient tool, to transform only the modules that are actively requested by the browser. This means that the development server can start almost instantly, regardless of the project's size, and <strong>Hot Module Replacement (HMR)</strong> is also very fast.</p><p>In production, Vite uses Rollup to bundle the application for optimal performance. A common pitfall is assuming Vite's development speed translates directly to production builds without considering the differences in how modules are handled.</p>",
+    "diagramMermaid": "flowchart LR\n  subgraph Development\n    A[Browser requests module]\n    B[Vite serves ESM]\n    C[Transform with esbuild]\n  end\n  subgraph Production\n    D[Bundle with Rollup]\n  end\n  A --> B --> C\n  C --> D"
   },
   {
-    "id": "fe-prep-2-advanced-testing-mock-async-contract-how-would-you-test-an-async-fu",
+    "id": "fe-prep-2-advanced-testing-mock-async-contract-how-do-mocks-enhance-the-relia",
     "topic": "Testing",
     "subtopic": "Advanced Testing: Mock, Async & Contract",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "How would you test an async function that fetches user data from an API and updates the UI? Walk through your approach, including mocking and handling race conditions.",
+    "question": "How do mocks enhance the reliability of frontend tests?",
     "expectedPoints": [
-      "Uses async/await or callbacks correctly in test setup",
-      "Mocks the API call to avoid real network requests",
-      "Handles race conditions (e.g., using waitFor or act)",
-      "Verifies both success and error paths",
-      "Ensures test is deterministic and not flaky"
+      "Explain what mocks are and their purpose.",
+      "Describe how mocks can simulate external dependencies.",
+      "Discuss the importance of mocks in isolating test cases.",
+      "Mention how mocks can prevent false positives in tests.",
+      "Provide an example of a situation where mocks are beneficial."
     ],
     "followUps": [
-      "How would you test a component that makes multiple parallel API calls?",
-      "What if the API contract changes? How would you catch that?"
+      "What are the risks of overusing mocks in tests?",
+      "How do you decide when to use a mock versus a real implementation?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you are playing a game where you pretend to be a chef, but instead of using real food, you use toy food. This way, you can practice cooking without making a mess. In programming, mocks are like toy food; they let you test your code without using the real thing, so you can see if it works without causing problems.",
+    "detailedExplanation": "<h4>Understanding Mocks</h4><p><strong>Mocks</strong> are simulated objects that mimic the behavior of real components in a controlled way. They are used in testing to isolate the unit of work by replacing real dependencies with mock versions. This ensures that tests are not affected by external factors, such as network latency or database availability.</p><h4>How Mocks Work</h4><p>Mocks work by intercepting calls to external dependencies and returning predefined responses. This allows developers to test the logic of their code without relying on the actual implementation of the dependencies. For example, instead of calling a real API, a mock can return a fixed response, ensuring the test is consistent and repeatable.</p><h4>Importance in Production</h4><p>In production, reliable tests are crucial for maintaining code quality. Mocks help achieve this by ensuring that tests only fail due to issues in the code being tested, not due to external factors. This reduces the risk of false positives, where tests pass or fail for the wrong reasons.</p><h4>Common Pitfall</h4><p>A common pitfall is overusing mocks, which can lead to tests that are too detached from reality. If the mock does not accurately represent the real dependency, the test may pass even when the code is broken. It's important to balance the use of mocks with integration tests that use real dependencies.</p>",
+    "diagramMermaid": "flowchart LR A[Code Under Test] --> B[Mock Object] B --> C[Simulated Response] A --> D[Real Dependency] D --> E[Actual Response] subgraph Testing with Mocks A --> B B --> C end subgraph Without Mocks A --> D D --> E end"
   },
   {
-    "id": "fe-prep-2-mock-vs-stub-vs-spy-don-t-confuse-them-you-re-testing-a-function-that",
+    "id": "fe-prep-2-mock-vs-stub-vs-spy-don-t-get-confused-what-are-the-differences-betwe",
     "topic": "Testing",
-    "subtopic": "Mock vs Stub vs Spy — don't confuse them.",
+    "subtopic": "Mock vs Stub vs Spy — don't get confused.",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "You're testing a function that calls an API and then processes the result. Should you use a stub, spy, or mock for the API call? Why?",
+    "question": "What are the differences between mocks, stubs, and spies in testing?",
     "expectedPoints": [
-      "Stub returns fixed data, suitable for controlling API response to test processing logic.",
-      "Spy tracks real calls but doesn't replace behavior; not ideal for external API.",
-      "Mock sets expectations on interactions, but for simple data return, stub is simpler.",
-      "Prefer stub at system boundary (network) to keep test focused on logic.",
-      "Avoid over-mocking; stub is sufficient unless verifying call details."
+      "Explain what a stub is and when to use it.",
+      "Describe how a spy works and its purpose.",
+      "Define a mock and its role in testing.",
+      "Discuss why over-mocking can be problematic.",
+      "Identify scenarios where each type is most appropriate."
     ],
     "followUps": [
-      "What if you need to verify the API was called with specific parameters?",
-      "How would you test error handling from the API?"
+      "Can you give an example of when you would use a fake?",
+      "Why is it important to avoid over-mocking?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you are playing a game with your friends, and you want to practice without them. A stub is like a robot friend that always gives you the same answer. A spy is like a secret camera that watches how you play. A mock is like a pretend friend who acts like your real friend but only in certain ways. These help you practice without needing your real friends there.",
+    "detailedExplanation": "<h4>Understanding Mocks, Stubs, and Spies</h4><p>In software testing, <strong>stubs</strong>, <strong>spies</strong>, and <strong>mocks</strong> are tools used to simulate parts of a program to test its behavior without relying on real components. A <strong>stub</strong> replaces a function with a fixed return value, useful when you need a predictable output from a dependency, like a fake API response.</p><p>A <strong>spy</strong> monitors how a real function is called, tracking details like the number of times it's invoked and the arguments passed. This is helpful for verifying that functions, such as callbacks or analytics, are executed correctly.</p><p><strong>Mocks</strong> are fake objects that have expectations about how they should be called. They are used to test interactions between modules and will fail the test if the interactions do not match the expectations.</p><p>Over-mocking can lead to tests that only verify the code calls the mocked functions correctly, rather than testing actual behavior. It's best to mock at the system boundaries, such as network or database interactions, while keeping the core logic running as realistically as possible.</p>",
+    "diagramMermaid": "flowchart LR\n    subgraph Testing Tools\n    Stub --> Spy\n    Spy --> Mock\n    end\n    Stub -->|Fixed Return| Dependency\n    Spy -->|Monitor Calls| Real Function\n    Mock -->|Expectation| Module Interaction"
   },
   {
-    "id": "fe-prep-2-testing-asynchronous-code-timers-how-would-you-test-a-debounced",
+    "id": "fe-prep-2-testing-asynchronous-code-timers-how-do-you-test-asynchronous-c",
     "topic": "Testing",
     "subtopic": "Testing asynchronous code & timers",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "How would you test a debounced function without waiting for real time?",
+    "question": "How do you test asynchronous code with fake timers in JavaScript?",
     "expectedPoints": [
-      "Use fake timers (e.g., vi.useFakeTimers()) to control time.",
-      "Call the debounced function multiple times in quick succession.",
-      "Advance time by the debounce delay (e.g., vi.advanceTimersByTime(300)).",
-      "Assert that the function was called only once.",
-      "Clean up fake timers after the test."
+      "Explain the use of fake timers.",
+      "Describe how to simulate time passage.",
+      "Discuss why debouncing is tested with fake timers.",
+      "Explain the importance of reducing test time.",
+      "Mention a common pitfall with fake timers."
     ],
     "followUps": [
-      "What are the benefits of using fake timers over real delays?",
-      "How would you test a debounced function that also depends on network requests?"
+      "What are some alternatives to fake timers?",
+      "How would you test a network request without altering the code?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "fe-prep-2.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you want to test if a toy car stops after 5 seconds, but you don't want to wait. You pretend to fast-forward time to see if it stops. This is like using fake timers in programming to test if things happen at the right time without waiting.",
+    "detailedExplanation": "<h4>Understanding Fake Timers</h4><p><strong>Fake timers</strong> allow developers to simulate the passage of time in their tests without having to wait in real-time. This is particularly useful when testing asynchronous code that relies on timers, such as <code>setTimeout</code> or <code>setInterval</code>. By using fake timers, you can instantly advance time and verify that your code behaves as expected.</p><h4>How It Works</h4><p>In JavaScript testing frameworks like Jest or Vitest, you can use functions like <code>vi.useFakeTimers()</code> to replace the native timer functions with mock implementations. This enables you to control the clock and advance time using methods like <code>vi.advanceTimersByTime()</code>. This is crucial for testing debouncing functions, which delay execution until a certain time has passed.</p><h4>Why It Matters</h4><p>Using fake timers can significantly speed up your test suite by avoiding unnecessary delays. It also ensures that tests are more reliable and less prone to flakiness caused by timing issues. However, a common pitfall is forgetting to reset the timers after tests, which can lead to unexpected behavior in subsequent tests.</p>",
+    "diagramMermaid": "flowchart LR\n  A[Start Test] --> B[Use Fake Timers]\n  B --> C[Call Function]\n  C --> D[Advance Time]\n  D --> E[Check Assertions]"
   },
   {
-    "id": "fe-prep-2-contract-testing-preventing-api-changes-without-anyone-knowi-how-would-you-implement-contra",
+    "id": "fe-prep-2-contract-testing-preventing-api-changes-without-anyone-knowi-how-does-contract-testing-help",
     "topic": "Testing",
     "subtopic": "Contract Testing — preventing \"API changes without anyone knowing\"",
     "difficulty": "senior",
-    "type": "conceptual",
-    "question": "How would you implement contract testing between a frontend and backend team to prevent API changes from breaking the frontend?",
-    "expectedPoints": [
-      "Defines contract testing as a pact between FE and BE specifying request/response format.",
-      "Describes using tools like Pact or MSW to generate and verify contracts.",
-      "Explains that contract tests run in CI to catch mismatches before deployment.",
-      "Mentions that failing contract tests block releases or alert teams.",
-      "Highlights that contract testing ensures independent development without integration surprises."
-    ],
-    "followUps": [
-      "What would you do if a contract test fails due to a legitimate API change?",
-      "How do you handle versioning of contracts when both sides evolve?"
-    ],
-    "rubric": {},
-    "tags": [],
-    "sourceFile": "fe-prep-2.html"
-  },
-  {
-    "id": "fe-prep-2-why-develop-isolated-components-how-do-isolated-component-deve",
-    "topic": "Testing",
-    "subtopic": "Why develop isolated components",
-    "difficulty": "senior",
-    "type": "conceptual",
-    "question": "How do isolated component development practices (e.g., Storybook) improve testing and collaboration in a frontend project?",
-    "expectedPoints": [
-      "Enables testing component states (loading, error, empty) without full app setup.",
-      "Serves as living documentation for designers and developers.",
-      "Supports visual regression testing to catch UI regressions.",
-      "Integrates accessibility audits (contrast, ARIA, focus order).",
-      "Improves collaboration by providing a shared component catalog."
-    ],
-    "followUps": [
-      "How would you handle state-dependent stories that require API mocking?",
-      "What are the trade-offs of using isolated development vs. integration testing?"
-    ],
-    "rubric": {},
-    "tags": [],
-    "sourceFile": "fe-prep-2.html"
-  },
-  {
-    "id": "fe-prep-2-the-structure-of-a-story-how-would-you-convince-a-team-",
-    "topic": "Testing",
-    "subtopic": "The structure of a \"story\"",
-    "difficulty": "senior",
-    "type": "behavioral",
-    "question": "How would you convince a team to adopt Storybook for a new design system?",
-    "expectedPoints": [
-      "Mentions the 'write once, use three ways' benefit: documentation, development playground, and visual regression testing input.",
-      "Highlights improved maintainability and collaboration across designers and developers.",
-      "Discusses how stories serve as living documentation that stays in sync with code.",
-      "Explains that stories enable isolated component development, speeding up iteration.",
-      "Connects to platform/infra thinking, showing concern for team scalability and consistency."
-    ],
-    "followUps": [
-      "What are the trade-offs of using Storybook compared to just writing unit tests?",
-      "How would you handle stories for components that depend on complex state or API calls?"
-    ],
-    "rubric": {},
-    "tags": [],
-    "sourceFile": "fe-prep-2.html"
-  },
-  {
-    "id": "sys-design-prep-v1-load-balancer-design-a-global-load-balancing",
-    "topic": "Testing",
-    "subtopic": "**Load Balancer**",
-    "difficulty": "senior",
     "type": "system_design",
-    "question": "Design a global load balancing system for a multi-region web application that must handle traffic spikes, failover, and session persistence. How would you combine L4/L7 load balancers, algorithms, and rate limiting?",
+    "question": "How does contract testing help prevent issues between frontend and backend teams?",
     "expectedPoints": [
-      "Proposes DNS-based global LB (e.g., Route53) with health checks for regional failover.",
-      "Uses L7 LB (e.g., ALB/NGINX) per region for content-based routing and SSL termination.",
-      "Selects Least Connections algorithm for long-lived connections and IP Hash for sticky sessions.",
-      "Implements Token Bucket rate limiting per client to allow bursts while smoothing traffic.",
-      "Addresses LB SPOF with Active-Passive pair (keepalived/VRRP) or multi-AZ deployment.",
-      "Considers sliding window counter for accurate per-second rate limiting across regions."
+      "Ensures frontend expectations match backend responses",
+      "Detects breaking changes before production",
+      "Facilitates independent development",
+      "Improves communication between teams",
+      "Reduces integration bugs"
     ],
     "followUps": [
-      "How would you handle session persistence when a regional LB fails and traffic shifts to another region?",
-      "What trade-offs exist between using Token Bucket vs. Sliding Window Counter for rate limiting in this design?"
+      "Can you describe a scenario where contract testing prevented a major issue?",
+      "How would you implement contract testing in a CI/CD pipeline?"
     ],
     "rubric": {},
     "tags": [],
-    "sourceFile": "sys-design-prep-v1.html"
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you and a friend are building a LEGO house together. You are responsible for the roof, and your friend is building the walls. Contract testing is like having a plan that shows exactly how the roof should fit on the walls. If your friend changes the wall design, you’ll know right away if your roof won’t fit anymore.",
+    "detailedExplanation": "<h4>Understanding Contract Testing</h4><p><strong>Contract testing</strong> is a technique used to ensure that the frontend and backend of an application can communicate effectively. It involves defining a 'contract' that specifies the expected structure and format of the data exchanged between the two sides. The frontend declares what it expects from the backend, and the backend confirms it can provide that data structure.</p><p>This type of testing is crucial in environments where frontend and backend teams work independently. It helps catch discrepancies early, preventing issues from reaching production. For instance, if the backend team changes a field name in an API response, contract tests will fail, alerting the team to the inconsistency before it affects users.</p><p>A common pitfall is not keeping the contract tests updated with changes in the API or frontend requirements, which can lead to false positives or negatives. Regularly updating and reviewing these tests is essential to maintain their effectiveness.</p>",
+    "diagramMermaid": "flowchart LR\n  subgraph Frontend\n    FE_Expectations[Frontend Expectations]\n  end\n  subgraph Backend\n    BE_Response[Backend Response]\n  end\n  FE_Expectations --> Contract_Test[Contract Test]\n  BE_Response --> Contract_Test\n  Contract_Test --> Alert[Alert on Mismatch]"
   },
   {
-    "id": "fun-xyz-prep-here-s-a-natural-english-translation-of-the-vietnamese-techn-when-would-you-choose-usereduc",
+    "id": "fe-prep-2-why-develop-isolated-components-why-is-developing-isolated-com",
     "topic": "Testing",
-    "subtopic": "Here’s a natural English translation of the Vietnamese technical interview prep text:\n\n**useState vs useReducer Decision Flow**\n\n- Use `useState` when the state is a simple value (e.g., string, number, boolean) or a simple object with few fields.\n- Use `useReducer` when the state logic is complex, involves multiple sub-values, or when the next state depends on the previous state.\n- Use `useReducer` when you need to centralize state update logic (e.g., for easier testing or debugging).\n- Use `useReducer` when the state updates are triggered by different actions (e.g., `ADD`, `REMOVE`, `RESET`).\n- Use `useState` for simple, independent state variables; use `useReducer` for grouped, interdependent state.",
+    "subtopic": "Why develop isolated components?",
     "difficulty": "senior",
     "type": "conceptual",
-    "question": "When would you choose useReducer over useState in a React component?",
+    "question": "Why is developing isolated components beneficial in frontend development?",
     "expectedPoints": [
-      "State involves multiple interdependent fields (e.g., form with amount, currency, recipient).",
-      "Next state depends on previous state with complex logic (e.g., undo/redo, toggle with side effects).",
-      "Multiple distinct actions update state (e.g., CRUD operations like ADD, REMOVE, RESET).",
-      "Centralized state update logic for easier testing/debugging.",
-      "Simple, independent state variables favor useState; grouped, interdependent state favors useReducer."
+      "Allows building component states without running the entire app.",
+      "Facilitates living documentation for designers and developers.",
+      "Enables visual regression testing to catch UI issues.",
+      "Supports accessibility audits directly in the component stories."
     ],
     "followUps": [
-      "Can you give an example where useReducer would be overkill?",
-      "How would you combine useReducer with Context for global state?"
+      "How do isolated components help in collaboration between designers and developers?",
+      "What tools can be used for visual regression testing in isolated components?"
     ],
     "rubric": {},
-    "tags": [
-      "web3"
-    ],
-    "sourceFile": "fun-xyz-prep.html"
+    "tags": [],
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you are building a LEGO set. Instead of building the entire castle at once, you first build the door, then the windows, and so on. This way, you can make sure each piece works perfectly before putting them all together. That's like developing isolated components in coding.",
+    "detailedExplanation": "<h4>What is Developing Isolated Components?</h4> <p>Developing isolated components means creating and testing each part of a user interface separately from the rest of the application. This approach allows developers to focus on individual component states, such as loading, error, or empty states, without needing to run the entire application or set up complex data scenarios.</p> <h4>How It Works</h4> <p>By isolating components, developers can create 'stories' for each component state. These stories act as live examples that other team members, like designers, can view to understand how components behave with different properties and use cases. Tools like Storybook are often used to facilitate this process.</p> <h4>Why It Matters in Production</h4> <p>Isolated components help in maintaining a consistent and bug-free UI. They enable visual regression testing, where screenshots of components are compared over time to detect unintended changes. Additionally, accessibility audits can be performed directly within these stories to ensure compliance with accessibility standards.</p> <h4>Common Pitfall</h4> <p>A common pitfall is neglecting to integrate isolated components back into the larger application context, which can lead to integration issues if not handled carefully.</p>",
+    "diagramMermaid": "flowchart LR\n    subgraph Component Development\n    A[Isolated Components] --> B[Build States]\n    A --> C[Create Stories]\n    end\n    subgraph Testing\n    D[Visual Regression] --> E[UI Issues]\n    F[A11y Audit] --> G[Accessibility Checks]\n    end\n    B --> D\n    C --> F"
   },
   {
-    "id": "fun-xyz-prep-signal-map-what-fun-xyz-tests-in-behavioral-tell-me-about-a-time-you-ident",
+    "id": "fe-prep-2-structure-of-a-story-how-does-storybook-enhance-col",
+    "topic": "Testing",
+    "subtopic": "Structure of a \"story\"",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How does Storybook enhance collaboration and maintenance in a design system?",
+    "expectedPoints": [
+      "Provides live documentation for components.",
+      "Acts as a development playground for testing components.",
+      "Serves as input for visual regression testing.",
+      "Encourages a 'write once, use thrice' philosophy.",
+      "Supports platform and infrastructure thinking."
+    ],
+    "followUps": [
+      "Can you explain how Storybook integrates with visual regression testing?",
+      "How does Storybook differ from traditional documentation methods?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html",
+    "childExplanation": "Imagine you have a toy box where each toy has a label showing how it works. You can play with the toys, see how they fit together, and check if they still look the same after you put them away. Storybook is like that toy box for software, helping developers see, test, and keep track of their code parts.",
+    "detailedExplanation": "<h4>Understanding Storybook</h4><p><strong>Storybook</strong> is a tool for building UI components in isolation for React, Vue, and other frameworks. It allows developers to create stories, which are examples of components in different states. These stories serve multiple purposes:</p><ul><li><strong>Documentation:</strong> Each story acts as live documentation, showing how a component looks and behaves with specific props.</li><li><strong>Development Playground:</strong> Developers can interact with components in isolation, making it easier to test and refine them without the overhead of the entire application.</li><li><strong>Visual Regression Testing:</strong> Stories can be used as snapshots to detect unintended changes in component appearance over time.</li></ul><p>Storybook is valuable in production because it supports a 'write once, use thrice' approach, enhancing collaboration and maintenance. A common pitfall is not keeping stories updated as components evolve, which can lead to outdated documentation and misleading tests.</p>",
+    "diagramMermaid": "flowchart LR\n    subgraph Storybook\n    A[Component Story] --> B[Documentation]\n    A --> C[Development Playground]\n    A --> D[Visual Regression Test]\n    end\n    A --> E[Design System]"
+  },
+  {
+    "id": "sys-design-prep-v1-load-balancer-what-are-the-differences-betwe",
+    "topic": "Testing",
+    "subtopic": "⚖️ Load Balancer",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "What are the differences between L4 and L7 load balancers, and when would you use each?",
+    "expectedPoints": [
+      "L4 operates at the transport layer using IP and TCP/UDP ports.",
+      "L7 operates at the application layer and can read HTTP headers and content.",
+      "L4 is faster with less overhead, suitable for high throughput and low latency.",
+      "L7 supports content-based routing, SSL termination, and is used for microservices.",
+      "Choose L4 for performance and L7 for advanced routing and security features."
+    ],
+    "followUps": [
+      "Can you explain a scenario where L7 load balancing is preferred over L4?",
+      "How does SSL termination work in L7 load balancers?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "sys-design-prep-v1.html",
+    "childExplanation": "Imagine you have two types of mail sorters. One sorter just looks at the address and sorts the mail quickly. The other sorter opens the mail, reads the content, and then decides where to send it. The first is like an L4 load balancer, and the second is like an L7 load balancer.",
+    "detailedExplanation": "<h4>Understanding L4 and L7 Load Balancers</h4><p><strong>L4 Load Balancers</strong> operate at the transport layer, using IP addresses and TCP/UDP ports to distribute traffic. They are fast and have minimal overhead, making them ideal for scenarios where high throughput and low latency are critical, such as in real-time applications.</p><p><strong>L7 Load Balancers</strong> work at the application layer, allowing them to inspect HTTP headers, URLs, cookies, and even the body of requests. This capability enables advanced features like content-based routing, A/B testing, and SSL termination. L7 load balancers are often used in microservices architectures, API gateways, and web applications where such features are necessary.</p><p>In production, choosing between L4 and L7 depends on the specific needs of the application. A common pitfall is using L7 load balancers when the advanced features are not required, leading to unnecessary complexity and overhead.</p>",
+    "diagramMermaid": "flowchart LR\n  subgraph L4 Load Balancer\n    A[IP & Port Based]\n    B[Fast & Low Overhead]\n  end\n  subgraph L7 Load Balancer\n    C[Reads HTTP Content]\n    D[Content-based Routing]\n  end\n  A --> B\n  C --> D"
+  },
+  {
+    "id": "fun-xyz-prep-signal-map-what-fun-xyz-tests-in-behavioral-how-do-you-ensure-attention-to",
     "topic": "Testing",
     "subtopic": "🎯 Signal Map - What Fun.xyz Tests in Behavioral",
     "difficulty": "senior",
     "type": "behavioral",
-    "question": "Tell me about a time you identified and fixed a subtle edge case or race condition that others missed. What was the impact?",
+    "question": "How do you ensure attention to detail in your frontend projects?",
     "expectedPoints": [
-      "Describes a specific edge case or race condition (e.g., Safari camera bug, KYB POA optimization).",
-      "Explains how they discovered it (e.g., testing, code review, user report).",
-      "Details the fix and why it was non-trivial.",
-      "Quantifies impact (e.g., reduced error rate from 17% to 8%).",
-      "Shows ownership and attention to detail.",
-      "Connects to hypergrowth mindset (e.g., voluntary overtime to fix)."
+      "Identifies and addresses edge cases",
+      "Prevents race conditions",
+      "Fixes precision bugs",
+      "Uses thorough testing strategies",
+      "Consistently reviews and refines code"
     ],
     "followUps": [
-      "How did you prioritize this fix against other tasks?",
-      "What would you do differently to prevent similar issues in the future?"
+      "Can you give an example of a precision bug you fixed?",
+      "How do you test for race conditions in your code?"
     ],
     "rubric": {},
     "tags": [
       "web3"
     ],
-    "sourceFile": "fun-xyz-prep.html"
+    "sourceFile": "fun-xyz-prep.html",
+    "childExplanation": "Imagine you're building a LEGO castle. Attention to detail means making sure every piece is in the right place, so the castle doesn't fall apart. It's like checking your homework twice to make sure you didn't miss anything.",
+    "detailedExplanation": "<h4>Attention to Detail in Frontend Development</h4> <p><strong>Attention to detail</strong> in frontend development means being meticulous about every aspect of your code and user interface. It involves catching small issues like edge cases, race conditions, and precision bugs that could lead to larger problems if left unchecked.</p> <p>In practice, this means thoroughly testing your code to ensure it behaves correctly in all scenarios, not just the most common ones. For example, an edge case might be how your application handles unexpected user input, while a race condition could occur if two processes try to update the same data at the same time.</p> <p>Attention to detail is crucial in production because small bugs can lead to significant user experience issues or security vulnerabilities. A common pitfall is overlooking these minor details during development, which can result in costly fixes later on.</p>",
+    "diagramMermaid": "flowchart LR A[Frontend Project] --> B[Identify Edge Cases] B --> C[Prevent Race Conditions] C --> D[Fix Precision Bugs] D --> E[Thorough Testing] E --> F[Review and Refine Code]"
   },
   {
-    "id": "fun-xyz-prep-your-star-story-bank-pre-prepared-tell-me-about-a-time-you-had-a",
+    "id": "fun-xyz-prep-your-pre-prepared-star-story-bank-how-do-you-approach-a-b-testin",
     "topic": "Testing",
-    "subtopic": "📚 Your STAR Story Bank (Pre-Prepared)",
+    "subtopic": "📚 Your Pre-Prepared STAR Story Bank",
     "difficulty": "senior",
-    "type": "behavioral",
-    "question": "Tell me about a time you had a technical disagreement with a senior engineer. How did you handle it?",
+    "type": "conceptual",
+    "question": "How do you approach A/B testing to ensure meaningful results?",
     "expectedPoints": [
-      "Describes a specific technical disagreement with a senior colleague.",
-      "Explains how they used data or evidence to support their position.",
-      "Demonstrates ability to 'disagree and commit' after discussion.",
-      "Shows respect for seniority while advocating for their viewpoint.",
-      "Reflects on what they learned or changed permanently from the experience."
+      "Explain the purpose of A/B testing.",
+      "Describe how you select metrics to measure success.",
+      "Discuss how you ensure the test is statistically significant.",
+      "Mention any tools or frameworks you've used for A/B testing.",
+      "Explain how you handle unexpected results."
     ],
     "followUps": [
-      "What would you do differently if you faced a similar situation today?",
-      "How did this experience change your approach to technical discussions?"
+      "Can you share a specific example of an A/B test you conducted?",
+      "How do you decide when to end an A/B test?"
     ],
     "rubric": {},
     "tags": [
       "web3"
     ],
-    "sourceFile": "fun-xyz-prep.html"
+    "sourceFile": "fun-xyz-prep.html",
+    "childExplanation": "Imagine you have two different types of cookies, and you want to know which one people like more. You give some people Cookie A and others Cookie B, then see which one gets eaten more. That's like A/B testing, but for websites or apps, to see which version people like better.",
+    "detailedExplanation": "<h4>Understanding A/B Testing</h4><p><strong>A/B testing</strong> is a method used to compare two versions of a webpage or app against each other to determine which one performs better. It's like a scientific experiment where you have a control (A) and a variation (B) to see which one users prefer.</p><h4>How It Works</h4><p>In A/B testing, you randomly split your audience into two groups. One group sees version A, and the other sees version B. You then measure specific metrics, such as conversion rates or user engagement, to determine which version is more effective.</p><h4>Importance in Production</h4><p>A/B testing is crucial in production because it allows companies to make data-driven decisions. By testing changes on a small scale before a full rollout, businesses can optimize their products and improve user satisfaction without risking a negative impact on the entire user base.</p><h4>Common Pitfall</h4><p>A common pitfall in A/B testing is not ensuring statistical significance. If the sample size is too small, the results might not accurately reflect user preferences, leading to incorrect conclusions.</p>",
+    "diagramMermaid": "flowchart LR\n    A[Users] --> B{Split Traffic}\n    B --> C[Version A]\n    B --> D[Version B]\n    C --> E[Measure Metrics]\n    D --> E\n    E --> F{Analyze Results}\n    F --> G[Decision Making]"
   },
   {
-    "id": "fun-xyz-prep-your-binance-kyb-bug-agent-orchestrator-workers-how-would-you-design-an-orches",
+    "id": "fun-xyz-prep-your-binance-kyb-bug-agent-orchestrator-workers-how-does-the-orchestrator-work",
     "topic": "Testing",
     "subtopic": "🎯 Your Binance KYB Bug Agent (Orchestrator-Workers)",
     "difficulty": "senior",
     "type": "system_design",
-    "question": "How would you design an orchestrator-worker system for automated bug triaging, and what are the key tradeoffs in choosing between a centralized orchestrator vs. a decentralized worker mesh?",
+    "question": "How does the orchestrator-worker model improve bug investigation in a frontend system?",
     "expectedPoints": [
-      "Describes orchestrator role: task decomposition, worker dispatch, result aggregation.",
-      "Identifies tradeoffs: centralized control vs. single point of failure; simpler coordination vs. scalability bottleneck.",
-      "Mentions worker specialization and fault isolation (e.g., one worker failure doesn't crash system).",
-      "Discusses human-in-the-loop for validation and feedback to improve worker accuracy.",
-      "Considers async vs. sync communication, error handling, and idempotency for workers."
+      "Explains the role of the orchestrator in task distribution.",
+      "Describes how workers handle specific sub-tasks.",
+      "Discusses the benefits of task specialization.",
+      "Mentions the feedback loop for continuous improvement.",
+      "Highlights the importance of human review in the process."
     ],
     "followUps": [
-      "How would you handle a worker that hangs or returns garbage data?",
-      "What metrics would you use to evaluate the system's effectiveness?"
+      "What are the potential challenges of using this model?",
+      "How can the system be scaled with more workers?"
     ],
     "rubric": {},
     "tags": [
       "web3"
     ],
-    "sourceFile": "fun-xyz-prep.html"
+    "sourceFile": "fun-xyz-prep.html",
+    "childExplanation": "Imagine you have a team of superheroes, each with a special power. The leader superhero decides who should tackle which part of a problem. This way, everyone uses their special skills to solve the problem faster and better. After they finish, the leader checks the work to make sure everything is perfect.",
+    "detailedExplanation": "<h4>Orchestrator-Worker Model</h4><p>The <strong>orchestrator-worker model</strong> is a system design pattern where an orchestrator agent assigns specific tasks to specialized workers. In this context, the orchestrator (like Claude or GPT-4) decides which worker should handle which part of a bug investigation process. This model is beneficial because it leverages the strengths of each worker to efficiently tackle complex problems.</p><p>Each worker has a distinct role: one might replay user sessions, another investigates logs, a third resolves code locations, a fourth generates hypotheses, and a fifth suggests fixes. This specialization allows tasks to be completed more efficiently and accurately. Once all tasks are completed, results converge for a human review, ensuring quality and providing feedback for system improvement.</p><p>This model is crucial in production environments as it speeds up bug resolution and improves accuracy. However, a common pitfall is the potential for bottlenecks if the orchestrator or any worker becomes overloaded or fails, which can delay the entire process.</p>",
+    "diagramMermaid": "flowchart TD\n    A[Orchestrator Agent] --> B[Worker 1: Session Replay]\n    A --> C[Worker 2: Log Investigator]\n    A --> D[Worker 3: Code Locator]\n    A --> E[Worker 4: Hypothesis Generator]\n    A --> F[Worker 5: Fix Suggester]\n    B --> G[Converge for Review]\n    C --> G\n    D --> G\n    E --> G\n    F --> G\n    G --> H[Human Review]"
   },
   {
-    "id": "fun-xyz-prep-end-to-end-bug-detection-pipeline-design-a-bug-detection-pipelin",
+    "id": "fun-xyz-prep-end-to-end-bug-detection-pipeline-how-would-you-design-an-end-to",
     "topic": "Testing",
     "subtopic": "🔄 End-to-End Bug Detection Pipeline",
     "difficulty": "senior",
     "type": "system_design",
-    "question": "Design a bug detection pipeline that integrates end-to-end testing with observability. How would you structure the stages from alert to fix, and what metrics would you track for the pipeline itself?",
+    "question": "How would you design an end-to-end bug detection pipeline for a frontend application?",
     "expectedPoints": [
-      "Describes stages: trigger, triage, reproduce, hypothesize, investigate, verify, fix, review.",
-      "Explains how each stage uses testing (e.g., session replay for reproduce, automated tests for verify).",
-      "Mentions observability metrics: time-to-hypothesis, false positive rate, cost per investigation.",
-      "Discusses logging tool calls and tracking pipeline performance for continuous improvement.",
-      "Addresses human-in-the-loop review and feedback loop to reduce future false positives."
+      "Identify and categorize the bug source (UI, logic, network, data).",
+      "Explain how to reproduce the bug using session replays.",
+      "Discuss hypothesizing root causes and ranking them.",
+      "Describe the investigation process using code and logs.",
+      "Outline the verification, fix, and review stages."
     ],
     "followUps": [
-      "How would you prioritize which alerts to investigate first?",
-      "What tools or frameworks would you use for session replay and automated verification?"
+      "How do you ensure observability in your bug detection pipeline?",
+      "What metrics would you track to evaluate the pipeline's effectiveness?"
     ],
     "rubric": {},
     "tags": [
       "web3"
     ],
-    "sourceFile": "fun-xyz-prep.html"
+    "sourceFile": "fun-xyz-prep.html",
+    "childExplanation": "Imagine you have a big puzzle, and you need to find out which piece is missing. First, you look at the picture on the box to see what it should look like. Then, you check all the pieces you have to figure out which one is missing. Once you know which piece is missing, you find it and put it in the right spot to complete the puzzle.",
+    "detailedExplanation": "<h4>End-to-End Bug Detection Pipeline</h4><p>An <strong>end-to-end bug detection pipeline</strong> is a structured process used to identify, categorize, and resolve bugs in a software application. It begins with <strong>triggering an alert</strong> when a bug is detected, such as through a user report or a drop in conversion rates. The next step is <strong>triage</strong>, where the bug is categorized based on its source, such as UI, logic, network, or data issues.</p><p>Once categorized, the bug is <strong>reproduced</strong> by extracting steps from session replays. This helps in understanding the exact conditions under which the bug occurs. The next phase involves <strong>hypothesizing</strong> potential root causes and ranking them based on likelihood. This is followed by an <strong>investigation</strong> phase where code and logs are queried to test these hypotheses.</p><p>After identifying the root cause, the bug is <strong>verified</strong> by running tests and comparing it with past bugs. The final steps involve <strong>fixing</strong> the bug by generating a patch, drafting a pull request, and getting it reviewed by a human. A critical aspect of this pipeline is <strong>observability</strong>, which involves logging every tool call, tracking time-to-hypothesis, and monitoring metrics like false positive rates and investigation costs.</p><p>A common pitfall is failing to maintain observability, which can lead to inefficiencies and missed bugs.</p>",
+    "diagramMermaid": "flowchart LR\n  A[Trigger Alert] --> B[Triage]\n  B --> C[Reproduce Bug]\n  C --> D[Hypothesize Causes]\n  D --> E[Investigate]\n  E --> F[Verify]\n  F --> G[Fix and Review]\n  subgraph Observability\n    H[Log Tool Calls]\n    I[Track Metrics]\n  end\n  G --> H\n  G --> I"
   }
 ]

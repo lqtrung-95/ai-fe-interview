@@ -27,7 +27,8 @@ model User {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  sessions InterviewSession[]
+  sessions  InterviewSession[]
+  studyPlan StudyPlan?
 }
 
 // ============================================================================
@@ -141,9 +142,56 @@ model SeedQuestion {
   rubric         Json
   tags           String[]     @default([]) // e.g. ["web3"]
   sourceFile     String?      // provenance: which resources/*.html
+
+  // Study content — populated from source HTML or AI generation.
+  // childExplanation: plain-text ELI5 paragraph(s), EN.
+  // detailedExplanation: translated body HTML (h4, p, ul, code, pre), EN.
+  // diagramSvg: raw <svg>…</svg> string, language-agnostic (hand-crafted, priority).
+  // diagramMermaid: Mermaid flowchart source (LLM-generated, fallback when no SVG).
+  childExplanation    String?  @db.Text
+  detailedExplanation String?  @db.Text
+  diagramSvg          String?  @db.Text
+  diagramMermaid      String?  @db.Text
+
   createdAt      DateTime     @default(now())
 
   @@index([topic, difficulty])
+}
+
+// ============================================================================
+// Study plan
+// ============================================================================
+
+model StudyPlan {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Topics the user wants to focus on (subset of CANONICAL_TOPICS).
+  topics    String[]
+  // Target interview level — drives which difficulty band of questions is served.
+  level     Level
+  // Preparation window in weeks (1 | 2 | 4 | 12).
+  prepWeeks Int
+  startedAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  progress  StudyPlanProgress[]
+
+  @@index([userId])
+}
+
+// Tracks which seed questions the user has marked as studied.
+// One row per (plan, question) pair — upserted when user taps "Mark as studied".
+model StudyPlanProgress {
+  id             String    @id @default(cuid())
+  planId         String
+  plan           StudyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  userId         String
+  seedQuestionId String
+  studiedAt      DateTime  @default(now())
+
+  @@unique([planId, seedQuestionId])
+  @@index([userId])
 }
 
 // ============================================================================
@@ -176,6 +224,7 @@ enum Level {
   junior
   mid
   senior
+  staff
 }
 
 enum Difficulty {

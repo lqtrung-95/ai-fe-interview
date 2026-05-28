@@ -28,6 +28,11 @@ interface SeedRow {
   rubric: Record<string, unknown>;
   tags: string[];
   sourceFile: string;
+  // Study content fields (optional — populated by extract-seed for fe-prep.html questions).
+  childExplanation?: string;
+  detailedExplanation?: string;
+  diagramSvg?: string;
+  diagramMermaid?: string;
 }
 
 async function main() {
@@ -95,6 +100,10 @@ async function main() {
           rubric: r.rubric as Prisma.InputJsonValue,
           tags: r.tags,
           sourceFile: r.sourceFile,
+          childExplanation: r.childExplanation ?? null,
+          detailedExplanation: r.detailedExplanation ?? null,
+          diagramSvg: r.diagramSvg ?? null,
+          diagramMermaid: r.diagramMermaid ?? null,
         },
         create: {
           id: r.id,
@@ -108,6 +117,10 @@ async function main() {
           rubric: r.rubric as Prisma.InputJsonValue,
           tags: r.tags,
           sourceFile: r.sourceFile,
+          childExplanation: r.childExplanation ?? null,
+          detailedExplanation: r.detailedExplanation ?? null,
+          diagramSvg: r.diagramSvg ?? null,
+          diagramMermaid: r.diagramMermaid ?? null,
         },
       });
       total++;

@@ -47,12 +47,15 @@ export default async function SessionPage({
   const target = QUESTION_TARGETS[session.mode];
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <header className="mb-8">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">
-          {session.mode.replace('_', ' ')} · {session.topics.join(' + ')}
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Mock interview</h1>
+    <div className="mx-auto max-w-5xl px-6 py-10">
+      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
+            {session.mode.replace('_', ' ')} · {session.difficulty}
+          </span>
+          <span>{session.topics.join(' + ')}</span>
+        </div>
+        <p className="text-xs text-muted-foreground">Question {completed + 1} of {target}</p>
       </header>
       <InterviewShell
         sessionId={session.id}

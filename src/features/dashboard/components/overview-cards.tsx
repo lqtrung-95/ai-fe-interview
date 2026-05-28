@@ -33,11 +33,11 @@ export function OverviewCards({ metrics }: Props) {
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
         <article
           key={item.label}
-          className="rounded-lg border border-border/60 bg-card p-4"
+          className="rounded-lg border border-border/70 bg-card p-4 shadow-sm"
         >
           <p className="text-xs uppercase tracking-wide text-muted-foreground">{item.label}</p>
           <p className="mt-2 text-2xl font-semibold tracking-tight">{item.value}</p>

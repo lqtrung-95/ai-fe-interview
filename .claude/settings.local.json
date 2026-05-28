@@ -45,7 +45,15 @@
       "Bash(pnpm dev *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
       "mcp__ChromeDevTools__navigate_page",
-      "mcp__ChromeDevTools__take_screenshot"
+      "mcp__ChromeDevTools__take_screenshot",
+      "Bash(PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1 pnpm prisma migrate dev --name add_study_content_to_seed_question)",
+      "Bash(ls ~/.nvm/versions/node/ 2>/dev/null)",
+      "Bash(~/.nvm/versions/node/v22.16.0/bin/node ~/.nvm/versions/node/v22.16.0/bin/npx --yes prisma migrate dev --name add_study_content_to_seed_question)",
+      "Bash(mkdir -p \"/Users/lequoctrung/Documents/Personal Projects/ai-interview-coach/src/features/study/server\" \"/Users/lequoctrung/Documents/Personal Projects/ai-interview-coach/src/features/study/components\" \"/Users/lequoctrung/Documents/Personal Projects/ai-interview-coach/src/app/\\(app\\)/question-bank/[id]\")",
+      "Bash(pnpm prisma *)",
+      "Bash(cat /tmp/extract-seed-v3.log 2>/dev/null)",
+      "Bash(pkill -f \"extract-seed-from-html\")",
+      "Bash(LLM_PROVIDER=openai pnpm extract-seed)"
     ]
   }
 }

@@ -51,7 +51,7 @@ export function InterviewMainPanel(props: Props) {
         </Button>
       </header>
 
-      <section className="rounded-lg border border-border/60 bg-card p-6">
+      <section className="rounded-lg border border-border/70 bg-card p-6 shadow-sm">
         <p className="text-lg font-medium leading-relaxed">{props.current?.question}</p>
       </section>
 
@@ -64,7 +64,7 @@ export function InterviewMainPanel(props: Props) {
           placeholder="Walk through your thinking. Trade-offs, examples, edge cases."
           rows={10}
           disabled={props.isSubmitting || props.isFollowUp}
-          className="w-full resize-y rounded-md border border-border/60 bg-background p-3 text-sm focus:border-foreground focus:outline-none focus:ring-2 focus:ring-ring/40"
+          className="min-h-72 w-full resize-y rounded-md border border-border/70 bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
       </section>
 

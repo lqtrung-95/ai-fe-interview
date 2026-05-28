@@ -21,7 +21,7 @@ export default async function HistoryPage({
   const hasActiveFilters = Boolean(filters.topic || filters.minScore || filters.from || filters.to);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <div className="mx-auto max-w-4xl px-6 py-10">
       <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Session history</h1>
@@ -39,7 +39,7 @@ export default async function HistoryPage({
       </div>
 
       {sessions.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border/60 bg-card/50 px-8 py-16 text-center">
+        <div className="rounded-lg border border-dashed border-border/70 bg-card/60 px-8 py-16 text-center">
           <p className="text-lg font-medium">
             {hasActiveFilters ? 'No sessions match these filters.' : 'No sessions yet.'}
           </p>
@@ -50,7 +50,7 @@ export default async function HistoryPage({
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="overflow-hidden rounded-lg border border-border/70 bg-card shadow-sm">
           {sessions.map((session) => (
             <SessionListItem key={session.id} session={session} />
           ))}

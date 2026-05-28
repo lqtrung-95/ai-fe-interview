@@ -5,7 +5,10 @@ import { z } from 'zod';
 // Output types — what AI returns (validated via Zod before persistence).
 // ----------------------------------------------------------------------------
 
+// Question difficulty (the 3 ratings a question can carry).
 export const difficultyEnum = z.enum(['junior', 'mid', 'senior']);
+// User seniority level — includes 'staff' which maps to senior-difficulty questions.
+export const levelEnum = z.enum(['junior', 'mid', 'senior', 'staff']);
 export const questionTypeEnum = z.enum([
   'conceptual',
   'debugging',
@@ -21,7 +24,7 @@ export const questionInputSchema = z.object({
   topic: z.string(),
   subtopic: z.string().optional(),
   difficulty: difficultyEnum,
-  level: difficultyEnum,
+  level: levelEnum,
   sessionMode: sessionModeEnum,
   targetRole: z.string().nullable().optional(),
   targetCompanyType: z.string().nullable().optional(),
@@ -65,7 +68,7 @@ export const evaluateInputSchema = z.object({
   expectedPoints: z.array(z.string()),
   userAnswer: z.string(),
   followUpAnswer: z.string().optional(),
-  level: difficultyEnum,
+  level: levelEnum,
 });
 export type EvaluateInput = z.infer<typeof evaluateInputSchema>;
 
@@ -95,7 +98,7 @@ export type EvaluateOutput = z.infer<typeof evaluateOutputSchema>;
 
 export const summaryInputSchema = z.object({
   userProfile: z.object({
-    level: difficultyEnum,
+    level: levelEnum,
     targetRole: z.string().nullable().optional(),
     targetCompanyType: z.string().nullable().optional(),
   }),

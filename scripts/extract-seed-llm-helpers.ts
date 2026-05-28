@@ -110,7 +110,8 @@ function hashKey(s: string): string {
 
 export async function translateToEnglish(text: string): Promise<string> {
   const cache = loadCache();
-  const key = `tr:${hashKey(text)}`;
+  // v3: bumped to force re-translation with OpenAI (overriding cached DeepSeek results).
+  const key = `tr_v3:${hashKey(text)}`;
   if (cache[key]) return cache[key];
 
   const client = getClient();
@@ -142,6 +143,14 @@ export interface GeneratedQuestion {
   difficulty: Difficulty;
   type: QuestionType;
   subtopic?: string;
+  // ELI5: 2-3 sentence plain-English analogy for a non-engineer (no jargon)
+  childExplanation?: string;
+  // Rich HTML explanation rendered with .study-prose CSS:
+  //   <p> paragraphs, <h4> section headings, <strong> key terms,
+  //   <ul><li> bullet lists, <code> for inline code/API names
+  detailedExplanation?: string;
+  // Mermaid diagram source (flowchart LR, 3-8 nodes). Rendered client-side.
+  diagramMermaid?: string;
 }
 
 /**
@@ -157,7 +166,8 @@ export async function generateQuestionsFromSection(args: {
   // Cache key intentionally omits `args.topic` so re-runs with different topic
   // routing (e.g. "Frontend System Design" → "Web Performance") still hit cache.
   // The topic only affects where the resulting question lands, not its content.
-  const key = `qgen:${hashKey(`${args.heading}|${args.body}`)}`;
+  // v5: force full OpenAI GPT-4o regeneration (v4 entries were DeepSeek).
+  const key = `qgen_v5:${hashKey(`${args.heading}|${args.body}`)}`;
   if (cache[key]) {
     try {
       const cached = JSON.parse(cache[key]) as Partial<GeneratedQuestion>[];
@@ -175,18 +185,30 @@ export async function generateQuestionsFromSection(args: {
     r = await client.chat.completions.create({
       model: modelSmart(),
       response_format: { type: 'json_object' },
-      max_tokens: 700,
+      max_tokens: 2000,
       messages: [
         {
           role: 'system',
           content:
             'You are a senior frontend interview coach. Read the study-guide section (input may be ' +
             'Vietnamese or English) and derive EXACTLY 1 realistic interview question a senior ' +
-            'frontend interviewer would actually ask. Required fields: `question` (in English, ' +
-            'concise), `expectedPoints` (3-5 short English rubric items grounded in the section), ' +
-            '`followUps` (1-2 short English follow-ups), `difficulty` (junior|mid|senior), `type` ' +
-            '(conceptual|debugging|system_design|behavioral|tradeoff). Output strict JSON: ' +
-            '{ "questions": GeneratedQuestion[] }. No markdown.',
+            'frontend interviewer would actually ask. Required fields:\n' +
+            '- `question` (English, concise)\n' +
+            '- `expectedPoints` (3-5 short English rubric items grounded in the section)\n' +
+            '- `followUps` (1-2 short English follow-up questions)\n' +
+            '- `difficulty` (junior|mid|senior)\n' +
+            '- `type` (conceptual|debugging|system_design|behavioral|tradeoff)\n' +
+            '- `childExplanation` (2-3 sentences in plain English — explain to a smart 10-year-old ' +
+            'using a concrete everyday analogy, no jargon)\n' +
+            '- `detailedExplanation` (rich HTML, 150–350 words — use <p> for paragraphs, <h4> for ' +
+            'section titles, <strong> for key terms, <ul><li> for lists, <code> for code/API names; ' +
+            'cover: what it is, how it works, why it matters in production, 1 common pitfall; ' +
+            'English only, no markdown fences, no wrapping div)\n' +
+            '- `diagramMermaid` (Mermaid diagram source — REQUIRED for EVERY question, no exceptions; ' +
+            'use "flowchart LR" or "flowchart TD" syntax with 3-8 nodes that visually explain the core ' +
+            'concept; node labels must be short (≤5 words), English only; use --> for arrows, ' +
+            'subgraph for grouping related nodes; output raw Mermaid source only, no ```mermaid fences)\n' +
+            'Output strict JSON: { "questions": GeneratedQuestion[] }. No markdown.',
         },
         {
           role: 'user',
@@ -229,6 +251,9 @@ export async function generateQuestionsFromSection(args: {
         ? (q.type as QuestionType)
         : 'conceptual',
       subtopic: q.subtopic,
+      childExplanation: typeof q.childExplanation === 'string' ? q.childExplanation.trim() || undefined : undefined,
+      detailedExplanation: typeof q.detailedExplanation === 'string' ? q.detailedExplanation.trim() || undefined : undefined,
+      diagramMermaid: typeof q.diagramMermaid === 'string' ? q.diagramMermaid.trim() || undefined : undefined,
     }));
 
   cache[key] = JSON.stringify(valid);

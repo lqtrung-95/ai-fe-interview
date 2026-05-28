@@ -16,6 +16,11 @@ export interface SeedQuestion {
   rubric: Record<string, unknown>;
   tags: string[];
   sourceFile: string;
+  // Study content: populated from source HTML or LLM generation.
+  childExplanation?: string;    // ELI5 plain-text, English
+  detailedExplanation?: string; // Body HTML translated to English
+  diagramSvg?: string;          // Raw <svg>...</svg> string (hand-crafted, priority)
+  diagramMermaid?: string;      // Mermaid flowchart source (LLM-generated, fallback)
 }
 
 // PRD §7.3 canonical topic names.
