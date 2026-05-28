@@ -1,0 +1,583 @@
+[
+  {
+    "id": "fe-prep-testing-kim-tu-thap-testing-unit-integration-e2e",
+    "topic": "Testing",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain the testing pyramid and the purpose of each layer: unit, integration, and end-to-end tests.",
+    "expectedPoints": [
+      "Describes the three layers: unit, integration, e2e.",
+      "Explains unit tests focus on individual functions/classes.",
+      "Explains integration tests verify interactions between units.",
+      "Explains e2e tests validate the entire system from user perspective.",
+      "Mentions the pyramid shape implies more unit tests, fewer e2e tests."
+    ],
+    "followUps": [
+      "Why is it recommended to have more unit tests than e2e tests?",
+      "How would you decide what to test at each layer?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-testing-vi-sao-nen-test-theo-hanh-vi-khong-test-",
+    "topic": "Testing",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Why should we prefer behavior-driven testing over implementation detail testing?",
+    "expectedPoints": [
+      "Improves understanding of customer requirements and how the application meets them.",
+      "Reduces dependency on implementation details, making the application more flexible to changes.",
+      "Enhances maintainability by making tests easier to update when code changes.",
+      "Reduces test duplication, saving time and effort.",
+      "Increases confidence in deployment with a robust behavior test suite."
+    ],
+    "followUps": [
+      "Can you give an example where behavior testing catches a bug that unit testing might miss?",
+      "How do you balance behavior tests with unit tests in a real project?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-testing-mock-stub-spy-khac-nhau-ra-sao-khi-nao-n",
+    "topic": "Testing",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the differences between mock, stub, and spy in testing, and describe scenarios where each is most appropriate.",
+    "expectedPoints": [
+      "Mock: replaces real object, verifies interactions (e.g., method calls, arguments).",
+      "Stub: provides predefined responses, used to control indirect inputs.",
+      "Spy: wraps real object, records calls for verification without full replacement.",
+      "Mock is best for behavior verification; stub for state verification; spy for partial mocking.",
+      "Use mocks when testing interactions with external dependencies; stubs for isolating unit under test; spies when you need real behavior plus tracking."
+    ],
+    "followUps": [
+      "How would you decide between using a mock and a stub in a unit test?",
+      "Can you give an example where using a spy is more appropriate than a mock?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-2-kien-truc-client-pho-bien-layered-thuong-bao-gom-cac-lop-sau-how-would-you-test-each-layer-",
+    "topic": "Testing",
+    "subtopic": "Kiến trúc client phổ biến (layered) thường bao gồm các lớp sau:\n\n- **Lớp giao diện (Presentation Layer)**: chịu trách nhiệm xử lý giao diện người dùng, bao gồm các thành phần như UI, layout và giao tiếp với người dùng.\n- **Lớp logic nghiệp vụ (Business Logic Layer)**: chứa các quy tắc và logic nghiệp vụ của ứng dụng, bao gồm các chức năng như tính toán, kiểm tra và xử lý dữ liệu.\n- **Lớp dữ liệu (Data Access Layer)**: chịu trách nhiệm truy cập và quản lý dữ liệu, bao gồm các thành phần như cơ sở dữ liệu, API và lưu trữ dữ liệu.\n- **Lớp giao tiếp (Interface Layer)**: chịu trách nhiệm giao tiếp với các hệ thống khác, bao gồm các thành phần như API, mạng và giao tiếp với các hệ thống khác.\n\nKiến trúc này giúp phân tách các chức năng và trách nhiệm của ứng dụng, giảm thiểu sự phức tạp và tăng cường khả năng mở rộng và bảo trì.\n\nTrong thực tế, các lớp trên có thể được tổ chức và triển khai theo nhiều cách khác nhau, tùy thuộc vào yêu cầu và đặc điểm của ứng dụng.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you test each layer of a layered frontend architecture (e.g., View, View Model, State/Store, Data/Network) in a React SPA?",
+    "expectedPoints": [
+      "View layer: unit test with shallow rendering or snapshot testing for presentational components.",
+      "View Model/Controller: test hooks or container components with mocked store and events.",
+      "State/Store layer: test reducers, selectors, and async actions with mock data.",
+      "Data/Network layer: test API clients with mocked HTTP responses, retry logic, and caching.",
+      "Integration tests: verify data flow from network to UI using mocked server responses."
+    ],
+    "followUps": [
+      "How would you test the interaction between the View Model and the Store?",
+      "What tradeoffs exist between mocking the network layer vs. using a real API in tests?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-container-vs-presentational-pattern-in-software-development--in-a-react-application-when-wo",
+    "topic": "Testing",
+    "subtopic": "**Container vs Presentational Pattern**\n\nIn software development, particularly in React, two popular patterns are used to structure components: Container and Presentational. Understanding the differences between these patterns is essential for building maintainable and scalable applications.\n\n**Container Pattern**\n\nA Container component is responsible for managing the state and side effects of a component. It acts as a container for the Presentational component, handling tasks such as:\n\n- Fetching data from APIs\n- Managing state changes\n- Handling events and side effects\n\nThe Container component typically uses hooks like `useState` and `useEffect` to manage state and side effects. It then passes the necessary props to the Presentational component.\n\n**Presentational Pattern**\n\nA Presentational component, on the other hand, is solely responsible for rendering the UI. It receives props from the Container component and displays the data without worrying about state management or side effects.\n\nThe Presentational component should be as simple as possible, focusing on rendering the UI. It should not contain any logic related to state management or side effects.\n\n**Benefits of Container-Presentational Pattern**\n\nUsing the Container-Presentational pattern offers several benefits, including:\n\n- Separation of Concerns: The Container component handles state management and side effects, while the Presentational component focuses on rendering the UI.\n- Reusability: Presentational components can be reused across the application without worrying about the underlying state management.\n- Easier Testing: With the Container-Presentational pattern, it's easier to test the Presentational component in isolation.\n\n**Example**\n\nSuppose we have a `UserProfile` component that displays a user's profile information. We can use the Container-Presentational pattern to structure this component:\n\n```jsx\n// Container component\nimport { useState, useEffect } from 'react';\n\nfunction UserProfileContainer() {\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    // Fetch user data from API\n    fetchUser().then((data) => setUser(data));\n  }, []);\n\n  return <UserProfile user={user} />;\n}\n\n// Presentational component\nfunction UserProfile({ user }) {\n  if (!user) return <div>Loading...</div>;\n\n  return (\n    <div>\n      <h1>{user.name}</h1>\n      <p>{user.email}</p>\n    </div>\n  );\n}\n```\n\nIn this example, the `UserProfileContainer` component handles the state management and side effects, while the `UserProfile` component focuses on rendering the UI.",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "In a React application, when would you choose to use the Container/Presentational pattern over custom hooks for separating logic from UI? What are the trade-offs?",
+    "expectedPoints": [
+      "Container/Presentational pattern separates stateful logic (Container) from pure UI (Presentational), improving reusability and testability.",
+      "Custom hooks can encapsulate logic without requiring a wrapper component, reducing nesting and simplifying component trees.",
+      "Trade-off: Container/Presentational can lead to prop drilling and extra components, while hooks may mix concerns if not used carefully.",
+      "Pattern is most beneficial when the same UI is used with different data sources or when UI components are shared across projects (e.g., design systems).",
+      "With hooks, the pattern is less necessary for simple cases, but still useful for complex state management or when multiple containers share a presentational component."
+    ],
+    "followUps": [
+      "How would you test a Presentational component in isolation?",
+      "Can you refactor the given example to use a custom hook instead of a Container component?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-dung-micro-frontends-khi-ban-can-toi-uu-hoa-hieu-suat-ung-du-what-are-the-main-trade-offs-o",
+    "topic": "Testing",
+    "subtopic": "Dùng Micro-frontends khi bạn cần:\n\n- Tối ưu hóa hiệu suất ứng dụng bằng cách giảm tải trên một ứng dụng duy nhất\n- Cải thiện khả năng mở rộng và dễ dàng tích hợp các tính năng mới\n- Tăng cường bảo mật bằng cách cô lập các ứng dụng độc lập\n- Giảm thiểu thời gian tải trang và cải thiện trải nghiệm người dùng\n- Dễ dàng quản lý và cập nhật các ứng dụng độc lập\n\nMicro-frontends phù hợp với các dự án lớn, phức tạp, cần tích hợp nhiều tính năng độc lập và cần tối ưu hóa hiệu suất.",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "What are the main trade-offs of using micro-frontends in a large-scale application?",
+    "expectedPoints": [
+      "Mentions benefits: independent deployment, team autonomy, scalability.",
+      "Identifies drawbacks: bundle duplication, integration complexity, UX inconsistency.",
+      "Explains when micro-frontends are appropriate (large, complex projects with multiple teams).",
+      "Acknowledges increased build and deployment complexity.",
+      "Discusses impact on performance and user experience."
+    ],
+    "followUps": [
+      "How would you handle shared dependencies to avoid bundle duplication?",
+      "What strategies can ensure UX consistency across micro-frontends?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-core-accessibility-checklist-1-am-bao-tinh-kha-dung-cua-tran-what-are-the-key-aspects-of-a-",
+    "topic": "Testing",
+    "subtopic": "Core Accessibility Checklist:\n\n1. **Đảm bảo tính khả dụng của trang web** (Ensure Web Accessibility):\n   - Sử dụng thẻ `<title>` để mô tả trang web.\n   - Sử dụng thẻ `<meta name=\"description\">` để mô tả nội dung trang web.\n   - Sử dụng thẻ `<meta name=\"viewport\">` để điều chỉnh kích thước màn hình.\n\n2. **Tính khả dụng của hình ảnh** (Image Accessibility):\n   - Sử dụng thẻ `<img>` để mô tả hình ảnh.\n   - Sử dụng thuộc tính `alt` để mô tả hình ảnh.\n   - Sử dụng thuộc tính `title` để mô tả hình ảnh.\n\n3. **Tính khả dụng của bảng và bảng biểu** (Table and Chart Accessibility):\n   - Sử dụng thẻ `<table>` để mô tả bảng.\n   - Sử dụng thẻ `<th>` để mô tả tiêu đề bảng.\n   - Sử dụng thẻ `<td>` để mô tả dữ liệu bảng.\n\n4. **Tính khả dụng của nút và liên kết** (Button and Link Accessibility):\n   - Sử dụng thẻ `<button>` để mô tả nút.\n   - Sử dụng thẻ `<a>` để mô tả liên kết.\n   - Sử dụng thuộc tính `href` để mô tả liên kết.\n\n5. **Tính khả dụng của form** (Form Accessibility):\n   - Sử dụng thẻ `<form>` để mô tả form.\n   - Sử dụng thẻ `<label>` để mô tả nhãn form.\n   - Sử dụng thuộc tính `name` để mô tả trường form.\n\n6. **Tính khả dụng của JavaScript** (JavaScript Accessibility):\n   - Sử dụng `aria-live` để cập nhật nội dung động.\n   - Sử dụng `aria-atomic` để cập nhật nội dung động.\n   - Sử dụng `useCallback` để tránh tạo stale closure.\n\n7. **Tính khả dụng của React** (React Accessibility):\n   - Sử dụng `useMemo` để tránh tạo stale closure.\n   - Sử dụng `useCallback` để tránh tạo stale closure.\n   - Sử dụng `useState` để cập nhật trạng thái.\n\n8. **Tính khả dụng của event loop** (Event Loop Accessibility):\n   - Sử dụng `requestAnimationFrame` để cập nhật nội dung động.\n   - Sử dụng `cancelAnimationFrame` để hủy cập nhật nội dung động.\n\n9. **Tính khả dụng của hydration** (Hydration Accessibility):\n   - Sử dụng `hydrate` để cập nhật nội dung động.\n   - Sử dụng `unhydrate` để hủy cập nhật nội dung động.\n\n10. **Kiểm tra tính khả dụng** (Test Accessibility):\n    - Sử dụng công cụ kiểm tra tính khả dụng như Lighthouse.\n    - Sử dụng công cụ kiểm tra tính khả dụng như WAVE.\n    - Sử dụng công cụ kiểm tra tính khả dụng như Accessibility Insights.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "What are the key aspects of a core accessibility checklist for a web application?",
+    "expectedPoints": [
+      "Ensures semantic HTML (e.g., <button>, <nav>, <main>) before using ARIA.",
+      "Keyboard accessibility: all operations via keyboard, visible focus, logical tab order, no focus traps.",
+      "ARIA usage only when HTML is insufficient, with proper roles, labels, and live regions.",
+      "Color contrast meets WCAG 4.5:1 and respects prefers-reduced-motion.",
+      "Testing with tools like Lighthouse, WAVE, or Accessibility Insights."
+    ],
+    "followUps": [
+      "Why is 'No ARIA is better than bad ARIA' important?",
+      "How would you test keyboard accessibility in a complex component?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-testing-strategy-for-frontend-how-do-you-decide-what-to-test",
+    "topic": "Testing",
+    "subtopic": "Testing Strategy for Frontend",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How do you decide what to test in a frontend application, and at which layers (unit, integration, e2e) do you focus your efforts to maximize bug detection while minimizing maintenance cost?",
+    "expectedPoints": [
+      "Emphasizes testing for confidence in refactoring/deployment, not 100% coverage.",
+      "Prioritizes integration tests for critical user flows over excessive unit tests.",
+      "Uses the testing trophy or pyramid to balance speed, reliability, and cost.",
+      "Considers business logic, state management, and user interactions as high-value test targets.",
+      "Avoids testing implementation details; focuses on behavior and outcomes."
+    ],
+    "followUps": [
+      "Can you give an example of a test that gave you high confidence but low maintenance?",
+      "How would you test a complex form with multiple validation rules and async submission?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-testing-pyramid-and-the-trophy-variant-how-would-you-decide-the-distr",
+    "topic": "Testing",
+    "subtopic": "Testing Pyramid (and the \"Trophy\" variant)",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you decide the distribution of tests across unit, integration, and E2E levels in a frontend application?",
+    "expectedPoints": [
+      "Mentions the testing pyramid or trophy model.",
+      "Explains trade-offs: unit tests are fast/cheap but isolated, E2E are slow/expensive but cover user flows.",
+      "Identifies integration tests as the 'sweet spot' for frontend.",
+      "Considers project context (e.g., criticality, team size, CI speed).",
+      "Avoids over-reliance on any single level."
+    ],
+    "followUps": [
+      "What would make you shift more tests to E2E?",
+      "How do you handle testing asynchronous logic or API calls?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-each-type-of-test-catches-specific-bugs-how-would-you-test-a-login-for",
+    "topic": "Testing",
+    "subtopic": "Each type of test catches specific bugs.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you test a login form using React Testing Library? What queries would you use and why?",
+    "expectedPoints": [
+      "Uses getByRole or getByLabelText to find form elements",
+      "Avoids querying by class names or internal state",
+      "Simulates user interactions (e.g., fireEvent or userEvent)",
+      "Asserts on visible outcomes (e.g., success message) rather than internal state",
+      "Explains that this approach makes tests resilient to refactoring"
+    ],
+    "followUps": [
+      "How would you handle async operations like API calls in this test?",
+      "What would you do if the form has no accessible labels?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-three-pillars-to-monitor-how-would-you-design-a-monitor",
+    "topic": "Testing",
+    "subtopic": "Three pillars to monitor",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design a monitoring strategy for a production frontend application to catch issues before they impact users?",
+    "expectedPoints": [
+      "Mentions error tracking for JS runtime errors, promise rejections, and API failures with grouping, stack traces, and breadcrumbs.",
+      "Discusses Real User Monitoring (RUM) for Core Web Vitals (LCP, INP, CLS) segmented by device, network, and region.",
+      "Includes analytics and funnel tracking to correlate performance with user behavior and business metrics.",
+      "Explains the difference between lab tests (Lighthouse) and RUM, and why both are needed.",
+      "Describes how to prioritize and act on data from these pillars (e.g., alerting, debugging, optimization)."
+    ],
+    "followUps": [
+      "How would you choose between Sentry and Rollbar for error tracking?",
+      "What metrics would you track in a funnel for an e-commerce checkout flow?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-performance-budget-set-limits-to-prevent-scope-creep-how-would-you-set-up-a-perform",
+    "topic": "Testing",
+    "subtopic": "Performance Budget — set limits to prevent \"scope creep\"",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you set up a performance budget in a CI/CD pipeline to prevent regressions, and how do you reconcile differences between lab data (Lighthouse) and field data (CrUX) when setting thresholds?",
+    "expectedPoints": [
+      "Define budgets for resource sizes (e.g., JS < 170KB) and metrics (e.g., LCP < 2.5s) using tools like Lighthouse CI or webpack.",
+      "Fail or warn the build when budgets are exceeded to prevent scope creep.",
+      "Explain that lab data is consistent for debugging, while field data (CrUX) reflects real users and is used by Google for ranking.",
+      "Set initial thresholds based on field data, then use lab data to catch regressions early.",
+      "Monitor both and adjust budgets over time based on field performance trends."
+    ],
+    "followUps": [
+      "What would you do if a new feature causes the bundle to exceed the budget but improves user engagement?",
+      "How would you handle source maps in production for debugging without exposing source code?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-ci-cd-pipeline-deployment-strategy-how-would-you-deploy-a-new-fro",
+    "topic": "Testing",
+    "subtopic": "CI/CD Pipeline & Deployment Strategy",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you deploy a new frontend feature to production while minimizing risk and ensuring a smooth user experience for existing users?",
+    "expectedPoints": [
+      "Mentions canary or blue-green deployment to roll out to a subset of users first.",
+      "Describes using feature flags to decouple deploy from release, enabling gradual rollout and instant kill switch.",
+      "Addresses handling users on old tabs: versioned assets with content hash, keeping old files, and handling chunk load failure by reloading.",
+      "Explains rollback strategy: either via canary rollback or toggling feature flag off without redeploy.",
+      "Mentions monitoring and metrics to detect issues during rollout."
+    ],
+    "followUps": [
+      "What if a user on an old tab encounters a 'chunk load failed' error? How would you handle it?",
+      "How do you decide the percentage increments for canary rollout?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-why-is-vite-fast-during-development-why-does-vite-achieve-near-ins",
+    "topic": "Testing",
+    "subtopic": "Why is Vite fast during development?",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Why does Vite achieve near-instant dev server startup even for large projects?",
+    "expectedPoints": [
+      "Vite leverages native ES modules in modern browsers instead of bundling during development.",
+      "It only transforms and serves modules requested by the browser, not the entire application.",
+      "Uses esbuild for fast pre-bundling of dependencies and on-demand transformation.",
+      "No full bundling step is needed until production build (Rollup).",
+      "Contrasts with Webpack which bundles everything upfront, causing slow startup for large projects."
+    ],
+    "followUps": [
+      "How does Vite handle HMR differently from Webpack?",
+      "What trade-offs does Vite make by not bundling during development?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-advanced-testing-mock-async-contract-how-would-you-test-an-async-fu",
+    "topic": "Testing",
+    "subtopic": "Advanced Testing: Mock, Async & Contract",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you test an async function that fetches user data from an API and updates the UI? Walk through your approach, including mocking and handling race conditions.",
+    "expectedPoints": [
+      "Uses async/await or callbacks correctly in test setup",
+      "Mocks the API call to avoid real network requests",
+      "Handles race conditions (e.g., using waitFor or act)",
+      "Verifies both success and error paths",
+      "Ensures test is deterministic and not flaky"
+    ],
+    "followUps": [
+      "How would you test a component that makes multiple parallel API calls?",
+      "What if the API contract changes? How would you catch that?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-mock-vs-stub-vs-spy-don-t-confuse-them-you-re-testing-a-function-that",
+    "topic": "Testing",
+    "subtopic": "Mock vs Stub vs Spy — don't confuse them.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "You're testing a function that calls an API and then processes the result. Should you use a stub, spy, or mock for the API call? Why?",
+    "expectedPoints": [
+      "Stub returns fixed data, suitable for controlling API response to test processing logic.",
+      "Spy tracks real calls but doesn't replace behavior; not ideal for external API.",
+      "Mock sets expectations on interactions, but for simple data return, stub is simpler.",
+      "Prefer stub at system boundary (network) to keep test focused on logic.",
+      "Avoid over-mocking; stub is sufficient unless verifying call details."
+    ],
+    "followUps": [
+      "What if you need to verify the API was called with specific parameters?",
+      "How would you test error handling from the API?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-testing-asynchronous-code-timers-how-would-you-test-a-debounced",
+    "topic": "Testing",
+    "subtopic": "Testing asynchronous code & timers",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you test a debounced function without waiting for real time?",
+    "expectedPoints": [
+      "Use fake timers (e.g., vi.useFakeTimers()) to control time.",
+      "Call the debounced function multiple times in quick succession.",
+      "Advance time by the debounce delay (e.g., vi.advanceTimersByTime(300)).",
+      "Assert that the function was called only once.",
+      "Clean up fake timers after the test."
+    ],
+    "followUps": [
+      "What are the benefits of using fake timers over real delays?",
+      "How would you test a debounced function that also depends on network requests?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-contract-testing-preventing-api-changes-without-anyone-knowi-how-would-you-implement-contra",
+    "topic": "Testing",
+    "subtopic": "Contract Testing — preventing \"API changes without anyone knowing\"",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you implement contract testing between a frontend and backend team to prevent API changes from breaking the frontend?",
+    "expectedPoints": [
+      "Defines contract testing as a pact between FE and BE specifying request/response format.",
+      "Describes using tools like Pact or MSW to generate and verify contracts.",
+      "Explains that contract tests run in CI to catch mismatches before deployment.",
+      "Mentions that failing contract tests block releases or alert teams.",
+      "Highlights that contract testing ensures independent development without integration surprises."
+    ],
+    "followUps": [
+      "What would you do if a contract test fails due to a legitimate API change?",
+      "How do you handle versioning of contracts when both sides evolve?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-why-develop-isolated-components-how-do-isolated-component-deve",
+    "topic": "Testing",
+    "subtopic": "Why develop isolated components",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How do isolated component development practices (e.g., Storybook) improve testing and collaboration in a frontend project?",
+    "expectedPoints": [
+      "Enables testing component states (loading, error, empty) without full app setup.",
+      "Serves as living documentation for designers and developers.",
+      "Supports visual regression testing to catch UI regressions.",
+      "Integrates accessibility audits (contrast, ARIA, focus order).",
+      "Improves collaboration by providing a shared component catalog."
+    ],
+    "followUps": [
+      "How would you handle state-dependent stories that require API mocking?",
+      "What are the trade-offs of using isolated development vs. integration testing?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-the-structure-of-a-story-how-would-you-convince-a-team-",
+    "topic": "Testing",
+    "subtopic": "The structure of a \"story\"",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "How would you convince a team to adopt Storybook for a new design system?",
+    "expectedPoints": [
+      "Mentions the 'write once, use three ways' benefit: documentation, development playground, and visual regression testing input.",
+      "Highlights improved maintainability and collaboration across designers and developers.",
+      "Discusses how stories serve as living documentation that stays in sync with code.",
+      "Explains that stories enable isolated component development, speeding up iteration.",
+      "Connects to platform/infra thinking, showing concern for team scalability and consistency."
+    ],
+    "followUps": [
+      "What are the trade-offs of using Storybook compared to just writing unit tests?",
+      "How would you handle stories for components that depend on complex state or API calls?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "sys-design-prep-v1-load-balancer-design-a-global-load-balancing",
+    "topic": "Testing",
+    "subtopic": "**Load Balancer**",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design a global load balancing system for a multi-region web application that must handle traffic spikes, failover, and session persistence. How would you combine L4/L7 load balancers, algorithms, and rate limiting?",
+    "expectedPoints": [
+      "Proposes DNS-based global LB (e.g., Route53) with health checks for regional failover.",
+      "Uses L7 LB (e.g., ALB/NGINX) per region for content-based routing and SSL termination.",
+      "Selects Least Connections algorithm for long-lived connections and IP Hash for sticky sessions.",
+      "Implements Token Bucket rate limiting per client to allow bursts while smoothing traffic.",
+      "Addresses LB SPOF with Active-Passive pair (keepalived/VRRP) or multi-AZ deployment.",
+      "Considers sliding window counter for accurate per-second rate limiting across regions."
+    ],
+    "followUps": [
+      "How would you handle session persistence when a regional LB fails and traffic shifts to another region?",
+      "What trade-offs exist between using Token Bucket vs. Sliding Window Counter for rate limiting in this design?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "sys-design-prep-v1.html"
+  },
+  {
+    "id": "fun-xyz-prep-here-s-a-natural-english-translation-of-the-vietnamese-techn-when-would-you-choose-usereduc",
+    "topic": "Testing",
+    "subtopic": "Here’s a natural English translation of the Vietnamese technical interview prep text:\n\n**useState vs useReducer Decision Flow**\n\n- Use `useState` when the state is a simple value (e.g., string, number, boolean) or a simple object with few fields.\n- Use `useReducer` when the state logic is complex, involves multiple sub-values, or when the next state depends on the previous state.\n- Use `useReducer` when you need to centralize state update logic (e.g., for easier testing or debugging).\n- Use `useReducer` when the state updates are triggered by different actions (e.g., `ADD`, `REMOVE`, `RESET`).\n- Use `useState` for simple, independent state variables; use `useReducer` for grouped, interdependent state.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "When would you choose useReducer over useState in a React component?",
+    "expectedPoints": [
+      "State involves multiple interdependent fields (e.g., form with amount, currency, recipient).",
+      "Next state depends on previous state with complex logic (e.g., undo/redo, toggle with side effects).",
+      "Multiple distinct actions update state (e.g., CRUD operations like ADD, REMOVE, RESET).",
+      "Centralized state update logic for easier testing/debugging.",
+      "Simple, independent state variables favor useState; grouped, interdependent state favors useReducer."
+    ],
+    "followUps": [
+      "Can you give an example where useReducer would be overkill?",
+      "How would you combine useReducer with Context for global state?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-signal-map-what-fun-xyz-tests-in-behavioral-tell-me-about-a-time-you-ident",
+    "topic": "Testing",
+    "subtopic": "🎯 Signal Map - What Fun.xyz Tests in Behavioral",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about a time you identified and fixed a subtle edge case or race condition that others missed. What was the impact?",
+    "expectedPoints": [
+      "Describes a specific edge case or race condition (e.g., Safari camera bug, KYB POA optimization).",
+      "Explains how they discovered it (e.g., testing, code review, user report).",
+      "Details the fix and why it was non-trivial.",
+      "Quantifies impact (e.g., reduced error rate from 17% to 8%).",
+      "Shows ownership and attention to detail.",
+      "Connects to hypergrowth mindset (e.g., voluntary overtime to fix)."
+    ],
+    "followUps": [
+      "How did you prioritize this fix against other tasks?",
+      "What would you do differently to prevent similar issues in the future?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-your-star-story-bank-pre-prepared-tell-me-about-a-time-you-had-a",
+    "topic": "Testing",
+    "subtopic": "📚 Your STAR Story Bank (Pre-Prepared)",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about a time you had a technical disagreement with a senior engineer. How did you handle it?",
+    "expectedPoints": [
+      "Describes a specific technical disagreement with a senior colleague.",
+      "Explains how they used data or evidence to support their position.",
+      "Demonstrates ability to 'disagree and commit' after discussion.",
+      "Shows respect for seniority while advocating for their viewpoint.",
+      "Reflects on what they learned or changed permanently from the experience."
+    ],
+    "followUps": [
+      "What would you do differently if you faced a similar situation today?",
+      "How did this experience change your approach to technical discussions?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-your-binance-kyb-bug-agent-orchestrator-workers-how-would-you-design-an-orches",
+    "topic": "Testing",
+    "subtopic": "🎯 Your Binance KYB Bug Agent (Orchestrator-Workers)",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design an orchestrator-worker system for automated bug triaging, and what are the key tradeoffs in choosing between a centralized orchestrator vs. a decentralized worker mesh?",
+    "expectedPoints": [
+      "Describes orchestrator role: task decomposition, worker dispatch, result aggregation.",
+      "Identifies tradeoffs: centralized control vs. single point of failure; simpler coordination vs. scalability bottleneck.",
+      "Mentions worker specialization and fault isolation (e.g., one worker failure doesn't crash system).",
+      "Discusses human-in-the-loop for validation and feedback to improve worker accuracy.",
+      "Considers async vs. sync communication, error handling, and idempotency for workers."
+    ],
+    "followUps": [
+      "How would you handle a worker that hangs or returns garbage data?",
+      "What metrics would you use to evaluate the system's effectiveness?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-end-to-end-bug-detection-pipeline-design-a-bug-detection-pipelin",
+    "topic": "Testing",
+    "subtopic": "🔄 End-to-End Bug Detection Pipeline",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design a bug detection pipeline that integrates end-to-end testing with observability. How would you structure the stages from alert to fix, and what metrics would you track for the pipeline itself?",
+    "expectedPoints": [
+      "Describes stages: trigger, triage, reproduce, hypothesize, investigate, verify, fix, review.",
+      "Explains how each stage uses testing (e.g., session replay for reproduce, automated tests for verify).",
+      "Mentions observability metrics: time-to-hypothesis, false positive rate, cost per investigation.",
+      "Discusses logging tool calls and tracking pipeline performance for continuous improvement.",
+      "Addresses human-in-the-loop review and feedback loop to reduce future false positives."
+    ],
+    "followUps": [
+      "How would you prioritize which alerts to investigate first?",
+      "What tools or frameworks would you use for session replay and automated verification?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  }
+]

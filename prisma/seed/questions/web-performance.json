@@ -1,0 +1,710 @@
+[
+  {
+    "id": "fe-prep-hieu-nang-core-web-vitals-gom-gi-va-toi-uu-moi-chi",
+    "topic": "Web Performance",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "What are Core Web Vitals and how would you optimize them?",
+    "expectedPoints": [
+      "Defines LCP, CLS, TBT with target thresholds",
+      "Explains LCP optimization: optimized images, CDN, reduce HTTP requests",
+      "Explains CLS optimization: fixed-size assets, avoid dynamic layout shifts",
+      "Explains TBT optimization: efficient JavaScript, lazy loading, reduce long tasks",
+      "Mentions holistic approach: code splitting, resource hints, performance monitoring"
+    ],
+    "followUps": [
+      "How would you debug a high CLS issue in a production app?",
+      "What trade-offs might you face when optimizing LCP?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-hieu-nang-virtualization-windowing-la-gi-va-khi-na",
+    "topic": "Web Performance",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how virtualization (windowing) is used in frontend performance optimization, particularly for rendering large lists.",
+    "expectedPoints": [
+      "Defines virtualization as rendering only visible items in a scrollable list.",
+      "Explains how it reduces DOM nodes and improves memory usage.",
+      "Mention libraries like react-window or react-virtualized.",
+      "Discusses trade-offs: complexity, scroll jump, and accessibility.",
+      "Describes implementation: calculate visible range, use absolute positioning."
+    ],
+    "followUps": [
+      "How would you handle dynamic item heights?",
+      "What are the accessibility concerns with virtualization?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-hieu-nang-debounce-vs-throttle-khac-nhau-va-dung-k",
+    "topic": "Web Performance",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain the difference between debounce and throttle, and provide a use case for each.",
+    "expectedPoints": [
+      "Debounce delays execution until after a pause in events; throttle limits execution rate.",
+      "Debounce is used for input autocomplete or search suggestions.",
+      "Throttle is used for scroll or resize event handlers.",
+      "Both improve performance by reducing unnecessary function calls.",
+      "Implementation differences: debounce resets timer, throttle uses flag or timestamp."
+    ],
+    "followUps": [
+      "How would you implement a debounce function with leading edge execution?",
+      "Can you think of a scenario where using debounce instead of throttle would cause issues?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-hieu-nang-cac-chien-luoc-code-splitting-va-lazy-lo",
+    "topic": "Web Performance",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain code splitting and lazy loading strategies for optimizing web application performance.",
+    "expectedPoints": [
+      "Defines code splitting as dividing code into smaller chunks loaded on demand.",
+      "Defines lazy loading as deferring loading of resources until needed.",
+      "Mentions benefits: reduced initial bundle size, faster load times, improved interactivity.",
+      "Describes common implementation tools: Webpack dynamic imports, React.lazy, ES modules.",
+      "Acknowledges trade-offs: increased complexity, potential for loading delays if not optimized."
+    ],
+    "followUps": [
+      "How would you implement code splitting in a React application?",
+      "What are some pitfalls of lazy loading and how would you mitigate them?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-2-frontend-system-design-la-qua-trinh-thiet-ke-va-xay-dung-cac-walk-me-through-how-you-would-",
+    "topic": "Web Performance",
+    "subtopic": "Frontend System Design là quá trình thiết kế và xây dựng các hệ thống frontend để cung cấp trải nghiệm người dùng tốt nhất trên các thiết bị di động và máy tính để bàn. Quá trình này bao gồm việc phân tích yêu cầu của người dùng, thiết kế kiến trúc hệ thống, chọn công nghệ phù hợp và triển khai hệ thống.\n\nKhung tư duy RADIO là một phương pháp tư duy được sử dụng trong thiết kế hệ thống frontend, bao gồm các bước sau:\n\n1. **R**: Requirements - Xác định yêu cầu của người dùng và hệ thống.\n2. **A**: Architecture - Thiết kế kiến trúc hệ thống frontend.\n3. **D**: Design - Thiết kế giao diện người dùng và trải nghiệm người dùng.\n4. **I**: Implementation - Triển khai hệ thống frontend.\n5. **O**: Optimization - Tối ưu hóa hệ thống frontend để cải thiện hiệu suất và trải nghiệm người dùng.\n\nKhung tư duy này giúp các nhà thiết kế và phát triển frontend có thể phân tích và giải quyết các vấn đề một cách hệ thống và hiệu quả.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Walk me through how you would design a frontend system for a real-time collaborative document editor like Google Docs, focusing on the RADIO framework.",
+    "expectedPoints": [
+      "Requirements: Identify key features (real-time sync, offline support, conflict resolution, accessibility).",
+      "Architecture: Propose client-side architecture (e.g., state management, WebSocket connections, CRDT/OT for conflict resolution).",
+      "Design: Discuss UI/UX considerations (low latency feedback, cursor presence, version history).",
+      "Implementation: Mention tech stack choices (React/Vue, WebSockets, IndexedDB for offline).",
+      "Optimization: Address performance (virtual scrolling for large docs, debouncing saves, bundle size)."
+    ],
+    "followUps": [
+      "How would you handle conflict resolution when two users edit the same paragraph simultaneously?",
+      "What metrics would you track to measure perceived performance in this app?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-duoi-ay-la-mot-so-cau-hoi-vang-co-the-at-ra-trong-mot-cuoc-p-how-would-you-decide-between-c",
+    "topic": "Web Performance",
+    "subtopic": "Dưới đây là một số câu hỏi \"vàng\" có thể đặt ra trong một cuộc phỏng vấn kỹ thuật:\n\n1. **Làm thế nào bạn sẽ tối ưu hóa hiệu suất của ứng dụng khi có nhiều yêu cầu đồng thời?**\n2. **Bạn có thể giải thích về cơ chế hoạt động của event loop và cách sử dụng nó trong lập trình?**\n3. **Làm thế nào bạn sẽ giải quyết vấn đề stale closure trong lập trình hàm?**\n4. **Bạn có thể giải thích về concept của hydration và cách sử dụng nó trong React?**\n5. **Làm thế nào bạn sẽ tối ưu hóa hiệu suất của ứng dụng khi sử dụng useMemo?**\n6. **Bạn có thể giải thích về cơ chế hoạt động của async/await và cách sử dụng nó trong lập trình?**\n7. **Làm thế nào bạn sẽ giải quyết vấn đề deadlock trong lập trình đa luồng?**\n8. **Bạn có thể giải thích về concept của immutable và cách sử dụng nó trong lập trình?**\n9. **Làm thế nào bạn sẽ tối ưu hóa hiệu suất của ứng dụng khi sử dụng memoization?**\n10. **Bạn có thể giải thích về cơ chế hoạt động của Web Worker và cách sử dụng nó trong lập trình?**",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you decide between CSR, SSR, and SSG for a new web application? Walk me through your thought process.",
+    "expectedPoints": [
+      "Asks clarifying questions about SEO requirements, content freshness, and user base.",
+      "Explains trade-offs: CSR for interactivity, SSR for SEO/first paint, SSG for static content.",
+      "Considers performance metrics like FCP/LCP and caching strategies.",
+      "Mentions real-world constraints like budget, team expertise, or hosting.",
+      "Provides a reasoned recommendation based on gathered requirements."
+    ],
+    "followUps": [
+      "What if the app needs real-time data but also strong SEO?",
+      "How would you handle a hybrid approach (e.g., SSG with client-side hydration)?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-kien-truc-tong-the-khi-xay-dung-ung-dung-react-kien-truc-ton-how-would-you-architect-a-reac",
+    "topic": "Web Performance",
+    "subtopic": "**Kiến trúc tổng thể**\n\nKhi xây dựng ứng dụng React, kiến trúc tổng thể đóng vai trò quan trọng trong việc đảm bảo ứng dụng được tổ chức và triển khai một cách hiệu quả. Dưới đây là một số nguyên tắc cơ bản để xây dựng kiến trúc tổng thể tốt:\n\n- **Phân tách logic**: Phân tách logic ứng dụng thành các module nhỏ, độc lập và dễ dàng quản lý.\n- **Sử dụng component**: Sử dụng component để xây dựng các phần tử UI độc lập và tái sử dụng.\n- **Tối ưu hóa hiệu suất**: Tối ưu hóa hiệu suất ứng dụng bằng cách sử dụng các kỹ thuật như memoization, lazy loading và sử dụng hiệu quả các tài nguyên hệ thống.\n\n**Phân tách component**\n\nPhân tách component là một kỹ thuật quan trọng trong xây dựng ứng dụng React. Dưới đây là một số nguyên tắc cơ bản để phân tách component:\n\n- **Phân tách component thành các phần nhỏ**: Phân tách component thành các phần nhỏ, độc lập và dễ dàng quản lý.\n- **Sử dụng props**: Sử dụng props để truyền dữ liệu giữa các component.\n- **Sử dụng state**: Sử dụng state để lưu trữ dữ liệu cục bộ trong component.\n- **Sử dụng lifecycle method**: Sử dụng lifecycle method để quản lý vòng đời của component.\n\n**Ví dụ**\n\nDưới đây là một ví dụ về cách phân tách component:\n\n```jsx\n// Header.js\nimport React from 'react';\n\nconst Header = () => {\n  return (\n    <header>\n      <h1>Header</h1>\n    </header>\n  );\n};\n\nexport default Header;\n```\n\n```jsx\n// Content.js\nimport React from 'react';\n\nconst Content = () => {\n  return (\n    <main>\n      <h2>Content</h2>\n    </main>\n  );\n};\n\nexport default Content;\n```\n\n```jsx\n// App.js\nimport React from 'react';\nimport Header from './Header';\nimport Content from './Content';\n\nconst App = () => {\n  return (\n    <div>\n      <Header />\n      <Content />\n    </div>\n  );\n};\n\nexport default App;\n```\n\nTrong ví dụ trên, chúng ta đã phân tách component thành các phần nhỏ, độc lập và dễ dàng quản lý. Chúng ta cũng đã sử dụng props và state để truyền dữ liệu giữa các component.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you architect a React application to ensure separation of concerns and performance optimization?",
+    "expectedPoints": [
+      "Splits application into independent modules (e.g., components, services, utilities).",
+      "Uses React components for UI, with clear props/state boundaries.",
+      "Applies performance techniques like memoization, lazy loading, and efficient resource usage.",
+      "Defines clear communication patterns between modules (e.g., props, context, state management).",
+      "Organizes codebase for maintainability and scalability."
+    ],
+    "followUps": [
+      "How do you decide when to split a component into smaller ones?",
+      "Can you give an example of a performance optimization you've applied in a React app?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-hydration-va-cac-bien-the-hien-ai-hydration-la-mot-khai-niem-explain-the-concept-of-hydrati",
+    "topic": "Web Performance",
+    "subtopic": "Hydration và các biến thể hiện đại\n\nHydration là một khái niệm quan trọng trong lập trình web, đặc biệt là khi sử dụng React. Nó liên quan đến quá trình tải dữ liệu từ server và cập nhật trạng thái ứng dụng. Trong quá trình này, dữ liệu được tải từ server và cập nhật vào trạng thái ứng dụng, giúp ứng dụng luôn được cập nhật và phản hồi nhanh chóng.\n\nCác biến thể hiện đại của hydration bao gồm:\n\n- **Server-side Rendering (SSR)**: Đây là phương pháp hydration được thực hiện trên server, nơi dữ liệu được tải từ database và render thành HTML trước khi được gửi đến client. Phương pháp này giúp cải thiện hiệu suất và tăng tốc độ tải trang.\n\n- **Static Site Generation (SSG)**: Đây là phương pháp hydration được thực hiện trên server, nơi dữ liệu được tải từ database và render thành HTML trước khi được gửi đến client. Tuy nhiên, phương pháp này khác với SSR ở chỗ dữ liệu được render trước khi client yêu cầu.\n\n- **Incremental Static Regeneration (ISR)**: Đây là phương pháp hydration được thực hiện trên server, nơi dữ liệu được tải từ database và render thành HTML trước khi được gửi đến client. Phương pháp này giúp cải thiện hiệu suất và tăng tốc độ tải trang bằng cách chỉ render dữ liệu mới khi cần thiết.\n\n- **Hydration bằng cách sử dụng React Query**: Đây là phương pháp hydration được thực hiện bằng cách sử dụng thư viện React Query, nơi dữ liệu được tải từ server và cập nhật vào trạng thái ứng dụng. Phương pháp này giúp cải thiện hiệu suất và tăng tốc độ tải trang bằng cách chỉ render dữ liệu mới khi cần thiết.\n\nTóm lại, hydration và các biến thể hiện đại là các phương pháp quan trọng trong lập trình web, giúp cải thiện hiệu suất và tăng tốc độ tải trang.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the concept of hydration and describe how modern techniques like streaming SSR, selective hydration, and islands architecture address its performance drawbacks.",
+    "expectedPoints": [
+      "Defines hydration as attaching JS event handlers to server-rendered HTML, making it interactive.",
+      "Identifies the main drawback: heavy hydration delays Time to Interactive (TTI).",
+      "Describes streaming SSR: sends HTML in chunks, enabling progressive rendering.",
+      "Describes selective/progressive hydration: prioritizes hydrating visible or critical parts first.",
+      "Describes islands architecture: only interactive 'islands' require JS, rest is static HTML."
+    ],
+    "followUps": [
+      "How would you decide between SSR and CSR for a specific page?",
+      "Can you compare React Server Components with islands architecture?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-performance-core-web-vitals-1-lam-the-nao-e-cai-thien-hieu-s-how-would-you-improve-a-react-",
+    "topic": "Web Performance",
+    "subtopic": "**Performance & Core Web Vitals**\n\n1. **Làm thế nào để cải thiện hiệu suất trang web?**\n   How to improve web page performance?\n\n   - **Giảm thời gian tải trang (TTFB)**: Sử dụng CDN, tối ưu hóa mã nguồn, giảm số lượng yêu cầu HTTP.\n   - **Tối ưu hóa hình ảnh**: Sử dụng hình ảnh có kích thước nhỏ, sử dụng hình ảnh có độ phân giải thấp.\n   - **Tối ưu hóa JavaScript**: Sử dụng memoization, sử dụng lazy loading, tối ưu hóa vòng lặp.\n   - **Tối ưu hóa CSS**: Sử dụng CSS prefix, sử dụng CSS grid, tối ưu hóa số lượng quy tắc CSS.\n\n2. **Giải thích về Core Web Vitals**\n   Explain Core Web Vitals\n\n   - **Làm thế nào để đo lường hiệu suất trang web?**\n     How to measure web page performance?\n   - **Core Web Vitals bao gồm các chỉ số sau:**\n     Core Web Vitals include the following metrics:\n     - **Làm thế nào để đo lường thời gian phản hồi (LCP)?**\n       How to measure Largest Contentful Paint (LCP)?\n     - **Làm thế nào để đo lường thời gian tải trang (FID)?**\n       How to measure First Input Delay (FID)?\n     - **Làm thế nào để đo lường thời gian phản hồi (CLS)?**\n       How to measure Cumulative Layout Shift (CLS)?\n\n3. **Làm thế nào để cải thiện LCP?**\n   How to improve Largest Contentful Paint (LCP)?\n\n   - **Sử dụng hình ảnh có kích thước nhỏ**\n     Use small image size\n   - **Sử dụng hình ảnh có độ phân giải thấp**\n     Use low-resolution image\n   - **Tối ưu hóa mã nguồn**\n     Optimize code\n   - **Sử dụng CDN**\n     Use Content Delivery Network (CDN)\n\n4. **Làm thế nào để cải thiện FID?**\n   How to improve First Input Delay (FID)?\n\n   - **Tối ưu hóa JavaScript**\n     Optimize JavaScript\n   - **Sử dụng memoization**\n     Use memoization\n   - **Sử dụng lazy loading**\n     Use lazy loading\n   - **Tối ưu hóa vòng lặp**\n     Optimize loop\n\n5. **Làm thế nào để cải thiện CLS?**\n   How to improve Cumulative Layout Shift (CLS)?\n\n   - **Sử dụng CSS grid**\n     Use CSS grid\n   - **Sử dụng CSS prefix**\n     Use CSS prefix\n   - **Tối ưu hóa số lượng quy tắc CSS**\n     Optimize CSS rules\n   - **Sử dụng hình ảnh có kích thước nhỏ**\n     Use small image size\n\n**Event Loop & Async/Await**\n\n1. **Giải thích về Event Loop**\n   Explain Event Loop\n\n   - **Event Loop là gì?**\n     What is Event Loop?\n   - **Event Loop hoạt động như thế nào?**\n     How does Event Loop work?\n\n2. **Làm thế nào để sử dụng Async/Await?**\n   How to use Async/Await?\n\n   - **Sử dụng Async/Await để xử lý các yêu cầu HTTP**\n     Use Async/Await to handle HTTP requests\n   - **Sử dụng Async/Await để xử lý các dữ liệu từ cơ sở dữ liệu**\n     Use Async/Await to handle database data\n   - **Sử dụng Async/Await để xử lý các dữ liệu từ API**\n     Use Async/Await to handle API data\n\n**Hydration & Server-Side Rendering**\n\n1. **Giải thích về Hydration**\n   Explain Hydration\n\n   - **Hydration là gì?**\n     What is Hydration?\n   - **Hydration hoạt động như thế nào?**\n     How does Hydration work?\n\n2. **Làm thế nào để sử dụng Hydration?**\n   How to use Hydration?\n\n   - **Sử dụng Hydration để render trang web**\n     Use Hydration to render web page\n   - **Sử dụng Hydration để xử lý các dữ liệu từ cơ sở dữ liệu**\n     Use Hydration to handle database data\n   - **Sử dụng Hydration để xử lý các dữ liệu từ API**\n     Use Hydration to handle API data\n\n**UseMemo & UseCallback**\n\n1. **Giải thích về UseMemo**\n   Explain UseMemo\n\n   - **UseMemo là gì?**\n     What is UseMemo?\n   - **UseMemo hoạt động như thế nào?**\n     How does UseMemo work?\n\n2. **Làm thế nào để sử dụng UseMemo?**\n   How to use UseMemo?\n\n   - **Sử dụng UseMemo để lưu trữ các giá trị tính toán**\n     Use UseMemo to store computed values\n   - **Sử dụng UseMemo để tránh tái tính toán**\n     Use UseMemo to avoid re-computation\n   - **Sử dụng UseMemo để tối ưu hóa hiệu suất**\n     Use UseMemo to optimize performance\n\n3. **Giải thích về UseCallback**\n   Explain UseCallback\n\n   - **UseCallback là gì?**\n     What is UseCallback?\n   - **UseCallback hoạt động như thế nào?**\n     How does UseCallback work?\n\n4. **Làm thế nào để sử dụng UseCallback?**\n   How to use UseCallback?\n\n   - **Sử dụng UseCallback để lưu trữ các hàm**\n     Use UseCallback to store functions\n   - **Sử dụng UseCallback để tránh tái tạo**\n     Use UseCallback to avoid re-creation\n   - **Sử dụng UseCallback để tối ưu hóa hiệu suất**\n     Use UseCallback to optimize performance",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you improve a React application's Largest Contentful Paint (LCP) and Cumulative Layout Shift (CLS) scores?",
+    "expectedPoints": [
+      "Optimize critical rendering path and reduce server response time (TTFB) using CDN and code splitting.",
+      "Use responsive images with proper sizing and lazy loading for below-the-fold content.",
+      "Reserve space for dynamic elements (e.g., ads, images) to prevent layout shifts.",
+      "Minimize render-blocking resources and defer non-critical CSS/JS.",
+      "Leverage server-side rendering or static generation to deliver content faster."
+    ],
+    "followUps": [
+      "How would you debug a sudden CLS regression in production?",
+      "What trade-offs exist between SSR and client-side rendering for LCP?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-core-web-vitals-la-mot-tap-hop-cac-chi-so-quan-trong-e-anh-g-explain-how-you-would-diagnose",
+    "topic": "Web Performance",
+    "subtopic": "Core Web Vitals là một tập hợp các chỉ số quan trọng để đánh giá hiệu suất của trang web. Dưới đây là 3 chỉ số chính cần nhớ:\n\n1. **Largest Contentful Paint (LCP)**: Đây là thời gian cần thiết để tải nội dung chính của trang web. Mục tiêu là dưới 2,5 giây.\n2. **Cumulative Layout Shift (CLS)**: Đây là chỉ số đo lường sự di chuyển của các phần tử trên trang web. Mục tiêu là dưới 0,1.\n3. **Total Blocking Time (TBT)**: Đây là thời gian mà trang web bị chặn do các tác vụ không cần thiết. Mục tiêu là dưới 100 ms.\n\nNhững chỉ số này giúp bạn đánh giá hiệu suất của trang web và cải thiện trải nghiệm người dùng.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how you would diagnose and improve a page that has a poor Largest Contentful Paint (LCP) score.",
+    "expectedPoints": [
+      "Identify the LCP element (e.g., image, text block) using browser DevTools or Lighthouse.",
+      "Optimize the LCP resource: use preload, compress images, implement lazy loading for non-critical assets.",
+      "Reduce server response time (TTFB) via CDN, caching, or server optimization.",
+      "Eliminate render-blocking resources (CSS/JS) by deferring or inlining critical CSS.",
+      "Consider using a faster hosting provider or optimizing the critical rendering path."
+    ],
+    "followUps": [
+      "How would you handle LCP if the largest element is a hero image?",
+      "What tools would you use to measure LCP in production?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-code-splitting-lazy-loading-code-splitting-va-lazy-loading-l-how-would-you-implement-code-s",
+    "topic": "Web Performance",
+    "subtopic": "**Code Splitting & Lazy Loading**\n\nCode splitting và lazy loading là hai kỹ thuật quan trọng trong việc tối ưu hóa hiệu suất ứng dụng React.\n\n**Code Splitting**\n\nCode splitting là quá trình phân chia mã nguồn ứng dụng thành các phần nhỏ, mỗi phần được tải xuống khi cần thiết. Điều này giúp giảm thiểu tải xuống ban đầu và cải thiện thời gian tải trang.\n\n**Lazy Loading**\n\nLazy loading là kỹ thuật tải xuống các thành phần ứng dụng chỉ khi chúng được sử dụng. Điều này giúp giảm thiểu tải xuống ban đầu và cải thiện hiệu suất ứng dụng.\n\n**Sử dụng Code Splitting & Lazy Loading trong React**\n\nĐể sử dụng code splitting và lazy loading trong React, bạn có thể sử dụng các công cụ như Webpack và React Lazy.\n\n**Ví dụ**\n\n```jsx\nimport React, { lazy, Suspense } from 'react';\n\nconst MyComponent = lazy(() => import('./MyComponent'));\n\nfunction App() {\n  return (\n    <Suspense fallback={<div>Loading...</div>}>\n      <MyComponent />\n    </Suspense>\n  );\n}\n```\n\nTrong ví dụ trên, `MyComponent` được lazy load khi nó được sử dụng. Khi người dùng truy cập trang, chỉ có phần `App` được tải xuống, và `MyComponent` được tải xuống khi nó được sử dụng.\n\n**Lợi ích của Code Splitting & Lazy Loading**\n\nCode splitting và lazy loading mang lại nhiều lợi ích, bao gồm:\n\n* Giảm thiểu tải xuống ban đầu\n* Cải thiện thời gian tải trang\n* Cải thiện hiệu suất ứng dụng\n* Giảm thiểu sử dụng tài nguyên hệ thống\n\n**Kết luận**\n\nCode splitting và lazy loading là hai kỹ thuật quan trọng trong việc tối ưu hóa hiệu suất ứng dụng React. Bằng cách sử dụng các công cụ như Webpack và React Lazy, bạn có thể dễ dàng triển khai code splitting và lazy loading trong ứng dụng của mình.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you implement code splitting and lazy loading in a React application to improve initial load performance? Walk through the key steps and considerations.",
+    "expectedPoints": [
+      "Use React.lazy() to dynamically import components.",
+      "Wrap lazy components with Suspense and provide a fallback UI.",
+      "Configure Webpack or bundler to split code at route or component boundaries.",
+      "Consider trade-offs like extra network requests and loading states.",
+      "Avoid lazy loading critical above-the-fold components."
+    ],
+    "followUps": [
+      "How do you handle error boundaries with lazy components?",
+      "What metrics (e.g., FCP, LCP) does code splitting primarily improve?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-list-virtualization-bi-quyet-cho-danh-sach-dai-khi-xu-ly-dan-how-would-you-handle-rendering",
+    "topic": "Web Performance",
+    "subtopic": "List Virtualization — Bí quyết cho danh sách dài\n\nKhi xử lý danh sách dài, việc sử dụng Virtualization có thể giúp cải thiện hiệu suất và giảm thiểu thời gian tải trang. Virtualization cho phép bạn tạo ra một bản sao ảo của danh sách gốc, mà không cần phải tải toàn bộ dữ liệu vào bộ nhớ.\n\nMột số kỹ thuật Virtualization phổ biến bao gồm:\n\n- Memoization: lưu trữ kết quả của từng truy vấn để tránh tái tạo lại dữ liệu không cần thiết.\n- Caching: lưu trữ dữ liệu thường xuyên được truy cập để giảm thiểu thời gian tải trang.\n- Lazy Loading: tải dữ liệu chỉ khi cần thiết, thay vì tải toàn bộ dữ liệu vào bộ nhớ.\n- Pagination: chia danh sách thành các trang nhỏ để giảm thiểu thời gian tải trang.\n\nBằng cách sử dụng Virtualization, bạn có thể cải thiện hiệu suất và trải nghiệm người dùng khi xử lý danh sách dài.\n\nMột số ví dụ về Virtualization bao gồm:\n\n- Sử dụng React Hook `useMemo` để lưu trữ kết quả của từng truy vấn.\n- Sử dụng React Hook `useCallback` để lưu trữ hàm chức năng không thay đổi.\n- Sử dụng thư viện Virtualized List như `react-window` để tạo ra danh sách ảo.\n\nTóm lại, Virtualization là một kỹ thuật quan trọng giúp cải thiện hiệu suất và trải nghiệm người dùng khi xử lý danh sách dài.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you handle rendering a list of 10,000 items in React to maintain smooth scrolling performance?",
+    "expectedPoints": [
+      "Mentions virtualization/windowing as the primary technique",
+      "Explains that only visible items (plus a small buffer) are rendered in the DOM",
+      "Names a specific library like react-window, react-virtuoso, or @tanstack/virtual",
+      "Discusses reusing DOM nodes as the user scrolls",
+      "Acknowledges the trade-off: not to prematurely optimize without measuring"
+    ],
+    "followUps": [
+      "What are the key differences between react-window and react-virtuoso?",
+      "How would you measure if virtualization is actually needed in your app?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-flashcards-performance-optimization-1-stale-closure-khi-su-d-how-would-you-optimize-a-react",
+    "topic": "Web Performance",
+    "subtopic": "**Flashcards Performance Optimization**\n\n1. **Stale Closure**: Khi sử dụng hàm closure trong React, nếu hàm này phụ thuộc vào một giá trị thay đổi sau khi được tạo ra, thì hàm này sẽ không được cập nhật khi giá trị thay đổi. Điều này có thể dẫn đến hiệu suất giảm.\n\nTranslation: 1. **Stale Closure**: When using closure functions in React, if the function depends on a value that changes after it's created, the function will not be updated when the value changes. This can lead to performance degradation.\n\n2. **Hydration**: Quá trình hydrate trong React là quá trình lấy dữ liệu từ server và render lại giao diện người dùng trên client-side.\n\nTranslation: 2. **Hydration**: The hydration process in React is the process of fetching data from the server and re-rendering the user interface on the client-side.\n\n3. **useMemo**: Hàm useMemo trong React giúp giảm thiểu việc tái tạo component khi giá trị phụ thuộc không thay đổi.\n\nTranslation: 3. **useMemo**: The useMemo function in React helps reduce the re-rendering of components when the dependent values do not change.\n\n4. **Event Loop**: Là một vòng lặp không dừng, giúp xử lý các sự kiện và các tác vụ trong JavaScript.\n\nTranslation: 4. **Event Loop**: It is an infinite loop that helps handle events and tasks in JavaScript.\n\n5. **Virtual DOM**: Là một bản sao ảo của DOM thực tế, giúp tăng tốc độ render và giảm thiểu việc thay đổi DOM thực tế.\n\nTranslation: 5. **Virtual DOM**: It is a virtual copy of the real DOM, which helps speed up rendering and minimize changes to the real DOM.\n\n6. **Reconciliation**: Quá trình so sánh giữa Virtual DOM và DOM thực tế để xác định những phần cần được cập nhật.\n\nTranslation: 6. **Reconciliation**: The process of comparing between the Virtual DOM and the real DOM to determine which parts need to be updated.\n\n7. **ShouldComponentUpdate**: Hàm giúp kiểm tra xem component có cần được cập nhật hay không.\n\nTranslation: 7. **ShouldComponentUpdate**: The function helps check whether a component needs to be updated or not.\n\n8. **Pure Component**: Loại component không tái tạo khi props không thay đổi.\n\nTranslation: 8. **Pure Component**: A type of component that does not re-render when props do not change.\n\n9. **Memoization**: Kỹ thuật giúp giảm thiểu việc tái tạo component bằng cách lưu trữ kết quả của các hàm.\n\nTranslation: 9. **Memoization**: A technique that helps reduce re-rendering of components by storing the results of functions.\n\n10. **Closure**: Hàm có thể truy cập vào các biến ngoài của nó ngay cả khi hàm đã được tạo ra.\n\nTranslation: 10. **Closure**: A function that can access external variables even after it's created.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you optimize a React component that re-renders too often due to a closure capturing a stale value?",
+    "expectedPoints": [
+      "Identifies stale closure as the cause of unnecessary re-renders.",
+      "Suggests using useCallback with proper dependencies to memoize the closure.",
+      "Mentions useRef to hold mutable values without triggering re-renders.",
+      "Explains how useMemo can prevent re-computation of derived data.",
+      "Discusses the trade-off between memoization overhead and performance gain."
+    ],
+    "followUps": [
+      "What if the closure depends on a value that changes frequently?",
+      "How would you debug a stale closure in a large codebase?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-internationalization-i18n-internationalization-i18n-la-qua-t-how-would-you-implement-lazy-l",
+    "topic": "Web Performance",
+    "subtopic": "**Internationalization (i18n)**\n\nInternationalization (i18n) là quá trình thiết kế và xây dựng ứng dụng để hỗ trợ nhiều ngôn ngữ và văn hóa khác nhau. Mục tiêu chính của i18n là giúp ứng dụng trở nên linh hoạt và dễ dàng sử dụng trên nhiều nền tảng và khu vực địa lý khác nhau.\n\n**Các khía cạnh chính của i18n:**\n\n1. **Ngôn ngữ**: Chuyển đổi nội dung ứng dụng sang nhiều ngôn ngữ khác nhau.\n2. **Địa lý**: Chuyển đổi thời gian, ngày tháng, số tiền và đơn vị đo lường theo khu vực địa lý.\n3. **Văn hóa**: Chuyển đổi giao diện và hành vi ứng dụng theo văn hóa và phong tục của khu vực địa lý.\n\n**Các kỹ thuật i18n:**\n\n1. **Định dạng chuỗi**: Sử dụng các hàm định dạng chuỗi để chuyển đổi chuỗi thành các định dạng khác nhau.\n2. **Định dạng ngày tháng**: Sử dụng các hàm định dạng ngày tháng để chuyển đổi ngày tháng thành các định dạng khác nhau.\n3. **Định dạng tiền tệ**: Sử dụng các hàm định dạng tiền tệ để chuyển đổi số tiền thành các định dạng khác nhau.\n4. **Định dạng đơn vị đo lường**: Sử dụng các hàm định dạng đơn vị đo lường để chuyển đổi đơn vị đo lường thành các định dạng khác nhau.\n\n**Các công nghệ i18n:**\n\n1. **React Intl**: Một thư viện React để hỗ trợ i18n.\n2. **Moment.js**: Một thư viện JavaScript để hỗ trợ định dạng ngày tháng.\n3. **Numeral.js**: Một thư viện JavaScript để hỗ trợ định dạng số tiền.\n\n**Lưu ý:**\n\n1. **Sử dụng các thư viện i18n**: Sử dụng các thư viện i18n để hỗ trợ i18n trong ứng dụng.\n2. **Thiết kế ứng dụng linh hoạt**: Thiết kế ứng dụng để hỗ trợ nhiều ngôn ngữ và văn hóa khác nhau.\n3. **Kiểm tra ứng dụng**: Kiểm tra ứng dụng trên nhiều nền tảng và khu vực địa lý khác nhau để đảm bảo rằng ứng dụng hoạt động đúng cách.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you implement lazy-loading of language packs in a React app to reduce initial bundle size?",
+    "expectedPoints": [
+      "Use dynamic import() to load locale data on demand.",
+      "Integrate with i18n library (e.g., react-intl) to add/update messages.",
+      "Consider code splitting at route level or based on user language preference.",
+      "Handle loading states and errors gracefully.",
+      "Avoid loading all translations upfront."
+    ],
+    "followUps": [
+      "How would you handle fallback language if the lazy-loaded pack fails?",
+      "What are the trade-offs of lazy-loading vs. bundling all translations?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-trinh-duyet-render-trang-theo-cac-buoc-sau-1-xu-ly-yeu-cau-k-explain-the-browser-s-renderin",
+    "topic": "Web Performance",
+    "subtopic": "Trình duyệt render trang theo các bước sau:\n\n1. **Xử lý yêu cầu**: Khi người dùng nhập địa chỉ URL hoặc nhấp vào liên kết, trình duyệt sẽ gửi yêu cầu đến máy chủ web để lấy dữ liệu trang.\n2. **Tiếp nhận dữ liệu**: Máy chủ web gửi lại dữ liệu trang dưới dạng HTML, CSS và JavaScript đến trình duyệt.\n3. **Xử lý HTML**: Trình duyệt sử dụng bộ nhớ đệm (DOM - Document Object Model) để xây dựng cấu trúc trang dựa trên HTML.\n4. **Xử lý CSS**: Trình duyệt áp dụng CSS vào DOM để định dạng trang.\n5. **Xử lý JavaScript**: Trình duyệt thực thi JavaScript để thêm tính năng động vào trang.\n6. **Hydrate**: Trình duyệt sử dụng dữ liệu từ máy chủ web để hydrate (làm tươi) DOM và tạo ra một bản sao chính xác của trang.\n7. **Layout**: Trình duyệt tính toán vị trí và kích thước của các phần tử trên trang.\n8. **Paint**: Trình duyệt vẽ các phần tử trên trang dựa trên layout.\n9. **Composite**: Trình duyệt kết hợp các phần tử đã vẽ lại với nhau để tạo ra hình ảnh cuối cùng của trang.\n10. **Render**: Trình duyệt hiển thị trang cho người dùng.\n\nTrong quá trình này, trình duyệt sử dụng các kỹ thuật như:\n\n* **Event loop**: Trình duyệt sử dụng event loop để quản lý các sự kiện và thực thi JavaScript một cách hiệu quả.\n* **Stale closure**: Trình duyệt sử dụng stale closure để tối ưu hóa việc thực thi JavaScript và giảm thiểu số lần render trang.\n* **UseMemo**: Trình duyệt sử dụng useMemo để lưu trữ kết quả tính toán và tránh tái tính toán không cần thiết.\n\nTóm lại, trình duyệt render trang theo các bước xử lý yêu cầu, tiếp nhận dữ liệu, xử lý HTML, CSS và JavaScript, hydrate, layout, paint, composite và render.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the browser's rendering pipeline and how understanding it helps optimize frontend performance. Provide specific examples of performance pitfalls and optimizations related to layout, paint, and composite steps.",
+    "expectedPoints": [
+      "Describes the rendering pipeline steps: HTML parsing, CSS processing, JavaScript execution, style calculation, layout, paint, composite.",
+      "Identifies layout thrashing as a performance issue caused by repeatedly reading/writing DOM properties that force layout recalculations.",
+      "Suggests using transform and opacity for animations to avoid layout and paint, leveraging compositing only.",
+      "Mentions content-visibility to skip rendering of off-screen elements, improving initial load time.",
+      "Explains how understanding the pipeline guides optimization decisions, e.g., batching DOM reads/writes, using requestAnimationFrame."
+    ],
+    "followUps": [
+      "How would you debug a layout thrashing issue in a React application?",
+      "What is the difference between repaint and reflow, and which is more costly?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-critical-rendering-path-crp-la-qua-trinh-rendering-trang-web-explain-the-critical-rendering",
+    "topic": "Web Performance",
+    "subtopic": "Critical Rendering Path (CRP) là quá trình rendering trang web trên trình duyệt, bao gồm 6 bước sau:\n\n1. **Phân tích HTML**: Trình duyệt phân tích HTML của trang web để xác định cấu trúc và nội dung của trang.\n2. **Phân tích CSS**: Trình duyệt phân tích CSS của trang web để xác định kiểu dáng và thiết kế của trang.\n3. **Hydrate DOM**: Trình duyệt tạo ra một bản sao của DOM (Document Object Model) dựa trên HTML và CSS đã phân tích.\n4. **Layout**: Trình duyệt tính toán vị trí và kích thước của các phần tử trên trang dựa trên CSS đã phân tích.\n5. **Paint**: Trình duyệt vẽ các phần tử trên trang dựa trên layout và CSS đã phân tích.\n6. **Composite**: Trình duyệt kết hợp các phần tử đã vẽ lại với nhau để tạo ra hình ảnh cuối cùng của trang.\n\nQuá trình này được thực hiện liên tục trong vòng lặp của trình duyệt, được gọi là **event loop**.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the Critical Rendering Path and identify which CSS property changes trigger a Layout vs Composite step.",
+    "expectedPoints": [
+      "Describes CRP steps: HTML parse → DOM, CSS parse → CSSOM, Render Tree, Layout, Paint, Composite.",
+      "Identifies that changing geometry (e.g., width, height, top) triggers Layout reflow.",
+      "Identifies that changing transform or opacity triggers only Composite (GPU-accelerated).",
+      "Explains why Layout is expensive (recalculates positions/sizes) and Composite is cheap.",
+      "Mentions that CRP runs per frame in the event loop."
+    ],
+    "followUps": [
+      "How would you optimize a page that has frequent layout thrashing?",
+      "What is the difference between repaint and reflow?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-hidden-classes-inline-caching-hidden-classes-and-inline-cach-explain-how-hidden-classes-and",
+    "topic": "Web Performance",
+    "subtopic": "**Hidden Classes & Inline Caching**\n\nHidden classes and inline caching are two essential concepts in JavaScript engine optimization. Understanding these concepts is crucial for developers who want to write high-performance JavaScript code.\n\n### Hidden Classes\n\nIn JavaScript, every object has a hidden class, which is a set of properties and their corresponding types. When an object is created, its hidden class is determined by its initial properties. As the object's properties change, its hidden class may also change.\n\nFor example, consider the following code:\n```javascript\nconst obj = { a: 1, b: 'hello' };\n```\nInitially, the hidden class of `obj` is `{ a: number, b: string }`. If we add a new property `c` with a number value, the hidden class of `obj` will change to `{ a: number, b: string, c: number }`.\n\nHidden classes are used by the JavaScript engine to optimize property access and modification. When the engine knows the hidden class of an object, it can use inline caching to improve performance.\n\n### Inline Caching\n\nInline caching is a technique used by the JavaScript engine to cache the results of property access and modification. When the engine accesses a property of an object, it checks the object's hidden class to determine the type of the property. If the property type is known, the engine can cache the result of the access or modification.\n\nFor example, consider the following code:\n```javascript\nconst obj = { a: 1, b: 'hello' };\nconsole.log(obj.a); // 1\nconsole.log(obj.b); // 'hello'\n```\nIn this example, the JavaScript engine uses inline caching to cache the results of `obj.a` and `obj.b`. When we access `obj.a` or `obj.b` again, the engine can retrieve the cached result instead of re-evaluating the property access.\n\n### Benefits of Hidden Classes and Inline Caching\n\nHidden classes and inline caching provide several benefits, including:\n\n* Improved performance: By caching the results of property access and modification, the JavaScript engine can improve performance by reducing the number of re-evaluations.\n* Better memory usage: By storing the hidden class of an object, the engine can reduce memory usage by avoiding unnecessary property lookups.\n\n### Best Practices for Working with Hidden Classes and Inline Caching\n\nTo work effectively with hidden classes and inline caching, follow these best practices:\n\n* Use property access and modification consistently: Consistent property access and modification can help the engine optimize performance using inline caching.\n* Avoid changing the hidden class of an object: Changing the hidden class of an object can invalidate the cached results of property access and modification, leading to performance degradation.\n* Use `Object.freeze()` to freeze objects: Freezing objects can help the engine optimize performance by preventing changes to the object's hidden class.\n\nBy understanding hidden classes and inline caching, developers can write high-performance JavaScript code that takes advantage of these optimization techniques.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how hidden classes and inline caching work in V8, and provide a code example that breaks these optimizations.",
+    "expectedPoints": [
+      "Hidden classes track object shape (property order and types).",
+      "Inline caching caches property access based on hidden class.",
+      "Adding properties out of order or using delete changes hidden class.",
+      "Example: creating objects with same constructor then adding property to one.",
+      "Consequence: deoptimization, slower property access."
+    ],
+    "followUps": [
+      "How would you fix the code to maintain the same hidden class?",
+      "What is the impact of using Object.freeze() on hidden classes?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-a-bundler-takes-multiple-javascript-files-and-their-dependen-how-does-tree-shaking-work-in-",
+    "topic": "Web Performance",
+    "subtopic": "A bundler takes multiple JavaScript files and their dependencies, then combines them into a single file (or a few files) for the browser to load. It resolves imports, handles module formats, and often performs optimizations like minification and tree shaking to reduce file size and improve load performance.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How does tree-shaking work in a bundler, and what are its prerequisites?",
+    "expectedPoints": [
+      "Tree-shaking removes unused exports (dead code) from the final bundle.",
+      "It relies on static analysis of ES module imports/exports (not CommonJS).",
+      "Side-effect annotations (e.g., 'sideEffects: false' in package.json) help bundlers safely remove more code.",
+      "Tools like Webpack, Rollup, and esbuild support tree-shaking.",
+      "It reduces bundle size and improves load performance."
+    ],
+    "followUps": [
+      "What happens if a module has side effects? How do you handle that?",
+      "Can tree-shaking work with dynamic imports? Why or why not?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-provide-a-general-comparison-compare-webpack-vite-esbuild-a",
+    "topic": "Web Performance",
+    "subtopic": "Provide a general comparison.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Compare Webpack, Vite, esbuild, and Rollup in terms of their strengths and ideal use cases.",
+    "expectedPoints": [
+      "Webpack excels in complex apps with rich plugin ecosystem and Module Federation.",
+      "Vite provides fast dev experience using native ESM and esbuild, with Rollup for production.",
+      "esbuild offers extreme build speed (Go-based) but lacks advanced features.",
+      "Rollup is best for library bundling with superior tree-shaking and clean output.",
+      "Each tool has trade-offs: configuration complexity, feature set, and performance."
+    ],
+    "followUps": [
+      "When would you choose esbuild over Vite for a project?",
+      "How does Module Federation in Webpack compare to Vite's approach for micro-frontends?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-the-issue-to-handle-in-module-federation-why-must-",
+    "topic": "Web Performance",
+    "subtopic": "The issue to handle",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "In Module Federation, why must React be declared as a shared singleton?",
+    "expectedPoints": [
+      "Prevents multiple React instances from being loaded",
+      "Avoids breaking React hooks and context",
+      "Ensures a single React instance is shared across host and remotes",
+      "Singleton configuration enforces single version usage",
+      "Improves runtime stability and performance"
+    ],
+    "followUps": [
+      "What happens if two different versions of React are loaded?",
+      "How would you debug a context issue caused by duplicate React instances?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-image-resource-optimization-how-would-you-optimize-images-",
+    "topic": "Web Performance",
+    "subtopic": "**Image & Resource Optimization**",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you optimize images to improve LCP on a content-heavy page?",
+    "expectedPoints": [
+      "Use modern formats like WebP or AVIF with fallback",
+      "Implement lazy loading for below-the-fold images",
+      "Serve responsive images via srcset and sizes",
+      "Use CDN and compress images appropriately",
+      "Consider preloading critical hero images"
+    ],
+    "followUps": [
+      "How would you handle a hero image that is critical for LCP?",
+      "What trade-offs exist between using WebP and maintaining browser compatibility?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-responsive-images-lazy-loading-how-would-you-optimize-a-hero-",
+    "topic": "Web Performance",
+    "subtopic": "Responsive images & lazy loading",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you optimize a hero image that is the LCP element on a landing page?",
+    "expectedPoints": [
+      "Use <picture> with modern formats (AVIF, WebP) and fallback.",
+      "Set explicit width/height or aspect-ratio to prevent CLS.",
+      "Do NOT lazy-load; use loading=\"eager\" and fetchpriority=\"high\".",
+      "Consider preloading the image via <link rel=\"preload\">.",
+      "Ensure responsive sizes with srcset and sizes attributes."
+    ],
+    "followUps": [
+      "What if the hero image is different for mobile vs desktop?",
+      "How would you measure the impact of your optimizations?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-micro-frontends-when-to-use-them-when-would-you-recommend-using",
+    "topic": "Web Performance",
+    "subtopic": "Micro-frontends — when to use them",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "When would you recommend using micro-frontends, and what are the main trade-offs?",
+    "expectedPoints": [
+      "Micro-frontends solve organizational scaling, not technical performance.",
+      "Main trade-offs: increased complexity in shared dependencies, UI consistency, and performance due to multiple runtimes.",
+      "Only justified when multiple teams are blocked by each other's deployment cycles.",
+      "Prefer a modular monolith with clear boundaries first; only split when evidence of blocking exists.",
+      "Performance often degrades compared to a monolith."
+    ],
+    "followUps": [
+      "How would you measure if teams are actually blocked?",
+      "What strategies would you use to mitigate performance issues in a micro-frontend setup?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-case-study-photo-gallery-like-google-photos-how-would-you-implement-a-phot",
+    "topic": "Web Performance",
+    "subtopic": "Case Study: Photo Gallery (like Google Photos)",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you implement a photo gallery that displays thousands of images smoothly, like Google Photos?",
+    "expectedPoints": [
+      "Uses virtualization (e.g., react-window) to render only visible items",
+      "Implements lazy loading for images not yet in viewport",
+      "Serves responsive images (srcset, sizes) based on device and container",
+      "Optimizes lightbox with preloading and efficient transitions",
+      "Minimizes reflows and uses debouncing/throttling for scroll events"
+    ],
+    "followUps": [
+      "How would you handle dynamic grid layouts (e.g., varying aspect ratios)?",
+      "What performance metrics would you monitor to ensure smoothness?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-o-optimizations-key-scoring-points-in-a-news-feed-why-should-you-",
+    "topic": "Web Performance",
+    "subtopic": "O — Optimizations (key scoring points!)",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "In a news feed, why should you show a 'X new posts' pill instead of automatically inserting new posts at the top?",
+    "expectedPoints": [
+      "Automatic insertion causes layout shift (CLS) pushing the user's reading position down.",
+      "Pill gives users control over when to view new content, improving UX.",
+      "Avoids disorientation and frustration from unexpected content movement.",
+      "Maintains scroll position and reading context.",
+      "Better accessibility as users can choose to load new content."
+    ],
+    "followUps": [
+      "How would you implement the pill with IntersectionObserver?",
+      "What are the trade-offs between SSE and polling for detecting new posts?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-trade-off-questions-should-always-be-mentioned-how-would-you-decide-between-u",
+    "topic": "Web Performance",
+    "subtopic": "\"Trade-off\" questions should always be mentioned.",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "How would you decide between using Server-Side Rendering (SSR) and Client-Side Rendering (CSR) for a new e-commerce product page?",
+    "expectedPoints": [
+      "Mentions trade-offs: SSR improves SEO and initial load time but increases server cost and complexity; CSR reduces server load but may hurt SEO and first paint.",
+      "Asks clarifying questions: e.g., target audience, SEO requirements, budget, traffic patterns.",
+      "Considers hybrid approaches: static generation (SSG) or incremental static regeneration (ISR) as a middle ground.",
+      "Discusses performance measurement: suggests using Lighthouse or Web Vitals to validate decisions.",
+      "Acknowledges caching strategies: stale-while-revalidate to balance freshness and performance."
+    ],
+    "followUps": [
+      "What if the product page has real-time inventory updates? How would that affect your choice?",
+      "How would you measure the performance impact of your chosen rendering strategy?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-flashcard-review-set-how-would-you-optimize-a-react",
+    "topic": "Web Performance",
+    "subtopic": "Flashcard Review Set",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you optimize a React application to achieve good Core Web Vitals scores, specifically LCP and CLS?",
+    "expectedPoints": [
+      "Identify LCP elements (e.g., hero image) and optimize them with lazy loading, preloading, or using next-gen formats.",
+      "Minimize CLS by reserving space for dynamic content (e.g., using aspect-ratio boxes, skeleton screens).",
+      "Use code splitting and tree shaking to reduce JavaScript bundle size, improving LCP.",
+      "Implement server-side rendering or static generation to deliver content faster.",
+      "Monitor and measure using tools like Lighthouse or Web Vitals library."
+    ],
+    "followUps": [
+      "How would you handle a situation where a third-party script (e.g., analytics) is causing layout shifts?",
+      "What trade-offs would you consider when deciding between SSR and client-side rendering for LCP?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "sys-design-prep-v1-caching-how-would-you-design-a-caching",
+    "topic": "Web Performance",
+    "subtopic": "🚀 Caching",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design a caching strategy for a high-traffic e-commerce product detail page to handle cache stampede and avalanche?",
+    "expectedPoints": [
+      "Proposes cache-aside with TTL jitter to prevent avalanche",
+      "Suggests mutex lock or early expiration for stampede prevention",
+      "Considers cache penetration with null caching or Bloom filter",
+      "Mentions Redis data types (e.g., String for product data, Sorted Set for rate limiting)",
+      "Discusses trade-offs between write-through and write-back for inventory updates"
+    ],
+    "followUps": [
+      "How would you handle cache invalidation when product price changes?",
+      "What if the product detail page includes personalized recommendations?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "sys-design-prep-v1.html"
+  },
+  {
+    "id": "fun-xyz-prep-usememo-vs-usecallback-both-usememo-and-usecallback-are-reac-when-would-you-choose-usecallb",
+    "topic": "Web Performance",
+    "subtopic": "**useMemo vs useCallback**\n\nBoth `useMemo` and `useCallback` are React hooks used for performance optimization by memoizing values and functions, respectively.\n\n- **useMemo** memoizes the result of a computation. It takes a function and a dependency array, and only recalculates the value when dependencies change. Use it to avoid expensive calculations on every render.\n\n- **useCallback** memoizes a function itself. It returns the same function reference across renders unless its dependencies change. Use it to prevent unnecessary re-renders of child components that rely on reference equality.\n\nIn short: `useMemo` returns a memoized value, `useCallback` returns a memoized function.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "When would you choose useCallback over useMemo, and what are the trade-offs of using them unnecessarily?",
+    "expectedPoints": [
+      "useCallback returns a memoized function reference; useMemo returns a memoized value.",
+      "useCallback is used to prevent child re-renders when passing callbacks to React.memo-wrapped components.",
+      "useMemo is used for expensive computations or derived state to avoid recalculating on every render.",
+      "Overusing either adds memory overhead and comparison cost; React's default re-renders are often fast enough.",
+      "Profile first to identify actual performance bottlenecks before adding memoization."
+    ],
+    "followUps": [
+      "Can you give an example where useCallback would not prevent a child re-render?",
+      "How would you debug a situation where useMemo seems to not be caching correctly?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-list-performance-optimization-stack-10k-rows-you-have-a-table-with-10-000-r",
+    "topic": "Web Performance",
+    "subtopic": "⚡ List Performance Optimization Stack (10K rows)",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "You have a table with 10,000 rows that needs to be rendered. Walk me through your optimization strategy, from most impactful to least, and explain why you would choose each step.",
+    "expectedPoints": [
+      "Starts with virtualization (e.g., react-window) as the biggest win, rendering only visible rows.",
+      "Adds pagination or infinite scroll with IntersectionObserver for UX and reduced DOM.",
+      "Uses React.memo with stable refs to prevent unnecessary re-renders of row components.",
+      "Applies useMemo for sort/filter computations and stable keys (never array index).",
+      "Mentions CSS containment, deferred updates (useDeferredValue), and Web Workers as advanced/last resort.",
+      "Emphasizes measuring performance between each step."
+    ],
+    "followUps": [
+      "How would you handle dynamic row heights in virtualization?",
+      "What if the data is updated frequently from a WebSocket?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-here-are-the-english-translations-for-the-vietnamese-technic-you-are-building-a-checkout-wi",
+    "topic": "Web Performance",
+    "subtopic": "Here are the English translations for the Vietnamese technical interview prep text on **SDK Embedding Strategies**:\n\n---\n\n**SDK Embedding Strategies**\n\n- **Direct Embedding**: The SDK is directly integrated into the application's source code, allowing full control over initialization and lifecycle management.\n- **Script Tag Injection**: The SDK is loaded dynamically via a `<script>` tag, often used for third-party services like analytics or widgets.\n- **Module Bundler Integration**: The SDK is imported as a module (e.g., via npm/yarn) and bundled with the application using tools like Webpack, Rollup, or Vite.\n- **Lazy Loading**: The SDK is loaded only when needed (e.g., on user interaction) to reduce initial bundle size and improve performance.\n- **Iframe Embedding**: The SDK runs in a sandboxed iframe for security isolation, commonly used for payment gateways or external content.\n- **Micro-Frontend Embedding**: The SDK is deployed as a standalone micro-frontend and integrated via iframe, Web Components, or module federation.\n- **Server-Side Embedding**: The SDK is executed on the server (e.g., Node.js) and the result is sent to the client, reducing client-side processing.\n- **Hybrid Embedding**: Combines client-side and server-side strategies, e.g., server-side rendering with client-side hydration.\n\n**Key Considerations**:\n- **Security**: Avoid exposing API keys or sensitive data in client-side code.\n- **Performance**: Minimize blocking of main thread; use async/defer for scripts.\n- **Versioning**: Use semantic versioning and provide migration guides.\n- **Bundle Size**: Optimize tree-shaking and code splitting.\n- **Error Handling**: Graceful degradation when SDK fails to load.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "You are building a checkout widget SDK that must support both simple script-tag integration and modern React apps, while also handling PCI-compliant payment input fields. How would you design the embedding strategy and UI rendering approach?",
+    "expectedPoints": [
+      "Proposes a hybrid embedding strategy (script tag for simple sites, NPM for React apps, iframe for PCI-sensitive flows).",
+      "Explains trade-offs: script tag ease vs. global namespace pollution, NPM type-safety vs. build requirement, iframe isolation vs. postMessage complexity.",
+      "Recommends Shadow DOM for non-PCI UI to isolate CSS without full iframe overhead.",
+      "Addresses performance: lazy loading of SDK, async/defer for scripts, tree-shaking for NPM.",
+      "Considers versioning, error handling, and graceful degradation."
+    ],
+    "followUps": [
+      "How would you handle state synchronization between the iframe and the parent page for payment flows?",
+      "What if a customer wants to customize the widget's styling? How would you support that across embedding methods?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-common-behavioral-answer-anti-patterns-describe-a-time-you-improved-w",
+    "topic": "Web Performance",
+    "subtopic": "🚫 Common Behavioral Answer Anti-Patterns",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Describe a time you improved web performance. What was your specific contribution, and what were the measurable results?",
+    "expectedPoints": [
+      "Uses 'I' not 'we' to describe personal contribution",
+      "Provides specific metrics (e.g., LCP from 3.2s to 1.4s)",
+      "Discusses trade-offs made (e.g., image quality vs load time)",
+      "Closes with a measurable outcome and ties to the role at Fun.xyz"
+    ],
+    "followUps": [
+      "What trade-offs did you consider?",
+      "How did you measure the improvement?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  }
+]

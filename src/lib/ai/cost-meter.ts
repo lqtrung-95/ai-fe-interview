@@ -22,6 +22,9 @@ const RATES: Record<string, UsdRate> = {
   // Anthropic (Jan 2026 reference prices)
   'anthropic:cheap': { prompt: 1.0, completion: 5.0 },
   'anthropic:smart': { prompt: 3.0, completion: 15.0 },
+  // DeepSeek (single model deepseek-chat; cache-miss prices)
+  'deepseek:cheap': { prompt: 0.27, completion: 1.1 },
+  'deepseek:smart': { prompt: 0.27, completion: 1.1 },
 };
 
 function estimateCost(modelId: string, promptTokens: number, completionTokens: number): number {

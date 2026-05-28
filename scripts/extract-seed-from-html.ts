@@ -8,7 +8,7 @@
  */
 
 import { config as loadEnv } from 'dotenv';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseFePrep, parseProseFile } from './extract-seed-parsers';
 import { CANONICAL_TOPICS, type SeedQuestion } from './extract-seed-types';
@@ -26,6 +26,24 @@ function topicToFilename(topic: string): string {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '') + '.json'
   );
+}
+
+/**
+ * Reads existing per-topic JSON (if any) and keeps rows whose sourceFile
+ * starts with "hand-" — those are author-maintained and must survive future
+ * extractions. Newly extracted rows from automated parsers always win on id collision.
+ */
+function mergePreservingHandWritten(filePath: string, fresh: SeedQuestion[]): SeedQuestion[] {
+  if (!existsSync(filePath)) return fresh;
+  let existing: SeedQuestion[] = [];
+  try {
+    existing = JSON.parse(readFileSync(filePath, 'utf8')) as SeedQuestion[];
+  } catch {
+    return fresh;
+  }
+  const handWritten = existing.filter((q) => q.sourceFile?.startsWith('hand-'));
+  const freshIds = new Set(fresh.map((q) => q.id));
+  return [...fresh, ...handWritten.filter((q) => !freshIds.has(q.id))];
 }
 
 function dedupe(questions: SeedQuestion[]): SeedQuestion[] {
@@ -87,8 +105,11 @@ async function main() {
 
   for (const [topic, qs] of byTopic) {
     const file = join(OUTPUT_DIR, topicToFilename(topic));
-    writeFileSync(file, JSON.stringify(qs, null, 2) + '\n');
-    console.log(`  ${qs.length.toString().padStart(3)} → ${file}`);
+    const merged = mergePreservingHandWritten(file, qs);
+    writeFileSync(file, JSON.stringify(merged, null, 2) + '\n');
+    const handCount = merged.length - qs.length;
+    const suffix = handCount > 0 ? ` (+ ${handCount} hand-written preserved)` : '';
+    console.log(`  ${merged.length.toString().padStart(3)} → ${file}${suffix}`);
   }
 
   console.log('\n✓ Done. Run `pnpm seed` to load into Postgres.');

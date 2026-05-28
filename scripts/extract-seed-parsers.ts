@@ -23,6 +23,38 @@ function canonicalTopic(raw: string): CanonicalTopic | null {
   return TOPIC_ALIASES[raw] ?? null;
 }
 
+/**
+ * Per-section topic router. Looks at heading + body keywords to redirect a
+ * section away from the file's defaultTopic when a more specific topic clearly
+ * fits. Falls through to defaultTopic when nothing matches.
+ *
+ * Order matters: most-specific signals first (Testing > Performance > Browser > React).
+ */
+function routeSectionTopic(args: {
+  heading: string;
+  body: string;
+  defaultTopic: CanonicalTopic;
+}): CanonicalTopic {
+  const text = `${args.heading}\n${args.body}`.toLowerCase().slice(0, 2000);
+
+  if (/\btest(s|ing)?\b|\bplaywright\b|\bvitest\b|\bjest\b|\bcypress\b|\bmsw\b|\btdd\b|\bunit test\b|\be2e\b/.test(text))
+    return 'Testing';
+
+  if (/\bperformance\b|core web vitals?|\blcp\b|\binp\b|\bcls\b|\bfid\b|\btti\b|\btbt\b|bundle (size|analysis|split)|code[- ]splitting|lazy[- ]load|tree[- ]shak|critical (rendering )?path|image optim|web ?vitals/.test(text))
+    return 'Web Performance';
+
+  if (/service worker|web worker|\bcors\b|\bcsp\b|\bcookie(s)?\b|local ?storage|session ?storage|index(ed)?db\b|web ?socket|server[- ]sent events?|\bsse\b|\bfetch api\b|\bdom\b|event (loop|propagation|delegation)|render(ing)? pipeline|browser (api|cache|render)/.test(text))
+    return 'Browser & Web APIs';
+
+  if (/\breact\b|\buseeffect\b|\buse(state|memo|callback|reducer|ref|context|transition|deferredvalue)\b|\bhooks?\b|\bjsx\b|reconciliation|virtual ?dom|\bfiber\b|server components?|\brsc\b|\bsuspense\b|\berror boundary\b/.test(text))
+    return 'React';
+
+  if (/\bjavascript\b|\bjs\b|\bclosure(s)?\b|\bpromise(s)?\b|async\/await|prototype chain|\bevent loop\b|\bmicrotask|macrotask|\bthis\b binding|\bes(6|2015|module)/.test(text))
+    return 'JavaScript';
+
+  return args.defaultTopic;
+}
+
 function normalizeLevel(raw: string): Difficulty {
   const r = raw.toLowerCase();
   if (r.includes('junior') || r.includes('beginner') || r.includes('basic') || r.includes('core'))
@@ -116,8 +148,13 @@ export async function parseProseFile(args: {
 
     // Translate heading only — the smart LLM handles VN body and outputs English.
     const headingEn = await translateToEnglish(headingRaw);
+    const routedTopic = routeSectionTopic({
+      heading: headingEn,
+      body: bodyText,
+      defaultTopic: args.defaultTopic,
+    });
     const derived = await generateQuestionsFromSection({
-      topic: args.defaultTopic,
+      topic: routedTopic,
       heading: headingEn,
       body: bodyText.slice(0, 1500),
     });
@@ -126,7 +163,7 @@ export async function parseProseFile(args: {
       if (!q.question?.trim()) continue;
       out.push({
         id: `${slugify(sourceFile.replace(/\.html$/, ''))}-${slugify(headingEn)}-${slugify(q.question).slice(0, 30)}`,
-        topic: args.defaultTopic,
+        topic: routedTopic,
         subtopic: q.subtopic ?? headingEn,
         difficulty: q.difficulty,
         type: q.type,

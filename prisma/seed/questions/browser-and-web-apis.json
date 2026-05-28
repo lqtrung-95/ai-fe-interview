@@ -1,0 +1,997 @@
+[
+  {
+    "id": "fe-prep-trinh-duyet-critical-rendering-path-tu-html-toi-pixe",
+    "topic": "Browser & Web APIs",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain the Critical Rendering Path (CRP) and its steps.",
+    "expectedPoints": [
+      "Describes CRP as the process from HTML to pixels.",
+      "Lists steps: Parsing HTML, Layout, Paint, Composite, Draw.",
+      "Mentions event loop and rendering engine.",
+      "Discusses optimization techniques like lazy loading, code splitting, caching."
+    ],
+    "followUps": [
+      "How does the event loop relate to CRP?",
+      "What happens if a script tag blocks parsing?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-trinh-duyet-cac-co-che-luu-tru-client-khac-nhau-ra-s",
+    "topic": "Browser & Web APIs",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Compare and contrast the different client-side storage mechanisms: cookies, localStorage, and IndexedDB. When would you use each?",
+    "expectedPoints": [
+      "Cookies are small (4KB), sent with every HTTP request, used for session management and tracking.",
+      "localStorage provides larger storage (5-10MB), synchronous API, persists until explicitly cleared, suitable for simple key-value data.",
+      "IndexedDB is an asynchronous, NoSQL database for complex and large data (unlimited), supports indexing and transactions.",
+      "Trade-offs: cookies impact performance due to network overhead; localStorage is blocking; IndexedDB has steeper learning curve but handles large datasets.",
+      "Use cases: cookies for auth tokens; localStorage for user preferences; IndexedDB for offline data or large datasets."
+    ],
+    "followUps": [
+      "How would you handle storage limits or quota exceeded errors?",
+      "Explain how you would migrate from localStorage to IndexedDB for a growing application."
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-trinh-duyet-giai-thich-cors-vi-sao-bi-chan-va-prefli",
+    "topic": "Browser & Web APIs",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how CORS works and why it is necessary for web security.",
+    "expectedPoints": [
+      "CORS is a browser security mechanism that controls cross-origin HTTP requests.",
+      "It prevents malicious sites from reading sensitive data from other origins (e.g., XSS, CSRF).",
+      "For non-simple requests, the browser sends a preflight OPTIONS request to check allowed origins.",
+      "The server responds with Access-Control-Allow-Origin header to grant or deny access.",
+      "If the header is missing or mismatched, the browser blocks the actual request."
+    ],
+    "followUps": [
+      "What are simple requests and how do they differ from preflighted requests?",
+      "How would you handle CORS errors in a production application?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-trinh-duyet-xss-va-csrf-khac-nhau-ra-sao-cach-phong-",
+    "topic": "Browser & Web APIs",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the difference between XSS and CSRF attacks and how to prevent them in a modern web application.",
+    "expectedPoints": [
+      "XSS involves injecting malicious scripts into a web page, while CSRF tricks the user into performing unintended actions.",
+      "XSS prevention includes output encoding, input validation, and Content Security Policy (CSP).",
+      "CSRF prevention includes anti-CSRF tokens, SameSite cookies, and double-submit cookies.",
+      "Understanding that XSS can bypass CSRF protections if not properly handled.",
+      "Real-world examples of each attack and their impact."
+    ],
+    "followUps": [
+      "How would you implement a CSP to mitigate XSS?",
+      "What is the role of SameSite cookies in CSRF prevention?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-2-tu-kiem-tra-nhanh-1-event-loop-ban-co-the-mo-ta-event-loop-l-what-is-the-core-difference-be",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Tự Kiểm Tra Nhanh**\n\n1. **Event Loop**: Bạn có thể mô tả Event Loop là gì không? \n   (Event Loop là một vòng lặp không dừng, chịu trách nhiệm quản lý các sự kiện và thực hiện các tác vụ liên quan.)\n\n2. **Closure**: Bạn có thể giải thích Closure là gì không? \n   (Closure là một hàm có thể truy cập vào các biến của phạm vi chứa nó, ngay cả khi hàm đã được gọi ở một vị trí khác.)\n\n3. **Hydration**: Bạn có thể mô tả Hydration là gì không? \n   (Hydration là quá trình lấy dữ liệu từ một nguồn và sử dụng nó để tạo ra một đối tượng mới.)\n\n4. **useMemo**: Bạn có thể giải thích useMemo là gì không? \n   (useMemo là một hook trong React, giúp bạn lưu trữ giá trị tính toán và chỉ tính toán lại khi giá trị tham số thay đổi.)\n\n5. **Stale Closure**: Bạn có thể mô tả Stale Closure là gì không? \n   (Stale Closure là một trường hợp xảy ra khi một hàm closure sử dụng một biến có giá trị đã thay đổi, dẫn đến kết quả không chính xác.)\n\n6. **Callback**: Bạn có thể giải thích Callback là gì không? \n   (Callback là một hàm được gọi lại sau khi một tác vụ được thực hiện.)\n\n7. **Promise**: Bạn có thể mô tả Promise là gì không? \n   (Promise là một đối tượng đại diện cho một giá trị có thể được lấy sau một khoảng thời gian.)\n\n8. **Async/Await**: Bạn có thể giải thích Async/Await là gì không? \n   (Async/Await là một cách viết mã để thực hiện các tác vụ không đồng bộ, giúp code trở nên dễ đọc và dễ hiểu hơn.)\n\n9. **Context API**: Bạn có thể mô tả Context API là gì không? \n   (Context API là một cách để chia sẻ dữ liệu giữa các component trong một ứng dụng React.)\n\n10. **Redux**: Bạn có thể giải thích Redux là gì không? \n    (Redux là một thư viện giúp quản lý state trong ứng dụng React, giúp code trở nên dễ đọc và dễ hiểu hơn.)\n\n11. **React Hook**: Bạn có thể mô tả React Hook là gì không? \n    (React Hook là một cách để sử dụng các hàm trong React mà không cần phải sử dụng class.)\n\n12. **State**: Bạn có thể giải thích State là gì không? \n    (State là một đối tượng đại diện cho trạng thái của một ứng dụng React.)\n\n13. **Props**: Bạn có thể mô tả Props là gì không? \n    (Props là một đối tượng đại diện cho các thuộc tính của một component trong ứng dụng React.)\n\n14. **Component Life Cycle**: Bạn có thể giải thích Component Life Cycle là gì không? \n    (Component Life Cycle là một chuỗi các phương thức được gọi khi một component được tạo ra, cập nhật hoặc xóa.)\n\n15. **Virtual DOM**: Bạn có thể mô tả Virtual DOM là gì không? \n    (Virtual DOM là một bản sao của DOM thực tế, giúp React thực hiện các thay đổi nhanh chóng và hiệu quả.)",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "What is the core difference between frontend system design and backend system design?",
+    "expectedPoints": [
+      "Frontend focuses on user experience, client architecture, rendering, and perceived performance.",
+      "Backend focuses on throughput, database, server scaling, and data processing.",
+      "Both require trade-off thinking and scaling considerations, but from different perspectives.",
+      "Frontend design involves component organization, state management, network optimization, and user-perceived performance."
+    ],
+    "followUps": [
+      "Can you give an example of a trade-off in frontend system design?",
+      "How would you approach designing a real-time collaborative editor from a frontend perspective?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-here-are-the-translations-1-on-nhanh-khai-niem-quick-review--you-are-building-a-news-blog-t",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Here are the translations:\n\n1. ôn nhanh khái niệm: Quick review of key concepts\n2. Closure: Closure\n3. stale closure: Stale closure\n4. Event Loop: Event loop\n5. Hydration: Hydration\n6. React Hook: React hook\n7. Context API: Context API\n8. Memoization: Memoization\n9. useMemo: useMemo\n10. useCallback: useCallback\n11. useEffect: useEffect\n12. useReducer: useReducer\n13. useState: useState\n14. Pure Component: Pure component\n15. Virtual DOM: Virtual DOM\n16. Diffing: Diffing\n17. Reconciliation: Reconciliation\n18. JSX: JSX\n19. Props: Props\n20. State: State",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "You are building a news blog that needs good SEO and fast loading. Content updates several times a day. Which rendering pattern is most suitable?",
+    "expectedPoints": [
+      "Recognizes that SSG/ISR with revalidation balances speed and freshness.",
+      "Explains that SSG pre-builds static pages for CDN delivery, improving TTFB and SEO.",
+      "Notes that revalidation periodically regenerates pages to reflect content updates.",
+      "Contrasts with SSR (slower, higher server cost) and CSR (poor SEO).",
+      "Concludes that ISR is optimal for this use case."
+    ],
+    "followUps": [
+      "How would you handle a breaking news story that needs immediate update?",
+      "What trade-offs exist between ISR and SSR for this scenario?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-cac-on-bay-toi-uu-trong-lap-trinh-co-the-uoc-phan-loai-thanh-explain-how-you-would-optimize",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Các đòn bẩy tối ưu trong lập trình có thể được phân loại thành các loại sau:\n\n1. **Đòn bẩy tối ưu về hiệu suất**: \n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `React.memo` để lưu trữ component và tránh tái render không cần thiết.\n\n2. **Đòn bẩy tối ưu về bộ nhớ**:\n - Sử dụng `React.PureComponent` để lưu trữ state và tránh tái render không cần thiết.\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn bộ nhớ và tránh tái tính toán không cần thiết.\n\n3. **Đòn bẩy tối ưu về sự ổn định**:\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.\n - Sử dụng `React.memo` để lưu trữ component và tránh tái render không cần thiết.\n\n4. **Đòn bẩy tối ưu về sự đồng bộ**:\n - Sử dụng `useEffect` để thực hiện tác vụ đồng bộ và tránh block event loop.\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.\n\n5. **Đòn bẩy tối ưu về sự bất đồng bộ**:\n - Sử dụng `useEffect` để thực hiện tác vụ bất đồng bộ và tránh block event loop.\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.\n\n6. **Đòn bẩy tối ưu về sự hydrat hóa**:\n - Sử dụng `React.lazy` để hydrat hóa component và tránh tải toàn bộ component vào bộ nhớ.\n - Sử dụng `React.Suspense` để hydrat hóa component và tránh tải toàn bộ component vào bộ nhớ.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.\n\n7. **Đòn bẩy tối ưu về sự đóng cửa**:\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.\n - Sử dụng `React.memo` để lưu trữ component và tránh tái render không cần thiết.\n\n8. **Đòn bẩy tối ưu về sự quản lý bộ nhớ**:\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn bộ nhớ và tránh tái tính toán không cần thiết.\n - Sử dụng `React.memo` để lưu trữ component và tránh tái render không cần thiết.\n\n9. **Đòn bẩy tối ưu về sự quản lý sự kiện**:\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.\n - Sử dụng `React.memo` để lưu trữ component và tránh tái render không cần thiết.\n\n10. **Đòn bẩy tối ưu về sự quản lý vòng lặp**:\n - Sử dụng `useEffect` để thực hiện tác vụ đồng bộ và tránh block event loop.\n - Sử dụng `useCallback` để lưu trữ hàm tham chiếu và tránh tái tạo không cần thiết.\n - Sử dụng `useMemo` để lưu trữ kết quả tính toán tốn thời gian và tránh tái tính toán không cần thiết.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how you would optimize a React component that re-renders too often due to a parent's state change, and discuss the trade-offs of using useMemo, useCallback, and React.memo.",
+    "expectedPoints": [
+      "Identifies that unnecessary re-renders can be reduced by memoizing child components with React.memo.",
+      "Explains useCallback to memoize callback functions passed to children to prevent reference changes.",
+      "Explains useMemo to memoize expensive computations to avoid recalculation on every render.",
+      "Discusses trade-offs: memory overhead from memoization, complexity, and when not to use them (e.g., cheap computations, simple props).",
+      "Mentions that over-optimization can hurt performance; profiling is recommended."
+    ],
+    "followUps": [
+      "What would happen if you use useCallback without React.memo on the child?",
+      "How would you decide whether to use useMemo or just compute inline?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-networking-thiet-ke-api-phia-client-1-gioi-thieu-ve-networki-how-would-you-design-a-client-",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Networking & Thiết kế API phía client**\n\n**1. Giới thiệu về Networking**\n\nNetworking là một phần quan trọng của bất kỳ ứng dụng nào, giúp ứng dụng giao tiếp với các hệ thống khác nhau. Trong phần này, chúng ta sẽ thảo luận về các khái niệm cơ bản của Networking và cách thiết kế API phía client.\n\n**2. Các khái niệm cơ bản của Networking**\n\n- **TCP/IP**: Mô hình giao thức truyền thông mạng (Transmission Control Protocol/Internet Protocol) là một bộ giao thức được sử dụng để truyền thông trên internet.\n- **HTTP**: Giao thức truyền thông ứng dụng (Hypertext Transfer Protocol) là một giao thức được sử dụng để truyền thông giữa client và server.\n- **HTTPS**: Giao thức truyền thông ứng dụng an toàn (Hypertext Transfer Protocol Secure) là một giao thức được sử dụng để truyền thông an toàn giữa client và server.\n\n**3. Thiết kế API phía client**\n\n- **RESTful API**: Mô hình thiết kế API (Representational State of Resource) là một mô hình thiết kế API phổ biến được sử dụng để thiết kế API phía client.\n- **API Gateway**: Là một điểm truy cập trung tâm để truy cập vào các API khác nhau.\n- **Caching**: Là một kỹ thuật được sử dụng để lưu trữ dữ liệu tạm thời để giảm thiểu số lượng yêu cầu đến server.\n\n**4. Các kỹ thuật thiết kế API phía client**\n\n- **Hydration**: Là một kỹ thuật được sử dụng để tải dữ liệu từ server vào client.\n- **Stale closure**: Là một kỹ thuật được sử dụng để cập nhật dữ liệu trên client khi dữ liệu trên server thay đổi.\n- **Event loop**: Là một kỹ thuật được sử dụng để xử lý các sự kiện trên client.\n\n**5. Các công cụ thiết kế API phía client**\n\n- **Axios**: Là một thư viện JavaScript được sử dụng để thực hiện các yêu cầu HTTP.\n- **React Query**: Là một thư viện JavaScript được sử dụng để quản lý dữ liệu và caching.\n- **Redux**: Là một thư viện JavaScript được sử dụng để quản lý trạng thái ứng dụng.\n\n**6. Các nguyên tắc thiết kế API phía client**\n\n- **Dễ sử dụng**: API phải dễ sử dụng và dễ hiểu.\n- **Tính nhất quán**: API phải có tính nhất quán và dễ dự đoán.\n- **Tính mở**: API phải có tính mở và cho phép mở rộng.\n\n**7. Các kỹ thuật bảo mật**\n\n- **Authentication**: Là một kỹ thuật được sử dụng để xác thực danh tính người dùng.\n- **Authorization**: Là một kỹ thuật được sử dụng để kiểm soát quyền truy cập vào các tài nguyên.\n- **Encryption**: Là một kỹ thuật được sử dụng để mã hóa dữ liệu.\n\n**8. Các công cụ bảo mật**\n\n- **OAuth**: Là một giao thức được sử dụng để xác thực danh tính người dùng.\n- **JWT**: Là một giao thức được sử dụng để xác thực danh tính người dùng.\n- **SSL/TLS**: Là một giao thức được sử dụng để mã hóa dữ liệu.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design a client-side API layer to handle pagination, retry on failure, and prevent race conditions when fetching data?",
+    "expectedPoints": [
+      "Proposes a strategy for pagination (e.g., cursor-based or offset-based) and explains trade-offs.",
+      "Describes retry logic with exponential backoff and jitter to avoid server overload.",
+      "Addresses race conditions using request cancellation (AbortController) or deduplication.",
+      "Mentions caching or state management to avoid redundant requests.",
+      "Considers user experience (loading states, optimistic updates)."
+    ],
+    "followUps": [
+      "How would you implement request deduplication in a React app?",
+      "What are the trade-offs between offset and cursor pagination for a real-time feed?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-xu-ly-race-condition-khi-search-autocomplete-khi-xay-dung-ch-how-would-you-handle-race-cond",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Xử lý Race Condition khi search/autocomplete**\n\nKhi xây dựng chức năng search/autocomplete, chúng ta thường gặp phải vấn đề về **Race Condition**. **Race Condition** xảy ra khi nhiều luồng thực thi cùng một đoạn mã, dẫn đến kết quả không mong muốn.\n\n**Ví dụ:**\n\nKhi người dùng nhập từ khóa vào ô tìm kiếm, chúng ta thường thực hiện các bước sau:\n\n1. Lấy dữ liệu từ cơ sở dữ liệu.\n2. Tìm kiếm và lọc dữ liệu dựa trên từ khóa.\n3. Hiển thị kết quả tìm kiếm.\n\nNếu có nhiều người dùng nhập từ khóa cùng lúc, thì các bước trên sẽ được thực thi đồng thời. Điều này có thể dẫn đến **stale closure**, khi dữ liệu được lấy từ cơ sở dữ liệu không còn mới, dẫn đến kết quả tìm kiếm không chính xác.\n\n**Cách giải quyết:**\n\nĐể giải quyết vấn đề này, chúng ta có thể sử dụng các kỹ thuật sau:\n\n1. **Hydration**: Lấy dữ liệu từ cơ sở dữ liệu một lần và lưu trữ trong bộ nhớ cache. Khi người dùng nhập từ khóa, chúng ta sẽ lấy dữ liệu từ bộ nhớ cache thay vì cơ sở dữ liệu.\n2. **UseMemo**: Sử dụng **useMemo** để lưu trữ kết quả tìm kiếm và chỉ cập nhật khi dữ liệu từ cơ sở dữ liệu thay đổi.\n3. **Event Loop**: Sử dụng **event loop** để thực thi các bước tìm kiếm một cách tuần tự, tránh **Race Condition**.\n\nBằng cách áp dụng các kỹ thuật trên, chúng ta có thể giải quyết vấn đề **Race Condition** khi search/autocomplete và đảm bảo kết quả tìm kiếm chính xác và nhanh chóng.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you handle race conditions in an autocomplete search component?",
+    "expectedPoints": [
+      "Identifies race condition: later request may finish before earlier one, causing stale results.",
+      "Mentions AbortController to cancel previous in-flight requests.",
+      "Suggests debounce to reduce number of requests.",
+      "Discusses checking response freshness (e.g., using a counter or latest query).",
+      "Considers user experience: avoid flickering, show loading state appropriately."
+    ],
+    "followUps": [
+      "What if the API doesn't support cancellation?",
+      "How would you implement debounce with cancellation?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-state-management-state-management-la-mot-khia-canh-quan-tron-how-do-you-decide-between-usin",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**State Management**\n\nState management là một khía cạnh quan trọng trong việc xây dựng ứng dụng, giúp quản lý và cập nhật trạng thái của ứng dụng một cách hiệu quả.\n\n**Ví dụ**\n\nMột ứng dụng có thể có nhiều trạng thái khác nhau, chẳng hạn như trạng thái đăng nhập, trạng thái thanh toán, trạng thái lưu trữ dữ liệu v.v. Mỗi trạng thái này cần được cập nhật và quản lý một cách độc lập.\n\n**Các phương pháp quản lý trạng thái**\n\nCó nhiều phương pháp quản lý trạng thái khác nhau, bao gồm:\n\n1. **Stateful Component**: Sử dụng component có trạng thái để quản lý trạng thái của ứng dụng.\n2. **Stateless Component**: Sử dụng component không có trạng thái để quản lý trạng thái của ứng dụng.\n3. **Redux**: Sử dụng thư viện Redux để quản lý trạng thái của ứng dụng.\n4. **Context API**: Sử dụng Context API để quản lý trạng thái của ứng dụng.\n\n**Lợi ích của việc quản lý trạng thái**\n\nQuản lý trạng thái giúp ứng dụng trở nên linh hoạt và dễ dàng bảo trì. Nó cũng giúp giảm thiểu lỗi và tăng cường hiệu suất của ứng dụng.\n\n**Các kỹ thuật quản lý trạng thái**\n\nCó nhiều kỹ thuật quản lý trạng thái khác nhau, bao gồm:\n\n1. **Hydration**: Cập nhật trạng thái của ứng dụng khi ứng dụng được tải lại.\n2. **Stale Closure**: Cập nhật trạng thái của ứng dụng khi closure bị cũ.\n3. **useMemo**: Sử dụng hook useMemo để cập nhật trạng thái của ứng dụng.\n4. **Event Loop**: Sử dụng vòng lặp sự kiện để cập nhật trạng thái của ứng dụng.\n\n**Challenges trong quản lý trạng thái**\n\nQuản lý trạng thái có thể gặp phải nhiều thách thức, bao gồm:\n\n1. **Sự phức tạp của trạng thái**: Trạng thái của ứng dụng có thể trở nên phức tạp và khó quản lý.\n2. **Sự thay đổi của trạng thái**: Trạng thái của ứng dụng có thể thay đổi nhanh chóng và khó dự đoán.\n3. **Sự tương tác giữa trạng thái**: Trạng thái của ứng dụng có thể tương tác với nhau và gây ra lỗi.\n\n**Kết luận**\n\nQuản lý trạng thái là một khía cạnh quan trọng trong việc xây dựng ứng dụng. Nó giúp ứng dụng trở nên linh hoạt và dễ dàng bảo trì. Tuy nhiên, quản lý trạng thái cũng có thể gặp phải nhiều thách thức. Vì vậy, cần phải có kỹ năng và kinh nghiệm để quản lý trạng thái một cách hiệu quả.",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "How do you decide between using local component state, Context API, and a global state management library like Redux in a React application?",
+    "expectedPoints": [
+      "Classifies state into local, shared, and global categories.",
+      "Explains that local state is for component-specific data (e.g., form inputs).",
+      "Describes Context API for shared state within a subtree (e.g., theme, auth).",
+      "Recommends Redux for complex global state with frequent updates or cross-cutting concerns.",
+      "Mentions trade-offs: Context can cause unnecessary re-renders; Redux adds boilerplate."
+    ],
+    "followUps": [
+      "What are the downsides of putting all state into Redux?",
+      "How would you handle state that is needed by many components but not truly global?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-component-design-component-mot-thanh-phan-trong-ung-dung-co--design-the-props-api-for-a-reu",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Component Design**\n\n- **Component**: Một thành phần trong ứng dụng, có thể được tái sử dụng và kết hợp lại để tạo nên giao diện người dùng phức tạp hơn.\n- **State**: Trạng thái của một thành phần, có thể được cập nhật khi người dùng tương tác với ứng dụng.\n- **Props**: Thuộc tính của một thành phần, được truyền từ cha sang con trong quá trình render.\n- **Pure Component**: Một thành phần không có state, chỉ nhận props và render lại khi props thay đổi.\n- **Stale Closure**: Một vấn đề xảy ra khi một hàm closure sử dụng một biến có thể thay đổi, dẫn đến kết quả không mong muốn.\n- **Hydration**: Quá trình render lại một thành phần đã được hydrat hóa, thường được sử dụng trong React.\n- **ShouldComponentUpdate**: Một phương thức trong React, giúp kiểm tra xem một thành phần cần được render lại hay không.\n\n**API Design**\n\n- **API**: Một giao diện lập trình ứng dụng, cho phép các ứng dụng khác nhau tương tác với nhau.\n- **RESTful API**: Một loại API sử dụng phương thức HTTP để giao tiếp với server.\n- **GraphQL API**: Một loại API sử dụng ngôn ngữ GraphQL để giao tiếp với server.\n- **API Gateway**: Một thành phần giúp quản lý và phân phối các yêu cầu API đến các microservice khác nhau.\n- **Event-Driven Architecture**: Một kiến trúc ứng dụng sử dụng sự kiện để giao tiếp giữa các thành phần khác nhau.\n- **Microservice Architecture**: Một kiến trúc ứng dụng sử dụng các microservice nhỏ để thực hiện các chức năng khác nhau.\n\n**UseMemo**\n\n- **UseMemo**: Một hook trong React, giúp lưu trữ và tái sử dụng giá trị tính toán một cách hiệu quả.\n\n**Event Loop**\n\n- **Event Loop**: Một vòng lặp trong JavaScript, giúp xử lý các sự kiện và cập nhật giao diện người dùng.\n\n**Component Life Cycle**\n\n- **Component Life Cycle**: Một chu trình sống của một thành phần, bao gồm các phương thức như `componentDidMount`, `componentDidUpdate`, `componentWillUnmount`.\n\n**State Management**\n\n- **State Management**: Quá trình quản lý trạng thái của ứng dụng, bao gồm các phương thức như `useState`, `useReducer`.\n\n**Context API**\n\n- **Context API**: Một API trong React, giúp chia sẻ dữ liệu giữa các thành phần khác nhau.\n\n**Redux**\n\n- **Redux**: Một thư viện giúp quản lý trạng thái của ứng dụng, sử dụng nguyên tắc đơn hướng và phân cấp dữ liệu.\n\n**MobX**\n\n- **MobX**: Một thư viện giúp quản lý trạng thái của ứng dụng, sử dụng nguyên tắc phản ứng và phân cấp dữ liệu.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design the props API for a reusable Modal component. What props would you include and why?",
+    "expectedPoints": [
+      "Covers essential props: isOpen, onClose, children, title.",
+      "Considers accessibility: aria attributes, focus trapping, keyboard handling.",
+      "Handles edge cases: portal rendering, overlay click behavior, animation.",
+      "Discusses flexibility vs. constraints: size, position, custom footer.",
+      "Mentions performance: memoization, preventing unnecessary re-renders."
+    ],
+    "followUps": [
+      "How would you handle multiple modals stacking?",
+      "What if the modal content is lazy-loaded?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-nguyen-tac-thiet-ke-component-api-khi-thiet-ke-component-api-design-a-reusable-dropdown-com",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Nguyên tắc thiết kế component API**\n\nKhi thiết kế component API, chúng ta cần tuân thủ các nguyên tắc sau để đảm bảo tính linh hoạt, dễ sử dụng và bảo trì:\n\n1. **Dùng các hook đúng mục đích**: Sử dụng các hook như `useState`, `useEffect`, `useContext` để quản lý trạng thái và hành vi của component. Tránh sử dụng các hook không cần thiết để tránh gây nhầm lẫn và khó bảo trì.\n2. **Sử dụng các hàm memo hóa**: Sử dụng các hàm như `useMemo`, `useCallback` để memo hóa các giá trị và hàm để tránh tái tạo không cần thiết.\n3. **Tối ưu hóa hiệu suất**: Sử dụng các kỹ thuật như `shouldComponentUpdate` để kiểm tra xem component cần được cập nhật hay không.\n4. **Sử dụng các closure đúng cách**: Tránh sử dụng các closure không cần thiết để tránh gây nhầm lẫn và khó bảo trì.\n5. **Tối ưu hóa event loop**: Sử dụng các kỹ thuật như `useCallback` để tối ưu hóa event loop và tránh gây chậm trễ.\n6. **Sử dụng các API hydrate**: Sử dụng các API hydrate để hydrate component và tránh gây chậm trễ.\n7. **Tối ưu hóa rendering**: Sử dụng các kỹ thuật như `React.memo` để tối ưu hóa rendering và tránh gây chậm trễ.\n8. **Sử dụng các API stale closure**: Sử dụng các API stale closure để tránh gây chậm trễ và khó bảo trì.\n9. **Tối ưu hóa hydration**: Sử dụng các kỹ thuật như `React.lazy` để tối ưu hóa hydration và tránh gây chậm trễ.\n10. **Bảo trì và cập nhật**: Bảo trì và cập nhật component API thường xuyên để đảm bảo tính linh hoạt và dễ sử dụng.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design a reusable dropdown component API that supports both controlled and uncontrolled modes, with sensible defaults and built-in accessibility.",
+    "expectedPoints": [
+      "Supports controlled mode via value and onChange props, and uncontrolled mode via defaultValue.",
+      "Uses composition: exposes a list of options as children or items prop, not a monolithic configuration.",
+      "Provides sensible defaults: e.g., placeholder, default open state false.",
+      "Includes built-in accessibility: ARIA roles (combobox, listbox), keyboard navigation, focus management.",
+      "Single responsibility: dropdown only handles selection, not styling or layout beyond basic structure."
+    ],
+    "followUps": [
+      "How would you handle keyboard navigation (e.g., arrow keys, Enter, Escape)?",
+      "What if the user wants to customize the option rendering? How would you support that?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-caching-client-storage-1-caching-stale-closure-loi-ong-goi-c-explain-the-difference-between",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Caching & Client Storage**\n\n### 1. Caching\n\n- **Stale Closure**: Lỗi đóng gói cũ (Stale Closure) xảy ra khi một hàm được gọi lại với dữ liệu cũ, dẫn đến kết quả không chính xác.\n- **Cache**: Bộ nhớ đệm (Cache) là một vùng nhớ tạm thời lưu trữ dữ liệu đã được tính toán trước đó để giảm tải công việc tính toán.\n- **Cache Invalidation**: Hủy bỏ bộ nhớ đệm (Cache Invalidation) là quá trình xóa dữ liệu trong bộ nhớ đệm khi dữ liệu thay đổi.\n\n### 2. Client Storage\n\n- **Client Storage**: Bộ nhớ khách hàng (Client Storage) là một vùng nhớ lưu trữ dữ liệu trên máy khách (Client-side).\n- **Local Storage**: Bộ nhớ địa phương (Local Storage) là một loại bộ nhớ khách hàng lưu trữ dữ liệu trên máy tính của người dùng.\n- **Session Storage**: Bộ nhớ phiên (Session Storage) là một loại bộ nhớ khách hàng lưu trữ dữ liệu trong suốt phiên làm việc của người dùng.\n- **Cookie**: Cookie là một loại bộ nhớ khách hàng lưu trữ dữ liệu nhỏ trên máy tính của người dùng.\n\n### 3. Hydration\n\n- **Hydration**: Sự hydrat hóa (Hydration) là quá trình lấy dữ liệu từ bộ nhớ khách hàng và sử dụng nó để cập nhật trạng thái ứng dụng.\n\n### 4. UseMemo\n\n- **useMemo**: useMemo là một hook trong React giúp lưu trữ giá trị tính toán và sử dụng nó lại khi cần thiết.\n\n### 5. Event Loop\n\n- **Event Loop**: Lặp lại sự kiện (Event Loop) là một cơ chế trong JavaScript giúp xử lý các sự kiện đồng thời và hiệu quả.\n\n### 6. Web Storage\n\n- **Web Storage**: Bộ nhớ web (Web Storage) là một vùng nhớ lưu trữ dữ liệu trên máy khách (Client-side) và được sử dụng để lưu trữ dữ liệu nhỏ.\n- **Web Storage API**: API bộ nhớ web (Web Storage API) là một bộ API giúp truy cập và quản lý bộ nhớ web.\n\n### 7. Cache API\n\n- **Cache API**: API bộ nhớ đệm (Cache API) là một bộ API giúp truy cập và quản lý bộ nhớ đệm.\n- **Cache Storage**: Bộ nhớ đệm lưu trữ (Cache Storage) là một vùng nhớ lưu trữ dữ liệu đã được tính toán trước đó để giảm tải công việc tính toán.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the difference between Cache API and HTTP cache, and describe a scenario where you would use Cache API over HTTP cache for offline support.",
+    "expectedPoints": [
+      "Cache API is programmatic, used in Service Workers for custom caching strategies.",
+      "HTTP cache is automatic, controlled by headers like Cache-Control.",
+      "Cache API allows fine-grained control, e.g., caching dynamic responses.",
+      "Use Cache API for offline-first apps where you need to cache API responses or assets beyond browser's default behavior.",
+      "HTTP cache is simpler but limited for offline scenarios without Service Worker."
+    ],
+    "followUps": [
+      "How would you invalidate a cached response in Cache API?",
+      "What are the storage limits for Cache API vs localStorage?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-cac-tang-cache-tren-client-bao-gom-1-cache-dns-domain-name-s-explain-the-different-caching-",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Các tầng cache trên client bao gồm:\n\n1. Cache DNS (Domain Name System): Là tầng cache đầu tiên, giúp giảm thiểu thời gian tìm kiếm địa chỉ IP của một tên miền.\n2. Cache trình duyệt (Browser Cache): Là tầng cache thứ hai, giúp lưu trữ các tài nguyên như hình ảnh, CSS, JavaScript đã được tải xuống trước đó.\n3. Cache ứng dụng (Application Cache): Là tầng cache thứ ba, giúp lưu trữ các dữ liệu đã được tải xuống trước đó để sử dụng trong ứng dụng.\n4. Cache bộ nhớ đệm (Cache Memory): Là tầng cache thứ tư, giúp lưu trữ các dữ liệu đã được tải xuống trước đó để sử dụng trong bộ nhớ đệm.\n5. Cache bộ nhớ đệm (Cache Memory) - Stale Closure: Là tầng cache thứ năm, giúp lưu trữ các dữ liệu đã được tải xuống trước đó để sử dụng trong bộ nhớ đệm, nhưng dữ liệu này có thể đã bị lỗi thời.\n\nCác tầng cache trên client giúp giảm thiểu thời gian tải trang và cải thiện hiệu suất của ứng dụng.\n\nCác kỹ thuật cache phổ biến bao gồm:\n\n- Cache bằng cách sử dụng HTTP Header (Cache-Control, Expires, ETag)\n- Cache bằng cách sử dụng các thư viện như React Query, Redux Toolkit\n- Cache bằng cách sử dụng các kỹ thuật như Memoization, Caching bằng cách sử dụng bộ nhớ đệm\n\nCác lợi ích của cache bao gồm:\n\n- Giảm thiểu thời gian tải trang\n- Cải thiện hiệu suất của ứng dụng\n- Giảm thiểu lưu lượng truy cập mạng\n- Giảm thiểu tải trọng trên máy chủ\n\nTuy nhiên, cache cũng có thể gây ra các vấn đề như:\n\n- Dữ liệu lỗi thời\n- Dữ liệu không chính xác\n- Dữ liệu bị mất\n- Dữ liệu bị thay đổi\n\nDo đó, cần phải quản lý cache một cách cẩn thận để đảm bảo rằng dữ liệu được cập nhật và chính xác.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Explain the different caching layers on the client side and how they interact. How would you implement a caching strategy that balances performance and data freshness?",
+    "expectedPoints": [
+      "Identifies client-side cache layers: DNS cache, browser cache, service worker cache, application cache (e.g., React Query), and memory/storage caches.",
+      "Describes the trade-off: caches closer to the app are faster but more prone to stale data; those closer to the server are slower but fresher.",
+      "Proposes a strategy: use HTTP cache for static assets, service worker for offline support, and application-level cache (e.g., React Query) with stale-while-revalidate or background refetching.",
+      "Discusses cache invalidation: using ETags, Cache-Control headers, or manual invalidation via keys or timestamps.",
+      "Mentions tools like localStorage/IndexedDB for persistent data and memory cache for session data."
+    ],
+    "followUps": [
+      "How would you handle cache invalidation for a real-time dashboard?",
+      "What are the pros and cons of using service worker caching vs HTTP caching?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-lua-chon-noi-luu-tru-phia-client-client-side-storage-la-mot--you-need-to-store-a-user-authe",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Lựa chọn nơi lưu trữ phía client (Client-Side Storage) là một phần quan trọng trong việc tối ưu hóa hiệu suất và bảo mật của ứng dụng web. Có hai loại nơi lưu trữ phổ biến phía client là:\n\n1. **Local Storage**: Là một loại nơi lưu trữ có thể lưu trữ dữ liệu dưới dạng chuỗi (string) và số (number) trong thời gian dài mà không bị xóa khi trang web được đóng lại. Tuy nhiên, dữ liệu được lưu trữ trong Local Storage không được mã hóa và có thể bị truy cập bởi các ứng dụng khác.\n\n2. **Session Storage**: Là một loại nơi lưu trữ tương tự như Local Storage, nhưng dữ liệu được lưu trữ trong Session Storage sẽ bị xóa khi trang web được đóng lại hoặc khi phiên làm việc (session) kết thúc.\n\n3. **Cookie**: Là một loại nơi lưu trữ nhỏ được gửi từ server đến client và được lưu trữ trong trình duyệt. Cookie có thể được sử dụng để lưu trữ dữ liệu nhỏ và được sử dụng rộng rãi trong các ứng dụng web.\n\n4. **IndexedDB**: Là một loại nơi lưu trữ có khả năng lưu trữ dữ liệu lớn và phức tạp, được sử dụng rộng rãi trong các ứng dụng web phức tạp.\n\nKhi chọn nơi lưu trữ phía client, bạn cần xem xét các yếu tố sau:\n\n- **Hiệu suất**: Nơi lưu trữ nào có hiệu suất cao nhất?\n- **Bảo mật**: Nơi lưu trữ nào có tính bảo mật cao nhất?\n- **Dung lượng**: Nơi lưu trữ nào có dung lượng lớn nhất?\n- **Tính tương thích**: Nơi lưu trữ nào có tính tương thích cao nhất với các trình duyệt khác nhau?\n\nTóm lại, việc chọn nơi lưu trữ phía client cần được xem xét kỹ lưỡng để đảm bảo hiệu suất, bảo mật và tính tương thích của ứng dụng web.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "You need to store a user authentication token and a large set of offline data for a PWA. Which client-side storage mechanisms would you choose for each, and why?",
+    "expectedPoints": [
+      "Chooses HttpOnly cookie for auth token to mitigate XSS risks.",
+      "Chooses IndexedDB for large offline data due to high capacity and async API.",
+      "Mentions localStorage is unsuitable for sensitive tokens because JS can access it.",
+      "Considers Cache API for caching responses if offline support is needed.",
+      "Explains trade-offs: security vs. convenience, capacity, and persistence."
+    ],
+    "followUps": [
+      "How would you handle token refresh with HttpOnly cookies?",
+      "What if the offline data needs to be queried efficiently?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-cache-invalidation-strategy-la-mot-ky-thuat-quan-trong-trong-explain-the-stale-while-revali",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Cache invalidation strategy là một kỹ thuật quan trọng trong lập trình, giúp đảm bảo rằng dữ liệu được lưu trữ trong cache luôn chính xác và cập nhật. Dưới đây là một số chiến lược cache invalidation phổ biến:\n\n1. **Stale closure**: Chiến lược này sử dụng một closure (hàm đóng gói) để lưu trữ dữ liệu và trạng thái của nó. Khi dữ liệu thay đổi, closure sẽ được cập nhật để phản ánh thay đổi này.\n\n2. **Hydration**: Chiến lược này liên quan đến việc cập nhật dữ liệu trong cache bằng cách sử dụng dữ liệu mới từ nguồn gốc. Điều này giúp đảm bảo rằng dữ liệu trong cache luôn chính xác và cập nhật.\n\n3. **UseMemo**: Chiến lược này sử dụng hàm useMemo để lưu trữ dữ liệu và trạng thái của nó. Khi dữ liệu thay đổi, useMemo sẽ được cập nhật để phản ánh thay đổi này.\n\n4. **Event loop**: Chiến lược này liên quan đến việc sử dụng vòng lặp sự kiện (event loop) để cập nhật dữ liệu trong cache. Khi dữ liệu thay đổi, event loop sẽ được kích hoạt để cập nhật dữ liệu trong cache.\n\n5. **Cache aside**: Chiến lược này liên quan đến việc lưu trữ dữ liệu trong cache và cập nhật dữ liệu trong cache khi dữ liệu thay đổi. Điều này giúp đảm bảo rằng dữ liệu trong cache luôn chính xác và cập nhật.\n\n6. **Read through**: Chiến lược này liên quan đến việc đọc dữ liệu từ nguồn gốc và cập nhật dữ liệu trong cache khi dữ liệu thay đổi. Điều này giúp đảm bảo rằng dữ liệu trong cache luôn chính xác và cập nhật.\n\n7. **Write through**: Chiến lược này liên quan đến việc cập nhật dữ liệu trong cache và nguồn gốc cùng một lúc. Điều này giúp đảm bảo rằng dữ liệu trong cache luôn chính xác và cập nhật.\n\n8. **Write behind**: Chiến lược này liên quan đến việc cập nhật dữ liệu trong nguồn gốc và sau đó cập nhật dữ liệu trong cache. Điều này giúp đảm bảo rằng dữ liệu trong cache luôn chính xác và cập nhật.\n\n9. **Time to live (TTL)**: Chiến lược này liên quan đến việc đặt thời gian sống (TTL) cho dữ liệu trong cache. Khi TTL hết hạn, dữ liệu trong cache sẽ được cập nhật hoặc xóa.\n\n10. **Cache expiration**: Chiến lược này liên quan đến việc đặt thời gian hết hạn cho dữ liệu trong cache. Khi thời gian hết hạn đến, dữ liệu trong cache sẽ được cập nhật hoặc xóa.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the stale-while-revalidate caching strategy and how it differs from a simple TTL-based cache.",
+    "expectedPoints": [
+      "Describes stale-while-revalidate: serves stale data immediately, then re-fetches in background to update cache.",
+      "Contrasts with TTL: TTL expires data and blocks until fresh fetch, while stale-while-revalidate provides instant response.",
+      "Mentions use cases like SWR/React Query for smooth UI experience.",
+      "Notes trade-offs: stale data may be slightly outdated, but improves perceived performance.",
+      "Explains how it handles concurrent requests and cache updates."
+    ],
+    "followUps": [
+      "How would you implement stale-while-revalidate in a custom React hook?",
+      "What are the potential pitfalls of this strategy for real-time data?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-real-time-updates-la-mot-tinh-nang-quan-trong-trong-cac-ung--compare-websockets-server-sent",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Real-time updates là một tính năng quan trọng trong các ứng dụng web và di động, cho phép người dùng nhận được thông tin cập nhật ngay lập tức mà không cần phải tải lại trang hoặc ứng dụng.\n\nĐể thực hiện tính năng này, chúng ta cần sử dụng các kỹ thuật sau:\n\n1. **WebSockets**: là một giao thức cho phép thiết lập kết nối giữa client và server một cách thực-time, cho phép gửi và nhận dữ liệu ngay lập tức.\n2. **Server-Sent Events (SSE)**: là một giao thức cho phép server gửi thông tin cập nhật đến client mà không cần phải yêu cầu từ client.\n3. **Long Polling**: là một kỹ thuật cho phép client yêu cầu server cập nhật thông tin và chờ đợi cho đến khi server có thông tin mới.\n\nĐể xử lý các cập nhật thực-time, chúng ta cần sử dụng các kỹ thuật sau:\n\n1. **Hydration**: là quá trình cập nhật dữ liệu trong ứng dụng khi nhận được thông tin mới từ server.\n2. **Reconciliation**: là quá trình so sánh dữ liệu hiện tại với dữ liệu mới để xác định các thay đổi cần được cập nhật.\n\nĐể tối ưu hóa hiệu suất, chúng ta cần sử dụng các kỹ thuật sau:\n\n1. **Memoization**: là kỹ thuật lưu trữ kết quả của các hàm tính toán để tránh tính toán lại khi cần sử dụng lại.\n2. **Caching**: là kỹ thuật lưu trữ dữ liệu đã được tính toán để tránh tính toán lại khi cần sử dụng lại.\n\nTóm lại, thực hiện tính năng cập nhật thực-time đòi hỏi sự kết hợp giữa các kỹ thuật như WebSockets, SSE, Long Polling, Hydration, Reconciliation, Memoization và Caching để đảm bảo hiệu suất và độ tin cậy cao.",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "Compare WebSockets, Server-Sent Events (SSE), and Long Polling for implementing real-time updates in a web application. When would you choose each?",
+    "expectedPoints": [
+      "WebSockets: full-duplex, low latency, suitable for bidirectional communication (e.g., chat, gaming).",
+      "SSE: unidirectional from server to client, simpler, built-in reconnection, good for notifications or stock tickers.",
+      "Long Polling: emulates real-time via repeated HTTP requests, higher latency and overhead, fallback for legacy browsers.",
+      "Trade-offs: latency vs. complexity vs. browser support vs. server resources.",
+      "Decision factors: directionality of data flow, latency requirements, existing infrastructure."
+    ],
+    "followUps": [
+      "How would you handle reconnection and message ordering in WebSockets?",
+      "What are the scalability concerns with each approach?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-e-tao-cam-giac-thoi-gian-thuc-real-time-trong-ung-dung-optim-how-would-you-implement-an-opt",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Để tạo cảm giác thời gian thực (real-time) trong ứng dụng, Optimistic UI là một chiến lược hiệu quả. \n\nCách thức hoạt động của Optimistic UI là sau: \n\n1. Khi người dùng thực hiện một hành động, ứng dụng sẽ ngay lập tức phản hồi lại người dùng như thể hành động đã được thực hiện thành công.\n2. Sau đó, ứng dụng sẽ gửi yêu cầu đến server để xác nhận hành động đã được thực hiện thành công hay chưa.\n3. Nếu server xác nhận hành động đã được thực hiện thành công, ứng dụng sẽ giữ nguyên trạng thái hiện tại. \n4. Nếu server xác nhận hành động chưa được thực hiện thành công, ứng dụng sẽ cập nhật trạng thái trở lại trạng thái ban đầu.\n\nBằng cách sử dụng Optimistic UI, ứng dụng có thể tạo cảm giác thời gian thực cho người dùng, ngay cả khi dữ liệu chưa được cập nhật trên server.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you implement an optimistic UI update for a 'like' button, and what are the potential pitfalls?",
+    "expectedPoints": [
+      "Immediately update UI (e.g., increment like count, change button color) before server response.",
+      "Send async request to server; on success, keep the optimistic state.",
+      "On failure, rollback UI to previous state (e.g., decrement count, revert color) and optionally show error.",
+      "Handle race conditions (e.g., multiple rapid clicks) and ensure idempotency.",
+      "Consider edge cases like network failure, server validation errors, and concurrent updates."
+    ],
+    "followUps": [
+      "How would you handle multiple rapid likes/unlikes?",
+      "What if the server returns a different state (e.g., already liked by someone else)?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-cac-moi-e-doa-thuong-gap-trong-lap-trinh-bao-gom-1-stale-clo-explain-how-a-stale-closure-ca",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Các mối đe dọa thường gặp trong lập trình bao gồm:\n\n1. **Stale Closure**: Sự kết hợp giữa biến cục bộ và hàm đóng gói có thể dẫn đến kết quả không mong muốn khi biến cục bộ thay đổi sau khi hàm đã được gọi.\n2. **Hydration**: Quá trình lấy dữ liệu từ cơ sở dữ liệu hoặc nguồn dữ liệu khác và cập nhật trạng thái ứng dụng có thể dẫn đến lỗi nếu không được thực hiện một cách chính xác.\n3. **Event Loop**: Sự lặp lại không ngừng của các sự kiện trong ứng dụng có thể dẫn đến lỗi nếu không được quản lý một cách hiệu quả.\n4. **Callback Hell**: Sự lồng ghép quá mức của các hàm callback có thể dẫn đến lỗi và khó khăn trong việc quản lý mã nguồn.\n5. **Memory Leak**: Sự lãng phí bộ nhớ do không giải phóng bộ nhớ sau khi sử dụng có thể dẫn đến lỗi và giảm hiệu suất ứng dụng.\n6. **Deadlock**: Sự chặn không thể giải quyết được giữa các tiến trình hoặc thread có thể dẫn đến lỗi và giảm hiệu suất ứng dụng.\n7. **Racing Condition**: Sự cạnh tranh không thể giải quyết được giữa các tiến trình hoặc thread có thể dẫn đến lỗi và giảm hiệu suất ứng dụng.\n8. **UseMemo**: Sử dụng hàm useMemo không đúng cách có thể dẫn đến lỗi và giảm hiệu suất ứng dụng.\n9. **UseCallback**: Sử dụng hàm useCallback không đúng cách có thể dẫn đến lỗi và giảm hiệu suất ứng dụng.\n10. **UseRef**: Sử dụng hàm useRef không đúng cách có thể dẫn đến lỗi và giảm hiệu suất ứng dụng.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how a stale closure can occur in React hooks and how to prevent it.",
+    "expectedPoints": [
+      "Stale closure happens when a closure captures an outdated variable value due to re-renders.",
+      "Common in useEffect, useCallback, or event handlers that reference state without proper dependencies.",
+      "Prevention: include all used variables in dependency array, use functional updates, or use refs for mutable values.",
+      "Example: setInterval inside useEffect without cleanup or proper deps leads to stale state.",
+      "React's exhaustive-deps lint rule helps catch stale closures."
+    ],
+    "followUps": [
+      "How would you fix a stale closure in a useEffect that runs a timer?",
+      "Can useRef help avoid stale closures? When would you use it?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-reflow-va-repaint-la-hai-khai-niem-quan-trong-trong-qua-trin-which-css-properties-should-yo",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Reflow và Repaint là hai khái niệm quan trọng trong quá trình render giao diện người dùng (UI) trên web. Dưới đây là lý do tại sao chúng quan trọng:\n\nReflow là quá trình tái cấu trúc lại layout của một trang web khi kích thước hoặc vị trí của một phần tử thay đổi. Điều này có thể xảy ra khi một phần tử được thêm hoặc xóa, hoặc khi kích thước của một phần tử thay đổi. Reflow có thể gây ra sự chậm trễ trong quá trình render UI, đặc biệt là khi phải thực hiện nhiều lần reflow liên tiếp.\n\nRepaint là quá trình cập nhật lại hình ảnh của một phần tử trên màn hình. Điều này có thể xảy ra khi một phần tử được thêm hoặc xóa, hoặc khi nội dung của một phần tử thay đổi. Repaint thường nhanh hơn reflow, nhưng cũng có thể gây ra sự chậm trễ nếu phải thực hiện nhiều lần repaint liên tiếp.\n\nĐể tối ưu hóa hiệu suất của trang web, chúng ta cần giảm thiểu số lần reflow và repaint. Điều này có thể đạt được bằng cách sử dụng các kỹ thuật như:\n\n- Sử dụng CSS Flexbox hoặc Grid để sắp xếp phần tử một cách linh hoạt và giảm thiểu số lần reflow.\n- Sử dụng JavaScript để cập nhật nội dung của phần tử thay vì thay đổi kích thước hoặc vị trí của phần tử.\n- Sử dụng các kỹ thuật như requestAnimationFrame để tối ưu hóa quá trình repaint.\n\nTóm lại, reflow và repaint là hai khái niệm quan trọng trong quá trình render UI trên web. Giảm thiểu số lần reflow và repaint có thể giúp tối ưu hóa hiệu suất của trang web và cải thiện trải nghiệm người dùng.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Which CSS properties should you use for high-performance animations and why?",
+    "expectedPoints": [
+      "Identifies transform and opacity as the best properties for animations.",
+      "Explains that they are handled on the compositor thread, not the main thread.",
+      "Mentions that they avoid triggering reflow and repaint, only composite.",
+      "Contrasts with properties like width, height, top, left that cause reflow.",
+      "Demonstrates understanding of the rendering pipeline (Layout, Paint, Composite)."
+    ],
+    "followUps": [
+      "What is layout thrashing and how would you avoid it?",
+      "How would you debug performance issues related to reflow in a real application?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-event-loop-va-bat-ong-bo-trong-javascript-javascript-la-mot--explain-the-order-of-execution",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Event Loop và Bất đồng bộ trong JavaScript**\n\nJavaScript là một ngôn ngữ lập trình được thiết kế cho các ứng dụng web và là một phần quan trọng của các công nghệ như Node.js. Một trong những tính năng quan trọng của JavaScript là khả năng xử lý bất đồng bộ (asynchronous) thông qua Event Loop.\n\n**Event Loop**\n\nEvent Loop là một vòng lặp không dừng (loop không dừng) trong JavaScript, chịu trách nhiệm quản lý các sự kiện và các hàm callback liên quan đến chúng. Khi một hàm callback được gọi, nó sẽ được thêm vào một ngăn xếp (stack) gọi hàm (call stack) và sau đó được thực thi.\n\n**Bất đồng bộ**\n\nBất đồng bộ là một tính năng cho phép các hàm callback được gọi không đồng thời với nhau. Điều này cho phép các ứng dụng JavaScript xử lý các yêu cầu và các sự kiện một cách hiệu quả, mà không cần phải chờ đợi kết quả của từng yêu cầu trước khi xử lý tiếp.\n\n**Sự khác biệt giữa đồng bộ và bất đồng bộ**\n\n- **Đồng bộ (Synchronous)**: Các hàm callback được gọi một cách tuần tự, mỗi hàm chỉ được gọi sau khi hàm trước đó đã hoàn thành.\n- **Bất đồng bộ (Asynchronous)**: Các hàm callback được gọi không đồng thời, mỗi hàm có thể được gọi bất cứ lúc nào, không phụ thuộc vào kết quả của hàm trước đó.\n\n**Ví dụ**\n\n```javascript\nconsole.log('Bắt đầu');\n\n// Hàm callback được gọi bất đồng bộ\nsetTimeout(() => {\n  console.log('Hàm callback được gọi');\n}, 2000);\n\nconsole.log('Kết thúc');\n```\n\nTrong ví dụ trên, hàm callback được gọi sau 2 giây, nhưng không ảnh hưởng đến việc in ra \"Kết thúc\" ngay lập tức.\n\n**Hydrate và Event Loop**\n\nHydrate là một khái niệm liên quan đến việc cập nhật trạng thái của một ứng dụng sau khi dữ liệu được tải về. Trong khi Event Loop là một vòng lặp không dừng, chịu trách nhiệm quản lý các sự kiện và các hàm callback liên quan đến chúng.\n\n**UseMemo và Event Loop**\n\nUseMemo là một hook trong React, cho phép lưu trữ giá trị của một hàm callback và sử dụng giá trị đó thay vì gọi hàm callback lại. Trong khi Event Loop là một vòng lặp không dừng, chịu trách nhiệm quản lý các sự kiện và các hàm callback liên quan đến chúng.\n\n**Stale Closure và Event Loop**\n\nStale Closure là một vấn đề liên quan đến việc sử dụng hàm callback trong một vòng lặp không dừng. Trong khi Event Loop là một vòng lặp không dừng, chịu trách nhiệm quản lý các sự kiện và các hàm callback liên quan đến chúng.\n\n**Tóm lại**\n\nEvent Loop và bất đồng bộ là hai tính năng quan trọng của JavaScript, cho phép các ứng dụng xử lý các yêu cầu và các sự kiện một cách hiệu quả. Sự khác biệt giữa đồng bộ và bất đồng bộ là các hàm callback được gọi không đồng thời, mỗi hàm có thể được gọi bất cứ lúc nào, không phụ thuộc vào kết quả của hàm trước đó.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the order of execution for the following code: console.log('1'); setTimeout(() => console.log('2'), 0); Promise.resolve().then(() => console.log('3')); console.log('4');",
+    "expectedPoints": [
+      "Understand synchronous execution first: logs '1' and '4'",
+      "Recognize that Promise.then is a microtask, executed before macrotasks",
+      "setTimeout callback is a macrotask, executed after microtasks",
+      "Correct output order: 1, 4, 3, 2",
+      "Explain the event loop phases: call stack, microtask queue, macrotask queue"
+    ],
+    "followUps": [
+      "What would happen if there were multiple microtasks and macrotasks?",
+      "How does async/await affect the event loop?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-co-che-call-stack-queue-loop-call-stack-call-stack-la-mot-ca-explain-how-the-event-loop-pro",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Cơ chế: Call Stack, Queue & Loop**\n\n### Call Stack\n\n- **Call Stack** là một cấu trúc dữ liệu được sử dụng để quản lý các hàm (function) đang được thực thi.\n- Khi một hàm được gọi, nó được thêm vào Call Stack.\n- Khi hàm hoàn thành, nó được loại bỏ khỏi Call Stack.\n- Call Stack giúp ngăn chặn các lỗi do chồng chéo (nested) hàm.\n\n### Queue\n\n- **Queue** là một cấu trúc dữ liệu được sử dụng để quản lý các yếu tố theo thứ tự FIFO (First-In-First-Out).\n- Các yếu tố được thêm vào Queue ở đầu và được loại bỏ ở cuối.\n- Queue được sử dụng trong nhiều ứng dụng, chẳng hạn như quản lý các yêu cầu mạng.\n\n### Loop\n\n- **Loop** là một cấu trúc lặp được sử dụng để thực thi một khối mã nhiều lần.\n- Có hai loại Loop chính: **For Loop** và **While Loop**.\n- Loop giúp giảm thiểu mã và tăng hiệu suất.\n\n### Ví dụ về Call Stack\n\n```javascript\nfunction a() {\n  console.log('A');\n  b();\n}\n\nfunction b() {\n  console.log('B');\n  c();\n}\n\nfunction c() {\n  console.log('C');\n}\n\na();\n```\n\nKết quả:\n\n```\nA\nB\nC\n```\n\n### Ví dụ về Queue\n\n```javascript\nclass Queue {\n  constructor() {\n    this.items = [];\n  }\n\n  enqueue(item) {\n    this.items.push(item);\n  }\n\n  dequeue() {\n    return this.items.shift();\n  }\n}\n\nconst queue = new Queue();\nqueue.enqueue('A');\nqueue.enqueue('B');\nconsole.log(queue.dequeue()); // A\nconsole.log(queue.dequeue()); // B\n```\n\n### Ví dụ về Loop\n\n```javascript\nfor (let i = 0; i < 5; i++) {\n  console.log(i);\n}\n\nlet i = 0;\nwhile (i < 5) {\n  console.log(i);\n  i++;\n}\n```\n\nKết quả:\n\n```\n0\n1\n2\n3\n4\n0\n1\n2\n3\n4\n```",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how the event loop processes synchronous code, microtasks, and macrotasks in a single iteration. Include the order of execution.",
+    "expectedPoints": [
+      "Describes call stack executing synchronous code first (LIFO).",
+      "States that after stack is empty, all microtasks (e.g., Promise.then) are processed before any macrotask.",
+      "Explains that one macrotask (e.g., setTimeout callback) is taken from the macrotask queue per iteration.",
+      "Mentions that rendering (if needed) occurs after macrotask processing.",
+      "Uses terms like event loop, microtask queue, macrotask queue correctly."
+    ],
+    "followUps": [
+      "What happens if a microtask queues another microtask?",
+      "How does the event loop handle multiple setTimeout calls with the same delay?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-order-of-execution-vi-du-kinh-ien-order-of-execution-la-mot--what-is-the-output-of-the-foll",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Order of Execution — ví dụ kinh điển\n\nOrder of Execution là một khái niệm quan trọng trong lập trình, đặc biệt là khi viết code đa luồng. Dưới đây là một ví dụ kinh điển để minh họa cho thứ tự chạy của các đoạn code:\n\n```javascript\nconsole.log('Start');\n\nsetTimeout(() => {\n  console.log('Timeout');\n}, 0);\n\nconsole.log('End');\n```\n\nKhi chạy code này, chúng ta có thể thấy thứ tự chạy của các đoạn code như sau:\n\n1. `console.log('Start')` được chạy đầu tiên.\n2. `setTimeout` được gọi, nhưng nó không được chạy ngay lập tức. Thay vào đó, nó được thêm vào hàng đợi của trình điều khiển sự kiện (event loop).\n3. `console.log('End')` được chạy tiếp.\n4. Sau khi `console.log('End')` được chạy xong, trình điều khiển sự kiện sẽ kiểm tra lại hàng đợi và thấy rằng có một đoạn code trong `setTimeout` cần được chạy.\n5. Đoạn code trong `setTimeout` được chạy, và nó in ra `console.log('Timeout')`.\n\nVậy, thứ tự chạy của các đoạn code trong ví dụ trên là:\n\n1. `console.log('Start')`\n2. `console.log('End')`\n3. `console.log('Timeout')`\n\nĐây là một ví dụ đơn giản để minh họa cho thứ tự chạy của các đoạn code trong lập trình đa luồng.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "What is the output of the following code and explain the order: console.log('1'); setTimeout(() => console.log('2'), 0); Promise.resolve().then(() => console.log('3')); console.log('4');",
+    "expectedPoints": [
+      "Output is 1, 4, 3, 2.",
+      "Synchronous code (1, 4) runs first.",
+      "Microtasks (Promise.then) run before macrotasks (setTimeout).",
+      "Event loop clears entire microtask queue after each macrotask.",
+      "setTimeout with 0ms is still a macrotask."
+    ],
+    "followUps": [
+      "What happens if a microtask recursively creates another microtask?",
+      "How would you prevent UI blocking from a long-running microtask chain?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-javascript-engine-v8-internals-v8-la-mot-may-ong-co-javascri-explain-how-v8-s-hidden-class-",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**JavaScript Engine: V8 Internals**\n\nV8 là một máy động cơ JavaScript được sử dụng bởi trình duyệt Google Chrome và Node.js. Dưới đây là một số khái niệm quan trọng về cách V8 hoạt động bên trong:\n\n1. **Event Loop**: V8 sử dụng một vòng lặp sự kiện (event loop) để quản lý các tác vụ và đảm bảo rằng các tác vụ được thực hiện một cách đồng bộ. Vòng lặp sự kiện này liên tục kiểm tra xem có bất kỳ tác vụ nào cần được thực hiện hay không.\n\n2. **Call Stack**: V8 sử dụng một ngăn xếp gọi (call stack) để quản lý các hàm được gọi và đảm bảo rằng các hàm được gọi một cách hợp lý. Ngăn xếp gọi này chứa các thông tin về các hàm được gọi, bao gồm cả hàm hiện tại đang được thực hiện.\n\n3. **Heap**: V8 sử dụng một vùng nhớ (heap) để lưu trữ các đối tượng và dữ liệu. Vùng nhớ này được chia thành các phần khác nhau để lưu trữ các loại dữ liệu khác nhau.\n\n4. **Garbage Collection**: V8 sử dụng một cơ chế thu gom rác (garbage collection) để loại bỏ các đối tượng không còn được sử dụng. Cơ chế này giúp đảm bảo rằng vùng nhớ được sử dụng một cách hiệu quả.\n\n5. **Closure**: V8 sử dụng một cơ chế đóng gói (closure) để lưu trữ các biến và hàm trong một đối tượng. Cơ chế này giúp đảm bảo rằng các biến và hàm được sử dụng một cách hợp lý.\n\n6. **Hydration**: V8 sử dụng một cơ chế hydrat hóa (hydration) để tạo ra các đối tượng từ các dữ liệu được lưu trữ trong vùng nhớ. Cơ chế này giúp đảm bảo rằng các đối tượng được tạo ra một cách hiệu quả.\n\n7. **Stale Closure**: V8 sử dụng một cơ chế kiểm tra đóng gói (stale closure) để đảm bảo rằng các đóng gói được sử dụng một cách hợp lý. Cơ chế này giúp tránh các lỗi do đóng gói bị cũ.\n\n8. **UseMemo**: V8 sử dụng một cơ chế lưu trữ tạm thời (useMemo) để lưu trữ các giá trị tạm thời. Cơ chế này giúp đảm bảo rằng các giá trị tạm thời được sử dụng một cách hiệu quả.\n\n9. **Profiling**: V8 sử dụng một cơ chế phân tích hiệu suất (profiling) để phân tích hiệu suất của các ứng dụng. Cơ chế này giúp đảm bảo rằng các ứng dụng được tối ưu hóa một cách hiệu quả.\n\n10. **Optimization**: V8 sử dụng một cơ chế tối ưu hóa (optimization) để tối ưu hóa hiệu suất của các ứng dụng. Cơ chế này giúp đảm bảo rằng các ứng dụng được chạy một cách nhanh chóng và hiệu quả.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how V8's hidden class and inline caching mechanisms optimize property access, and how writing code with consistent object shapes can improve performance.",
+    "expectedPoints": [
+      "Hidden classes are created for each distinct object shape; property access is optimized by transitioning between hidden classes.",
+      "Inline caching caches the result of property lookups based on the hidden class, avoiding expensive dictionary lookups.",
+      "Creating objects with the same property order and types (monomorphic) leads to better inline caching hits.",
+      "Deleting properties or adding properties out of order can cause hidden class transitions and deoptimize code.",
+      "Understanding these mechanisms helps write predictable code that V8 can optimize effectively."
+    ],
+    "followUps": [
+      "What happens when you delete a property from an object in V8?",
+      "How does the 'delete' operator affect hidden classes and performance?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-http-caching-cors-http-caching-http-caching-la-mot-ky-thuat--explain-how-http-caching-works",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**HTTP Caching & CORS**\n\n### HTTP Caching\n\nHTTP caching là một kỹ thuật giúp giảm tải lưu lượng mạng bằng cách lưu trữ nội dung đã được tải xuống trước đó trên máy chủ hoặc trên thiết bị khách hàng. Điều này giúp giảm thiểu số lần yêu cầu HTTP và cải thiện hiệu suất ứng dụng.\n\n#### Các loại HTTP Caching\n\n1. **Cache được kiểm soát bởi máy chủ (Server-Side Cache)**: Máy chủ lưu trữ nội dung đã được tải xuống trước đó và trả về nội dung này khi nhận được yêu cầu tương tự.\n2. **Cache được kiểm soát bởi khách hàng (Client-Side Cache)**: Thiết bị khách hàng lưu trữ nội dung đã được tải xuống trước đó và sử dụng nội dung này khi nhận được yêu cầu tương tự.\n\n#### Các loại HTTP Caching phổ biến\n\n1. **Cache được kiểm soát bởi máy chủ (Server-Side Cache)**\n * **Cache được kiểm soát bởi máy chủ (Server-Side Cache)**: Máy chủ lưu trữ nội dung đã được tải xuống trước đó và trả về nội dung này khi nhận được yêu cầu tương tự.\n * **Cache được kiểm soát bởi máy chủ (Server-Side Cache) với thời gian sống (TTL)**: Máy chủ lưu trữ nội dung đã được tải xuống trước đó và trả về nội dung này khi nhận được yêu cầu tương tự, với thời gian sống (TTL) xác định.\n2. **Cache được kiểm soát bởi khách hàng (Client-Side Cache)**\n * **Cache được kiểm soát bởi khách hàng (Client-Side Cache)**: Thiết bị khách hàng lưu trữ nội dung đã được tải xuống trước đó và sử dụng nội dung này khi nhận được yêu cầu tương tự.\n * **Cache được kiểm soát bởi khách hàng (Client-Side Cache) với thời gian sống (TTL)**: Thiết bị khách hàng lưu trữ nội dung đã được tải xuống trước đó và sử dụng nội dung này khi nhận được yêu cầu tương tự, với thời gian sống (TTL) xác định.\n\n### CORS (Cross-Origin Resource Sharing)\n\nCORS là một kỹ thuật giúp cho phép ứng dụng web truy cập vào các nguồn tài nguyên từ các miền khác nhau. Điều này giúp cho phép ứng dụng web truy cập vào các nguồn tài nguyên từ các miền khác nhau mà không cần phải sử dụng các kỹ thuật khác như JSONP.\n\n#### Các loại CORS phổ biến\n\n1. **CORS với phương thức GET**: Ứng dụng web có thể truy cập vào các nguồn tài nguyên từ các miền khác nhau bằng cách sử dụng phương thức GET.\n2. **CORS với phương thức POST**: Ứng dụng web có thể truy cập vào các nguồn tài nguyên từ các miền khác nhau bằng cách sử dụng phương thức POST.\n3. **CORS với phương thức PUT**: Ứng dụng web có thể truy cập vào các nguồn tài nguyên từ các miền khác nhau bằng cách sử dụng phương thức PUT.\n4. **CORS với phương thức DELETE**: Ứng dụng web có thể truy cập vào các nguồn tài nguyên từ các miền khác nhau bằng cách sử dụng phương thức DELETE.\n\n#### Các loại CORS phổ biến khác\n\n1. **CORS với header Access-Control-Allow-Origin**: Máy chủ trả về header Access-Control-Allow-Origin để cho phép ứng dụng web truy cập vào các nguồn tài nguyên từ các miền khác nhau.\n2. **CORS với header Access-Control-Allow-Methods**: Máy chủ trả về header Access-Control-Allow-Methods để cho phép ứng dụng web truy cập vào các nguồn tài nguyên từ các miền khác nhau bằng cách sử dụng các phương thức khác nhau.\n3. **CORS với header Access-Control-Allow-Headers**: Máy chủ trả về header Access-Control-Allow-Headers để cho phép ứng dụng web truy cập vào các nguồn tài nguyên từ các miền khác nhau bằng cách sử dụng các header khác nhau.\n\n### Ví dụ về HTTP Caching & CORS\n\n#### Ví dụ về HTTP Caching\n\n```http\nGET /users HTTP/1.1\nHost: example.com\nCache-Control: max-age=3600\n```\n\n```http\nHTTP/1.1 200 OK\nCache-Control: max-age=3600\nContent-Type: application/json\n\n[\n  {\n    \"id\": 1,\n    \"name\": \"John Doe\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Jane Doe\"\n  }\n]\n```\n\n#### Ví dụ về CORS\n\n```http\nGET /users HTTP/1.1\nHost: example.com\nOrigin: https://example.net\n```\n\n```http\nHTTP/1.1 200 OK\nAccess-Control-Allow-Origin: https://example.net\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\nAccess-Control-Allow-Headers: Content-Type, Accept\nContent-Type: application/json\n\n[\n  {\n    \"id\": 1,\n    \"name\": \"John Doe\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Jane Doe\"\n  }\n]\n```\n\n### Kết luận\n\nHTTP caching và CORS là hai kỹ thuật quan trọng giúp cải thiện hiệu suất ứng dụng web. HTTP caching giúp giảm thiểu số lần yêu cầu HTTP bằng cách lưu trữ nội dung đã được tải xuống trước đó, trong khi CORS giúp cho phép ứng dụng web truy cập vào các nguồn tài nguyên từ các miền khác nhau.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how HTTP caching works in the browser and how you would configure cache headers for a static asset like a JavaScript bundle. Also, describe a scenario where CORS is needed and how you would handle it on the server side.",
+    "expectedPoints": [
+      "Describes browser cache types: memory cache, disk cache, and service worker cache.",
+      "Explains Cache-Control headers: max-age, no-cache, no-store, public/private, and ETag/Last-Modified for validation.",
+      "Configures caching for JS bundle: long max-age (e.g., 1 year) with immutable or versioned URL.",
+      "Defines CORS and when it's needed: cross-origin requests for APIs, fonts, etc.",
+      "Lists server-side CORS headers: Access-Control-Allow-Origin, -Methods, -Headers, and handles preflight requests for non-simple methods."
+    ],
+    "followUps": [
+      "What happens if a cached resource is updated but the client still has the old version? How do you force a refresh?",
+      "How would you debug a CORS error in the browser? What tools or techniques do you use?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-cors-cross-origin-resource-sharing-tai-sao-yeu-cau-bi-chan-c-explain-why-a-cors-error-occur",
+    "topic": "Browser & Web APIs",
+    "subtopic": "CORS (Cross-Origin Resource Sharing) - Tại sao yêu cầu bị chặn?\n\nCORS là một cơ chế bảo mật được thực hiện bởi trình duyệt để ngăn chặn các yêu cầu HTTP từ nguồn gốc khác nhau. Khi một ứng dụng web yêu cầu dữ liệu từ một nguồn khác (ví dụ: một API khác), trình duyệt sẽ kiểm tra xem yêu cầu đó có được phép thực hiện hay không.\n\nNếu yêu cầu không được phép, trình duyệt sẽ chặn yêu cầu và hiển thị một thông báo lỗi. Điều này xảy ra vì lý do bảo mật, để ngăn chặn các ứng dụng web không được phép truy cập vào dữ liệu của các ứng dụng khác.\n\nCó một số lý do chính khiến yêu cầu bị chặn bởi CORS:\n\n1. **Sử dụng HTTP Request từ nguồn gốc khác nhau**: Nếu ứng dụng web yêu cầu dữ liệu từ một nguồn khác (ví dụ: một API khác), trình duyệt sẽ chặn yêu cầu.\n2. **Thiếu Header CORS**: Nếu ứng dụng web không gửi Header CORS (ví dụ: Access-Control-Allow-Origin), trình duyệt sẽ chặn yêu cầu.\n3. **Header CORS không đúng**: Nếu ứng dụng web gửi Header CORS không đúng (ví dụ: Access-Control-Allow-Origin không đúng), trình duyệt sẽ chặn yêu cầu.\n\nĐể giải quyết vấn đề này, bạn cần thực hiện các bước sau:\n\n1. **Sử dụng HTTP Request từ nguồn gốc giống nhau**: Nếu ứng dụng web yêu cầu dữ liệu từ cùng một nguồn, trình duyệt sẽ cho phép yêu cầu.\n2. **Sử dụng Header CORS**: Nếu ứng dụng web gửi Header CORS (ví dụ: Access-Control-Allow-Origin), trình duyệt sẽ cho phép yêu cầu.\n3. **Sử dụng Header CORS đúng**: Nếu ứng dụng web gửi Header CORS đúng (ví dụ: Access-Control-Allow-Origin đúng), trình duyệt sẽ cho phép yêu cầu.\n\nTóm lại, CORS là một cơ chế bảo mật được thực hiện bởi trình duyệt để ngăn chặn các yêu cầu HTTP từ nguồn gốc khác nhau. Để giải quyết vấn đề này, bạn cần thực hiện các bước trên để cho phép yêu cầu HTTP từ nguồn gốc khác nhau.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain why a CORS error occurs in the browser and how to fix it. Include the role of preflight requests.",
+    "expectedPoints": [
+      "CORS is a browser security mechanism that blocks cross-origin requests unless the server permits it via headers.",
+      "The browser sends a preflight OPTIONS request for non-simple requests to check allowed methods/headers.",
+      "The server must respond with appropriate headers (e.g., Access-Control-Allow-Origin) to allow the request.",
+      "CORS errors cannot be fixed on the client side; the server must be configured or a proxy used.",
+      "The error protects the user, not the server; the request still reaches the server but the browser blocks reading the response."
+    ],
+    "followUps": [
+      "What is the difference between a simple request and a preflighted request?",
+      "How would you debug a CORS issue in a development environment?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-pwa-service-worker-offline-first-how-would-you-design-a-service",
+    "topic": "Browser & Web APIs",
+    "subtopic": "PWA, Service Worker & Offline-first",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design a service worker to implement an offline-first strategy for a news website, and what are the key considerations for cache management?",
+    "expectedPoints": [
+      "Explain service worker lifecycle: install, activate, fetch events.",
+      "Describe cache strategies: cache-first for static assets, network-first for dynamic content, stale-while-revalidate for news articles.",
+      "Discuss cache versioning and cleanup of old caches in the activate event.",
+      "Mention handling of offline fallback (e.g., cached homepage or custom offline page).",
+      "Address security requirements: HTTPS only, scope restrictions."
+    ],
+    "followUps": [
+      "How would you handle push notifications in the service worker?",
+      "What happens if the user clears their browser cache? How does that affect your offline-first strategy?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-where-does-the-service-worker-stand-explain-the-role-of-a-service-",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Where does the Service Worker stand?",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the role of a Service Worker in the context of a web application. Where does it sit in the request flow and what decisions can it make?",
+    "expectedPoints": [
+      "Acts as a programmable proxy between the web app and the network.",
+      "Intercepts fetch requests from the page.",
+      "Can decide to serve from cache (Cache Storage) or fetch from network.",
+      "Enables offline functionality and performance optimizations.",
+      "Runs in a separate thread, independent of the page lifecycle."
+    ],
+    "followUps": [
+      "How does a Service Worker handle a fetch event when the network is unavailable?",
+      "What are the security requirements for registering a Service Worker?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-cache-strategy-a-user-reports-that-after-a-se",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Cache strategy",
+    "difficulty": "senior",
+    "type": "debugging",
+    "question": "A user reports that after a Service Worker update, they still see the old version of your PWA. How would you debug and fix this?",
+    "expectedPoints": [
+      "Understands Service Worker lifecycle (install, waiting, activate).",
+      "Identifies that the old SW is still controlling the page until all tabs are closed.",
+      "Proposes using self.skipWaiting() in install event and clients.claim() in activate.",
+      "Suggests a UI notification to prompt user to reload for new version.",
+      "Mentions cache versioning or cache cleanup in activate event."
+    ],
+    "followUps": [
+      "What if the user ignores the reload prompt?",
+      "How would you ensure the new SW activates immediately without waiting?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-a-architecture-design-a-chat-client-architect",
+    "topic": "Browser & Web APIs",
+    "subtopic": "A — Architecture",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design a chat client architecture that supports offline message queuing and real-time synchronization.",
+    "expectedPoints": [
+      "Describes a layered architecture: UI, state store, WebSocket layer, local queue, IndexedDB.",
+      "Explains how messages are normalized by ID in the state store.",
+      "Details WebSocket reconnect logic and handling of message delivery guarantees.",
+      "Describes local queue for pending messages when offline and sync on reconnection.",
+      "Mentions IndexedDB for persisting chat history for offline access.",
+      "Addresses conflict resolution or deduplication of messages."
+    ],
+    "followUps": [
+      "How would you handle message ordering when multiple messages are queued offline?",
+      "What happens if a WebSocket message arrives while the local queue has pending sends?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-i-interface-optimizations-how-would-you-design-a-real-ti",
+    "topic": "Browser & Web APIs",
+    "subtopic": "I — Interface / Optimizations",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design a real-time chat system to ensure no message loss and handle reconnection?",
+    "expectedPoints": [
+      "Use WebSocket for bidirectional communication.",
+      "Implement optimistic send with temporary IDs and status.",
+      "Use client-generated idempotency keys to prevent duplicates on retry.",
+      "Store unsent messages in IndexedDB and sync on reconnect with exponential backoff.",
+      "Handle ordering conflicts using server timestamps."
+    ],
+    "followUps": [
+      "How do you handle messages arriving while the user is scrolling through history?",
+      "What trade-offs exist between using WebSocket vs SSE for this chat system?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-a-key-techniques-how-would-you-implement-a-virt",
+    "topic": "Browser & Web APIs",
+    "subtopic": "A — Key Techniques",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you implement a virtualized photo gallery that supports 10,000 images with different aspect ratios, ensuring smooth scrolling and minimal memory usage?",
+    "expectedPoints": [
+      "Only render images within the viewport, using a virtualized grid to keep DOM nodes minimal.",
+      "Reuse DOM nodes for images that scroll out of view to reduce GC pressure.",
+      "Handle different aspect ratios by pre-fetching image dimensions from the server to calculate layout (e.g., justified layout).",
+      "Implement lazy loading with low-quality placeholders (e.g., blur-up or average color) to prevent layout shifts.",
+      "Maintain scroll position when loading more images above the current viewport."
+    ],
+    "followUps": [
+      "How would you handle the case where images have unknown dimensions until loaded?",
+      "How would you preload adjacent images in a lightbox for smooth transitions?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-a-two-way-virtualization-how-would-you-implement-a-two-",
+    "topic": "Browser & Web APIs",
+    "subtopic": "A — Two-way Virtualization",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you implement a two-way virtualized grid that supports sticky headers and columns while rendering only visible cells?",
+    "expectedPoints": [
+      "Calculate visible rows and columns based on scroll position and container dimensions.",
+      "Render only cells within the viewport plus a small buffer zone.",
+      "Implement sticky headers and columns using CSS position: sticky or absolute positioning with scroll offsets.",
+      "Manage cell reuse or creation/destruction to keep DOM size small.",
+      "Handle dynamic row/column sizes and efficient scroll event handling (e.g., requestAnimationFrame)."
+    ],
+    "followUps": [
+      "How would you handle variable row heights or column widths?",
+      "What performance optimizations would you consider for smooth scrolling?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-d-server-side-for-sort-filter-in-a-table-with-1-million-rows",
+    "topic": "Browser & Web APIs",
+    "subtopic": "D — Server-side for sort/filter",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "In a table with 1 million rows, where should sorting and filtering be performed?",
+    "expectedPoints": [
+      "Sorting/filtering should be done server-side with database indexes.",
+      "Client-side sorting of 1M rows blocks the main thread and causes UI freezes.",
+      "Server returns only the window of data needed (e.g., paginated or cursor-based).",
+      "Client-side sorting is acceptable only for small datasets already loaded.",
+      "Server-side approach scales better and leverages database optimization."
+    ],
+    "followUps": [
+      "What challenges arise if row heights are dynamic?",
+      "How would you implement cursor-based pagination for real-time data?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-a-architecture-how-would-you-implement-a-real",
+    "topic": "Browser & Web APIs",
+    "subtopic": "A — Architecture",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you implement a real-time 'New Posts' indicator using SSE or polling, while ensuring the feed remains performant with virtual scrolling?",
+    "expectedPoints": [
+      "Explain SSE vs polling tradeoffs (e.g., SSE for server push, polling for simplicity).",
+      "Describe how to integrate IntersectionObserver for triggering new post fetch when pill is visible.",
+      "Discuss cache invalidation or merging new posts without disrupting virtualized list state.",
+      "Mention optimistic updates for likes/comments and how they interact with new post insertion.",
+      "Address pagination state management (e.g., cursor-based) to avoid duplicates."
+    ],
+    "followUps": [
+      "How would you handle the case where the user has scrolled far down and new posts arrive?",
+      "What if the SSE connection drops? How would you recover?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-i-interface-api-design-a-real-time-feed-update",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**I — Interface / API**",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design a real-time feed update system using Server-Sent Events. How would you handle reconnection and cursor-based pagination?",
+    "expectedPoints": [
+      "Explain SSE connection setup and event types for new post notifications.",
+      "Describe cursor-based pagination with limit parameter and nextCursor in response.",
+      "Handle reconnection with Last-Event-ID header to resume from last received event.",
+      "Discuss fallback polling if SSE fails or is not supported.",
+      "Consider performance: batch updates, throttling, and avoiding duplicate fetches."
+    ],
+    "followUps": [
+      "How would you ensure the feed stays consistent when the user is scrolling and receives a new post notification?",
+      "What are the trade-offs between SSE and WebSocket for this use case?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "sys-design-prep-v1-networking-you-need-to-build-a-real-time-",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Networking",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "You need to build a real-time collaborative document editor. Which communication pattern would you choose and why? How would you handle fallback for environments where WebSocket is blocked?",
+    "expectedPoints": [
+      "Choose WebSocket for persistent bi-directional, low-latency communication.",
+      "Explain WebSocket handshake (Upgrade header, 101 Switching Protocols).",
+      "Mention fallback to long polling or SSE for environments blocking WebSocket.",
+      "Discuss trade-offs: WebSocket full-duplex vs SSE one-way vs polling overhead.",
+      "Consider using a library like Socket.IO that abstracts fallback mechanisms."
+    ],
+    "followUps": [
+      "How would you ensure message ordering and reliability over WebSocket?",
+      "What are the security considerations for WebSocket (e.g., origin checks, WSS)?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "sys-design-prep-v1.html"
+  },
+  {
+    "id": "sys-design-prep-v1-case-study-tinyurl-in-designing-a-url-shortener-l",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Case Study: TinyURL**",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "In designing a URL shortener like TinyURL, you need to decide between using a 301 (Permanent) or 302 (Temporary) redirect for the short URL. Which would you choose and why?",
+    "expectedPoints": [
+      "301 caches redirect in browser, reducing server load but preventing analytics tracking on subsequent clicks.",
+      "302 does not cache, so every click hits the server, enabling accurate analytics (e.g., click count, geo).",
+      "For services like bit.ly that require analytics, 302 is preferred despite higher server load.",
+      "Trade-off: 301 saves bandwidth but loses data; 302 enables tracking but increases server requests.",
+      "Mention possible hybrid: use 302 for first click then 301 for subsequent? (less common)."
+    ],
+    "followUps": [
+      "How would you handle analytics without causing write contention on the URL record?",
+      "What if you need both caching and analytics? Could you use a different approach?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "sys-design-prep-v1.html"
+  },
+  {
+    "id": "sys-design-prep-v1-case-study-messaging-app-in-a-messaging-app-like-zalo-w",
+    "topic": "Browser & Web APIs",
+    "subtopic": "**Case Study: Messaging App**",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "In a messaging app like Zalo, why is Snowflake ID preferred over UUID for message ordering in Cassandra?",
+    "expectedPoints": [
+      "Snowflake IDs are time-sortable, allowing ordering by ID without a separate timestamp.",
+      "UUIDs are 128-bit and not inherently time-sortable, requiring extra indexing or sorting.",
+      "Snowflake IDs are 64-bit, smaller and faster for indexing and storage.",
+      "Snowflake IDs are globally unique without a central coordinator, supporting high throughput.",
+      "Cassandra's clustering order by message_id DESC leverages Snowflake's time-sortability for efficient retrieval."
+    ],
+    "followUps": [
+      "How would you handle clock skew in Snowflake ID generation across distributed servers?",
+      "What are the trade-offs of using Snowflake IDs vs. a monotonically increasing sequence from a database?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "sys-design-prep-v1.html"
+  },
+  {
+    "id": "fun-xyz-prep-react-reconciliation-decision-tree-explain-how-react-s-reconcilia",
+    "topic": "Browser & Web APIs",
+    "subtopic": "🌳 React Reconciliation Decision Tree",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how React's reconciliation algorithm decides whether to update, unmount, or remount a component when the virtual DOM changes.",
+    "expectedPoints": [
+      "Compares element type at same position; if type changes, unmounts old and mounts new, losing state.",
+      "If same type, checks props; if props unchanged, skips update; if changed, updates props preserving state.",
+      "Defining a component inside another creates a new function reference each render, causing React to see a different type and remount.",
+      "Key prop helps identify elements in lists; stable IDs prevent unnecessary remounts."
+    ],
+    "followUps": [
+      "What happens if you use array index as key?",
+      "How does the 'killer trap' affect performance and state?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-useeffect-lifecycle-cleanup-explain-the-lifecycle-of-a-use",
+    "topic": "Browser & Web APIs",
+    "subtopic": "🔄 useEffect Lifecycle & Cleanup",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the lifecycle of a useEffect with cleanup. When does the cleanup function run, and what happens if you forget to clean up an event listener?",
+    "expectedPoints": [
+      "Cleanup runs before re-running the effect on dependency changes and on component unmount.",
+      "On mount, effect runs; on unmount, cleanup runs without a new effect.",
+      "Forgetting cleanup on event listeners causes memory leaks and potential 'setState on unmounted component' warnings.",
+      "Cleanup should remove event listeners, clear timers, abort async fetches, or disconnect observers."
+    ],
+    "followUps": [
+      "How would you use AbortController to clean up an async fetch in useEffect?",
+      "What happens if you don't specify a dependency array? How does that affect cleanup?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-event-delegation-pattern-explain-the-event-delegation-p",
+    "topic": "Browser & Web APIs",
+    "subtopic": "🎯 Event Delegation Pattern",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the event delegation pattern and its advantages over attaching individual event listeners.",
+    "expectedPoints": [
+      "Describes event delegation as attaching a single listener to a parent element to handle events from children via event bubbling.",
+      "Mentions performance benefits: O(1) listener vs O(N) listeners, reducing memory usage.",
+      "Highlights automatic handling of dynamically added/removed child elements without rebinding.",
+      "Notes that React's synthetic event system uses delegation at the root.",
+      "Mentions potential pitfalls like event.stopPropagation() breaking delegation or incorrect target checks."
+    ],
+    "followUps": [
+      "How would you implement event delegation for a list where each item has a delete button?",
+      "What happens if a child calls event.stopPropagation() inside a delegated handler?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-design-a-real-time-transaction-tracking-architecture-design-a-real-time-transaction",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Design a real-time transaction tracking architecture.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design a real-time transaction tracking system that supports pending → confirmed → completed status across multiple blockchains, handling chain reorgs and client disconnections.",
+    "expectedPoints": [
+      "Architecture: Client SDK with WebSocket + polling fallback, API Gateway for auth/subscription, Status Aggregator with pub/sub, per-chain Watchers, and a TX Database.",
+      "Reorg handling: Detect block removals and reverse status gracefully (e.g., mark as pending again).",
+      "Confirmation count: Use chain-dependent thresholds (e.g., ETH=12, BSC=15) before marking confirmed.",
+      "Cross-chain tracking: Track source and destination chains separately; source done ≠ destination done.",
+      "Reconnect: Client resubscribes and replays missed events (e.g., via event IDs or timestamps)."
+    ],
+    "followUps": [
+      "How would you handle a chain reorganization that reverts a transaction from confirmed back to pending?",
+      "What strategies would you use to minimize latency while ensuring reliability across chains?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-multi-layer-cache-strategy-design-a-multi-layer-cache-str",
+    "topic": "Browser & Web APIs",
+    "subtopic": "🗂 Multi-Layer Cache Strategy",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design a multi-layer cache strategy for a token price widget that 1000 users open simultaneously. How would you ensure freshness while reducing origin load?",
+    "expectedPoints": [
+      "Describes client memory cache (Zustand) with TTL ~30s for same-page session reuse.",
+      "Explains HTTP cache with Cache-Control: max-age=15, stale-while-revalidate for browser-level caching.",
+      "Mentions CDN edge caching (e.g., Cloudflare) with stale-while-revalidate and geographic distribution.",
+      "Includes server-side cache (Redis) with TTL 5-15s and region awareness.",
+      "Discusses client-side deduplication (in-flight Promise map) to avoid duplicate requests."
+    ],
+    "followUps": [
+      "How would you handle the 'stale cache + price moves' slippage trap?",
+      "What tradeoffs exist between using stale-while-revalidate vs. shorter TTLs?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-how-this-maps-to-fun-xyz-sdk-how-would-you-design-an-sdk-wi",
+    "topic": "Browser & Web APIs",
+    "subtopic": "🎯 How This Maps to Fun.xyz SDK",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design an SDK widget that runs inside a host application while ensuring isolation from the host's global scope and CSS?",
+    "expectedPoints": [
+      "Mentions Shadow DOM for CSS isolation and iframe for full JS/CSS isolation.",
+      "Discusses postMessage for cross-origin communication between widget and host.",
+      "Addresses lifecycle management (init, mount, unmount) and memory cleanup.",
+      "Considers CORS and CSP headers for CDN-loaded SDK.",
+      "Explains configuration injection (API key, theme, callbacks) from host."
+    ],
+    "followUps": [
+      "What are the trade-offs between using Shadow DOM vs iframe for isolation?",
+      "How would you handle event communication if the host app uses a different framework?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  }
+]

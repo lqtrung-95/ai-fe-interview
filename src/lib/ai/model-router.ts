@@ -3,30 +3,34 @@ import type { LanguageModel } from 'ai';
 import { groq } from '@ai-sdk/groq';
 import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
+import { deepseek } from '@ai-sdk/deepseek';
 import type { AITask } from '@/features/interview/ai-schemas';
 
 // ----------------------------------------------------------------------------
-// Provider router. Mirrors extraction-script logic: free tier (Groq) by
-// default, paid (OpenAI / Anthropic) optional for premium evaluation.
+// Provider router. Pick provider per tier via env vars; fall back to LLM_PROVIDER;
+// fall back to deepseek (currently the user-funded default).
 //
 // Pick model by task tier:
 //   - cheap = high-volume, structuring-heavy (question gen, follow-up)
 //   - smart = quality-critical (evaluation, summary)
 // ----------------------------------------------------------------------------
 
-type Provider = 'groq' | 'openai' | 'anthropic';
+type Provider = 'groq' | 'openai' | 'anthropic' | 'deepseek';
 type Tier = 'cheap' | 'smart';
 
 function pickProvider(tier: Tier): Provider {
-  // Per-tier override wins; else fall back to LLM_PROVIDER; else groq.
   const override = tier === 'smart' ? process.env.LLM_SMART_PROVIDER : process.env.LLM_CHEAP_PROVIDER;
-  const fallback = process.env.LLM_PROVIDER ?? 'groq';
+  const fallback = process.env.LLM_PROVIDER ?? 'deepseek';
   const raw = (override ?? fallback).toLowerCase();
-  if (raw === 'openai' || raw === 'anthropic' || raw === 'groq') return raw;
-  return 'groq';
+  if (raw === 'openai' || raw === 'anthropic' || raw === 'groq' || raw === 'deepseek') return raw;
+  return 'deepseek';
 }
 
 function modelFor(provider: Provider, tier: Tier): LanguageModel {
+  if (provider === 'deepseek') {
+    // DeepSeek ships one general-purpose chat model; same for both tiers.
+    return deepseek('deepseek-chat');
+  }
   if (provider === 'groq') {
     return tier === 'cheap'
       ? groq('llama-3.1-8b-instant')

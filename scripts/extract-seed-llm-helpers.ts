@@ -6,12 +6,13 @@ import type { Difficulty, QuestionType } from './extract-seed-types';
 
 const CACHE_PATH = 'scripts/.translation-cache.json';
 
-// Provider config — Groq is OpenAI-compatible, so we route via OpenAI SDK
-// with an alternate baseURL. Set LLM_PROVIDER=groq in .env.local to use Groq's free tier.
-type Provider = 'openai' | 'groq';
+// All three providers expose an OpenAI-compatible chat completions endpoint,
+// so we route via the OpenAI SDK with an alternate baseURL. Pick via LLM_PROVIDER.
+type Provider = 'openai' | 'groq' | 'deepseek';
 function getProvider(): Provider {
   const raw = (process.env.LLM_PROVIDER ?? 'openai').toLowerCase();
-  return raw === 'groq' ? 'groq' : 'openai';
+  if (raw === 'groq' || raw === 'deepseek') return raw;
+  return 'openai';
 }
 
 interface ProviderConfig {
@@ -24,6 +25,21 @@ interface ProviderConfig {
 
 function getProviderConfig(): ProviderConfig {
   const provider = getProvider();
+  if (provider === 'deepseek') {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey || apiKey === 'placeholder') {
+      throw new Error('DEEPSEEK_API_KEY missing. Get one at https://platform.deepseek.com/api_keys and add to .env.local.');
+    }
+    return {
+      apiKey,
+      baseURL: 'https://api.deepseek.com/v1',
+      // DeepSeek has one general-purpose chat model — use it for both tiers.
+      // (deepseek-reasoner is too slow/expensive for translation; not worth the split.)
+      modelCheap: 'deepseek-chat',
+      modelSmart: 'deepseek-chat',
+      envVarName: 'DEEPSEEK_API_KEY',
+    };
+  }
   if (provider === 'groq') {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey || apiKey === 'placeholder') {
@@ -138,7 +154,10 @@ export async function generateQuestionsFromSection(args: {
   body: string;
 }): Promise<GeneratedQuestion[]> {
   const cache = loadCache();
-  const key = `qgen:${hashKey(`${args.topic}|${args.heading}|${args.body}`)}`;
+  // Cache key intentionally omits `args.topic` so re-runs with different topic
+  // routing (e.g. "Frontend System Design" → "Web Performance") still hit cache.
+  // The topic only affects where the resulting question lands, not its content.
+  const key = `qgen:${hashKey(`${args.heading}|${args.body}`)}`;
   if (cache[key]) {
     try {
       const cached = JSON.parse(cache[key]) as Partial<GeneratedQuestion>[];

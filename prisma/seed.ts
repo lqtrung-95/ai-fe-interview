@@ -49,6 +49,35 @@ async function main() {
     return;
   }
 
+  // Collect all incoming IDs grouped by sourceFile so we can prune stale rows
+  // (questions removed or re-IDed since the last run) per source.
+  const rowsByFile = new Map<string, SeedRow[]>();
+  for (const file of files) {
+    const rows: SeedRow[] = JSON.parse(readFileSync(join(SEED_DIR, file), 'utf8'));
+    for (const r of rows) {
+      const list = rowsByFile.get(r.sourceFile) ?? [];
+      list.push(r);
+      rowsByFile.set(r.sourceFile, list);
+    }
+  }
+
+  // Per-source prune: delete any existing rows from this sourceFile whose id
+  // is no longer present in the freshly extracted JSON.
+  let pruned = 0;
+  for (const [sourceFile, rows] of rowsByFile) {
+    const incomingIds = new Set(rows.map((r) => r.id));
+    const existing = await prisma.seedQuestion.findMany({
+      where: { sourceFile },
+      select: { id: true },
+    });
+    const toDelete = existing.filter((e) => !incomingIds.has(e.id)).map((e) => e.id);
+    if (toDelete.length > 0) {
+      await prisma.seedQuestion.deleteMany({ where: { id: { in: toDelete } } });
+      pruned += toDelete.length;
+    }
+  }
+  if (pruned > 0) console.log(`  − ${pruned} stale rows pruned`);
+
   let total = 0;
   for (const file of files) {
     const rows: SeedRow[] = JSON.parse(readFileSync(join(SEED_DIR, file), 'utf8'));

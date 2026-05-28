@@ -1,0 +1,307 @@
+[
+  {
+    "id": "fe-prep-javascript-event-loop-microtask-va-macrotask-hoat-o",
+    "topic": "JavaScript",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain how the event loop handles microtasks and macrotasks, and provide an example demonstrating the execution order.",
+    "expectedPoints": [
+      "Defines event loop as mechanism for managing async tasks",
+      "Distinguishes microtasks (e.g., Promise callbacks) from macrotasks (e.g., setTimeout, I/O)",
+      "States that microtasks are processed before macrotasks in each iteration",
+      "Provides correct output for the given example: 1, 4, 3, 2",
+      "Explains why Promise callback runs before setTimeout callback"
+    ],
+    "followUps": [
+      "What happens if a microtask queues another microtask?",
+      "How does requestAnimationFrame fit into this model?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-javascript-closure-la-gi-vi-du-thuc-te-ngoai-cau-ho",
+    "topic": "JavaScript",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain what a closure is in JavaScript and provide a real-world example of its use.",
+    "expectedPoints": [
+      "Closure is a function that retains access to its lexical scope even when executed outside that scope.",
+      "Closures are created every time a function is defined inside another function.",
+      "They allow data encapsulation and private variables.",
+      "Example: a counter function that increments a private variable and returns its value.",
+      "Closures are commonly used in event handlers, callbacks, and module patterns."
+    ],
+    "followUps": [
+      "How does closure relate to memory management?",
+      "Can you give an example where closure might cause a memory leak?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-javascript-this-uoc-xac-inh-the-nao-arrow-function-",
+    "topic": "JavaScript",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain how arrow functions differ from regular functions, particularly regarding the 'this' keyword.",
+    "expectedPoints": [
+      "Arrow functions use => syntax and omit the 'function' keyword.",
+      "Arrow functions do not have their own 'this'; they inherit 'this' from the enclosing lexical scope.",
+      "Regular functions have their own 'this' context, which depends on how they are called.",
+      "Arrow functions cannot be used as constructors and do not have a 'prototype' property.",
+      "Arrow functions are often used for callbacks to preserve the outer 'this'."
+    ],
+    "followUps": [
+      "What happens if you use 'this' inside an arrow function that is defined as a method of an object?",
+      "Can you give an example where using a regular function would cause a 'this' issue that an arrow function solves?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-javascript-prototype-chain-hoat-ong-ra-sao-lien-he-",
+    "topic": "JavaScript",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain how the prototype chain works in JavaScript, including how ES6 classes use it under the hood.",
+    "expectedPoints": [
+      "Describes prototype chain as a mechanism for property/method lookup by traversing parent objects.",
+      "Explains that ES6 classes are syntactic sugar over constructor functions and prototype-based inheritance.",
+      "Mentions that methods defined in a class are added to the class's prototype object.",
+      "States that instances have an internal [[Prototype]] link to the class prototype, enabling inheritance.",
+      "Provides a clear example showing method resolution through the chain (e.g., Dog instance accessing Animal's eat method)."
+    ],
+    "followUps": [
+      "What happens if you add a method to the prototype after creating an instance?",
+      "How does the `super` keyword interact with the prototype chain?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-javascript-giai-thich-promise-async-await-va-cach-b",
+    "topic": "JavaScript",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain Promises in JavaScript and how they differ from callbacks. Also, demonstrate error handling with async/await.",
+    "expectedPoints": [
+      "Defines Promise as an object for handling async operations, avoiding callback hell.",
+      "Explains difference: callbacks are passed as arguments, Promises provide .then/.catch chaining.",
+      "Shows basic Promise usage with fetch and .then/.catch.",
+      "Describes async/await as syntactic sugar over Promises, making code synchronous-looking.",
+      "Demonstrates error handling with try/catch in async/await."
+    ],
+    "followUps": [
+      "What happens if you forget to return a Promise in an async function?",
+      "How would you handle multiple independent async operations concurrently?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-javascript-phan-biet-va-va-cac-gia-tri-falsy-vi-sao",
+    "topic": "JavaScript",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Explain the difference between the equality operator (==) and the strict equality operator (===) in JavaScript.",
+    "expectedPoints": [
+      "== performs type coercion before comparison, === does not.",
+      "=== checks both value and type, while == only checks value after coercion.",
+      "Examples: 5 == '5' is true, 5 === '5' is false.",
+      "Falsy values like 0, false, '' can cause unexpected results with ==.",
+      "Best practice: prefer === to avoid type coercion bugs."
+    ],
+    "followUps": [
+      "Can you give an example where using == leads to a bug?",
+      "How does JavaScript coerce types when using ==?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep.html"
+  },
+  {
+    "id": "fe-prep-2-rendering-patterns-client-side-rendering-csr-server-side-ren-compare-and-contrast-csr-ssr-s",
+    "topic": "JavaScript",
+    "subtopic": "Rendering Patterns: Client-Side Rendering (CSR), Server-Side Rendering (SSR), Static Site Generation (SSG), Incremental Static Regeneration (ISR)\n\nClient-Side Rendering (CSR) là phương thức rendering trang web trên máy khách (client). Trong phương thức này, trang web được tải về và render trên máy khách thông qua JavaScript. \n\nServer-Side Rendering (SSR) là phương thức rendering trang web trên máy chủ (server). Trong phương thức này, trang web được render trên máy chủ và gửi về máy khách để hiển thị.\n\nStatic Site Generation (SSG) là phương thức rendering trang web thành các tệp tin tĩnh (static files). Trong phương thức này, trang web được render một lần và lưu trữ dưới dạng tệp tin tĩnh, không cần đến máy chủ để render.\n\nIncremental Static Regeneration (ISR) là phương thức rendering trang web kết hợp giữa SSG và SSR. Trong phương thức này, trang web được render một lần và lưu trữ dưới dạng tệp tin tĩnh, nhưng có thể được cập nhật tự động khi có thay đổi.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Compare and contrast CSR, SSR, SSG, and ISR in terms of when and where HTML is generated, and discuss the trade-offs for SEO, time-to-interactive, server cost, and complexity.",
+    "expectedPoints": [
+      "CSR: HTML generated on client via JS; slower initial load, poor SEO, lower server cost, higher client complexity.",
+      "SSR: HTML generated on server per request; good SEO, faster first paint, higher server cost, more complex.",
+      "SSG: HTML generated at build time; excellent SEO, fastest load, minimal server cost, but stale content.",
+      "ISR: HTML generated at build time with periodic revalidation; balances freshness and performance, moderate complexity."
+    ],
+    "followUps": [
+      "When would you choose ISR over SSG?",
+      "How would you handle dynamic user-specific data in a static site?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-e-so-sanh-truc-quan-dong-thoi-gian-trong-cac-thuat-toan-chun-explain-the-differences-betwee",
+    "topic": "JavaScript",
+    "subtopic": "Để so sánh trực quan dòng thời gian trong các thuật toán, chúng ta có thể sử dụng các phương pháp sau:\n\n1. **Sơ đồ dòng chảy**: Tạo một sơ đồ để minh họa dòng chảy của các bước trong thuật toán. Điều này giúp chúng ta dễ dàng theo dõi và so sánh dòng thời gian của các bước.\n2. **Đồ thị thời gian**: Sử dụng đồ thị để thể hiện thời gian thực hiện của các bước trong thuật toán. Điều này giúp chúng ta dễ dàng so sánh thời gian thực hiện của các bước.\n3. **Kết hợp cả hai phương pháp trên**: Sử dụng sơ đồ dòng chảy và đồ thị thời gian để tạo ra một hình ảnh trực quan rõ ràng về dòng thời gian của thuật toán.\n\nVí dụ, khi so sánh thuật toán tìm kiếm tuyến tính và thuật toán tìm kiếm nhị phân, chúng ta có thể sử dụng sơ đồ dòng chảy để minh họa dòng chảy của các bước trong mỗi thuật toán. Sau đó, chúng ta có thể sử dụng đồ thị thời gian để thể hiện thời gian thực hiện của các bước trong mỗi thuật toán.\n\n**Sơ đồ dòng chảy**\n\n- Thuật toán tìm kiếm tuyến tính:\n  - Đọc dữ liệu từ đầu đến cuối\n  - So sánh dữ liệu với mục tiêu\n  - Nếu trùng khớp, trả về vị trí\n  - Nếu không trùng khớp, tiếp tục đọc dữ liệu\n\n- Thuật toán tìm kiếm nhị phân:\n  - Đọc dữ liệu từ đầu đến cuối\n  - Tách dữ liệu thành hai phần\n  - So sánh dữ liệu với mục tiêu\n  - Nếu trùng khớp, trả về vị trí\n  - Nếu không trùng khớp, tiếp tục tách dữ liệu\n\n**Đồ thị thời gian**\n\n- Thuật toán tìm kiếm tuyến tính:\n  - Đọc dữ liệu: 10 đơn vị thời gian\n  - So sánh dữ liệu: 5 đơn vị thời gian\n  - Trả về vị trí: 2 đơn vị thời gian\n  - Tổng thời gian: 17 đơn vị thời gian\n\n- Thuật toán tìm kiếm nhị phân:\n  - Đọc dữ liệu: 10 đơn vị thời gian\n  - Tách dữ liệu: 5 đơn vị thời gian\n  - So sánh dữ liệu: 3 đơn vị thời gian\n  - Trả về vị trí: 2 đơn vị thời gian\n  - Tổng thời gian: 20 đơn vị thời gian\n\nKết quả, chúng ta có thể thấy rằng thuật toán tìm kiếm nhị phân thực hiện nhanh hơn thuật toán tìm kiếm tuyến tính.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Explain the differences between CSR, SSR, SSG, and ISR in terms of when HTML is generated, SEO impact, and time to first contentful paint (FCP).",
+    "expectedPoints": [
+      "CSR: HTML generated on client after JS runs; weak SEO; slow FCP.",
+      "SSR: HTML generated per request on server; good SEO; fast FCP but TTFB depends on server.",
+      "SSG: HTML generated at build time; best SEO; fastest FCP via CDN.",
+      "ISR: HTML built at deploy with periodic regeneration; good SEO; fast FCP.",
+      "Appropriate use cases for each: CSR for dashboards, SSR for personalized pages, SSG for blogs, ISR for e-commerce."
+    ],
+    "followUps": [
+      "How would you decide between SSR and SSG for a content-heavy site?",
+      "What are the trade-offs of using ISR versus full SSG?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-an-ninh-phia-frontend-phia-frontend-la-phan-quan-trong-cua-u-how-would-you-protect-a-react-",
+    "topic": "JavaScript",
+    "subtopic": "**An ninh phía Frontend**\n\nPhía frontend là phần quan trọng của ứng dụng web, nơi mà người dùng tương tác trực tiếp với ứng dụng. Tuy nhiên, phía frontend cũng là mục tiêu chính của các cuộc tấn công an ninh. Dưới đây là một số kỹ thuật và phương pháp để bảo vệ phía frontend:\n\n1. **Xác thực và chứng thực**: Xác thực và chứng thực là bước đầu tiên quan trọng để bảo vệ phía frontend. Xác thực giúp xác định danh tính người dùng, trong khi chứng thực giúp xác định quyền truy cập của người dùng vào các tài nguyên ứng dụng.\n\n2. **Mật khẩu an toàn**: Sử dụng mật khẩu an toàn là bước quan trọng để bảo vệ phía frontend. Mật khẩu an toàn nên có độ dài tối thiểu 12 ký tự, bao gồm ký tự chữ cái, số và ký tự đặc biệt.\n\n3. **Bảo vệ dữ liệu**: Dữ liệu người dùng là tài sản quý giá và cần được bảo vệ. Sử dụng HTTPS để mã hóa dữ liệu khi truyền qua internet, và sử dụng cơ chế bảo vệ dữ liệu như AES để bảo vệ dữ liệu khi lưu trữ.\n\n4. **Bảo vệ trước các cuộc tấn công**: Các cuộc tấn công như XSS, CSRF và SQL Injection có thể gây hại cho phía frontend. Sử dụng các kỹ thuật như sanitization, validation và escaping để bảo vệ trước các cuộc tấn công này.\n\n5. **Cập nhật và bảo trì**: Cập nhật và bảo trì phần mềm phía frontend là bước quan trọng để bảo vệ trước các lỗ hổng bảo mật. Sử dụng các công cụ như npm audit và yarn audit để cập nhật và bảo trì phần mềm phía frontend.\n\n6. **Sử dụng các thư viện an ninh**: Sử dụng các thư viện an ninh như Helmet, OWASP ESAPI và DOMPurify để bảo vệ phía frontend.\n\n7. **Bảo vệ trước các cuộc tấn công bằng JavaScript**: Các cuộc tấn công bằng JavaScript như eval() và setTimeout() có thể gây hại cho phía frontend. Sử dụng các kỹ thuật như sử dụng các hàm an toàn như JSON.parse() và JSON.stringify() để bảo vệ trước các cuộc tấn công này.\n\n8. **Sử dụng các công cụ an ninh**: Sử dụng các công cụ an ninh như Burp Suite, ZAP và OWASP ZAP để bảo vệ phía frontend.\n\n9. **Bảo vệ dữ liệu người dùng**: Dữ liệu người dùng là tài sản quý giá và cần được bảo vệ. Sử dụng các kỹ thuật như mã hóa dữ liệu, sử dụng cơ chế bảo vệ dữ liệu như AES và sử dụng các công cụ như GDPR để bảo vệ dữ liệu người dùng.\n\n10. **Cập nhật kiến thức và kỹ năng**: Cập nhật kiến thức và kỹ năng về an ninh phía frontend là bước quan trọng để bảo vệ phía frontend. Sử dụng các nguồn tài liệu như OWASP, SANS và Cybersecurity and Infrastructure Security Agency (CISA) để cập nhật kiến thức và kỹ năng về an ninh phía frontend.\n\nBằng cách áp dụng các kỹ thuật và phương pháp trên, bạn có thể bảo vệ phía frontend và ngăn chặn các cuộc tấn công an ninh.",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you protect a React application against XSS attacks?",
+    "expectedPoints": [
+      "Avoid dangerouslySetInnerHTML or sanitize HTML with DOMPurify",
+      "Use React's built-in escaping (JSX escapes values by default)",
+      "Validate and sanitize user input on both client and server",
+      "Set proper Content Security Policy (CSP) headers",
+      "Avoid using eval() or similar dynamic code execution"
+    ],
+    "followUps": [
+      "What if you need to render user-generated HTML content?",
+      "How does CSP help mitigate XSS?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-cac-header-caching-quan-trong-bao-gom-cache-control-inh-nghi-how-would-you-design-a-caching",
+    "topic": "JavaScript",
+    "subtopic": "Các header caching quan trọng bao gồm:\n\n- Cache-Control: định nghĩa các quy tắc caching cho tài nguyên.\n- ETag: một chuỗi duy nhất xác định phiên bản của tài nguyên.\n- Last-Modified: ngày và giờ tài nguyên được cập nhật lần cuối.\n- Expires: ngày và giờ tài nguyên hết hạn.\n- Vary: xác định các tiêu chí để quyết định caching dựa trên các tiêu chí như User-Agent, Accept-Language, v.v.\n- Pragma: định nghĩa các quy tắc caching cho tài nguyên, thường được sử dụng cùng với Cache-Control.\n- Age: số ngày tài nguyên đã được lưu trữ trong cache.\n- X-Cache: thông tin về cache, bao gồm trạng thái cache và thời gian lưu trữ.\n\nCác header caching này giúp cải thiện hiệu suất và giảm tải cho server bằng cách giảm số lần yêu cầu tài nguyên từ client.",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design a caching strategy for a single-page application (SPA) to ensure fast loading and instant updates after deployment?",
+    "expectedPoints": [
+      "Use content hashing in filenames (e.g., app.a3f9.js) for immutable caching with long max-age (e.g., 1 year).",
+      "Set Cache-Control: no-cache for the main HTML file to force revalidation on every request.",
+      "Explain how ETag/If-None-Match or Last-Modified can be used for efficient revalidation.",
+      "Mention stale-while-revalidate to serve stale content while fetching updates in the background.",
+      "Describe the deployment workflow: changing content hash triggers new file requests, while HTML always fetches latest references."
+    ],
+    "followUps": [
+      "What would happen if you accidentally set a long max-age on the HTML file?",
+      "How would you handle cache busting for service workers?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-d-data-model-why-is-normalized-state-prefer",
+    "topic": "JavaScript",
+    "subtopic": "D — Data Model",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Why is normalized state preferred over nested state for a chat application, and how would you implement it?",
+    "expectedPoints": [
+      "Avoids data duplication and inconsistency",
+      "Enables O(1) lookup by ID",
+      "Simplifies updates (e.g., message status change)",
+      "Easier to manage relationships (e.g., messages per conversation)",
+      "Implementation using entities and IDs (e.g., byId, byConversation)"
+    ],
+    "followUps": [
+      "How would you handle optimistic updates with normalized state?",
+      "What tradeoffs exist when using normalized state with Redux vs. Zustand?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fe-prep-2-buffer-states-how-would-you-design-an-adapti",
+    "topic": "JavaScript",
+    "subtopic": "Buffer & States",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design an adaptive bitrate streaming (ABR) algorithm for a video player that minimizes rebuffering while maximizing quality?",
+    "expectedPoints": [
+      "Mentions chunk-based streaming with multiple quality levels.",
+      "Describes starting at a low bitrate for fast startup.",
+      "Explains dynamic bitrate selection based on network throughput and buffer occupancy.",
+      "Prioritizes avoiding rebuffering over achieving highest quality.",
+      "References MSE and manifest parsing (HLS/DASH)."
+    ],
+    "followUps": [
+      "How would you handle sudden network drops during playback?",
+      "What metrics would you use to decide when to switch bitrates?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "fe-prep-2.html"
+  },
+  {
+    "id": "fun-xyz-prep-cv-strengths-mapped-to-fun-xyz-needs-how-would-you-design-a-univers",
+    "topic": "JavaScript",
+    "subtopic": "💪 CV Strengths Mapped to Fun.xyz Needs",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "How would you design a universal checkout module that supports multiple stores with different platform variants, and what trade-offs would you consider?",
+    "expectedPoints": [
+      "Describes micro-frontend or plugin architecture for store-specific variants.",
+      "Discusses shared core logic vs. store-specific customization.",
+      "Mentions state management, event-driven communication, or API versioning.",
+      "Addresses testing strategy for cross-store compatibility.",
+      "Considers performance and bundle size implications."
+    ],
+    "followUps": [
+      "How would you handle conflicting requirements between stores?",
+      "What metrics would you track to measure success?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  },
+  {
+    "id": "fun-xyz-prep-promise-combinators-comparison-compare-promise-all-promise-al",
+    "topic": "JavaScript",
+    "subtopic": "⏱ Promise Combinators Comparison",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "Compare Promise.all, Promise.allSettled, Promise.race, and Promise.any. When would you choose one over the others?",
+    "expectedPoints": [
+      "Promise.all rejects fast on any rejection; use when all must succeed.",
+      "Promise.allSettled always resolves with all outcomes; use for independent results.",
+      "Promise.race settles on first settlement (resolve/reject); use for timeout or fastest response.",
+      "Promise.any resolves on first fulfillment; rejects with AggregateError if all reject; use for fallback.",
+      "Understand trade-offs: all vs allSettled for error handling, race vs any for first success vs first settlement."
+    ],
+    "followUps": [
+      "How would you implement a timeout using Promise.race?",
+      "What happens if you pass an empty array to each combinator?"
+    ],
+    "rubric": {},
+    "tags": [
+      "web3"
+    ],
+    "sourceFile": "fun-xyz-prep.html"
+  }
+]

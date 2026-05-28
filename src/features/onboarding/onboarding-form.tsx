@@ -86,8 +86,8 @@ export function OnboardingForm({ defaults }: { defaults: Defaults }) {
                 className={
                   'rounded-full border px-4 py-1.5 text-sm transition ' +
                   (active
-                    ? 'border-foreground bg-foreground text-background'
-                    : 'border-border/60 bg-card text-foreground/80 hover:border-foreground/50')
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border/60 bg-card text-foreground/80 hover:border-primary/50 hover:text-foreground')
                 }
                 aria-pressed={active}
               >
@@ -145,8 +145,8 @@ function ChipRow({
             className={
               'rounded-full border px-4 py-1.5 text-sm transition ' +
               (active
-                ? 'border-foreground bg-foreground text-background'
-                : 'border-border/60 bg-card text-foreground/80 hover:border-foreground/50')
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border/60 bg-card text-foreground/80 hover:border-primary/50 hover:text-foreground')
             }
             aria-pressed={active}
           >

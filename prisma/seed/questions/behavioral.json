@@ -1,0 +1,178 @@
+[
+  {
+    "id": "behavioral-difficult-bug",
+    "topic": "Behavioral",
+    "subtopic": "Debugging story",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about the hardest bug you've shipped a fix for. How did you find the root cause?",
+    "expectedPoints": [
+      "Specific context: stack, scale, who was affected, how it was discovered",
+      "What made it hard — intermittent, cross-system, observability gap, etc.",
+      "Investigation method (binary search through logs, reproducing locally, narrowing the trigger)",
+      "How they validated the fix didn't just paper over the symptom",
+      "What changed afterward to prevent the class of bug (test, monitoring, doc, process)"
+    ],
+    "followUps": [
+      "What signal would have surfaced this earlier?",
+      "If you had to do it again, what would you skip?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  },
+  {
+    "id": "behavioral-conflict-with-product",
+    "topic": "Behavioral",
+    "subtopic": "Cross-functional conflict",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about a time you disagreed with a product or design decision. How did you handle it?",
+    "expectedPoints": [
+      "Substance of the disagreement — not personal, anchored in user/business impact",
+      "How they made their case (data, prototype, user research, trade-off doc)",
+      "Willingness to commit and execute even after losing the argument",
+      "Whether the outcome validated the position; what they learned either way",
+      "Avoidance of villain framing — partner is portrayed as reasonable"
+    ],
+    "followUps": [
+      "What's a disagreement you lost where the outcome proved you wrong?",
+      "How do you decide which battles to push on?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  },
+  {
+    "id": "behavioral-led-project",
+    "topic": "Behavioral",
+    "subtopic": "Leadership story",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Walk me through a project you led end-to-end. What was your role, what shipped, and what didn't go to plan?",
+    "expectedPoints": [
+      "Concrete scope — who, what, when, measurable outcome",
+      "Their specific decisions (not 'we did X' — 'I decided X because Y')",
+      "Sequencing: how they de-risked, what they cut, what they de-prioritized",
+      "Honest 'what didn't go to plan' — not a humble-brag failure",
+      "How they multiplied others (review, mentoring, unblocking, delegating)"
+    ],
+    "followUps": [
+      "What would a 2× version of that project have looked like?",
+      "Who on the team grew the most because of how you led it?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  },
+  {
+    "id": "behavioral-performance-win",
+    "topic": "Behavioral",
+    "subtopic": "Impact story",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about a performance or quality improvement you drove. How did you measure success?",
+    "expectedPoints": [
+      "Baseline metric — what was wrong, how it was quantified, who felt it",
+      "Hypothesis-driven approach, not 'I optimized random things'",
+      "Specific levers pulled (with trade-offs named)",
+      "Result tied to a user-visible or business-visible number",
+      "Guardrails added to prevent regression (budget, alert, perf test)"
+    ],
+    "followUps": [
+      "What did you measure that turned out not to matter?",
+      "How would you spot a regression of this win next quarter?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  },
+  {
+    "id": "behavioral-tradeoff-decision",
+    "topic": "Behavioral",
+    "subtopic": "Trade-off thinking",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about a technical trade-off you made that you'd defend even though it was unpopular at the time.",
+    "expectedPoints": [
+      "Clear articulation of the alternatives considered",
+      "Why the unpopular choice was better given constraints (time, team skill, scale)",
+      "Evidence they actually evaluated the alternatives, not just dismissed them",
+      "What it cost them socially or politically, and how they handled that",
+      "What signal would have changed their mind"
+    ],
+    "followUps": [
+      "Would you make the same call today with what you now know?",
+      "Who do you check this kind of decision with before committing?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  },
+  {
+    "id": "behavioral-rapid-learning",
+    "topic": "Behavioral",
+    "subtopic": "Learning under pressure",
+    "difficulty": "mid",
+    "type": "behavioral",
+    "question": "Tell me about a time you had to ramp up on an unfamiliar technology or codebase quickly to ship something. How did you approach it?",
+    "expectedPoints": [
+      "Concrete situation — deadline, what was unfamiliar, why you couldn't just delegate",
+      "Strategy: where they started (docs, tests, git blame, asking specific people)",
+      "How they distinguished essential context from nice-to-have",
+      "First commit / first PR — what they intentionally kept small",
+      "What they captured for the next person in the same spot"
+    ],
+    "followUps": [
+      "What did you assume early that turned out to be wrong?",
+      "When did you ask for help vs. push through?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  },
+  {
+    "id": "behavioral-mentoring-moment",
+    "topic": "Behavioral",
+    "subtopic": "Mentorship",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about a time you helped a teammate level up. What was the gap, and what did you do?",
+    "expectedPoints": [
+      "Specific person, specific gap (not a vague 'mentored juniors')",
+      "How they diagnosed the gap before prescribing a fix",
+      "What they did vs. what they let the teammate struggle with",
+      "How they measured whether it actually stuck",
+      "What they learned from the teammate in return"
+    ],
+    "followUps": [
+      "What's a time mentoring backfired?",
+      "How do you mentor someone more senior than you on a specific topic?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  },
+  {
+    "id": "behavioral-pushback-on-scope",
+    "topic": "Behavioral",
+    "subtopic": "Scope management",
+    "difficulty": "senior",
+    "type": "behavioral",
+    "question": "Tell me about a time you pushed back on scope to ship something on time. What did you cut and what did you protect?",
+    "expectedPoints": [
+      "What was at risk if scope didn't move (deadline, quality, team burnout)",
+      "Framework for what to cut — user value, reversibility, dependency risk",
+      "How they brought stakeholders along instead of just announcing the cut",
+      "What got protected and why (the non-negotiables, e.g. a11y, security, core flow)",
+      "How they communicated the cut as a v2 plan, not a death"
+    ],
+    "followUps": [
+      "What's the highest-leverage thing you've ever cut?",
+      "What's something you cut that you later regretted?"
+    ],
+    "rubric": {},
+    "tags": [],
+    "sourceFile": "hand-written-behavioral.json"
+  }
+]
