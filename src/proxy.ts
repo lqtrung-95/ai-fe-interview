@@ -7,7 +7,12 @@ import { createServerClient } from '@supabase/ssr';
  * Runs on the Node.js runtime.
  */
 export default async function proxy(request: NextRequest) {
-  const response = NextResponse.next({ request });
+  // Forward pathname so Server Components can read it without accessing the
+  // request object directly (which isn't available in RSC).
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', request.nextUrl.pathname);
+
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -1,3 +1,4 @@
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth/session';
 import { AppSidebar } from '@/features/app/app-sidebar';
@@ -6,6 +7,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = await getCurrentUser();
   if (!user) {
     redirect('/sign-in');
+  }
+
+  // New users who haven't completed onboarding must do so before accessing the app.
+  const pathname = (await headers()).get('x-pathname') ?? '';
+  if (!user.targetRole && pathname !== '/onboarding') {
+    redirect('/onboarding');
   }
 
   return (
