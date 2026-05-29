@@ -126,9 +126,6 @@ function Section({
                       <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${DIFFICULTY_BADGE[q.difficulty] ?? ''}`}>
                         {q.difficulty}
                       </span>
-                      {q.hasChildExplanation && (
-                        <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">ELI5</span>
-                      )}
                     </div>
                   </div>
 

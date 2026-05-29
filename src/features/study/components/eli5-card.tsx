@@ -10,6 +10,9 @@ interface Props {
 export function Eli5Card({ explanation }: Props) {
   return (
     <div className="rounded-xl border border-amber-500/30 bg-amber-500/8 p-5">
+      <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+        🧒 Explain like I&apos;m 5
+      </p>
       <div className="space-y-2">
         {explanation
           .split(/\n+/)

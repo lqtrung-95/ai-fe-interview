@@ -103,11 +103,16 @@ export default async function QuestionDetailPage({ params }: PageProps) {
       )}
 
       {/* Diagram: hand-crafted SVG takes priority; Mermaid is the fallback */}
-      {q.diagramSvg ? (
-        <StudyDiagram svgHtml={q.diagramSvg} />
-      ) : q.diagramMermaid ? (
-        <StudyDiagramMermaid source={q.diagramMermaid} />
-      ) : null}
+      {(q.diagramSvg || q.diagramMermaid) && (
+        <section className="space-y-3">
+          <SectionHeading title="Diagram" />
+          {q.diagramSvg ? (
+            <StudyDiagram svgHtml={q.diagramSvg} />
+          ) : (
+            <StudyDiagramMermaid source={q.diagramMermaid!} />
+          )}
+        </section>
+      )}
 
       {/* What interviewers look for */}
       {q.expectedPoints.length > 0 && (
