@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
+import { getCurrentUser } from '@/lib/auth/session';
 
-export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser();
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-sm">
@@ -20,12 +23,20 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <Link href="/demo" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
               Demo
             </Link>
-            <Link href="/sign-in" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
-              Sign in
-            </Link>
-            <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm' })}>
-              Get started
-            </Link>
+            {user ? (
+              <Link href="/dashboard" className={buttonVariants({ size: 'sm' })}>
+                Go to dashboard →
+              </Link>
+            ) : (
+              <>
+                <Link href="/sign-in" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+                  Sign in
+                </Link>
+                <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm' })}>
+                  Get started
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>

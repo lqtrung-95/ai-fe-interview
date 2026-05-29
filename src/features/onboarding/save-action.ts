@@ -9,7 +9,10 @@ export type SaveResult =
   | { ok: true }
   | { ok: false; fieldErrors: Record<string, string[] | undefined> };
 
-export async function saveOnboarding(input: OnboardingInput): Promise<SaveResult> {
+export async function saveOnboarding(
+  input: OnboardingInput,
+  redirectTo = '/practice/new',
+): Promise<SaveResult> {
   const user = await requireUser();
   const parsed = onboardingSchema.safeParse(input);
 
@@ -27,5 +30,5 @@ export async function saveOnboarding(input: OnboardingInput): Promise<SaveResult
     },
   });
 
-  redirect('/practice/new');
+  redirect(redirectTo);
 }

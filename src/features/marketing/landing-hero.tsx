@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, CheckCircle2, Clock3, ShieldCheck } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 
-export function LandingHero() {
+export function LandingHero({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref?: string }) {
   return (
     <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:py-28">
       <div>
@@ -17,7 +17,7 @@ export function LandingHero() {
           Get realistic questions, structured scoring, senior-level answer rewrites, and a study plan based on your weak spots.
         </p>
         <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'lg' })}>
+          <Link href={ctaHref} className={buttonVariants({ size: 'lg' })}>
             Start free mock interview
           </Link>
           <Link href="/demo" className={buttonVariants({ size: 'lg', variant: 'outline' })}>

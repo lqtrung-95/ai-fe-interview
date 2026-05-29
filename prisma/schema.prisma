@@ -146,12 +146,14 @@ model SeedQuestion {
   // Study content — populated from source HTML or AI generation.
   // childExplanation: plain-text ELI5 paragraph(s), EN.
   // detailedExplanation: translated body HTML (h4, p, ul, code, pre), EN.
-  // diagramSvg: raw <svg>…</svg> string, language-agnostic (hand-crafted, priority).
-  // diagramMermaid: Mermaid flowchart source (LLM-generated, fallback when no SVG).
+  // diagramSvg: <svg>…</svg> string (rendered from spec or hand-crafted, priority).
+  // diagramMermaid: legacy Mermaid source kept for backward-compat (fallback if no SVG).
+  // quiz: JSON-serialised QuizData for the end-of-card interactive quick-check.
   childExplanation    String?  @db.Text
   detailedExplanation String?  @db.Text
   diagramSvg          String?  @db.Text
   diagramMermaid      String?  @db.Text
+  quiz                String?  @db.Text
 
   createdAt      DateTime     @default(now())
 

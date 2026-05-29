@@ -39,6 +39,7 @@ export interface StudyQuestionDetail {
   detailedExplanation: string | null;
   diagramSvg: string | null;
   diagramMermaid: string | null;
+  quiz: string | null; // JSON-serialised QuizData
 }
 
 export async function listStudyQuestions(
@@ -97,6 +98,7 @@ export async function getStudyQuestion(id: string): Promise<StudyQuestionDetail 
       detailedExplanation: true,
       diagramSvg: true,
       diagramMermaid: true,
+      quiz: true,
     },
   });
   return row;

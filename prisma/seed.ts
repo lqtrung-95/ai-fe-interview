@@ -28,11 +28,12 @@ interface SeedRow {
   rubric: Record<string, unknown>;
   tags: string[];
   sourceFile: string;
-  // Study content fields (optional — populated by extract-seed for fe-prep.html questions).
+  // Study content fields (optional — populated by extract-seed).
   childExplanation?: string;
   detailedExplanation?: string;
   diagramSvg?: string;
   diagramMermaid?: string;
+  quiz?: unknown; // QuizData JSON — stored as serialised string
 }
 
 async function main() {
@@ -104,6 +105,7 @@ async function main() {
           detailedExplanation: r.detailedExplanation ?? null,
           diagramSvg: r.diagramSvg ?? null,
           diagramMermaid: r.diagramMermaid ?? null,
+          quiz: r.quiz != null ? JSON.stringify(r.quiz) : null,
         },
         create: {
           id: r.id,
@@ -121,6 +123,7 @@ async function main() {
           detailedExplanation: r.detailedExplanation ?? null,
           diagramSvg: r.diagramSvg ?? null,
           diagramMermaid: r.diagramMermaid ?? null,
+          quiz: r.quiz != null ? JSON.stringify(r.quiz) : null,
         },
       });
       total++;

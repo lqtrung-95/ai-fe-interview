@@ -132,6 +132,48 @@
   }
 }
 
+/* ── Diagram color palette — used by diagram-spec-renderer.ts SVG output ───────
+   Light-mode values exactly match the resource HTML design system (fe-prep-2.html).
+   Dark-mode values are lighter/more vibrant for readability on dark bg.
+   Extra structural vars (--dg-ink*, --dg-border*, --dg-panel) drive warm grays.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  /* Semantic colors — match resource HTML :root exactly */
+  --dg-teal:          #0d7d72;  /* resource --accent */
+  --dg-green:         #15803d;  /* resource --green  */
+  --dg-orange:        #b45309;  /* resource --orange */
+  --dg-purple:        #4f46e5;  /* resource indigo   */
+  --dg-red:           #b91c1c;  /* resource --red    */
+  --dg-blue:          #1d4ed8;  /* resource tok-f    */
+  --dg-pink:          #be185d;  /* resource view-model pink */
+  --dg-amber:         #92400e;
+  --dg-cyan:          #0e7490;
+  /* Structural warm-gray palette for nodes/edges/text */
+  --dg-ink:           #41413c;
+  --dg-ink-dim:       #8a8a82;
+  --dg-border:        #e6e4dd;
+  --dg-border-bright: #d4d1c7;
+  --dg-panel:         #f6f6f3;
+}
+.dark {
+  /* Lighter/more vibrant for dark backgrounds */
+  --dg-teal:          #2dd4bf;
+  --dg-green:         #4ade80;
+  --dg-orange:        #fb923c;
+  --dg-purple:        #818cf8;
+  --dg-red:           #f87171;
+  --dg-blue:          #60a5fa;
+  --dg-pink:          #f472b6;
+  --dg-amber:         #fbbf24;
+  --dg-cyan:          #22d3ee;
+  /* Dark-mode warm neutrals */
+  --dg-ink:           #c8c8c0;
+  --dg-ink-dim:       #8a8a82;
+  --dg-border:        #2a2a28;
+  --dg-border-bright: #3a3a36;
+  --dg-panel:         #1e1e1c;
+}
+
 /* ── Study section prose renderer ──────────────────────────────────────────────
    Applied to StudyDetailProse which renders translated HTML from our resource
    files (fe-prep.html). Scoped to .study-prose to avoid bleed.
@@ -242,4 +284,184 @@
   border: none;
   padding: 0;
   color: inherit;
+}
+
+/* ── Syntax highlight inside <pre> blocks (fe-prep.html source classes) ─────── */
+.study-prose pre .fn  { color: #60a5fa; } /* function — blue-400   */
+.study-prose pre .kw  { color: #c084fc; } /* keyword  — purple-400 */
+.study-prose pre .str { color: #86efac; } /* string   — green-300  */
+.study-prose pre .cm  { color: #6b7280; font-style: italic; } /* comment — gray-500 */
+.study-prose pre .var { color: #fb923c; } /* variable — orange-400 */
+.study-prose pre .num { color: #fbbf24; } /* number   — amber-400  */
+
+/* ── Pitfall / warning callout ───────────────────────────────────────────────── */
+.study-prose .pitfall {
+  border-left: 3px solid #f59e0b;
+  background: color-mix(in srgb, #f59e0b 8%, transparent);
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding: 0.875rem 1rem 0.875rem 1.125rem;
+  margin: 1.25rem 0;
+}
+.study-prose .pitfall > .label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #d97706;
+  margin-bottom: 0.5rem;
+}
+.dark .study-prose .pitfall > .label { color: #fbbf24; }
+
+/* ── Deep Dive Ladder ────────────────────────────────────────────────────────── */
+.study-prose .ladder {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem 1.125rem;
+  margin: 1.25rem 0;
+  background: color-mix(in srgb, var(--muted) 60%, transparent);
+}
+.study-prose .ladder > .label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  /* reset heading pseudo before element */
+}
+.study-prose .ladder > .label::before { display: none; }
+.study-prose .ladder-intro {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  font-style: italic;
+  margin-bottom: 0.875rem;
+}
+/* Override .study-prose ol counter styles inside ladder */
+.study-prose .ladder-list {
+  list-style: none;
+  counter-reset: none;
+  margin: 0;
+  padding: 0;
+}
+.study-prose .lq-item {
+  border-top: 1px solid var(--border);
+  padding: 0.625rem 0;
+}
+.study-prose .lq-item:first-child { border-top: none; }
+/* Row: number badge + question text */
+.study-prose .lq-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0; /* reset li padding */
+}
+/* Remove default li::before arrow from lq-item */
+.study-prose .lq-item::before { display: none; }
+.study-prose .lq-item:not(:last-child) { margin-bottom: 0; }
+/* Number badge */
+.study-prose .ln {
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  border-radius: 50%;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  margin-top: 0.125rem;
+}
+.study-prose .lq-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground);
+  flex: 1;
+  line-height: 1.55;
+}
+/* Toggle button — ghost outline style, right-aligned in lq-row */
+.study-prose .lq-toggle {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 0.1875rem 0.5625rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1.5;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.study-prose .lq-toggle:hover {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+}
+/* Expanded state: tinted to signal the answer is open */
+.study-prose .lq-toggle[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+}
+/* Answer panel — hidden by default via [hidden] attr; JS toggles it */
+.study-prose .lq-ans-inner {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  line-height: 1.65;
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in srgb, var(--background) 70%, transparent);
+  border-radius: 0.375rem;
+  border-left: 2px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  margin-top: 0.375rem;
+  margin-left: 2rem;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────────── */
+.study-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.study-prose th {
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0.875rem;
+  background: var(--muted);
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+}
+.study-prose td {
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.study-prose tr:last-child td { border-bottom: none; }
+.study-prose tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--muted) 40%, transparent);
+}
+
+/* ── Blockquote (tip/note pattern in LLM-generated content) ─────────────────── */
+.study-prose blockquote {
+  border-left: 3px solid var(--primary);
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  color: var(--foreground);
+  font-size: 0.875rem;
 }

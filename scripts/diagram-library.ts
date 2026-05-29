@@ -40,46 +40,115 @@ export const DIAGRAMS: DiagramEntry[] = [
   {
     concept: 'event-loop',
     matchPattern: /event.?loop|microtask|macrotask/i,
-    svg: `<svg viewBox="0 0 640 290" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">${S}
-  <!-- Call Stack -->
-  <rect x="20" y="50" width="130" height="210" rx="8" class="dg-accent"/>
-  <text x="85" y="38" text-anchor="middle" class="dg-label">Call Stack</text>
-  <rect x="30" y="160" width="110" height="28" rx="4" class="dg-box"/>
-  <text x="85" y="179" text-anchor="middle" class="dg-sub">greet()</text>
-  <rect x="30" y="192" width="110" height="28" rx="4" class="dg-box"/>
-  <text x="85" y="211" text-anchor="middle" class="dg-sub">main()</text>
-  <text x="85" y="245" text-anchor="middle" class="dg-sub" opacity=".45">← grows up</text>
+    svg: `<svg viewBox="0 0 620 323" width="620" height="323" xmlns="http://www.w3.org/2000/svg"
+     font-family="'JetBrains Mono',ui-monospace,monospace">
+<style>
+  .el-cs  { fill:var(--card,#f8f7f4); stroke:var(--dg-teal,#0d7d72);    stroke-width:1.8; }
+  .el-wa  { fill:var(--dg-panel,#f6f6f3); stroke:var(--dg-border,#d4d1c7); stroke-width:1.3; }
+  .el-mq  { fill:var(--card,#f8f7f4); stroke:var(--dg-purple,#4f46e5);   stroke-width:1.8; }
+  .el-tq  { fill:var(--card,#f8f7f4); stroke:var(--dg-orange,#b45309);   stroke-width:1.8; }
+  .el-lp  { fill:var(--card,#f8f7f4); stroke:var(--dg-blue,#1d4ed8);     stroke-width:1.8; }
+  .el-fr  { fill:var(--dg-panel,#f6f6f3); stroke:var(--dg-border,#d4d1c7); stroke-width:1; }
+  .el-lcs { fill:var(--dg-teal,#0d7d72);    font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .el-lwa { fill:var(--dg-ink-dim,#8a8a82); font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .el-lmq { fill:var(--dg-purple,#4f46e5);  font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .el-ltq { fill:var(--dg-orange,#b45309);  font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .el-llp { fill:var(--dg-blue,#1d4ed8);    font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .el-sub { fill:var(--dg-ink-dim,#8a8a82); font-size:10px; }
+  .el-frm { fill:var(--dg-ink,#41413c); font-size:10.5px; font-weight:600; }
+  .el-s1  { fill:var(--dg-teal,#0d7d72);    font-size:10.5px; }
+  .el-s2  { fill:var(--dg-purple,#4f46e5);  font-size:10.5px; font-weight:600; }
+  .el-s3  { fill:var(--dg-orange,#b45309);  font-size:10.5px; }
+  .el-s4  { fill:var(--dg-ink-dim,#8a8a82); font-size:10.5px; }
+  .el-eg  { stroke:var(--dg-border-bright,#d4d1c7); stroke-width:1.3; fill:none; marker-end:url(#el-ag); }
+  .el-ep  { stroke:var(--dg-purple,#4f46e5); stroke-width:1.3; fill:none; opacity:.65; marker-end:url(#el-ap); }
+  .el-eb  { stroke:var(--dg-blue,#1d4ed8); stroke-width:1.5; fill:none; marker-end:url(#el-ab); }
+  .el-cap { fill:var(--dg-ink-dim,#8a8a82); font-size:9.5px; }
+  .el-tiny{ fill:var(--dg-ink-dim,#8a8a82); font-size:8px; }
+</style>
+<defs>
+  <marker id="el-ag" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--dg-border-bright,#d4d1c7)"/></marker>
+  <marker id="el-ap" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--dg-purple,#4f46e5)" opacity=".65"/></marker>
+  <marker id="el-ab" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="var(--dg-blue,#1d4ed8)"/></marker>
+</defs>
 
-  <!-- Web APIs box -->
-  <rect x="250" y="50" width="140" height="100" rx="8" class="dg-box"/>
-  <text x="320" y="38" text-anchor="middle" class="dg-label">Web APIs</text>
-  <text x="320" y="82" text-anchor="middle" class="dg-sub">setTimeout / setInterval</text>
-  <text x="320" y="102" text-anchor="middle" class="dg-sub">fetch / XHR</text>
-  <text x="320" y="122" text-anchor="middle" class="dg-sub">DOM events</text>
+<!--
+  Layout rationale
+  ─────────────────────────────────────────────────────────────
+  • Section labels (CS / WA / EL) at y=50; boxes start at y=60.
+  • Blue "run callback" arc peaks at y=22 — 28 px above labels, fully clear.
+  • MQ & TQ labels are drawn INSIDE their own boxes so the 31 px gap between
+    WA bottom and MQ top is free for the "completes" arrow + its label.
+  • "async call" label sits 11 px above its arrow midpoint (not touching it).
+  • "run callback" label is at y=16 — 20 px above the arc stroke at that x.
+-->
 
-  <!-- Microtask Queue -->
-  <rect x="250" y="175" width="140" height="42" rx="8" class="dg-accent"/>
-  <text x="320" y="166" text-anchor="middle" class="dg-label">Microtask Queue</text>
-  <text x="320" y="202" text-anchor="middle" class="dg-code">Promise.then · await · queueMicrotask</text>
+<!-- CALL STACK — spans full column height -->
+<text x="70"  y="50"  text-anchor="middle" class="el-lcs">Call Stack</text>
+<rect x="13"  y="60"  width="115" height="245" rx="9" class="el-cs"/>
+<rect x="22"  y="168" width="97"  height="26"  rx="5" class="el-fr"/>
+<text x="70"  y="185" text-anchor="middle" class="el-frm">greet()</text>
+<rect x="22"  y="198" width="97"  height="26"  rx="5" class="el-fr"/>
+<text x="70"  y="215" text-anchor="middle" class="el-frm">main()</text>
+<text x="70"  y="290" text-anchor="middle" class="el-sub" opacity=".45">← grows up</text>
 
-  <!-- Task Queue -->
-  <rect x="250" y="238" width="140" height="36" rx="8" class="dg-box"/>
-  <text x="320" y="229" text-anchor="middle" class="dg-label">Task Queue</text>
-  <text x="320" y="262" text-anchor="middle" class="dg-sub">setTimeout callbacks</text>
+<!-- WEB APIS -->
+<text x="272" y="50"  text-anchor="middle" class="el-lwa">Web APIs</text>
+<rect x="193" y="60"  width="157" height="82"  rx="9" class="el-wa"/>
+<text x="272" y="86"  text-anchor="middle" class="el-sub">setTimeout / setInterval</text>
+<text x="272" y="103" text-anchor="middle" class="el-sub">fetch / XHR</text>
+<text x="272" y="120" text-anchor="middle" class="el-sub">DOM events</text>
 
-  <!-- Event Loop -->
-  <rect x="460" y="120" width="155" height="100" rx="8" class="dg-accent"/>
-  <text x="537" y="108" text-anchor="middle" class="dg-label">Event Loop</text>
-  <text x="537" y="148" text-anchor="middle" class="dg-sub">① Stack empty?</text>
-  <text x="537" y="168" text-anchor="middle" class="dg-sub">② Drain microtasks</text>
-  <text x="537" y="188" text-anchor="middle" class="dg-sub">③ Run 1 task</text>
-  <text x="537" y="208" text-anchor="middle" class="dg-sub">④ Render if needed</text>
+<!-- MICROTASK QUEUE — label inside box (top 15 px) so the gap above is free -->
+<rect x="193" y="173" width="157" height="66"  rx="9" class="el-mq"/>
+<text x="272" y="188" text-anchor="middle" class="el-lmq">Microtask Queue</text>
+<text x="272" y="204" text-anchor="middle" class="el-sub">Promise.then · await</text>
+<text x="272" y="220" text-anchor="middle" class="el-sub">queueMicrotask</text>
 
-  <!-- Arrows -->
-  <line x1="320" y1="152" x2="320" y2="173" class="dg-arr"/>
-  <line x1="320" y1="219" x2="320" y2="236" class="dg-arr"/>
-  <line x1="458" y1="170" x2="154" y2="190" class="dg-arr-m"/>
-  <text x="306" y="142" text-anchor="middle" class="dg-sub" font-size="9">completes</text>
+<!-- TASK QUEUE — label inside box (top 15 px) -->
+<rect x="193" y="253" width="157" height="50"  rx="9" class="el-tq"/>
+<text x="272" y="268" text-anchor="middle" class="el-ltq">Task Queue</text>
+<text x="272" y="283" text-anchor="middle" class="el-sub">setTimeout · setInterval</text>
+<text x="272" y="298" text-anchor="middle" class="el-sub">callbacks</text>
+
+<!-- EVENT LOOP -->
+<text x="509" y="50"  text-anchor="middle" class="el-llp">Event Loop</text>
+<rect x="430" y="60"  width="157" height="170" rx="9" class="el-lp"/>
+<text x="509" y="95"  text-anchor="middle" class="el-s1">① stack empty?</text>
+<text x="509" y="120" text-anchor="middle" class="el-s2">② drain all microtasks</text>
+<text x="509" y="145" text-anchor="middle" class="el-s3">③ run 1 macrotask</text>
+<text x="509" y="170" text-anchor="middle" class="el-s4">④ render if needed</text>
+<text x="509" y="196" text-anchor="middle" class="el-sub" font-size="9" opacity=".5">↻ repeat</text>
+
+<!-- ── Arrows ── -->
+
+<!-- ① Call Stack → Web APIs (async call)
+     Arrow midpoint ≈ (165, 95). Label at y=85 sits 10 px above the stroke. -->
+<path d="M128,100 C158,100 175,90 191,90" class="el-eg"/>
+<text x="158" y="85" text-anchor="middle" class="el-tiny">async call</text>
+
+<!-- ② Web APIs → Microtask Queue (completes)
+     31 px gap (WA bottom 142 → MQ top 173). Label at x=260 is right of the
+     arrow stroke (x=252) with 8 px horizontal clearance — nothing else here. -->
+<path d="M252,144 L252,171" class="el-eg"/>
+<text x="262" y="160" text-anchor="start" class="el-tiny">completes</text>
+
+<!-- ③ Microtask Queue → Event Loop (purple — higher priority) -->
+<path d="M350,206 C396,206 415,140 428,130" class="el-ep"/>
+
+<!-- ④ Task Queue → Event Loop (gray — runs after microtasks clear) -->
+<path d="M350,278 C400,278 416,198 428,188" class="el-eg"/>
+
+<!-- ⑤ Event Loop → Call Stack (blue arc over top)
+     Arc peaks at y=22, section labels at y=50 → 28 px clear above labels.
+     "run callback" label at y=16 is 20 px above the arc stroke at that x,
+     and appears centred over the WA column where the arc is highest. -->
+<path d="M430,80 C393,22 148,22 128,76" class="el-eb"/>
+<text x="280" y="16" text-anchor="middle"
+      style="fill:var(--dg-blue,#1d4ed8);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:8px;font-weight:600">run callback</text>
+
+<!-- Caption -->
+<text x="310" y="318" text-anchor="middle" class="el-cap">◆ microtasks drain fully before each macrotask runs</text>
 </svg>`,
   },
 
@@ -243,60 +312,74 @@ export const DIAGRAMS: DiagramEntry[] = [
   },
 
   // ── 6. Critical Rendering Path ──────────────────────────────────────────
+  // Redesigned with --dg-* CSS variables + JetBrains Mono for dark-mode compat.
+  // viewBox 700×256: node widths sized to avoid text overflow at monospace metrics.
+  // Node centers: HTML=44 DOM=133 CSSOM=230 RenderTree=337 Layout=444 Paint=535 Composite=638
   {
     concept: 'critical-rendering-path',
     matchPattern: /critical.?render|render.?pipeline|parse.*html|dom.*cssom|layout.*paint|reflow|repaint/i,
-    svg: `<svg viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">${S}
-  <!-- Pipeline steps: HTML → DOM → CSSOM → Render Tree → Layout → Paint → Composite -->
-  <!-- HTML -->
-  <rect x="10" y="80" width="72" height="44" rx="6" class="dg-box"/>
-  <text x="46" y="97" text-anchor="middle" class="dg-label" font-size="10">HTML</text>
-  <text x="46" y="114" text-anchor="middle" class="dg-sub">bytes</text>
-  <line x1="84" y1="102" x2="98" y2="102" class="dg-arr"/>
+    svg: `<svg viewBox="0 0 700 256" width="700" height="256" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono',ui-monospace,monospace">
+  <defs>
+    <marker id="arr-crp" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="var(--dg-border-bright,#d4d1c7)"/>
+    </marker>
+  </defs>
+  <!-- Pipeline: HTML → DOM → CSSOM → Render Tree → Layout → Paint → Composite -->
+  <!-- Each node: y=72 h=54 rx=9; text baseline at y=94 (label) y=112 (sublabel) -->
 
-  <!-- DOM -->
-  <rect x="100" y="80" width="72" height="44" rx="6" class="dg-accent"/>
-  <text x="136" y="97" text-anchor="middle" class="dg-label" font-size="10">DOM</text>
-  <text x="136" y="114" text-anchor="middle" class="dg-sub">parse HTML</text>
-  <line x1="174" y1="102" x2="188" y2="102" class="dg-arr"/>
+  <!-- HTML (neutral) -->
+  <rect x="8" y="72" width="72" height="54" rx="9" fill="var(--card,#f8f7f4)" stroke="var(--dg-border,#d4d1c7)" stroke-width="1.5"/>
+  <text x="44" y="94" text-anchor="middle" fill="var(--dg-ink,#41413c)" font-size="12" font-weight="600">HTML</text>
+  <text x="44" y="112" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">bytes</text>
+  <line x1="80" y1="99" x2="92" y2="99" stroke="var(--dg-border-bright,#d4d1c7)" stroke-width="1.3" marker-end="url(#arr-crp)"/>
 
-  <!-- CSSOM -->
-  <rect x="190" y="80" width="72" height="44" rx="6" class="dg-accent"/>
-  <text x="226" y="97" text-anchor="middle" class="dg-label" font-size="10">CSSOM</text>
-  <text x="226" y="114" text-anchor="middle" class="dg-sub">parse CSS</text>
-  <line x1="264" y1="102" x2="278" y2="102" class="dg-arr"/>
+  <!-- DOM (teal) -->
+  <rect x="94" y="72" width="78" height="54" rx="9" fill="var(--card,#f8f7f4)" stroke="var(--dg-teal,#0d7d72)" stroke-width="1.8"/>
+  <text x="133" y="94" text-anchor="middle" fill="var(--dg-teal,#0d7d72)" font-size="12" font-weight="600">DOM</text>
+  <text x="133" y="112" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">parse HTML</text>
+  <line x1="172" y1="99" x2="184" y2="99" stroke="var(--dg-border-bright,#d4d1c7)" stroke-width="1.3" marker-end="url(#arr-crp)"/>
 
-  <!-- Render Tree -->
-  <rect x="280" y="80" width="82" height="44" rx="6" class="dg-accent"/>
-  <text x="321" y="97" text-anchor="middle" class="dg-label" font-size="10">Render Tree</text>
-  <text x="321" y="114" text-anchor="middle" class="dg-sub">DOM + CSSOM</text>
-  <line x1="364" y1="102" x2="378" y2="102" class="dg-arr"/>
+  <!-- CSSOM (blue) -->
+  <rect x="186" y="72" width="88" height="54" rx="9" fill="var(--card,#f8f7f4)" stroke="var(--dg-blue,#1d4ed8)" stroke-width="1.8"/>
+  <text x="230" y="94" text-anchor="middle" fill="var(--dg-blue,#1d4ed8)" font-size="12" font-weight="600">CSSOM</text>
+  <text x="230" y="112" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">parse CSS</text>
+  <line x1="274" y1="99" x2="286" y2="99" stroke="var(--dg-border-bright,#d4d1c7)" stroke-width="1.3" marker-end="url(#arr-crp)"/>
 
-  <!-- Layout -->
-  <rect x="380" y="80" width="72" height="44" rx="6" class="dg-box"/>
-  <text x="416" y="97" text-anchor="middle" class="dg-label" font-size="10">Layout</text>
-  <text x="416" y="114" text-anchor="middle" class="dg-sub">positions</text>
-  <line x1="454" y1="102" x2="468" y2="102" class="dg-arr"/>
+  <!-- Render Tree (orange) -->
+  <rect x="288" y="72" width="98" height="54" rx="9" fill="var(--card,#f8f7f4)" stroke="var(--dg-orange,#b45309)" stroke-width="1.8"/>
+  <text x="337" y="94" text-anchor="middle" fill="var(--dg-orange,#b45309)" font-size="12" font-weight="600">Render Tree</text>
+  <text x="337" y="112" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">DOM + CSSOM</text>
+  <line x1="386" y1="99" x2="398" y2="99" stroke="var(--dg-border-bright,#d4d1c7)" stroke-width="1.3" marker-end="url(#arr-crp)"/>
 
-  <!-- Paint -->
-  <rect x="470" y="80" width="72" height="44" rx="6" class="dg-box"/>
-  <text x="506" y="97" text-anchor="middle" class="dg-label" font-size="10">Paint</text>
-  <text x="506" y="114" text-anchor="middle" class="dg-sub">pixels</text>
-  <line x1="544" y1="102" x2="558" y2="102" class="dg-arr"/>
+  <!-- Layout (amber) -->
+  <rect x="400" y="72" width="88" height="54" rx="9" fill="var(--card,#f8f7f4)" stroke="var(--dg-amber,#92400e)" stroke-width="1.8"/>
+  <text x="444" y="94" text-anchor="middle" fill="var(--dg-amber,#92400e)" font-size="12" font-weight="600">Layout</text>
+  <text x="444" y="112" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">positions</text>
+  <line x1="488" y1="99" x2="500" y2="99" stroke="var(--dg-border-bright,#d4d1c7)" stroke-width="1.3" marker-end="url(#arr-crp)"/>
 
-  <!-- Composite -->
-  <rect x="560" y="80" width="72" height="44" rx="6" class="dg-box"/>
-  <text x="596" y="97" text-anchor="middle" class="dg-label" font-size="10">Composite</text>
-  <text x="596" y="114" text-anchor="middle" class="dg-sub">GPU layers</text>
+  <!-- Paint (green) -->
+  <rect x="502" y="72" width="66" height="54" rx="9" fill="var(--card,#f8f7f4)" stroke="var(--dg-green,#15803d)" stroke-width="1.8"/>
+  <text x="535" y="94" text-anchor="middle" fill="var(--dg-green,#15803d)" font-size="12" font-weight="600">Paint</text>
+  <text x="535" y="112" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">pixels</text>
+  <line x1="568" y1="99" x2="580" y2="99" stroke="var(--dg-border-bright,#d4d1c7)" stroke-width="1.3" marker-end="url(#arr-crp)"/>
 
-  <!-- Reflow / Repaint callouts -->
-  <rect x="50" y="168" width="220" height="50" rx="8" style="fill:#ef4444;fill-opacity:.08;stroke:#ef4444;stroke-width:1.2"/>
-  <text x="160" y="186" text-anchor="middle" style="fill:#ef4444;font-size:11px;font-weight:700">⚠ Reflow (expensive)</text>
-  <text x="160" y="204" text-anchor="middle" class="dg-sub">width/height change → Layout + Paint + Composite</text>
+  <!-- Composite (purple) -->
+  <rect x="582" y="72" width="110" height="54" rx="9" fill="var(--card,#f8f7f4)" stroke="var(--dg-purple,#4f46e5)" stroke-width="1.8"/>
+  <text x="637" y="94" text-anchor="middle" fill="var(--dg-purple,#4f46e5)" font-size="12" font-weight="600">Composite</text>
+  <text x="637" y="112" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">GPU layers</text>
 
-  <rect x="310" y="168" width="200" height="50" rx="8" style="fill:var(--primary,#6366f1);fill-opacity:.08;stroke:var(--primary,#6366f1);stroke-width:1.2"/>
-  <text x="410" y="186" text-anchor="middle" class="dg-label" font-size="10">✓ Composite only (fast)</text>
-  <text x="410" y="204" text-anchor="middle" class="dg-sub">opacity / transform → skips Layout + Paint</text>
+  <!-- Callout: Reflow (expensive) — triggers Layout + Paint + Composite -->
+  <rect x="20" y="152" width="316" height="52" rx="8" fill="var(--dg-red,#b91c1c)" fill-opacity=".07" stroke="var(--dg-red,#b91c1c)" stroke-width="1.2"/>
+  <text x="178" y="171" text-anchor="middle" fill="var(--dg-red,#b91c1c)" font-size="11" font-weight="700">⚠ Reflow (expensive)</text>
+  <text x="178" y="189" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">width/height change → Layout + Paint + Composite</text>
+
+  <!-- Callout: Composite Only (fast) — skips Layout + Paint -->
+  <rect x="354" y="152" width="326" height="52" rx="8" fill="var(--dg-purple,#4f46e5)" fill-opacity=".07" stroke="var(--dg-purple,#4f46e5)" stroke-width="1.2"/>
+  <text x="517" y="171" text-anchor="middle" fill="var(--dg-purple,#4f46e5)" font-size="11" font-weight="700">✓ Composite Only (fast)</text>
+  <text x="517" y="189" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="9.5">opacity / transform → skips Layout + Paint</text>
+
+  <!-- Caption -->
+  <text x="350" y="244" text-anchor="middle" fill="var(--dg-ink-dim,#8a8a82)" font-size="10">◆ Critical Rendering Path — HTML to pixel</text>
 </svg>`,
   },
 
@@ -411,10 +494,11 @@ export const DIAGRAMS: DiagramEntry[] = [
   },
 
   // ── 10. Module Tree Shaking ──────────────────────────────────────────────
+  // NOTE: removed code.?split — code-splitting is a separate concept with its own diagram
   {
     concept: 'tree-shaking',
-    matchPattern: /tree.?shak|dead.?code|bundle.?optim|code.?split|unused.*export/i,
-    svg: `<svg viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,sans-serif">${S}
+    matchPattern: /tree.?shak|dead.?code|bundle.?optim|unused.*export/i,
+    svg: `<svg viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono',ui-monospace,monospace">${S}
   <text x="160" y="22" text-anchor="middle" class="dg-label">Before bundling</text>
   <text x="480" y="22" text-anchor="middle" class="dg-label">After tree-shaking</text>
 
@@ -428,23 +512,24 @@ export const DIAGRAMS: DiagramEntry[] = [
   <text x="90" y="134" text-anchor="middle" class="dg-sub">main.js</text>
   <text x="90" y="148" text-anchor="middle" class="dg-code">import {a}</text>
 
-  <rect x="170" y="115" width="80" height="28" rx="4" style="fill:#94a3b8;fill-opacity:.15;stroke:#94a3b8;stroke-width:1.5"/>
+  <rect x="170" y="115" width="80" height="28" rx="4" style="fill:var(--dg-panel,#f6f6f3);stroke:var(--dg-border,#d4d1c7);stroke-width:1.5;opacity:.65"/>
   <text x="210" y="134" text-anchor="middle" class="dg-sub" opacity=".5">other.js</text>
   <text x="210" y="148" text-anchor="middle" class="dg-code" opacity=".5">import {c}</text>
 
   <line x1="140" y1="85" x2="90" y2="113" class="dg-arr"/>
   <line x1="180" y1="85" x2="210" y2="113" class="dg-arr-m" stroke-opacity=".4"/>
 
-  <rect x="40" y="175" width="240" height="28" rx="4" style="fill:#ef4444;fill-opacity:.08;stroke:#ef4444;stroke-width:1"/>
-  <text x="160" y="194" text-anchor="middle" style="fill:#ef4444;font-size:11px">b, d — exported but never imported → dead code</text>
+  <!-- Dead code label: shortened to fit 240px box (was overflowing at 46 chars/11px) -->
+  <rect x="40" y="175" width="240" height="28" rx="4" style="fill:var(--dg-red,#b91c1c);fill-opacity:.08;stroke:var(--dg-red,#b91c1c);stroke-width:1"/>
+  <text x="160" y="194" text-anchor="middle" style="fill:var(--dg-red,#b91c1c);font-size:10.5px">b, d — unused exports → dead code</text>
 
-  <!-- Arrow between -->
+  <!-- Arrow between panels -->
   <line x1="302" y1="140" x2="338" y2="140" class="dg-arr"/>
-  <text x="320" y="130" text-anchor="middle" class="dg-label" font-size="10">bundler</text>
+  <text x="320" y="130" text-anchor="middle" class="dg-label">bundler</text>
 
   <!-- After: pruned bundle -->
-  <rect x="350" y="40" width="270" height="200" rx="8" style="fill:var(--primary,#6366f1);fill-opacity:.06;stroke:var(--primary,#6366f1);stroke-width:1.5"/>
-  <text x="485" y="65" text-anchor="middle" class="dg-label" font-size="10">Final bundle</text>
+  <rect x="350" y="40" width="270" height="200" rx="8" style="fill:var(--dg-blue,#1d4ed8);fill-opacity:.05;stroke:var(--dg-blue,#1d4ed8);stroke-width:1.5"/>
+  <text x="485" y="65" text-anchor="middle" class="dg-label">Final bundle</text>
 
   <rect x="390" y="80" width="200" height="30" rx="4" class="dg-accent"/>
   <text x="490" y="100" text-anchor="middle" class="dg-sub">a()  →  only used export kept</text>
@@ -453,7 +538,7 @@ export const DIAGRAMS: DiagramEntry[] = [
   <text x="490" y="140" text-anchor="middle" class="dg-sub">c()  →  only used export kept</text>
 
   <rect x="390" y="170" width="200" height="40" rx="4" class="dg-box"/>
-  <text x="490" y="188" text-anchor="middle" style="fill:#22c55e;font-size:11px;font-weight:700">b, d removed ✓</text>
+  <text x="490" y="188" text-anchor="middle" style="fill:var(--dg-green,#15803d);font-size:11px;font-weight:700">b, d removed ✓</text>
   <text x="490" y="204" text-anchor="middle" class="dg-sub">Smaller bundle = faster load</text>
 </svg>`,
   },

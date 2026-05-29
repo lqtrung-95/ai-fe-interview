@@ -1,8 +1,7 @@
 'use client';
 
-import { useActionState, useTransition } from 'react';
 import type { Level } from '@prisma/client';
-import { savePlanAction } from '../actions/study-plan-actions';
+import { useSavePlanMutation } from '../hooks/use-study-plan-mutations';
 
 const TOPICS = [
   'JavaScript',
@@ -36,20 +35,17 @@ interface Props {
 }
 
 export function StudyPlanSetupForm({ defaultTopics = [], defaultLevel = 'mid', defaultPrepWeeks = 4, isEdit = false }: Props) {
-  const [error, action, pending] = useActionState(
-    async (_prev: string | null, formData: FormData) => {
-      try {
-        await savePlanAction(formData);
-        return null;
-      } catch (e) {
-        return (e as Error).message;
-      }
-    },
-    null,
-  );
+  const mutation = useSavePlanMutation();
+  const pending  = mutation.isPending;
+  const error    = mutation.error?.message ?? null;
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    mutation.mutate(new FormData(e.currentTarget));
+  }
 
   return (
-    <form action={action} className="space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Topics */}
       <fieldset className="space-y-3">
         <legend className="text-sm font-semibold text-foreground">

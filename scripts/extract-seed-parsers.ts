@@ -163,8 +163,9 @@ export async function parseFePrep(path: string): Promise<SeedQuestion[]> {
       // HTML-extracted content takes precedence; LLM-generated is the fallback.
       childExplanation: childExplanation ?? first.childExplanation,
       detailedExplanation: detailedExplanation ?? first.detailedExplanation,
-      diagramSvg,
-      diagramMermaid: first.diagramMermaid,
+      // Hand-crafted SVG from HTML source takes priority; LLM-rendered spec is fallback.
+      diagramSvg: diagramSvg ?? first.diagramSvg,
+      quiz: first.quiz,
     });
   }
   return out;
@@ -232,7 +233,8 @@ export async function parseProseFile(args: {
         sourceFile,
         childExplanation: q.childExplanation,
         detailedExplanation: q.detailedExplanation,
-        diagramMermaid: q.diagramMermaid,
+        diagramSvg: q.diagramSvg,
+        quiz: q.quiz,
       });
     }
   }

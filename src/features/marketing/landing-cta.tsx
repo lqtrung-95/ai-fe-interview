@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 
-export function LandingCta() {
+export function LandingCta({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref?: string }) {
   return (
     <section className="mx-auto max-w-5xl px-6 py-16">
       <div className="rounded-2xl bg-primary px-8 py-14 text-center text-primary-foreground">
@@ -11,7 +11,7 @@ export function LandingCta() {
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/sign-in?next=/onboarding"
+            href={ctaHref}
             className={buttonVariants({ size: 'lg', variant: 'secondary' })}
           >
             Start practicing free

@@ -10,6 +10,7 @@ import { Eli5Card } from '@/features/study/components/eli5-card';
 import { StudyDetailProse } from '@/features/study/components/study-detail-prose';
 import { StudyDiagram } from '@/features/study/components/study-diagram';
 import { StudyDiagramMermaid } from '@/features/study/components/study-diagram-mermaid';
+import { QuizCard, type QuizData } from '@/features/study/components/quiz-card';
 import { MarkStudiedButton } from '@/features/study-plan/components/mark-studied-button';
 
 interface PageProps {
@@ -45,7 +46,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
   const { hasPlan, studiedIds } = await getStudyPlanStatus(user.id);
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10 space-y-8">
+    <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
       {/* Back nav */}
       <Link
         href="/question-bank"
@@ -61,7 +62,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
           <span className="rounded-md border bg-muted/60 px-2.5 py-1 text-xs font-medium text-muted-foreground">
             {q.topic}
           </span>
-          {q.subtopic && q.subtopic !== q.topic && (
+          {q.subtopic && q.subtopic !== q.topic && q.subtopic.length <= 60 && (
             <span className="rounded-md border bg-muted/40 px-2.5 py-1 text-xs text-muted-foreground">
               {q.subtopic}
             </span>
@@ -103,15 +104,9 @@ export default async function QuestionDetailPage({ params }: PageProps) {
 
       {/* Diagram: hand-crafted SVG takes priority; Mermaid is the fallback */}
       {q.diagramSvg ? (
-        <section className="space-y-3">
-          <SectionHeading title="Diagram" />
-          <StudyDiagram svgHtml={q.diagramSvg} />
-        </section>
+        <StudyDiagram svgHtml={q.diagramSvg} />
       ) : q.diagramMermaid ? (
-        <section className="space-y-3">
-          <SectionHeading title="Diagram" />
-          <StudyDiagramMermaid source={q.diagramMermaid} />
-        </section>
+        <StudyDiagramMermaid source={q.diagramMermaid} />
       ) : null}
 
       {/* What interviewers look for */}
@@ -146,6 +141,19 @@ export default async function QuestionDetailPage({ params }: PageProps) {
           </div>
         </section>
       )}
+
+      {/* Quick-check quiz */}
+      {(() => {
+        if (!q.quiz) return null;
+        try {
+          const quiz = JSON.parse(q.quiz) as QuizData;
+          return (
+            <section className="space-y-3">
+              <QuizCard quiz={quiz} />
+            </section>
+          );
+        } catch { return null; }
+      })()}
 
       {/* CTA */}
       <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-5">

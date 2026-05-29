@@ -6,15 +6,66 @@ export const metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
   const user = await requireUser();
+  const topics = (user.preferredTopics ?? []) as string[];
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-12">
       <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
       <p className="mt-2 text-sm text-muted-foreground">{user.email}</p>
-      <div className="mt-8">
-        <Link href="/onboarding" className={buttonVariants({ variant: 'outline' })}>
-          Edit preferences
-        </Link>
-      </div>
+
+      {/* Interview preferences card */}
+      <section className="mt-8 rounded-lg border border-border/70 p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold">Interview preferences</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Used to tailor question difficulty and topic mix.
+            </p>
+          </div>
+          <Link href="/onboarding" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+            Edit
+          </Link>
+        </div>
+
+        {user.targetRole ? (
+          <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-xs text-muted-foreground">Level</dt>
+              <dd className="mt-0.5 font-medium capitalize">{user.level ?? '—'}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">Target role</dt>
+              <dd className="mt-0.5 font-medium">{user.targetRole}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-muted-foreground">Company type</dt>
+              <dd className="mt-0.5 font-medium">{user.targetCompanyType ?? '—'}</dd>
+            </div>
+            {topics.length > 0 && (
+              <div className="col-span-2 sm:col-span-3">
+                <dt className="text-xs text-muted-foreground">Topics</dt>
+                <dd className="mt-1 flex flex-wrap gap-1.5">
+                  {topics.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full border border-border/60 px-2.5 py-0.5 text-xs"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
+        ) : (
+          <p className="mt-4 text-sm text-muted-foreground">
+            No preferences set yet.{' '}
+            <Link href="/onboarding" className="text-primary underline-offset-2 hover:underline">
+              Complete setup
+            </Link>
+          </p>
+        )}
+      </section>
     </div>
   );
 }

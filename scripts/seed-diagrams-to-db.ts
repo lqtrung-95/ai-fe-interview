@@ -28,11 +28,9 @@ async function main() {
       select: { id: true, question: true, topic: true, subtopic: true },
     });
 
-    // Clear all existing hand-crafted SVGs first so wrongly-matched ones from
-    // previous runs (before the haystack fix) don't persist.
-    await prisma.seedQuestion.updateMany({ data: { diagramSvg: null } });
-    console.log(`  ✓ Cleared existing diagramSvg on all rows`);
-
+    // Note: we do NOT clear all diagramSvg here — pnpm seed already writes
+    // LLM-generated SVGs for every question. We only override the specific
+    // questions that have a hand-crafted diagram entry in diagram-library.ts.
     console.log(`\n▶ Matching diagrams to ${questions.length} questions…\n`);
 
     let applied = 0;

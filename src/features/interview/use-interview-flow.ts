@@ -4,12 +4,12 @@ import { useEffect } from 'react';
 import { fetchFeedbackStream } from '@/features/feedback/use-feedback-stream';
 import { RateLimitError } from '@/lib/http/rate-limit-error';
 import {
-  completeInterviewSession,
-  endInterviewSession,
-  generateFollowUp,
-  saveFollowUpAnswer,
-  submitPrimaryAnswer,
-} from './answer-flow-client';
+  useCompleteSessionMutation,
+  useEndSessionMutation,
+  useGenerateFollowUpMutation,
+  useSaveFollowUpMutation,
+  useSubmitAnswerMutation,
+} from './hooks/use-interview-mutations';
 import { useInterviewStore } from './interview-store';
 import { fetchQuestionStream } from './use-question-stream';
 import type { ActiveQuestion } from './question-stream-types';
@@ -23,6 +23,13 @@ interface Args {
 
 export function useInterviewFlow(args: Args) {
   const state = useInterviewStore();
+
+  // Mutation hooks — own network I/O state; Zustand store owns UI phase transitions
+  const submitAnswerMutation    = useSubmitAnswerMutation();
+  const generateFollowUpMutation = useGenerateFollowUpMutation();
+  const saveFollowUpMutation    = useSaveFollowUpMutation();
+  const endSessionMutation      = useEndSessionMutation();
+  const completeSessionMutation = useCompleteSessionMutation();
 
   useEffect(() => {
     state.hydrate(args.initialQuestion, args.initialCompleted);
@@ -53,7 +60,10 @@ export function useInterviewFlow(args: Args) {
     state.setError(null);
     state.setPhase('submitting');
     try {
-      const answerId = await submitPrimaryAnswer(current.questionId, draft);
+      const answerId = await submitAnswerMutation.mutateAsync({
+        questionId: current.questionId,
+        answer: draft,
+      });
       state.setAnswerId(answerId);
       await loadFollowUp(answerId);
     } catch (e) {
@@ -65,7 +75,7 @@ export function useInterviewFlow(args: Args) {
   async function loadFollowUp(answerId: string) {
     state.setPhase('generating_followup');
     try {
-      state.setFollowUp(await generateFollowUp(answerId));
+      state.setFollowUp(await generateFollowUpMutation.mutateAsync(answerId));
       state.setPhase('followup');
     } catch (e) {
       recordError(e, 'Failed to generate follow-up');
@@ -79,7 +89,7 @@ export function useInterviewFlow(args: Args) {
     state.setError(null);
     state.setPhase('submitting');
     try {
-      await saveFollowUpAnswer(answerId, followUpDraft);
+      await saveFollowUpMutation.mutateAsync({ answerId, followUpAnswer: followUpDraft });
       await generateFeedback(answerId);
     } catch (e) {
       recordError(e, 'Failed to submit follow-up');
@@ -103,8 +113,14 @@ export function useInterviewFlow(args: Args) {
   async function finishQuestion() {
     const isDone = state.finishQuestion(args.questionTarget);
     if (isDone) {
-      await completeInterviewSession(args.sessionId);
-      window.location.href = `/practice/${args.sessionId}/complete`;
+      try {
+        await completeSessionMutation.mutateAsync(args.sessionId);
+        window.location.href = `/practice/${args.sessionId}/complete`;
+      } catch (e) {
+        // Completing the session failed — surface the error and allow retry
+        recordError(e, 'Failed to complete session');
+        state.setPhase('error');
+      }
       return;
     }
     await loadNextQuestion();
@@ -114,7 +130,7 @@ export function useInterviewFlow(args: Args) {
     state.setError(null);
     state.setPhase('submitting');
     try {
-      await endInterviewSession(args.sessionId);
+      await endSessionMutation.mutateAsync(args.sessionId);
       state.markEnded();
     } catch (e) {
       recordError(e, 'Failed to end session');

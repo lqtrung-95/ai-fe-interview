@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { saveOnboarding } from './save-action';
 import {
   ONBOARDING_TOPICS,
@@ -9,6 +10,7 @@ import {
   type OnboardingInput,
 } from './schema';
 import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
 const LEVELS: Array<{ value: 'junior' | 'mid' | 'senior' | 'staff'; label: string }> = [
@@ -25,7 +27,15 @@ interface Defaults {
   preferredTopics?: string[];
 }
 
-export function OnboardingForm({ defaults }: { defaults: Defaults }) {
+interface OnboardingFormProps {
+  defaults: Defaults;
+  /** When true, shows "Save changes" and a back link instead of "Continue". */
+  isEdit?: boolean;
+  /** Where to redirect after a successful save (default: /practice/new). */
+  redirectTo?: string;
+}
+
+export function OnboardingForm({ defaults, isEdit = false, redirectTo }: OnboardingFormProps) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +59,7 @@ export function OnboardingForm({ defaults }: { defaults: Defaults }) {
     } as OnboardingInput;
 
     startTransition(async () => {
-      const result = await saveOnboarding(payload);
+      const result = await saveOnboarding(payload, redirectTo);
       if (result && 'ok' in result && !result.ok) {
         setError(Object.values(result.fieldErrors).flat().join(', ') || 'Please review your selections.');
       }
@@ -106,8 +116,13 @@ export function OnboardingForm({ defaults }: { defaults: Defaults }) {
       )}
 
       <div className="flex items-center justify-end gap-3">
+        {isEdit && redirectTo && (
+          <Link href={redirectTo} className={buttonVariants({ variant: 'ghost' })}>
+            Cancel
+          </Link>
+        )}
         <Button type="submit" disabled={pending || topics.length === 0}>
-          {pending ? 'Saving…' : 'Continue'}
+          {pending ? 'Saving…' : isEdit ? 'Save changes' : 'Continue'}
         </Button>
       </div>
     </form>

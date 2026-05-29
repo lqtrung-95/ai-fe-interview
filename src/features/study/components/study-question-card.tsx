@@ -43,30 +43,10 @@ export function StudyQuestionCard({ question: q }: Props) {
         {q.question}
       </p>
 
-      {/* Subtopic + indicators */}
-      <div className="flex items-center justify-between gap-2">
-        {q.subtopic && (
-          <span className="truncate text-xs text-muted-foreground">{q.subtopic}</span>
-        )}
-        <div className="ml-auto flex shrink-0 items-center gap-2">
-          {q.hasChildExplanation && (
-            <span
-              title="Has ELI5 explanation"
-              className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400"
-            >
-              ELI5
-            </span>
-          )}
-          {q.hasDiagram && (
-            <span
-              title="Has diagram"
-              className="rounded bg-sky-500/10 px-1.5 py-0.5 text-[10px] font-medium text-sky-600 dark:text-sky-400"
-            >
-              Diagram
-            </span>
-          )}
-        </div>
-      </div>
+      {/* Subtopic */}
+      {q.subtopic && (
+        <span className="truncate text-xs text-muted-foreground">{q.subtopic}</span>
+      )}
     </Link>
   );
 }

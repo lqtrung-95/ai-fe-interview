@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import OpenAI from 'openai';
-import type { Difficulty, QuestionType } from './extract-seed-types';
+import type { Difficulty, QuestionType, DiagramSpec, QuizData } from './extract-seed-types';
+import { renderDiagramSpec } from './diagram-spec-renderer';
 
 const CACHE_PATH = 'scripts/.translation-cache.json';
 
@@ -143,14 +144,12 @@ export interface GeneratedQuestion {
   difficulty: Difficulty;
   type: QuestionType;
   subtopic?: string;
-  // ELI5: 2-3 sentence plain-English analogy for a non-engineer (no jargon)
   childExplanation?: string;
-  // Rich HTML explanation rendered with .study-prose CSS:
-  //   <p> paragraphs, <h4> section headings, <strong> key terms,
-  //   <ul><li> bullet lists, <code> for inline code/API names
   detailedExplanation?: string;
-  // Mermaid diagram source (flowchart LR, 3-8 nodes). Rendered client-side.
-  diagramMermaid?: string;
+  // Diagram: LLM returns a spec JSON; we render it to SVG in-process.
+  diagramSpec?: DiagramSpec;
+  diagramSvg?: string;  // populated from diagramSpec after render
+  quiz?: QuizData;
 }
 
 /**
@@ -163,11 +162,9 @@ export async function generateQuestionsFromSection(args: {
   body: string;
 }): Promise<GeneratedQuestion[]> {
   const cache = loadCache();
-  // Cache key intentionally omits `args.topic` so re-runs with different topic
-  // routing (e.g. "Frontend System Design" → "Web Performance") still hit cache.
-  // The topic only affects where the resulting question lands, not its content.
-  // v5: force full OpenAI GPT-4o regeneration (v4 entries were DeepSeek).
-  const key = `qgen_v5:${hashKey(`${args.heading}|${args.body}`)}`;
+  // Cache key intentionally omits `args.topic` — topic only affects routing.
+  // v8: diagramSpec nodes now carry semantic color instead of highlight boolean.
+  const key = `qgen_v8:${hashKey(`${args.heading}|${args.body}`)}`;
   if (cache[key]) {
     try {
       const cached = JSON.parse(cache[key]) as Partial<GeneratedQuestion>[];
@@ -185,7 +182,7 @@ export async function generateQuestionsFromSection(args: {
     r = await client.chat.completions.create({
       model: modelSmart(),
       response_format: { type: 'json_object' },
-      max_tokens: 2000,
+      max_tokens: 2800,
       messages: [
         {
           role: 'system',
@@ -198,16 +195,29 @@ export async function generateQuestionsFromSection(args: {
             '- `followUps` (1-2 short English follow-up questions)\n' +
             '- `difficulty` (junior|mid|senior)\n' +
             '- `type` (conceptual|debugging|system_design|behavioral|tradeoff)\n' +
-            '- `childExplanation` (2-3 sentences in plain English — explain to a smart 10-year-old ' +
-            'using a concrete everyday analogy, no jargon)\n' +
-            '- `detailedExplanation` (rich HTML, 150–350 words — use <p> for paragraphs, <h4> for ' +
-            'section titles, <strong> for key terms, <ul><li> for lists, <code> for code/API names; ' +
-            'cover: what it is, how it works, why it matters in production, 1 common pitfall; ' +
-            'English only, no markdown fences, no wrapping div)\n' +
-            '- `diagramMermaid` (Mermaid diagram source — REQUIRED for EVERY question, no exceptions; ' +
-            'use "flowchart LR" or "flowchart TD" syntax with 3-8 nodes that visually explain the core ' +
-            'concept; node labels must be short (≤5 words), English only; use --> for arrows, ' +
-            'subgraph for grouping related nodes; output raw Mermaid source only, no ```mermaid fences)\n' +
+            '- `childExplanation` (2-3 sentences — explain to a smart 10-year-old, everyday analogy, no jargon)\n' +
+            '- `detailedExplanation` (rich HTML 200-400 words; use <h4> headings, <p> prose, <strong> key terms, ' +
+            '<code> for API names, <ul><li> bullets, <ol><li> steps, ' +
+            '<table><thead><tr><th>…<tbody><tr><td> for any 2+ item comparison, ' +
+            '<div class="pitfall"><span class="label">⚠ Common Pitfall</span><p>…</p></div> for one key gotcha, ' +
+            '<blockquote> for a senior insight; English only, no markdown fences, no wrapping div)\n' +
+            '- `diagramSpec` (REQUIRED — JSON object describing an educational flowchart for this concept):\n' +
+            '    { "direction": "LR" or "TD",\n' +
+            '      "nodes": [{ "id": "short_id", "label": "≤3 words", "sublabel": "≤4 words (optional)", "color": "teal|green|orange|purple|red|blue|pink|amber|cyan (optional)" }],\n' +
+            '      "edges": [{ "from": "id", "to": "id", "label": "≤2 words (optional)", "dashed": false }],\n' +
+            '      "groups": [{ "label": "≤3 words", "nodeIds": ["id1","id2"], "color": "teal|green|orange|purple|... (optional)" }],\n' +
+            '      "caption": "≤10 words optional caption" }\n' +
+            '    Color semantics: teal/blue = input or data source, orange/amber = transform or process step, ' +
+            'green = output or success result, red = error or bottleneck, purple = key concept or algorithm, ' +
+            'pink/cyan = supporting detail. Assign colors meaningfully — not every node needs one. ' +
+            '4-8 nodes, IDs must match edges exactly.\n' +
+            '- `quiz` (REQUIRED — interactive question for this concept):\n' +
+            '    { "format": "mcq" or "tf",\n' +
+            '      "question": "concise question testing one key concept",\n' +
+            '      "options": ["A","B","C","D"] for mcq OR ["True","False"] for tf,\n' +
+            '      "answer": 0-indexed integer for correct option,\n' +
+            '      "explanation": "1-2 sentences explaining the answer" }\n' +
+            '    Choose "mcq" for nuanced topics; "tf" for simple true/false facts\n' +
             'Output strict JSON: { "questions": GeneratedQuestion[] }. No markdown.',
         },
         {
@@ -238,23 +248,48 @@ export async function generateQuestionsFromSection(args: {
     .filter((q): q is GeneratedQuestion =>
       typeof q?.question === 'string' && q.question.trim().length > 0
     )
-    .map((q) => ({
-      question: q.question,
-      expectedPoints: Array.isArray(q.expectedPoints) ? q.expectedPoints : [],
-      followUps: Array.isArray(q.followUps) ? q.followUps : [],
-      difficulty: (['junior', 'mid', 'senior'] as const).includes(q.difficulty as Difficulty)
-        ? (q.difficulty as Difficulty)
-        : 'mid',
-      type: (['conceptual', 'debugging', 'system_design', 'behavioral', 'tradeoff'] as const).includes(
-        q.type as QuestionType
-      )
-        ? (q.type as QuestionType)
-        : 'conceptual',
-      subtopic: q.subtopic,
-      childExplanation: typeof q.childExplanation === 'string' ? q.childExplanation.trim() || undefined : undefined,
-      detailedExplanation: typeof q.detailedExplanation === 'string' ? q.detailedExplanation.trim() || undefined : undefined,
-      diagramMermaid: typeof q.diagramMermaid === 'string' ? q.diagramMermaid.trim() || undefined : undefined,
-    }));
+    .map((q) => {
+      // Render diagramSpec → SVG string (falls back to undefined on any error)
+      let diagramSvg: string | undefined;
+      const spec = q.diagramSpec as DiagramSpec | undefined;
+      if (spec?.nodes?.length && spec?.edges) {
+        try { diagramSvg = renderDiagramSpec(spec); } catch { /* skip */ }
+      }
+
+      // Validate quiz shape
+      let quiz: QuizData | undefined;
+      const qz = q.quiz as Partial<QuizData> | undefined;
+      if (
+        qz?.question &&
+        Array.isArray(qz.options) && qz.options.length >= 2 &&
+        typeof qz.answer === 'number' &&
+        qz.explanation
+      ) {
+        quiz = {
+          format: qz.format === 'tf' ? 'tf' : 'mcq',
+          question: qz.question,
+          options: qz.options as string[],
+          answer: qz.answer,
+          explanation: qz.explanation,
+        };
+      }
+
+      return {
+        question: q.question,
+        expectedPoints: Array.isArray(q.expectedPoints) ? q.expectedPoints : [],
+        followUps: Array.isArray(q.followUps) ? q.followUps : [],
+        difficulty: (['junior', 'mid', 'senior'] as const).includes(q.difficulty as Difficulty)
+          ? (q.difficulty as Difficulty) : 'mid',
+        type: (['conceptual', 'debugging', 'system_design', 'behavioral', 'tradeoff'] as const).includes(
+          q.type as QuestionType) ? (q.type as QuestionType) : 'conceptual',
+        subtopic: q.subtopic,
+        childExplanation: typeof q.childExplanation === 'string' ? q.childExplanation.trim() || undefined : undefined,
+        detailedExplanation: typeof q.detailedExplanation === 'string' ? q.detailedExplanation.trim() || undefined : undefined,
+        diagramSpec: spec,
+        diagramSvg,
+        quiz,
+      };
+    });
 
   cache[key] = JSON.stringify(valid);
   saveCache();
