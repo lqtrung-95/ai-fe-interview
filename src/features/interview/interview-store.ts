@@ -27,6 +27,10 @@ interface InterviewState {
   followUpDraft: string;
   feedback: FeedbackPayload | null;
   rateLimitedUntil: number | null;
+  // --- Timer (opt-in countdown per question, 0 = disabled) ---
+  timerSeconds: number;   // configured duration; 0 means no timer
+  timeLeft: number;       // seconds remaining for the current question
+  timerActive: boolean;   // true while counting down in 'answering' phase
   hydrate: (question: ActiveQuestion | null, completed: number) => void;
   setPhase: (phase: InterviewPhase) => void;
   setDraft: (draft: string) => void;
@@ -41,6 +45,9 @@ interface InterviewState {
   setLoadedQuestion: (question: ActiveQuestion) => void;
   finishQuestion: (questionTarget: number) => boolean;
   markEnded: () => void;
+  setTimerSeconds: (seconds: number) => void;
+  tickTimer: () => void;
+  stopTimer: () => void;
 }
 
 const initialState = {
@@ -55,6 +62,9 @@ const initialState = {
   followUpDraft: '',
   feedback: null,
   rateLimitedUntil: null as number | null,
+  timerSeconds: 0,
+  timeLeft: 0,
+  timerActive: false,
 };
 
 export const useInterviewStore = create<InterviewState>((set, get) => ({
@@ -62,6 +72,8 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   hydrate: (question, completed) =>
     set({
       ...initialState,
+      // Preserve configured timerSeconds across question transitions
+      timerSeconds: get().timerSeconds,
       phase: question ? 'answering' : 'idle',
       current: question,
       completed,
@@ -83,8 +95,10 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       phase: 'loading_question',
       error: null,
       streamingQuestion: '',
+      timerActive: false,  // pause timer while loading
     }),
-  setLoadedQuestion: (current) =>
+  setLoadedQuestion: (current) => {
+    const { timerSeconds } = get();
     set({
       current,
       draft: '',
@@ -94,15 +108,26 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       feedback: null,
       streamingQuestion: '',
       phase: 'answering',
-    }),
+      // Reset timer for each new question
+      timeLeft: timerSeconds,
+      timerActive: timerSeconds > 0,
+    });
+  },
   finishQuestion: (questionTarget) => {
     const next = get().completed + 1;
     if (next >= questionTarget) {
-      set({ completed: next, phase: 'completed', current: null });
+      set({ completed: next, phase: 'completed', current: null, timerActive: false });
       return true;
     }
-    set({ completed: next });
+    set({ completed: next, timerActive: false });
     return false;
   },
-  markEnded: () => set({ current: null, phase: 'ended' }),
+  markEnded: () => set({ current: null, phase: 'ended', timerActive: false }),
+  setTimerSeconds: (seconds) => set({ timerSeconds: seconds }),
+  tickTimer: () =>
+    set((state) => ({
+      timeLeft: Math.max(0, state.timeLeft - 1),
+      timerActive: state.timeLeft > 1,
+    })),
+  stopTimer: () => set({ timerActive: false }),
 }));

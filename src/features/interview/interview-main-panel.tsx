@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FeedbackCard } from '@/features/feedback/components/feedback-card';
 import type { FeedbackPayload } from '@/features/feedback/feedback-types';
+import { CountdownRing } from './components/countdown-ring';
 import { FollowupPanel } from './followup-panel';
 import type { ActiveQuestion } from './question-stream-types';
 
@@ -93,9 +94,12 @@ export function InterviewMainPanel(props: Props) {
       )}
 
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
-          {props.isFollowUp ? `${props.followUpDraft.length} chars` : `${props.draft.length} chars`}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-muted-foreground">
+            {props.isFollowUp ? `${props.followUpDraft.length} chars` : `${props.draft.length} chars`}
+          </p>
+          <CountdownRing />
+        </div>
         {props.isFollowUp ? (
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={props.onSkipFollowUp}>Skip</Button>

@@ -12,6 +12,7 @@ interface Props {
   initialQuestion?: ActiveQuestion | null;
   initialCompleted: number;
   questionTarget: number;
+  timerSeconds?: number;
 }
 
 export function InterviewShell({
@@ -19,12 +20,14 @@ export function InterviewShell({
   initialQuestion,
   initialCompleted,
   questionTarget,
+  timerSeconds = 0,
 }: Props) {
   const flow = useInterviewFlow({
     sessionId,
     initialQuestion: initialQuestion ?? null,
     initialCompleted,
     questionTarget,
+    timerSeconds,
   });
   const state = flow.state;
 

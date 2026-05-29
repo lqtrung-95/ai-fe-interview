@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Check, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ONBOARDING_TOPICS } from '@/features/onboarding/schema';
 import { createSession } from './server/create-session-action';
 import { SESSION_DIFFICULTIES, SESSION_MODES, type CreateSessionInput } from './session-config-schema';
 
@@ -23,10 +23,21 @@ const GROUPS = [
   ['Interview Skills', ['Testing', 'Behavioral']],
 ] as const;
 
+/** Timer options: 0 = no limit, otherwise seconds per question */
+const TIMER_OPTIONS = [
+  { value: 0, label: 'No limit' },
+  { value: 60, label: '1 min' },
+  { value: 120, label: '2 min' },
+  { value: 180, label: '3 min' },
+  { value: 300, label: '5 min' },
+] as const;
+
 export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts }: Props) {
+  const router = useRouter();
   const [topics, setTopics] = useState<string[]>(defaultTopics.length ? defaultTopics : ['JavaScript']);
   const [difficulty, setDifficulty] = useState<Difficulty>(defaultDifficulty);
   const [mode, setMode] = useState<Mode>('standard');
+  const [timerSeconds, setTimerSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -41,7 +52,15 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
     const payload = { mode, difficulty, topics } as CreateSessionInput;
     startTransition(async () => {
       const result = await createSession(payload);
-      if (result && 'ok' in result && !result.ok) setError(result.message);
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      // Redirect with ?timer= so the session page can initialise the countdown
+      const url = timerSeconds > 0
+        ? `/practice/${result.sessionId}?timer=${timerSeconds}`
+        : `/practice/${result.sessionId}`;
+      router.push(url);
     });
   }
 
@@ -76,6 +95,30 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
               }
             >
               {item.label}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold flex items-center gap-2">
+          <Timer className="h-4 w-4 text-muted-foreground" />
+          Time per question
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {TIMER_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setTimerSeconds(opt.value)}
+              className={
+                'rounded-lg border px-4 py-2 text-sm transition ' +
+                (timerSeconds === opt.value
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border/70 bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground')
+              }
+            >
+              {opt.label}
             </button>
           ))}
         </div>

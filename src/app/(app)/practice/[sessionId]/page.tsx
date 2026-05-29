@@ -13,11 +13,15 @@ const QUESTION_TARGETS = {
 
 export default async function SessionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ sessionId: string }>;
+  searchParams: Promise<{ timer?: string }>;
 }) {
   const user = await requireUser();
   const { sessionId } = await params;
+  const { timer } = await searchParams;
+  const timerSeconds = timer ? Math.max(0, parseInt(timer, 10) || 0) : 0;
 
   const session = await prisma.interviewSession.findFirst({
     where: { id: sessionId, userId: user.id },
@@ -62,6 +66,7 @@ export default async function SessionPage({
         initialQuestion={initialQuestion}
         initialCompleted={completed}
         questionTarget={target}
+        timerSeconds={timerSeconds}
       />
     </div>
   );

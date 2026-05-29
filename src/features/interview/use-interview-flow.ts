@@ -10,6 +10,7 @@ import {
   useSaveFollowUpMutation,
   useSubmitAnswerMutation,
 } from './hooks/use-interview-mutations';
+import { useInterviewTimer } from './hooks/use-interview-timer';
 import { useInterviewStore } from './interview-store';
 import { fetchQuestionStream } from './use-question-stream';
 import type { ActiveQuestion } from './question-stream-types';
@@ -19,6 +20,7 @@ interface Args {
   initialQuestion: ActiveQuestion | null;
   initialCompleted: number;
   questionTarget: number;
+  timerSeconds: number;
 }
 
 export function useInterviewFlow(args: Args) {
@@ -32,8 +34,11 @@ export function useInterviewFlow(args: Args) {
   const completeSessionMutation = useCompleteSessionMutation();
 
   useEffect(() => {
+    // Set timer config before hydrate so the first question picks it up.
+    state.setTimerSeconds(args.timerSeconds);
     state.hydrate(args.initialQuestion, args.initialCompleted);
-  }, [args.initialCompleted, args.initialQuestion, state.hydrate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [args.initialCompleted, args.initialQuestion, args.timerSeconds]);
 
   // Centralizes RateLimitError detection so each catch site stays terse.
   const recordError = (err: unknown, fallback: string) => {
@@ -137,6 +142,9 @@ export function useInterviewFlow(args: Args) {
       state.setPhase(state.current ? 'answering' : 'idle');
     }
   }
+
+  // Drive per-question countdown; auto-submits when time runs out.
+  useInterviewTimer(submitAnswer);
 
   return {
     state,
