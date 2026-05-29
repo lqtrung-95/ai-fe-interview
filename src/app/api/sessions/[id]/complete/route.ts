@@ -1,7 +1,9 @@
+import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { requireUser } from '@/lib/auth/session';
 import { guardAILimit } from '@/lib/rate-limit/guard';
 import { generateSummary } from '@/features/feedback/server/summary-service';
+import { dashboardCacheTag } from '@/features/dashboard/server/progress-service';
 
 export const runtime = 'nodejs';
 
@@ -22,6 +24,10 @@ export async function POST(_req: Request, ctx: { params: Promise<{ id: string }>
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
+
+  // Bust the dashboard cache so the next visit reflects the new session.
+  // Next.js 16: revalidateTag requires a second cache-profile argument.
+  revalidateTag(dashboardCacheTag(user.id), 'default');
 
   return NextResponse.json({
     summaryId: result.summary!.id,

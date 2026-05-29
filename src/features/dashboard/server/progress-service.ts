@@ -1,4 +1,5 @@
 import 'server-only';
+import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db/client';
 import type {
   DimensionAverage,
@@ -6,6 +7,9 @@ import type {
   ScoreTrendPoint,
   TopicBreakdownEntry,
 } from '../dashboard-types';
+
+/** Cache tag for a user's dashboard data. Call revalidateTag with this after sessions complete. */
+export const dashboardCacheTag = (userId: string) => `dashboard-${userId}`;
 
 const DIMENSION_FIELDS = [
   ['scoreCorrectness', 'correctness', 'Correctness'],
@@ -16,64 +20,76 @@ const DIMENSION_FIELDS = [
   ['scoreCommunication', 'communication', 'Communication'],
 ] as const;
 
-export async function getOverview(userId: string): Promise<OverviewMetrics> {
-  const [sessionCounts, answerCount, topicAverages, streak] = await Promise.all([
-    prisma.interviewSession.groupBy({
-      by: ['status'],
-      where: { userId },
-      _count: { _all: true },
-      _avg: { overallScore: true },
-    }),
-    prisma.userAnswer.count({ where: { userId } }),
-    getTopicBreakdown(userId),
-    getCurrentStreakDays(userId),
-  ]);
+export function getOverview(userId: string): Promise<OverviewMetrics> {
+  return unstable_cache(
+    async () => {
+      const [sessionCounts, answerCount, topicAverages, streak] = await Promise.all([
+        prisma.interviewSession.groupBy({
+          by: ['status'],
+          where: { userId },
+          _count: { _all: true },
+          _avg: { overallScore: true },
+        }),
+        prisma.userAnswer.count({ where: { userId } }),
+        getTopicBreakdownRaw(userId),
+        getCurrentStreakDays(userId),
+      ]);
 
-  const totalSessions = sessionCounts.reduce((acc, row) => acc + row._count._all, 0);
-  const completed = sessionCounts.find((r) => r.status === 'completed');
-  const completedSessions = completed?._count._all ?? 0;
-  const averageScore = completed?._avg.overallScore ?? null;
-  const bestTopic = topicAverages[0] ?? null;
-  const weakestTopic = topicAverages.length > 1 ? topicAverages[topicAverages.length - 1] : null;
+      const totalSessions = sessionCounts.reduce((acc, row) => acc + row._count._all, 0);
+      const completed = sessionCounts.find((r) => r.status === 'completed');
+      const completedSessions = completed?._count._all ?? 0;
+      const averageScore = completed?._avg.overallScore ?? null;
+      const bestTopic = topicAverages[0] ?? null;
+      const weakestTopic = topicAverages.length > 1 ? topicAverages[topicAverages.length - 1] : null;
 
-  return {
-    totalSessions,
-    completedSessions,
-    totalQuestionsAnswered: answerCount,
-    averageScore: averageScore !== null ? Number(averageScore.toFixed(2)) : null,
-    bestTopic: bestTopic ? { topic: bestTopic.topic, score: bestTopic.avgScore } : null,
-    weakestTopic: weakestTopic ? { topic: weakestTopic.topic, score: weakestTopic.avgScore } : null,
-    currentStreakDays: streak,
-  };
+      return {
+        totalSessions,
+        completedSessions,
+        totalQuestionsAnswered: answerCount,
+        averageScore: averageScore !== null ? Number(averageScore.toFixed(2)) : null,
+        bestTopic: bestTopic ? { topic: bestTopic.topic, score: bestTopic.avgScore } : null,
+        weakestTopic: weakestTopic ? { topic: weakestTopic.topic, score: weakestTopic.avgScore } : null,
+        currentStreakDays: streak,
+      };
+    },
+    ['dashboard-overview', userId],
+    { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+  )();
 }
 
-export async function getScoreTrend(userId: string, days = 30): Promise<ScoreTrendPoint[]> {
-  const since = new Date();
-  since.setUTCHours(0, 0, 0, 0);
-  since.setUTCDate(since.getUTCDate() - (days - 1));
+export function getScoreTrend(userId: string, days = 30): Promise<ScoreTrendPoint[]> {
+  return unstable_cache(
+    async () => {
+      const since = new Date();
+      since.setUTCHours(0, 0, 0, 0);
+      since.setUTCDate(since.getUTCDate() - (days - 1));
 
-  const rows = await prisma.interviewSession.findMany({
-    where: { userId, status: 'completed', completedAt: { gte: since }, overallScore: { not: null } },
-    select: { completedAt: true, overallScore: true },
-  });
+      const rows = await prisma.interviewSession.findMany({
+        where: { userId, status: 'completed', completedAt: { gte: since }, overallScore: { not: null } },
+        select: { completedAt: true, overallScore: true },
+      });
 
-  const buckets = new Map<string, { sum: number; count: number }>();
-  for (const r of rows) {
-    if (!r.completedAt || r.overallScore === null) continue;
-    const key = r.completedAt.toISOString().slice(0, 10);
-    const bucket = buckets.get(key) ?? { sum: 0, count: 0 };
-    bucket.sum += r.overallScore;
-    bucket.count += 1;
-    buckets.set(key, bucket);
-  }
+      const buckets = new Map<string, { sum: number; count: number }>();
+      for (const r of rows) {
+        if (!r.completedAt || r.overallScore === null) continue;
+        const key = r.completedAt.toISOString().slice(0, 10);
+        const bucket = buckets.get(key) ?? { sum: 0, count: 0 };
+        bucket.sum += r.overallScore;
+        bucket.count += 1;
+        buckets.set(key, bucket);
+      }
 
-  return [...buckets.entries()]
-    .map(([date, { sum, count }]) => ({ date, avgScore: Number((sum / count).toFixed(2)) }))
-    .sort((a, b) => (a.date < b.date ? -1 : 1));
+      return [...buckets.entries()]
+        .map(([date, { sum, count }]) => ({ date, avgScore: Number((sum / count).toFixed(2)) }))
+        .sort((a, b) => (a.date < b.date ? -1 : 1));
+    },
+    ['dashboard-score-trend', userId, String(days)],
+    { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+  )();
 }
 
-export async function getTopicBreakdown(userId: string): Promise<TopicBreakdownEntry[]> {
-  // Join answers → feedback (for score) → question (for topic).
+/** Private helper — called inside getOverview's cache. Not exported as cached. */
+async function getTopicBreakdownRaw(userId: string): Promise<TopicBreakdownEntry[]> {
   const rows = await prisma.userAnswer.findMany({
     where: { userId, feedback: { isNot: null } },
     select: {
@@ -81,7 +97,6 @@ export async function getTopicBreakdown(userId: string): Promise<TopicBreakdownE
       feedback: { select: { overallScore: true } },
     },
   });
-
   const acc = new Map<string, { sum: number; count: number }>();
   for (const r of rows) {
     if (!r.feedback) continue;
@@ -100,31 +115,37 @@ export async function getTopicBreakdown(userId: string): Promise<TopicBreakdownE
     .sort((a, b) => b.avgScore - a.avgScore);
 }
 
-export async function getDimensionWeakAreas(userId: string): Promise<DimensionAverage[]> {
-  const rows = await prisma.answerFeedback.findMany({
-    where: { answer: { userId } },
-    select: {
-      scoreCorrectness: true,
-      scoreCompleteness: true,
-      scoreClarity: true,
-      scoreDepth: true,
-      scoreTradeoffThinking: true,
-      scoreCommunication: true,
-    },
-  });
-  if (rows.length === 0) return [];
+export function getTopicBreakdown(userId: string): Promise<TopicBreakdownEntry[]> {
+  return unstable_cache(
+    () => getTopicBreakdownRaw(userId),
+    ['dashboard-topic-breakdown', userId],
+    { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+  )();
+}
 
-  return DIMENSION_FIELDS
-    .map(([field, dimension, label]) => {
-      const sum = rows.reduce((acc, r) => acc + (r as Record<string, number>)[field], 0);
-      return {
-        dimension,
-        label,
-        avgScore: Number((sum / rows.length).toFixed(2)),
-      } satisfies DimensionAverage;
-    })
-    .sort((a, b) => a.avgScore - b.avgScore)
-    .slice(0, 3);
+export function getDimensionWeakAreas(userId: string): Promise<DimensionAverage[]> {
+  return unstable_cache(
+    async () => {
+      const rows = await prisma.answerFeedback.findMany({
+        where: { answer: { userId } },
+        select: {
+          scoreCorrectness: true, scoreCompleteness: true, scoreClarity: true,
+          scoreDepth: true, scoreTradeoffThinking: true, scoreCommunication: true,
+        },
+      });
+      if (rows.length === 0) return [];
+
+      return DIMENSION_FIELDS
+        .map(([field, dimension, label]) => {
+          const sum = rows.reduce((acc, r) => acc + (r as Record<string, number>)[field], 0);
+          return { dimension, label, avgScore: Number((sum / rows.length).toFixed(2)) } satisfies DimensionAverage;
+        })
+        .sort((a, b) => a.avgScore - b.avgScore)
+        .slice(0, 3);
+    },
+    ['dashboard-weak-areas', userId],
+    { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+  )();
 }
 
 async function getCurrentStreakDays(userId: string): Promise<number> {
