@@ -1,10 +1,13 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FeedbackCard } from '@/features/feedback/components/feedback-card';
 import type { FeedbackPayload } from '@/features/feedback/feedback-types';
 import { CountdownRing } from './components/countdown-ring';
+import { VoiceInputButton } from './components/voice-input-button';
+import { useSpeechRecognition } from './hooks/use-speech-recognition';
 import { FollowupPanel } from './followup-panel';
 import type { ActiveQuestion } from './question-stream-types';
 
@@ -31,6 +34,23 @@ interface Props {
 }
 
 export function InterviewMainPanel(props: Props) {
+  // Keep a ref so the transcript callback always appends to the latest draft
+  // without needing to re-register the hook on every keystroke.
+  const draftRef = useRef(props.draft);
+  draftRef.current = props.draft;
+
+  const { status: micStatus, toggle: toggleMic, stop: stopMic } = useSpeechRecognition({
+    onTranscript: (text) => {
+      const separator = draftRef.current ? ' ' : '';
+      props.onDraftChange(draftRef.current + separator + text);
+    },
+  });
+
+  // Stop the mic if the answering phase ends (submitted / follow-up / feedback).
+  useEffect(() => {
+    if (props.isSubmitting || props.isFollowUp || props.isFeedback) stopMic();
+  }, [props.isSubmitting, props.isFollowUp, props.isFeedback, stopMic]);
+
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -57,7 +77,14 @@ export function InterviewMainPanel(props: Props) {
       </section>
 
       <section className="space-y-3">
-        <label htmlFor="answer" className="text-sm font-medium">Your answer</label>
+        <div className="flex items-center justify-between">
+          <label htmlFor="answer" className="text-sm font-medium">Your answer</label>
+          <VoiceInputButton
+            status={micStatus}
+            onToggle={toggleMic}
+            disabled={props.isSubmitting || props.isFollowUp || props.isFeedback}
+          />
+        </div>
         <textarea
           id="answer"
           value={props.draft}
@@ -65,8 +92,16 @@ export function InterviewMainPanel(props: Props) {
           placeholder="Walk through your thinking. Trade-offs, examples, edge cases."
           rows={10}
           disabled={props.isSubmitting || props.isFollowUp}
-          className="min-h-72 w-full resize-y rounded-md border border-border/70 bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
+          className={
+            'min-h-72 w-full resize-y rounded-md border bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30 ' +
+            (micStatus === 'listening' ? 'border-red-500/60' : 'border-border/70')
+          }
         />
+        {micStatus === 'listening' && (
+          <p className="text-xs text-red-500">
+            🎙 Listening — speak your answer. Click the mic again to stop.
+          </p>
+        )}
       </section>
 
       {props.isFollowUp && (
