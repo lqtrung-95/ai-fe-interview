@@ -47,7 +47,6 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
 
   return (
     <div className="space-y-8">
-      <StepHeader />
       <section className="space-y-3">
         <h2 className="text-sm font-semibold">Choose a mode</h2>
         <div className="grid gap-3 md:grid-cols-3">
@@ -112,30 +111,22 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
   );
 }
 
-function StepHeader() {
-  return (
-    <div className="grid grid-cols-3 items-center gap-3 text-xs text-muted-foreground">
-      {['Mode', 'Difficulty', 'Focus'].map((label, index) => (
-        <div key={label} className="flex items-center gap-2">
-          <span className={'flex h-7 w-7 items-center justify-center rounded-full ' + (index === 0 ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
-            {index + 1}
-          </span>
-          {label}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function ChoiceCard(props: { active: boolean; title: string; detail: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={props.onClick}
-      className={'rounded-lg border bg-card p-4 text-left transition ' + (props.active ? 'border-primary ring-2 ring-primary/10' : 'border-border/70 hover:border-primary/40')}
+      className={
+        'rounded-lg border p-4 text-left transition ' +
+        (props.active
+          ? 'border-primary bg-primary text-primary-foreground'
+          : 'border-border/70 bg-card hover:border-primary/40')
+      }
     >
       <p className="text-sm font-semibold">{props.title}</p>
-      <p className="mt-2 text-xs leading-5 text-muted-foreground">{props.detail}</p>
+      <p className={'mt-2 text-xs leading-5 ' + (props.active ? 'text-primary-foreground/75' : 'text-muted-foreground')}>
+        {props.detail}
+      </p>
     </button>
   );
 }
