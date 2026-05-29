@@ -184,6 +184,7 @@ model StudyPlan {
 
 // Tracks which seed questions the user has marked as studied.
 // One row per (plan, question) pair — upserted when user taps "Mark as studied".
+// SM-2 fields drive the spaced-repetition review schedule.
 model StudyPlanProgress {
   id             String    @id @default(cuid())
   planId         String
@@ -191,9 +192,15 @@ model StudyPlanProgress {
   userId         String
   seedQuestionId String
   studiedAt      DateTime  @default(now())
+  // SM-2 spaced repetition state
+  repetitions    Int       @default(0)
+  interval       Int       @default(1)    // days until next review
+  easeFactor     Float     @default(2.5)
+  nextReviewAt   DateTime?               // null until first review computed
 
   @@unique([planId, seedQuestionId])
   @@index([userId])
+  @@index([planId, nextReviewAt])
 }
 
 // ============================================================================

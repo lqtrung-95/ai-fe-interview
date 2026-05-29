@@ -73,13 +73,15 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
         stats={plan.stats}
         level={plan.level}
         prepWeeks={plan.prepWeeks}
+        reviewsDue={plan.dueForReview.length}
       />
 
-      {/* Daily schedule */}
+      {/* Daily schedule + SM-2 review queue */}
       <StudyPlanDaySchedule
         currentDayIndex={plan.stats.currentDayIndex}
         schedule={plan.schedule}
         studiedIds={plan.studiedIds}
+        dueForReview={plan.dueForReview}
       />
     </div>
   );

@@ -1,14 +1,22 @@
 import Link from 'next/link';
-import { CheckCircle2, Circle, BookOpen, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Circle, RefreshCw, ArrowRight } from 'lucide-react';
+import { MarkReviewedButton } from './mark-reviewed-button';
 import type { ScheduledQuestion } from '../server/study-plan-scheduler';
 
 interface Props {
   currentDayIndex: number;
   schedule: ScheduledQuestion[];
   studiedIds: Set<string>;
+  /** SM-2 questions whose nextReviewAt is today or past. */
+  dueForReview: ScheduledQuestion[];
 }
 
-export function StudyPlanDaySchedule({ currentDayIndex, schedule, studiedIds }: Props) {
+export function StudyPlanDaySchedule({
+  currentDayIndex,
+  schedule,
+  studiedIds,
+  dueForReview,
+}: Props) {
   const overdue = schedule.filter(
     (s) => s.dayIndex < currentDayIndex && !studiedIds.has(s.question.id),
   );
@@ -19,7 +27,12 @@ export function StudyPlanDaySchedule({ currentDayIndex, schedule, studiedIds }: 
 
   return (
     <div className="space-y-6">
-      {/* Overdue */}
+      {/* SM-2 Reviews due */}
+      {dueForReview.length > 0 && (
+        <ReviewSection items={dueForReview} />
+      )}
+
+      {/* New questions overdue from previous days */}
       {overdue.length > 0 && (
         <Section
           title={`Catch up — ${overdue.length} overdue`}
@@ -29,9 +42,9 @@ export function StudyPlanDaySchedule({ currentDayIndex, schedule, studiedIds }: 
         />
       )}
 
-      {/* Today */}
+      {/* Today's new questions */}
       <Section
-        title={today.length > 0 ? `Today — ${today.length} question${today.length > 1 ? 's' : ''}` : "Today — all done!"}
+        title={today.length > 0 ? `Today — ${today.length} question${today.length > 1 ? 's' : ''}` : 'Today — all done!'}
         accent="primary"
         items={today}
         studiedIds={studiedIds}
@@ -50,6 +63,50 @@ export function StudyPlanDaySchedule({ currentDayIndex, schedule, studiedIds }: 
     </div>
   );
 }
+
+// ─── SM-2 review section ────────────────────────────────────────────────────
+
+function ReviewSection({ items }: { items: ScheduledQuestion[] }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="h-3 w-1 rounded-full bg-violet-500" />
+        <h2 className="text-sm font-semibold text-violet-600 dark:text-violet-400">
+          <RefreshCw className="mr-1.5 inline h-3.5 w-3.5" />
+          Reviews due — {items.length} question{items.length > 1 ? 's' : ''}
+        </h2>
+      </div>
+      <ul className="space-y-2">
+        {items.map(({ question: q }) => (
+          <li key={q.id}>
+            <Link
+              href={`/question-bank/${q.id}`}
+              className="group flex items-start gap-3 rounded-xl border border-violet-200/60 bg-card p-4 transition-all hover:border-violet-400/50 dark:border-violet-800/40"
+            >
+              <span className="mt-0.5 shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-violet-500" />
+              </span>
+              <div className="flex-1 min-w-0 space-y-1">
+                <p className="text-sm leading-snug line-clamp-2 text-foreground">
+                  {q.question}
+                </p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs text-muted-foreground">{q.topic}</span>
+                  <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${DIFFICULTY_BADGE[q.difficulty] ?? ''}`}>
+                    {q.difficulty}
+                  </span>
+                </div>
+              </div>
+              <MarkReviewedButton seedQuestionId={q.id} />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// ─── New question sections ───────────────────────────────────────────────────
 
 const ACCENT_STYLES = {
   primary: {

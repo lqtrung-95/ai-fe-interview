@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import type { Level } from '@prisma/client';
 import { requireUser } from '@/lib/auth/session';
-import { upsertStudyPlan, toggleStudied } from '../server/study-plan-service';
+import { upsertStudyPlan, toggleStudied, markReviewed } from '../server/study-plan-service';
 
 const VALID_LEVELS: Level[] = ['junior', 'mid', 'senior', 'staff'];
 const VALID_PREP_WEEKS = [1, 2, 4, 12];
@@ -40,4 +40,11 @@ export async function toggleStudiedAction(seedQuestionId: string): Promise<boole
   revalidatePath('/study-plan');
   revalidatePath(`/question-bank/${seedQuestionId}`);
   return isNowStudied;
+}
+
+/** Advance the SM-2 interval for a question that is due for review. */
+export async function markReviewedAction(seedQuestionId: string): Promise<void> {
+  const user = await requireUser();
+  await markReviewed(user.id, seedQuestionId);
+  revalidatePath('/study-plan');
 }
