@@ -133,6 +133,19 @@
   --sidebar-ring: oklch(0.68 0.22 284);
 }
 
+.dark .marketing-shell {
+  --background: oklch(0.16 0.025 258);
+  --foreground: oklch(0.975 0.006 255);
+  --card: oklch(0.21 0.03 258);
+  --card-foreground: oklch(0.975 0.006 255);
+  --popover: oklch(0.21 0.03 258);
+  --popover-foreground: oklch(0.975 0.006 255);
+  --muted: oklch(0.27 0.032 258);
+  --muted-foreground: oklch(0.73 0.02 255);
+  --border: oklch(1 0 0 / 15%);
+  --input: oklch(1 0 0 / 18%);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

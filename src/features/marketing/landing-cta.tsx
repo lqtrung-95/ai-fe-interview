@@ -3,16 +3,16 @@ import { buttonVariants } from '@/components/ui/button';
 
 export function LandingCta({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref?: string }) {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-16">
+    <section className="mx-auto max-w-5xl px-6 py-14">
       <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card px-8 py-16 text-center shadow-sm">
         <div className="pointer-events-none absolute left-1/2 top-0 -z-0 h-64 w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[80px]" />
 
         <p className="relative text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Your next role is waiting
+          Practice with a clear next step
         </p>
         <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Ready to land your dream role at{' '}
-          <span className="text-primary">OpenAI</span>, Google, or Meta?
+          Ready to practice your next{' '}
+          <span className="text-primary">frontend interview</span>?
         </h2>
         <p className="relative mt-4 text-sm leading-7 text-muted-foreground">
           Three questions. Honest AI feedback. Five minutes well spent.

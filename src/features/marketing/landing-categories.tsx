@@ -10,7 +10,7 @@ const CATEGORIES = [
 
 export function LandingCategories() {
   return (
-    <section className="mx-auto max-w-5xl px-6 py-16">
+    <section className="mx-auto max-w-5xl px-6 py-12">
       <div className="text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Coverage</p>
         <h2 className="mt-2 text-3xl font-extrabold tracking-tight">

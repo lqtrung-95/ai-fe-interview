@@ -22,10 +22,10 @@ export function LandingProductWalkthrough() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
       <div className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Product walkthrough</p>
-        <h2 className="mt-2 text-3xl font-extrabold tracking-tight">Learn by doing, not by reading notes</h2>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">How it works</p>
+        <h2 className="mt-2 text-3xl font-extrabold tracking-tight">Practice, review, and drill the next weak spot</h2>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-          The landing page should show the real loop inside the app: setup, answer, review, repeat.
+          Each session stays focused, then turns your feedback into a clear next step.
         </p>
       </div>
 
@@ -33,14 +33,14 @@ export function LandingProductWalkthrough() {
         {FLOWS.map((flow, index) => (
           <article
             key={flow.title}
-            className="grid items-center gap-6 rounded-2xl border border-border/70 bg-card p-6 shadow-sm lg:grid-cols-2"
+            className="grid items-center gap-6 rounded-2xl border border-border bg-card p-6 shadow-md shadow-black/5 dark:shadow-black/20 lg:grid-cols-2"
           >
             <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
               <span className="text-xs font-semibold uppercase tracking-widest text-primary">Step {index + 1}</span>
               <h3 className="mt-2 text-2xl font-bold tracking-tight">{flow.title}</h3>
               <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">{flow.body}</p>
               <div className="mt-5 flex items-center gap-2 text-sm font-medium text-primary">
-                See the workflow <ArrowRight className="h-4 w-4" />
+                {index === 2 ? 'Review and repeat' : 'Continue the loop'} <ArrowRight className="h-4 w-4" />
               </div>
             </div>
             {flow.preview}
@@ -53,7 +53,7 @@ export function LandingProductWalkthrough() {
 
 function SetupPreview() {
   return (
-    <div className="rounded-xl border border-border/70 bg-background/60 p-4">
+    <div className="rounded-xl border border-border bg-background/80 p-4">
       <div className="grid gap-3 sm:grid-cols-3">
         {['Quick drill', 'Standard mock', 'Deep coaching'].map((mode, i) => (
           <div key={mode} className={`rounded-lg border p-3 ${i === 1 ? 'border-primary bg-primary/5' : 'border-border/70 bg-card'}`}>
@@ -76,7 +76,7 @@ function SetupPreview() {
 
 function InterviewPreview() {
   return (
-    <div className="rounded-xl border border-border/70 bg-background/60 p-4">
+    <div className="rounded-xl border border-border bg-background/80 p-4">
       <div className="rounded-lg border border-border/70 bg-card p-4">
         <p className="text-xs font-semibold text-muted-foreground">Question 1 of 5</p>
         <p className="mt-2 text-sm font-semibold">Explain how React reconciliation uses keys during list updates.</p>
@@ -98,7 +98,7 @@ function InterviewPreview() {
 
 function FeedbackPreview() {
   return (
-    <div className="rounded-xl border border-border/70 bg-background/60 p-4">
+    <div className="rounded-xl border border-border bg-background/80 p-4">
       <div className="grid grid-cols-3 gap-3">
         {['Correctness', 'Depth', 'Communication'].map((label, i) => (
           <div key={label} className="rounded-lg border border-border/70 bg-card p-3">

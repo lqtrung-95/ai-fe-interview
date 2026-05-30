@@ -8,7 +8,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
   const user = await getCurrentUser();
 
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <div className="marketing-shell flex min-h-screen flex-col bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2">

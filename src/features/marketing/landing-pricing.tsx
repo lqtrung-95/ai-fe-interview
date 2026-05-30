@@ -24,7 +24,7 @@ interface Props {
 
 export function LandingPricing({ ctaHref = '/sign-in?next=/onboarding' }: Props) {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
+    <section className="mx-auto max-w-6xl px-6 py-14">
       <div className="mb-10 text-center">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Pricing</p>
         <h2 className="mt-2 text-3xl font-extrabold tracking-tight">
@@ -36,7 +36,7 @@ export function LandingPricing({ ctaHref = '/sign-in?next=/onboarding' }: Props)
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 max-w-3xl mx-auto">
-        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-7 shadow-sm">
+        <div className="flex flex-col rounded-xl border border-border bg-card p-7 shadow-md shadow-black/5 dark:shadow-black/20">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Free</p>
           <div className="mt-3 flex items-baseline gap-1">
             <span className="text-4xl font-extrabold">$0</span>
@@ -61,7 +61,7 @@ export function LandingPricing({ ctaHref = '/sign-in?next=/onboarding' }: Props)
           </Link>
         </div>
 
-        <div className="relative flex flex-col rounded-xl border-2 border-primary/35 bg-primary/5 p-7 shadow-sm">
+        <div className="relative flex flex-col rounded-xl border-2 border-primary/45 bg-card p-7 shadow-md shadow-black/5 dark:shadow-black/20">
           <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-[11px] font-bold text-primary-foreground">
             Most popular
           </span>
