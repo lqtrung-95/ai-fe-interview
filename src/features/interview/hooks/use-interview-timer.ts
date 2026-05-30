@@ -23,7 +23,9 @@ export function useInterviewTimer(submitAnswer: () => Promise<void>) {
     const id = setInterval(() => {
       if (timeLeft <= 1) {
         clearInterval(id);
-        // Auto-submit — submitAnswer guards against empty draft internally
+        // Tick to 0:00 first so the display reaches zero regardless of whether
+        // submitAnswer does anything (e.g. empty draft guard).
+        tickTimer();
         void submitAnswer();
       } else {
         tickTimer();

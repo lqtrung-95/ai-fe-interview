@@ -92,14 +92,11 @@ export function InterviewMainPanel(props: Props) {
           placeholder="Walk through your thinking. Trade-offs, examples, edge cases."
           rows={10}
           disabled={props.isSubmitting || props.isFollowUp}
-          className={
-            'min-h-72 w-full resize-y rounded-md border bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30 ' +
-            (micStatus === 'listening' ? 'border-red-500/60' : 'border-border/70')
-          }
+          className="min-h-72 w-full resize-y rounded-md border border-border/70 bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
         {micStatus === 'listening' && (
-          <p className="text-xs text-red-500">
-            🎙 Listening — speak your answer. Click the mic again to stop.
+          <p className="text-xs text-muted-foreground">
+            🎙 Listening — speak your answer, then click the mic to stop.
           </p>
         )}
       </section>

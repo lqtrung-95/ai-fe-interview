@@ -14,7 +14,7 @@ interface Props {
  * Mic button that reflects speech-recognition state.
  *
  * - Hidden entirely when status === 'unsupported' (no SpeechRecognition API).
- * - Pulses with a red ring while listening to give clear visual feedback.
+ * - Animates with primary colour while listening (distinct from error styling).
  */
 export function VoiceInputButton({ status, onToggle, disabled }: Props) {
   if (status === 'unsupported') return null;
@@ -33,8 +33,8 @@ export function VoiceInputButton({ status, onToggle, disabled }: Props) {
       className={
         'h-9 w-9 transition ' +
         (isListening
-          ? 'border-red-500 text-red-500 ring-2 ring-red-500/30 hover:border-red-400 hover:text-red-400'
-          : '')
+          ? 'border-primary bg-primary/10 text-primary animate-pulse'
+          : 'text-muted-foreground hover:text-foreground')
       }
     >
       {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}

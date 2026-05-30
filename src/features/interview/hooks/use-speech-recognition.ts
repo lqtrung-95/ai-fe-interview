@@ -84,13 +84,23 @@ export function useSpeechRecognition({ onTranscript }: Options) {
     };
 
     recognition.onerror = (event) => {
-      // 'aborted' fires when we call stop() intentionally — not an error.
-      if (event.error !== 'aborted') setStatusBoth('idle');
+      // 'aborted'  → intentional stop, ignore.
+      // 'no-speech'→ Chrome fires this after a silence window; the 'end' event
+      //              fires next and our restart logic handles it — don't reset.
+      const ignored = new Set(['aborted', 'no-speech']);
+      if (!ignored.has(event.error)) setStatusBoth('idle');
     };
 
     recognition.onend = () => {
       // Auto-restart so the session doesn't silently cut off in Chrome.
-      if (statusRef.current === 'listening') recognition.start();
+      if (statusRef.current !== 'listening') return;
+      try {
+        recognition.start();
+      } catch {
+        // If the same instance can't restart (browser garbage-collected it),
+        // fall back to idle so the user can click the mic again.
+        setStatusBoth('idle');
+      }
     };
 
     recognitionRef.current = recognition;
