@@ -2,9 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Clock, Database, LayoutDashboard, LogOut, Settings, Zap } from 'lucide-react';
-import { signOut } from '@/features/auth/sign-out-action';
-import { ThemeToggleButton } from '@/components/theme-toggle-button';
+import { BookOpen, Clock, Database, LayoutDashboard, Settings, Zap } from 'lucide-react';
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -15,7 +13,7 @@ const NAV = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export function AppSidebar({ userName, userEmail }: { userName: string | null; userEmail: string }) {
+export function AppSidebar() {
   const pathname = usePathname();
 
   return (
@@ -53,28 +51,6 @@ export function AppSidebar({ userName, userEmail }: { userName: string | null; u
           })}
         </ul>
       </nav>
-
-      <div className="border-t border-border/70 px-4 py-4">
-        <div className="mb-3 flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-xs font-semibold">
-            {(userName ?? userEmail).slice(0, 1).toUpperCase()}
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-sidebar-foreground">{userName ?? userEmail}</p>
-            <p className="truncate text-xs text-muted-foreground">{userName ? userEmail : ''}</p>
-          </div>
-        </div>
-        <ThemeToggleButton />
-        <form action={signOut}>
-          <button
-            type="submit"
-            className="flex w-full cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-          >
-            <LogOut className="h-4 w-4 shrink-0" />
-            Sign out
-          </button>
-        </form>
-      </div>
     </aside>
   );
 }
