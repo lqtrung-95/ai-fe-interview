@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, Clock, Database, LayoutDashboard, LogOut, Settings, Zap } from 'lucide-react';
 import { signOut } from '@/features/auth/sign-out-action';
+import { ThemeToggleButton } from '@/components/theme-toggle-button';
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -63,6 +64,7 @@ export function AppSidebar({ userName, userEmail }: { userName: string | null; u
             <p className="truncate text-xs text-muted-foreground">{userName ? userEmail : ''}</p>
           </div>
         </div>
+        <ThemeToggleButton />
         <form action={signOut}>
           <button
             type="submit"

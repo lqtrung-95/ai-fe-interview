@@ -51,6 +51,35 @@ export function InterviewMainPanel(props: Props) {
     if (props.isSubmitting || props.isFollowUp || props.isFeedback) stopMic();
   }, [props.isSubmitting, props.isFollowUp, props.isFeedback, stopMic]);
 
+  // Keyboard shortcuts: Cmd/Ctrl+Enter → submit; Esc → skip follow-up.
+  // Stored in refs so the handler always sees the latest props without
+  // needing to re-register on every render.
+  const propsRef = useRef(props);
+  propsRef.current = props;
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const p = propsRef.current;
+      const cmdOrCtrl = e.metaKey || e.ctrlKey;
+
+      if (cmdOrCtrl && e.key === 'Enter') {
+        e.preventDefault();
+        if (p.isFollowUp && p.followUpDraft.trim()) {
+          p.onSubmitFollowUp();
+        } else if (!p.isFollowUp && !p.isFeedback && !p.isSubmitting && p.draft.trim()) {
+          p.onSubmitAnswer();
+        }
+        return;
+      }
+
+      if (e.key === 'Escape' && p.isFollowUp) {
+        e.preventDefault();
+        p.onSkipFollowUp();
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []); // empty deps — handler reads latest values via propsRef
+
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -139,9 +168,13 @@ export function InterviewMainPanel(props: Props) {
         </div>
         {props.isFollowUp ? (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={props.onSkipFollowUp}>Skip</Button>
-            <Button onClick={props.onSubmitFollowUp} disabled={!props.followUpDraft.trim()}>
+            <Button variant="outline" onClick={props.onSkipFollowUp} title="Esc">
+              Skip
+              <kbd className="ml-1.5 hidden rounded border border-border px-1 py-0.5 text-[10px] font-mono text-muted-foreground sm:inline">Esc</kbd>
+            </Button>
+            <Button onClick={props.onSubmitFollowUp} disabled={!props.followUpDraft.trim()} title="⌘ Enter">
               Submit follow-up
+              <kbd className="ml-1.5 hidden rounded border border-border/50 bg-primary-foreground/10 px-1 py-0.5 text-[10px] font-mono sm:inline">⌘↵</kbd>
             </Button>
           </div>
         ) : props.isFeedback && props.feedback ? (
@@ -155,8 +188,12 @@ export function InterviewMainPanel(props: Props) {
           <Button
             onClick={props.onSubmitAnswer}
             disabled={props.isSubmitting || !props.draft.trim()}
+            title="⌘ Enter"
           >
             {props.isSubmitting ? 'Submitting...' : 'Submit answer'}
+            {!props.isSubmitting && (
+              <kbd className="ml-1.5 hidden rounded border border-border/50 bg-primary-foreground/10 px-1 py-0.5 text-[10px] font-mono sm:inline">⌘↵</kbd>
+            )}
           </Button>
         )}
       </div>
