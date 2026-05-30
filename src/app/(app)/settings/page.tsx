@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireUser } from '@/lib/auth/session';
 import { buttonVariants } from '@/components/ui/button';
+import { ProfileForm } from '@/features/settings/components/profile-form';
 
 export const metadata = { title: 'Settings' };
 
@@ -9,12 +10,25 @@ export default async function SettingsPage() {
   const topics = (user.preferredTopics ?? []) as string[];
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
-      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{user.email}</p>
+    <div className="mx-auto max-w-2xl space-y-8 px-6 py-12">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
+      </div>
+
+      {/* Profile card */}
+      <section className="rounded-lg border border-border/70 p-6">
+        <h2 className="mb-5 text-sm font-semibold">Profile</h2>
+        <ProfileForm
+          userId={user.id}
+          initialName={user.name}
+          initialAvatarUrl={user.image}
+          email={user.email}
+        />
+      </section>
 
       {/* Interview preferences card */}
-      <section className="mt-8 rounded-lg border border-border/70 p-6">
+      <section className="rounded-lg border border-border/70 p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-sm font-semibold">Interview preferences</h2>

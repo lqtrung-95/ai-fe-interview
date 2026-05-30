@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth/session';
+import { AppHeader } from '@/features/app/app-header';
 import { AppSidebar } from '@/features/app/app-sidebar';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -17,8 +18,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen bg-background/70">
-      <AppSidebar userName={user.name} userEmail={user.email} />
-      <main className="min-w-0 flex-1">{children}</main>
+      <AppSidebar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <AppHeader userName={user.name} userEmail={user.email} userImage={user.image} />
+        <main className="min-w-0 flex-1">{children}</main>
+      </div>
     </div>
   );
 }
