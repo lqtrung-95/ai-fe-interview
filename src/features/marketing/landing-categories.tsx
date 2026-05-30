@@ -1,11 +1,11 @@
 const CATEGORIES = [
-  { label: 'JavaScript', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-  { label: 'React', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
-  { label: 'Frontend System Design', color: 'bg-violet-50 text-violet-700 border-violet-200' },
-  { label: 'Web Performance', color: 'bg-green-50 text-green-700 border-green-200' },
-  { label: 'Browser & Web APIs', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-  { label: 'Testing', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-  { label: 'Behavioral & Communication', color: 'bg-pink-50 text-pink-700 border-pink-200' },
+  { label: 'JavaScript', color: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300' },
+  { label: 'React', color: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300' },
+  { label: 'Frontend System Design', color: 'border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300' },
+  { label: 'Web Performance', color: 'border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300' },
+  { label: 'Browser & Web APIs', color: 'border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300' },
+  { label: 'Testing', color: 'border-orange-500/30 bg-orange-500/10 text-orange-700 dark:text-orange-300' },
+  { label: 'Behavioral & Communication', color: 'border-pink-500/30 bg-pink-500/10 text-pink-700 dark:text-pink-300' },
 ];
 
 export function LandingCategories() {

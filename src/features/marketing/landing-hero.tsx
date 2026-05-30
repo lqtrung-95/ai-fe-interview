@@ -42,7 +42,7 @@ export function LandingHero({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref
         <div className="mt-5 rounded-md border border-border/70 p-4">
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">Score</p>
-            <span className="rounded bg-orange-50 px-2 py-1 text-xs text-orange-600">Needs improvement</span>
+            <span className="rounded bg-orange-500/10 px-2 py-1 text-xs text-orange-700 dark:text-orange-300">Needs improvement</span>
           </div>
           <p className="mt-2 text-2xl font-semibold">3.2 / 5</p>
         </div>

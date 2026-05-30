@@ -53,7 +53,11 @@
       "Bash(pnpm prisma *)",
       "Bash(cat /tmp/extract-seed-v3.log 2>/dev/null)",
       "Bash(pkill -f \"extract-seed-from-html\")",
-      "Bash(LLM_PROVIDER=openai pnpm extract-seed)"
+      "Bash(LLM_PROVIDER=openai pnpm extract-seed)",
+      "Bash(pnpm tsc *)",
+      "Bash(xargs ls -la)",
+      "Bash(npx tsc *)",
+      "Bash(pnpm tsx *)"
     ]
   }
 }

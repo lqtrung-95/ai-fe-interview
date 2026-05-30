@@ -34,7 +34,7 @@ export function VoiceInputButton({ status, onToggle, disabled }: Props) {
     (isListening
       ? 'border-primary bg-primary/10 text-primary animate-pulse'
       : isNetworkFailed
-        ? 'border-amber-500/60 bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
+        ? 'border-amber-500/60 bg-amber-500/10 text-amber-700 dark:text-amber-300'
         : 'text-muted-foreground hover:text-foreground');
 
   return (
