@@ -99,6 +99,11 @@ export function InterviewMainPanel(props: Props) {
             🎙 Listening — speak your answer, then click the mic to stop.
           </p>
         )}
+        {micStatus === 'network-failed' && (
+          <p className="text-xs text-amber-600 dark:text-amber-400">
+            Voice input couldn&apos;t reach the speech service (network error). Type your answer or click the mic icon to retry.
+          </p>
+        )}
       </section>
 
       {props.isFollowUp && (

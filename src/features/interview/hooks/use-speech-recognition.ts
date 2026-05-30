@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type SpeechStatus = 'idle' | 'listening' | 'unsupported';
+export type SpeechStatus = 'idle' | 'listening' | 'network-failed' | 'unsupported';
 
 interface Options {
   /** Called with each confirmed (final) transcript segment. */
@@ -113,8 +113,12 @@ export function useSpeechRecognition({ onTranscript }: Options) {
         // failures are common. Let onend handle the restart up to MAX_NETWORK_ERRORS.
         networkErrorsRef.current += 1;
         if (networkErrorsRef.current > MAX_NETWORK_ERRORS) {
-          log('onerror: too many network errors, going idle');
-          setStatusBoth('idle');
+          log('onerror: too many network errors, showing network-failed');
+          setStatusBoth('network-failed');
+          // Auto-reset after 8 s so the user can retry
+          setTimeout(() => {
+            if (statusRef.current === 'network-failed') setStatusBoth('idle');
+          }, 8000);
         } else {
           log('onerror: network error #', networkErrorsRef.current, '— letting onend restart');
         }
@@ -133,6 +137,7 @@ export function useSpeechRecognition({ onTranscript }: Options) {
       log('onend | statusRef:', statusRef.current);
       // Edge/Chrome tears down the recognition object after onend — do NOT call
       // recognition.start() on the old instance. Create a fresh one instead.
+      // Do NOT restart when network-failed; that state waits for user retry.
       if (statusRef.current === 'listening') {
         log('onend: still listening, restarting fresh session');
         startSessionRef.current();
@@ -171,7 +176,7 @@ export function useSpeechRecognition({ onTranscript }: Options) {
   const toggle = useCallback(() => {
     log('toggle() | statusRef:', statusRef.current);
     if (statusRef.current === 'listening') stop();
-    else start();
+    else start(); // also handles network-failed → retry
   }, [start, stop]);
 
   // Release the microphone on unmount.
@@ -182,6 +187,7 @@ export function useSpeechRecognition({ onTranscript }: Options) {
   }, []);
 
   return {
+    // 'unsupported' overrides all other states when the API is absent
     status: isSupported ? status : ('unsupported' as const),
     toggle,
     stop,
