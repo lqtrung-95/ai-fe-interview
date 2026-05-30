@@ -9,8 +9,7 @@ interface Options {
   onTranscript: (text: string) => void;
 }
 
-// The Web Speech API is not fully typed in TypeScript's DOM lib — webkit prefix
-// and some event types are missing. Define minimal local interfaces to satisfy the compiler.
+// The Web Speech API is not fully typed in TypeScript's DOM lib.
 interface ISpeechRecognitionResult {
   readonly isFinal: boolean;
   readonly 0: { readonly transcript: string };
@@ -39,20 +38,27 @@ function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
 }
 
 /**
- * Thin wrapper around the browser-native Web Speech API.
+ * Continuous Web Speech API wrapper for the answer textarea.
  *
- * - Uses continuous + interimResults mode so words stream in while the user speaks.
- * - Only confirmed final segments are forwarded to `onTranscript` to avoid
- *   duplicating text already appended to the answer draft.
- * - Auto-restarts on `onend` (Chrome stops after ~60 s of silence).
- * - Returns `status === 'unsupported'` when SpeechRecognition is unavailable
- *   (Firefox, non-HTTPS, etc.) so the UI can hide the button gracefully.
+ * Key design decisions:
+ * - A FRESH SpeechRecognition instance is created on every restart (including
+ *   the auto-restart in `onend`). Reusing the same instance after `onend` fires
+ *   is unreliable in Chrome — the engine often garbage-collects it, causing a
+ *   silent failure that makes the mic appear to stop immediately.
+ * - `onTranscript` is accessed through a ref so the recognition callback always
+ *   uses the latest version without needing to recreate the recognition object
+ *   on every render (which would break the session mid-speech).
+ * - 'no-speech' and 'aborted' errors are ignored; both are handled by `onend`.
  */
 export function useSpeechRecognition({ onTranscript }: Options) {
   const [status, setStatus] = useState<SpeechStatus>('idle');
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
-  // Stable ref so the restart logic sees current status without stale closure.
   const statusRef = useRef<SpeechStatus>('idle');
+
+  // Keep a stable ref so the recognition callback always uses the latest handler
+  // without being re-created mid-session when the parent re-renders.
+  const onTranscriptRef = useRef(onTranscript);
+  onTranscriptRef.current = onTranscript;
 
   const isSupported = !!getSpeechRecognitionCtor();
 
@@ -61,14 +67,12 @@ export function useSpeechRecognition({ onTranscript }: Options) {
     setStatus(s);
   }, []);
 
-  const stop = useCallback(() => {
-    recognitionRef.current?.stop();
-    setStatusBoth('idle');
-  }, [setStatusBoth]);
+  // Forward-ref so onend can call startSession without a stale closure.
+  const startSessionRef = useRef<() => void>(() => {});
 
-  const start = useCallback(() => {
+  const startSession = useCallback(() => {
     const Ctor = getSpeechRecognitionCtor();
-    if (!Ctor) return;
+    if (!Ctor || statusRef.current !== 'listening') return;
 
     const recognition = new Ctor();
     recognition.continuous = true;
@@ -80,33 +84,45 @@ export function useSpeechRecognition({ onTranscript }: Options) {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) finalChunk += event.results[i][0].transcript;
       }
-      if (finalChunk) onTranscript(finalChunk);
+      if (finalChunk) onTranscriptRef.current(finalChunk);
     };
 
     recognition.onerror = (event) => {
-      // 'aborted'  → intentional stop, ignore.
-      // 'no-speech'→ Chrome fires this after a silence window; the 'end' event
-      //              fires next and our restart logic handles it — don't reset.
+      // 'aborted'  → intentional stop via recognition.stop(), ignore.
+      // 'no-speech'→ silence window expired; onend fires next, we restart there.
       const ignored = new Set(['aborted', 'no-speech']);
       if (!ignored.has(event.error)) setStatusBoth('idle');
     };
 
     recognition.onend = () => {
-      // Auto-restart so the session doesn't silently cut off in Chrome.
-      if (statusRef.current !== 'listening') return;
-      try {
-        recognition.start();
-      } catch {
-        // If the same instance can't restart (browser garbage-collected it),
-        // fall back to idle so the user can click the mic again.
-        setStatusBoth('idle');
+      // Chrome tears down the recognition object after onend — do NOT call
+      // recognition.start() on the old instance. Create a fresh one instead.
+      if (statusRef.current === 'listening') {
+        startSessionRef.current();
       }
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
+    try {
+      recognition.start();
+    } catch {
+      setStatusBoth('idle');
+    }
+  }, [setStatusBoth]);
+
+  // Keep the ref in sync with the latest startSession closure.
+  startSessionRef.current = startSession;
+
+  const start = useCallback(() => {
     setStatusBoth('listening');
-  }, [onTranscript, setStatusBoth]);
+    startSession();
+  }, [setStatusBoth, startSession]);
+
+  const stop = useCallback(() => {
+    setStatusBoth('idle');           // set BEFORE .stop() so onend sees idle
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+  }, [setStatusBoth]);
 
   const toggle = useCallback(() => {
     if (statusRef.current === 'listening') stop();
@@ -114,7 +130,10 @@ export function useSpeechRecognition({ onTranscript }: Options) {
   }, [start, stop]);
 
   // Release the microphone on unmount.
-  useEffect(() => () => recognitionRef.current?.stop(), []);
+  useEffect(() => () => {
+    statusRef.current = 'idle';     // prevent onend from restarting after unmount
+    recognitionRef.current?.stop();
+  }, []);
 
   return {
     status: isSupported ? status : ('unsupported' as const),
