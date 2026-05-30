@@ -25,12 +25,23 @@ const BENEFITS = [
 
 export function LandingBenefits() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-10">
-      <div className="grid overflow-hidden rounded-lg border border-border/70 bg-card sm:grid-cols-2 lg:grid-cols-4">
-        {BENEFITS.map((b) => {
+    <section className="mx-auto max-w-6xl px-6 py-16">
+      <div className="mb-8 text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Feature Matrix</p>
+        <h2 className="mt-2 text-3xl font-extrabold tracking-tight">
+          Everything you need to level up
+        </h2>
+      </div>
+
+      <div className="grid overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+        {BENEFITS.map((b, i) => {
           const Icon = b.icon;
+          const isLast = i === BENEFITS.length - 1;
           return (
-            <div key={b.title} className="group border-border/70 p-6 transition-colors hover:bg-muted/40 sm:border-r">
+            <div
+              key={b.title}
+              className={`p-6 transition-colors hover:bg-muted/40 ${!isLast ? 'lg:border-r lg:border-border/70' : ''}`}
+            >
               <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <Icon className="h-5 w-5" />
               </div>

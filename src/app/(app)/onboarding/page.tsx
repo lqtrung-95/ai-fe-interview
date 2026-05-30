@@ -8,7 +8,7 @@ export default async function OnboardingPage() {
   const isEdit = !!user.targetRole;
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
+    <div className="mx-auto max-w-2xl px-6 py-8">
       <header className="mb-8">
         {isEdit ? (
           <>

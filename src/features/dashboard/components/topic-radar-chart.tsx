@@ -19,8 +19,8 @@ interface Props {
 export function TopicRadarChart({ data }: Props) {
   if (data.length < 3) {
     return (
-      <section className="rounded-lg border border-border/70 bg-card p-4 shadow-sm">
-        <h2 className="text-sm font-medium">Topic breakdown</h2>
+      <section className="rounded-xl border border-border/60 bg-card p-5">
+        <h2 className="text-sm font-bold tracking-tight">Topic breakdown</h2>
         <p className="mt-2 px-2 py-12 text-center text-sm text-muted-foreground">
           Practice at least 3 different topics to see the radar.
         </p>
@@ -29,8 +29,8 @@ export function TopicRadarChart({ data }: Props) {
   }
 
   return (
-    <section className="rounded-lg border border-border/70 bg-card p-4 shadow-sm">
-      <h2 className="text-sm font-medium">Topic breakdown</h2>
+    <section className="rounded-xl border border-border/60 bg-card p-5">
+      <h2 className="text-sm font-bold tracking-tight">Topic breakdown</h2>
       <ResponsiveContainer width="100%" height={260}>
         <RadarChart data={data} outerRadius={88}>
           <PolarGrid stroke={CHART.grid} />

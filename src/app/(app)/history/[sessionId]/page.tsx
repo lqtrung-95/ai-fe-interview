@@ -18,7 +18,7 @@ export default async function HistoryDetailPage({
   if (!session) notFound();
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12">
+    <div className="mx-auto max-w-5xl px-6 py-8">
       <Link href="/history" className={buttonVariants({ variant: 'outline' })}>
         Back to history
       </Link>

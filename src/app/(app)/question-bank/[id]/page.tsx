@@ -46,7 +46,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
   const { hasPlan, studiedIds } = await getStudyPlanStatus(user.id);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10 space-y-8">
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
       {/* Back nav */}
       <Link
         href="/question-bank"

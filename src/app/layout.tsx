@@ -7,7 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -17,11 +18,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "AI Interview Coach — Practice Frontend Interviews with an AI Coach",
-    template: "%s · AI Interview Coach",
+    default: "Frontend Coach — Master Your Frontend Interview with AI",
+    template: "%s · Frontend Coach",
   },
   description:
-    "Realistic AI-led frontend interview practice with rubric-grounded feedback, scoring, and a personalized study plan.",
+    "Realistic AI-led frontend interview practice with rubric-grounded feedback, scoring, and a personalised study plan.",
 };
 
 export default function RootLayout({

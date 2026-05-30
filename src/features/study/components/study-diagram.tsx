@@ -13,14 +13,14 @@
  *     the container handle vertical overflow via max-h + scroll.
  */
 
-const MAX_W = 880; // approx content column width
-const MAX_H = 480; // cap on diagram height before vertical scroll kicks in
-const MIN_W = 300; // minimum readable width; below this we prefer scroll over squish
+const MAX_W = 860; // approx content column width at max-w-5xl
 
 /**
- * Injects or replaces the width/height attributes on the root <svg> element so
- * the browser always gets explicit pixel dimensions. Falls back to the original
- * string unchanged if no viewBox is found.
+ * Scales the SVG to fit within the column width while preserving aspect ratio.
+ * Height is NOT capped here — the container's max-h + overflow-y handles tall
+ * diagrams so text at the bottom is never clipped by a forced height limit.
+ *
+ * Falls back to the original string unchanged if no viewBox is found.
  */
 function sizeSvg(svgHtml: string): string {
   const vb = svgHtml.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
@@ -28,18 +28,12 @@ function sizeSvg(svgHtml: string): string {
 
   const natW = parseFloat(vb[1]);
   const natH = parseFloat(vb[2]);
-  let scale = Math.min(1, MAX_W / natW, MAX_H / natH);
 
-  // Very tall narrow diagram: height constraint squeezes width below MIN_W.
-  // Fit by width instead so the diagram is legible; container scrolls vertically.
-  if (Math.round(natW * scale) < MIN_W) {
-    scale = Math.min(1, MAX_W / natW);
-  }
-
+  // Scale down only if wider than column; never upscale.
+  const scale = Math.min(1, MAX_W / natW);
   const cssW = Math.round(natW * scale);
   const cssH = Math.round(natH * scale);
 
-  // Replace existing width/height attrs if present, otherwise inject after <svg
   const hasW = /(<svg\b[^>]*)\swidth="[\d.]+"/.test(svgHtml);
   if (hasW) {
     return svgHtml
@@ -56,9 +50,15 @@ interface Props {
 export function StudyDiagram({ svgHtml }: Props) {
   return (
     <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
-      {/* max-h caps very tall diagrams (e.g. broken LLM specs); overflow-auto adds scroll */}
+      {/*
+        - w-full so the SVG can use all available width
+        - overflow-x-auto scrolls horizontally if SVG is wider than column
+        - max-h + overflow-y-auto caps very tall diagrams
+        - [&_svg]:max-w-full makes the injected SVG responsive
+        - [&_svg]:h-auto lets height scale proportionally
+      */}
       <div
-        className="flex justify-center overflow-auto max-h-[480px]"
+        className="w-full overflow-x-auto overflow-y-auto max-h-[520px] [&_svg]:max-w-full [&_svg]:h-auto"
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: sizeSvg(svgHtml) }}
       />

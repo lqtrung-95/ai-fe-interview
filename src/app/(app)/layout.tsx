@@ -20,7 +20,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen bg-background/70">
+    <div className="flex min-h-screen bg-background">
       <AppSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader userName={user.name} userEmail={user.email} userImage={user.image} />

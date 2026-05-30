@@ -10,15 +10,16 @@ export default async function SettingsPage() {
   const topics = (user.preferredTopics ?? []) as string[];
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 px-6 py-12">
+    <div className="mx-auto max-w-2xl space-y-8 px-6 py-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">Account</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
       </div>
 
       {/* Profile card */}
-      <section className="rounded-lg border border-border/70 p-6">
-        <h2 className="mb-5 text-sm font-semibold">Profile</h2>
+      <section className="rounded-xl border border-border/60 p-6">
+        <h2 className="mb-5 text-sm font-bold">Profile</h2>
         <ProfileForm
           userId={user.id}
           initialName={user.name}
@@ -28,10 +29,10 @@ export default async function SettingsPage() {
       </section>
 
       {/* Interview preferences card */}
-      <section className="rounded-lg border border-border/70 p-6">
+      <section className="rounded-xl border border-border/60 p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-sm font-semibold">Interview preferences</h2>
+            <h2 className="text-sm font-bold">Interview preferences</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
               Used to tailor question difficulty and topic mix.
             </p>

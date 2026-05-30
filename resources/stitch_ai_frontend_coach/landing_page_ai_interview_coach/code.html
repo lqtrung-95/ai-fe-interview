@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+    .glow-top {
+      border-top: 1px solid rgba(59, 130, 246, 0.2);
+      box-shadow: 0 -10px 40px -15px rgba(59, 130, 246, 0.1);
+    }
+    body {
+      background-color: #020617;
+      color: #dae2fd;
+      overflow-x: hidden;
+    }
+    .grid-pattern {
+      background-image: radial-gradient(circle at 2px 2px, rgba(51, 65, 85, 0.15) 1px, transparent 0);
+      background-size: 40px 40px;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "surface-container-highest": "#2d3449",
+                  "surface-container-lowest": "#060e20",
+                  "secondary-fixed-dim": "#4edea3",
+                  "on-primary": "#002e6a",
+                  "primary-container": "#4d8eff",
+                  "tertiary-fixed-dim": "#ffb95f",
+                  "inverse-surface": "#dae2fd",
+                  "surface-container-low": "#131b2e",
+                  "on-background": "#dae2fd",
+                  "tertiary-container": "#ca8100",
+                  "on-tertiary-container": "#3e2400",
+                  "secondary-fixed": "#6ffbbe",
+                  "outline-variant": "#424754",
+                  "on-error": "#690005",
+                  "on-error-container": "#ffdad6",
+                  "error-container": "#93000a",
+                  "surface-container-high": "#222a3d",
+                  "on-secondary-fixed-variant": "#005236",
+                  "primary-fixed-dim": "#adc6ff",
+                  "primary": "#adc6ff",
+                  "surface-charcoal": "#1E293B",
+                  "surface": "#0b1326",
+                  "surface-container": "#171f33",
+                  "tertiary-fixed": "#ffddb8",
+                  "on-secondary-container": "#00311f",
+                  "on-tertiary-fixed-variant": "#653e00",
+                  "on-surface": "#dae2fd",
+                  "on-secondary": "#003824",
+                  "secondary-container": "#00a572",
+                  "tertiary": "#ffb95f",
+                  "on-primary-container": "#00285d",
+                  "terminal-black": "#020617",
+                  "border-slate": "#334155",
+                  "secondary": "#4edea3",
+                  "primary-fixed": "#d8e2ff",
+                  "error-rose": "#F43F5E",
+                  "on-primary-fixed-variant": "#004395",
+                  "inverse-on-surface": "#283044",
+                  "outline": "#8c909f",
+                  "error": "#ffb4ab",
+                  "on-secondary-fixed": "#002113",
+                  "on-tertiary": "#472a00",
+                  "on-tertiary-fixed": "#2a1700",
+                  "surface-variant": "#2d3449",
+                  "inverse-primary": "#005ac2",
+                  "surface-dim": "#0b1326",
+                  "background": "#0b1326",
+                  "surface-tint": "#adc6ff",
+                  "surface-bright": "#31394d",
+                  "on-surface-variant": "#c2c6d6",
+                  "on-primary-fixed": "#001a42"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "container-max": "1280px",
+                  "margin-desktop": "40px",
+                  "unit": "4px",
+                  "margin-mobile": "16px",
+                  "gutter": "24px"
+          },
+          "fontFamily": {
+                  "headline-lg-mobile": ["Geist"],
+                  "body-sm": ["Geist"],
+                  "label-caps": ["JetBrains Mono"],
+                  "headline-lg": ["Geist"],
+                  "code-sm": ["JetBrains Mono"],
+                  "body-base": ["Geist"],
+                  "code-base": ["JetBrains Mono"],
+                  "headline-md": ["Geist"]
+          },
+          "fontSize": {
+                  "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                  "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                  "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                  "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "code-sm": ["12px", {"lineHeight": "1.5", "fontWeight": "450"}],
+                  "body-base": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                  "code-base": ["14px", {"lineHeight": "1.6", "fontWeight": "450"}],
+                  "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="font-body-base text-on-surface">
+<!-- TopNavBar Implementation -->
+<header class="sticky top-0 z-50 flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto bg-terminal-black/80 backdrop-blur-xl border-b border-border-slate/50 h-16">
+<div class="text-headline-md font-headline-md font-bold text-primary">InterviewPrep AI</div>
+<nav class="hidden md:flex items-center space-x-8 font-body-base text-body-base">
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Practice</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Sessions</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Insights</a>
+</nav>
+<div class="flex items-center space-x-6">
+<button class="hidden lg:flex items-center space-x-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hidden lg:flex items-center space-x-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="bg-primary-container text-on-primary-container px-6 py-2 rounded-xl font-bold hover:opacity-80 active:scale-95 transition-all">
+        Start Interview
+      </button>
+</div>
+</header>
+<main class="relative">
+<!-- Hero Background Effects -->
+<div class="absolute inset-0 grid-pattern pointer-events-none -z-10 opacity-30"></div>
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/10 blur-[120px] rounded-full -z-10"></div>
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-24 pb-32">
+<div class="flex flex-col items-center text-center space-y-8">
+<div class="inline-flex items-center px-3 py-1 rounded-full border border-primary/30 bg-primary/5 text-primary text-label-caps font-label-caps">
+<span class="relative flex h-2 w-2 mr-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+          Next Level Coaching Available
+        </div>
+<h1 class="font-headline-lg text-headline-lg md:text-[64px] md:leading-[1.1] max-w-4xl tracking-tight">
+          Master your Frontend <span class="text-primary italic">Interview</span> with AI
+        </h1>
+<p class="font-body-base text-body-base text-on-surface-variant max-w-2xl">
+          Prepare with high-fidelity realistic sessions and personalized study plans. Our AI evaluates your React architecture, JS fundamentals, and behavioral signals in real-time.
+        </p>
+<div class="flex flex-col sm:flex-row gap-4 pt-4">
+<button class="bg-primary text-on-primary font-bold px-8 py-4 rounded-xl text-lg hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
+            Start Free Session
+          </button>
+<button class="glass-card text-on-surface font-bold px-8 py-4 rounded-xl text-lg hover:bg-surface-charcoal transition-all">
+            View Sample Plan
+          </button>
+</div>
+<!-- Featured Dashboard Preview -->
+<div class="w-full mt-20 relative px-4">
+<div class="glass-card glow-top rounded-2xl overflow-hidden aspect-video max-w-5xl mx-auto shadow-2xl relative">
+<div class="absolute inset-0 bg-gradient-to-t from-terminal-black/80 to-transparent"></div>
+<img alt="Code editor interface" class="w-full h-full object-cover opacity-60" data-alt="A sophisticated dark-themed code editor interface displayed on a high-end monitor. The screen shows vibrant syntax highlighting in shades of blue, green, and rose against a terminal-black background. Soft ambient blue lighting glows from the edges of the screen, creating a focused, professional developer workspace. The aesthetic is clean and futuristic with glassmorphic UI elements floating over the code." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_swcD5ejKKXIAtDx1bD7ClHQA6uxYBT731XE3-_Y3GCerDlMDrn9DEotBM7qI5col4tQbeZcO-khfC1gP_HDgyHQPf-bIrQ_Oj4333jKUp4FJA5wpRA30KZEOkwYWu7NqU6wVGppP7M7FegTrnWyslgGB3n4uZd7imCf0-mao-Co7OE1qUIfp84Af2fHujEQHvW4pTH6kY53yWhpF41fh8fNYWwPUgWabdAkA0iBLUGnvgJuVpiYaxx-4r2QuwsIn-n3r60u5eWc"/>
+<!-- Floating UI Elements for Hero -->
+<div class="absolute top-10 right-10 glass-card p-4 rounded-xl border border-primary/20 animate-bounce transition-all duration-3000">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<div class="text-left">
+<div class="text-label-caps font-label-caps text-on-surface-variant">Performance Score</div>
+<div class="text-headline-md font-bold text-primary">94.2%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="bg-surface-container-low py-24">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+<div class="max-w-xl">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-4">Precision Engineering for Engineers</h2>
+<p class="font-body-base text-body-base text-on-surface-variant">We built the tools we wish we had during our FAANG interviews. Focused on depth, logic, and realistic pressure.</p>
+</div>
+<div class="text-primary font-label-caps text-label-caps tracking-widest uppercase">Features Matrix</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Feature 1: AI Interview Sessions -->
+<div class="md:col-span-8 group relative overflow-hidden glass-card rounded-2xl p-8 hover:border-primary/50 transition-colors">
+<div class="flex flex-col h-full justify-between">
+<div>
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary">dvr</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-4">AI Interview Sessions</h3>
+<p class="font-body-base text-on-surface-variant max-w-md">Real-time adaptive questioning that probes your knowledge based on your previous answers. No static scripts, just true technical dialogue.</p>
+</div>
+<div class="mt-8 flex gap-4">
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-label-caps font-label-caps text-secondary">Real-time Adaptation</span>
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-label-caps font-label-caps text-secondary">Context Aware</span>
+</div>
+</div>
+<div class="absolute -right-20 -bottom-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all"></div>
+</div>
+<!-- Feature 2: Voice Input -->
+<div class="md:col-span-4 glass-card rounded-2xl p-8 hover:border-primary/50 transition-colors flex flex-col justify-center items-center text-center">
+<div class="w-20 h-20 rounded-full bg-error-rose/10 flex items-center justify-center mb-6 ring-4 ring-error-rose/5 animate-pulse">
+<span class="material-symbols-outlined text-error-rose text-4xl" data-weight="fill">mic</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-2">Voice Input</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Practice speaking your logic. AI analyzes tone, pace, and clarity of your technical explanations.</p>
+</div>
+<!-- Feature 3: Multi-dimension Scoring -->
+<div class="md:col-span-4 glass-card rounded-2xl p-8 hover:border-primary/50 transition-colors">
+<h3 class="font-headline-md text-headline-md mb-6">Multi-dimension Scoring</h3>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-label-caps font-label-caps">
+<span>Logic &amp; Correctness</span>
+<span class="text-primary">85%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-caps font-label-caps">
+<span>Architecture</span>
+<span class="text-secondary">92%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[92%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-label-caps font-label-caps">
+<span>Communication</span>
+<span class="text-tertiary">78%</span>
+</div>
+<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[78%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Feature 4: Spaced Repetition Study Plan -->
+<div class="md:col-span-8 group glass-card rounded-2xl p-8 hover:border-primary/50 transition-colors flex flex-col md:flex-row gap-8 items-center">
+<div class="flex-1">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-tertiary">history</span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-4">Spaced Repetition Study Plan</h3>
+<p class="font-body-base text-on-surface-variant">Never forget a concept again. Our algorithm schedules reviews for your weak points exactly when your retention starts to dip.</p>
+</div>
+<div class="flex-1 grid grid-cols-2 gap-3 p-4 bg-terminal-black/40 rounded-xl border border-border-slate/30">
+<div class="p-3 bg-surface-container rounded-lg border border-border-slate/50">
+<div class="text-secondary text-label-caps font-label-caps mb-1">Today</div>
+<div class="text-body-sm font-bold">Redux Saga</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg border border-border-slate/50 opacity-60">
+<div class="text-on-surface-variant text-label-caps font-label-caps mb-1">Tomorrow</div>
+<div class="text-body-sm font-bold">Web Workers</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg border border-border-slate/50 opacity-40">
+<div class="text-on-surface-variant text-label-caps font-label-caps mb-1">Thursday</div>
+<div class="text-body-sm font-bold">Event Loop</div>
+</div>
+<div class="p-3 bg-surface-container rounded-lg border border-border-slate/50 opacity-20">
+<div class="text-on-surface-variant text-label-caps font-label-caps mb-1">Friday</div>
+<div class="text-body-sm font-bold">A11y ARIA</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="py-20 border-y border-border-slate/30 bg-terminal-black">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop grid grid-cols-2 md:grid-cols-4 gap-8">
+<div class="text-center">
+<div class="text-headline-lg font-bold text-primary">50k+</div>
+<div class="text-label-caps font-label-caps text-on-surface-variant mt-2">Mock Interviews</div>
+</div>
+<div class="text-center">
+<div class="text-headline-lg font-bold text-secondary">94%</div>
+<div class="text-label-caps font-label-caps text-on-surface-variant mt-2">Success Rate</div>
+</div>
+<div class="text-center">
+<div class="text-headline-lg font-bold text-tertiary">120+</div>
+<div class="text-label-caps font-label-caps text-on-surface-variant mt-2">Topic Domains</div>
+</div>
+<div class="text-center">
+<div class="text-headline-lg font-bold text-on-surface">24/7</div>
+<div class="text-label-caps font-label-caps text-on-surface-variant mt-2">Coach Availability</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-32 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 -z-10"></div>
+<div class="max-w-4xl mx-auto px-margin-mobile text-center">
+<h2 class="font-headline-lg text-[40px] leading-tight mb-6">Ready to land your dream role at <span class="text-secondary">OpenAI</span>, <span class="text-primary">Google</span>, or <span class="text-tertiary">Meta</span>?</h2>
+<p class="font-body-base text-on-surface-variant mb-10 text-lg">Join 10,000+ engineers leveling up their career with AI-driven interview preparation.</p>
+<button class="bg-primary text-on-primary font-bold px-12 py-5 rounded-xl text-xl hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/20">
+          Get Started for Free
+        </button>
+<div class="mt-8 text-on-surface-variant text-sm flex items-center justify-center gap-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> No credit card required</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-secondary text-base">check_circle</span> First 3 sessions free</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Implementation -->
+<footer class="bg-terminal-black border-t border-border-slate/30">
+<div class="w-full py-10 px-margin-desktop flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto gap-8">
+<div class="flex flex-col items-center md:items-start space-y-4">
+<div class="text-headline-md font-headline-md text-primary">InterviewPrep AI</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center md:text-left">
+          © 2024 InterviewPrep AI. Built for Frontend Engineers.
+        </p>
+</div>
+<nav class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Privacy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Terms</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Feedback</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Twitter</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-secondary transition-colors" href="#">Discord</a>
+</nav>
+</div>
+</footer>
+<script>
+    // Micro-interactions for interactive elements
+    document.querySelectorAll('button').forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        // Subtle magnetic effect could be added here
+      });
+    });
+
+    // Intersection observer for fade-in animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('opacity-100', 'translate-y-0');
+          entry.target.classList.remove('opacity-0', 'translate-y-10');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.glass-card').forEach(card => {
+      card.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-10');
+      observer.observe(card);
+    });
+  </script>
+</body></html>

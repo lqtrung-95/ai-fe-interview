@@ -14,16 +14,20 @@
 import type { DiagramSpec, DiagramNode, DiagramColor } from './extract-seed-types';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
-const NW = 130;       // node width
-const NH = 44;        // node height (label only)
-const NH_SUB = 60;    // node height (label + sublabel)
-const H_GAP = 56;     // horizontal gap between columns (LR)
-const V_GAP = 16;     // vertical gap between nodes in same column
-const ROW_GAP = 52;   // vertical gap between rows (TD)
-const MX = 22;        // horizontal margin
-const MY = 28;        // vertical margin
-const GRP_PAD = 12;   // group bounding-box inner padding
-const GRP_LBL_H = 18; // height reserved above group nodes for the label
+const NW_MIN = 110;       // minimum node width (short labels)
+const NH = 44;            // node height (label only)
+const NH_SUB = 60;        // node height (label + sublabel)
+const H_GAP = 48;         // horizontal gap between columns (LR)
+const V_GAP = 16;         // vertical gap between nodes in same column
+const ROW_GAP = 52;       // vertical gap between rows (TD)
+const MX = 22;            // horizontal margin
+const MY = 28;            // vertical margin
+const GRP_PAD = 12;       // group bounding-box inner padding
+const GRP_LBL_H = 18;     // height reserved above group nodes for the label
+// Font metrics for JetBrains Mono — used to compute dynamic node widths
+const CHAR_W = 7.2;       // px per character at 12px font-size (label)
+const CHAR_W_SUB = 5.5;   // px per character at 9.5px font-size (sublabel)
+const LABEL_PAD = 14;     // horizontal padding on each side of label text
 
 // ── Color catalog ─────────────────────────────────────────────────────────────
 // Colors match the resource HTML design system exactly (fe-prep-2.html :root).
@@ -79,17 +83,53 @@ const SVG_DEFS = `<defs>
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function nodeH(n: DiagramNode): number { return n.sublabel ? NH_SUB : NH; }
+// Dynamic width: sized to fit label text with padding; never narrower than NW_MIN.
+function nodeW(n: DiagramNode): number {
+  const labelW = Math.ceil(n.label.length * CHAR_W) + LABEL_PAD * 2;
+  const subW   = n.sublabel ? Math.ceil(n.sublabel.length * CHAR_W_SUB) + LABEL_PAD * 2 : 0;
+  return Math.max(NW_MIN, labelW, subW);
+}
 function colorKey(n: DiagramNode): DiagramColor | 'box' { return n.color ?? 'box'; }
 
 function escape(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Longest-path depth per node (Bellman-Ford, capped at node count to handle cycles).
+// Longest-path depth per node.
+// Cycles in the spec (e.g. event_loop → execute → event_loop) are broken by first
+// identifying back-edges via DFS, then skipping them in Bellman-Ford so depths stay
+// bounded. Back-edges are still rendered as SVG paths — they just arc "backwards".
 function computeDepths(spec: DiagramSpec): Map<string, number> {
+  // Build adjacency list for DFS.
+  const adj = new Map<string, string[]>();
+  for (const n of spec.nodes) adj.set(n.id, []);
+  for (const e of spec.edges) adj.get(e.from)?.push(e.to);
+
+  // DFS: edges to 'gray' ancestors are back-edges.
+  const backEdges = new Set<string>();
+  const color = new Map<string, 'white' | 'gray' | 'black'>();
+  for (const n of spec.nodes) color.set(n.id, 'white');
+
+  const dfs = (u: string) => {
+    color.set(u, 'gray');
+    for (const v of adj.get(u) ?? []) {
+      if (color.get(v) === 'gray') {
+        backEdges.add(`${u}\0${v}`);  // null-byte separator avoids false matches
+      } else if (color.get(v) === 'white') {
+        dfs(v);
+      }
+    }
+    color.set(u, 'black');
+  };
+  for (const n of spec.nodes) {
+    if (color.get(n.id) === 'white') dfs(n.id);
+  }
+
+  // Bellman-Ford longest-path, skipping back-edges to prevent cycle-driven growth.
   const d = new Map<string, number>(spec.nodes.map(n => [n.id, 0]));
-  for (let i = 0; i < spec.nodes.length; i++) {
+  for (let i = 0; i < spec.nodes.length - 1; i++) {
     for (const e of spec.edges) {
+      if (backEdges.has(`${e.from}\0${e.to}`)) continue;
       const next = (d.get(e.from) ?? 0) + 1;
       if (next > (d.get(e.to) ?? 0)) d.set(e.to, next);
     }
@@ -111,34 +151,56 @@ export function renderDiagramSpec(spec: DiagramSpec): string {
   const pos = new Map<string, { x: number; y: number; w: number; h: number }>();
 
   if (dir === 'LR') {
+    // Each column uses the widest node in that column so all nodes are uniform per column.
+    const colWidths = new Map<number, number>();
+    for (let col = 0; col <= maxDepth; col++) {
+      const nodes = buckets.get(col) ?? [];
+      colWidths.set(col, nodes.length ? Math.max(...nodes.map(nodeW)) : NW_MIN);
+    }
+    // Cumulative x start position per column.
+    const colX = new Map<number, number>();
+    let xCursor = MX;
+    for (let col = 0; col <= maxDepth; col++) {
+      colX.set(col, xCursor);
+      xCursor += (colWidths.get(col) ?? NW_MIN) + H_GAP;
+    }
+
     const maxColH = Math.max(...[...buckets.values()].map(
       col => col.reduce((s, n) => s + nodeH(n) + V_GAP, -V_GAP),
     ), 0);
     for (let col = 0; col <= maxDepth; col++) {
       const nodes = buckets.get(col)!;
       if (!nodes.length) continue;
+      const w    = colWidths.get(col)!;
       const colH = nodes.reduce((s, n) => s + nodeH(n) + V_GAP, -V_GAP);
       let y = MY + GRP_LBL_H + (maxColH - colH) / 2;
-      const x = MX + col * (NW + H_GAP);
+      const x = colX.get(col)!;
       for (const n of nodes) {
         const h = nodeH(n);
-        pos.set(n.id, { x, y, w: NW, h });
+        pos.set(n.id, { x, y, w, h });
         y += h + V_GAP;
       }
     }
   } else {
-    const maxRowW = Math.max(...[...buckets.values()].map(
-      row => row.reduce((s, _) => s + NW + H_GAP, -H_GAP),
-    ), 0);
+    // Each node has its own width; rows are centered against the widest row.
+    const rowWidths = new Map<number, number>();
+    for (let row = 0; row <= maxDepth; row++) {
+      const nodes = buckets.get(row) ?? [];
+      rowWidths.set(row, nodes.length
+        ? nodes.reduce((s, n) => s + nodeW(n) + H_GAP, -H_GAP)
+        : 0);
+    }
+    const maxRowW = Math.max(...rowWidths.values(), 0);
+
     for (let row = 0; row <= maxDepth; row++) {
       const nodes = buckets.get(row)!;
       if (!nodes.length) continue;
-      const rowW = nodes.reduce((s, _) => s + NW + H_GAP, -H_GAP);
-      let x = MX + (maxRowW - rowW) / 2;
+      let x = MX + (maxRowW - rowWidths.get(row)!) / 2;
       const y = MY + GRP_LBL_H + row * (NH_SUB + ROW_GAP);
       for (const n of nodes) {
-        pos.set(n.id, { x, y, w: NW, h: nodeH(n) });
-        x += NW + H_GAP;
+        const w = nodeW(n);
+        pos.set(n.id, { x, y, w, h: nodeH(n) });
+        x += w + H_GAP;
       }
     }
   }
@@ -177,7 +239,11 @@ export function renderDiagramSpec(spec: DiagramSpec): string {
     svg.push(`  <text x="${r(gx + 7)}" y="${r(gtop + 12)}" fill="${lblColor}" font-size="9" font-weight="700" letter-spacing=".08em">${escape(grp.label.toUpperCase())}</text>`);
   }
 
-  // ── Edges (behind nodes) ─────────────────────────────────────────────────────
+  // ── Edge paths (behind nodes) ─────────────────────────────────────────────────
+  // Collect labelled edges separately so their text can be painted AFTER nodes,
+  // ensuring labels are never obscured by a node rect or group background.
+  const labelledEdges: Array<{ mx: number; my: number; label: string }> = [];
+
   for (const edge of spec.edges) {
     const f = pos.get(edge.from);
     const t = pos.get(edge.to);
@@ -204,7 +270,7 @@ export function renderDiagramSpec(spec: DiagramSpec): string {
       const my = dir === 'LR'
         ? Math.min(f.y, t.y) + Math.min(f.h, t.h) / 2 - 5
         : (f.y + f.h + t.y) / 2;
-      svg.push(`  <text x="${r(mx)}" y="${r(my)}" text-anchor="middle" class="dg-elbl">${escape(edge.label)}</text>`);
+      labelledEdges.push({ mx, my, label: edge.label });
     }
   }
 
@@ -222,6 +288,17 @@ export function renderDiagramSpec(spec: DiagramSpec): string {
     } else {
       svg.push(`  <text x="${r(p.x + p.w / 2)}" y="${r(p.y + p.h / 2 + 4)}" text-anchor="middle" class="t-${ck}" font-size="12">${escape(node.label)}</text>`);
     }
+  }
+
+  // ── Edge labels (above everything) ───────────────────────────────────────────
+  // Painted last so they're never obscured by node rects or group backgrounds.
+  // A small pill-shaped backdrop improves readability against any fill color.
+  for (const { mx, my, label } of labelledEdges) {
+    const approxW = label.length * 5.5 + 8; // rough estimate: ~5.5px per char at 9px
+    const bx = r(mx - approxW / 2);
+    const by = r(my - 9);
+    svg.push(`  <rect x="${bx}" y="${by}" width="${r(approxW)}" height="12" rx="3" fill="var(--card,#f8f7f4)" fill-opacity=".9" stroke="none"/>`);
+    svg.push(`  <text x="${r(mx)}" y="${r(my)}" text-anchor="middle" class="dg-elbl">${escape(label)}</text>`);
   }
 
   // ── Caption ───────────────────────────────────────────────────────────────────

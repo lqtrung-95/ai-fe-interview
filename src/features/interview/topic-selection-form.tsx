@@ -66,8 +66,9 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
 
   return (
     <div className="space-y-8">
+      {/* Mode */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Choose a mode</h2>
+        <SectionLabel>Mode</SectionLabel>
         <div className="grid gap-3 md:grid-cols-3">
           {SESSION_MODES.map((item) => (
             <ChoiceCard
@@ -81,17 +82,20 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
         </div>
       </section>
 
+      {/* Difficulty */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Choose difficulty</h2>
-        <div className="inline-grid grid-cols-3 rounded-md border border-border/70 bg-card p-1">
+        <SectionLabel>Difficulty</SectionLabel>
+        <div className="inline-grid grid-cols-3 rounded-xl border border-border/70 bg-card p-1">
           {SESSION_DIFFICULTIES.map((item) => (
             <button
               key={item.value}
               type="button"
               onClick={() => setDifficulty(item.value)}
               className={
-                'rounded px-5 py-2 text-sm transition ' +
-                (difficulty === item.value ? 'bg-primary text-primary-foreground' : 'text-muted-foreground')
+                'rounded-lg px-5 py-2 text-sm font-medium transition ' +
+                (difficulty === item.value
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground')
               }
             >
               {item.label}
@@ -100,11 +104,9 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
         </div>
       </section>
 
+      {/* Timer */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold flex items-center gap-2">
-          <Timer className="h-4 w-4 text-muted-foreground" />
-          Time per question
-        </h2>
+        <SectionLabel icon={<Timer className="h-3.5 w-3.5" />}>Time per question</SectionLabel>
         <div className="flex flex-wrap gap-2">
           {TIMER_OPTIONS.map((opt) => (
             <button
@@ -112,10 +114,10 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
               type="button"
               onClick={() => setTimerSeconds(opt.value)}
               className={
-                'rounded-lg border px-4 py-2 text-sm transition ' +
+                'rounded-lg border px-4 py-2 text-sm font-medium transition ' +
                 (timerSeconds === opt.value
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border/70 bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground')
+                  ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+                  : 'border-border/60 bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground')
               }
             >
               {opt.label}
@@ -124,11 +126,17 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
         </div>
       </section>
 
+      {/* Topics */}
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Choose topics <span className="text-muted-foreground">(select 1 or more)</span></h2>
+        <SectionLabel>
+          Topics{' '}
+          <span className="ml-1 text-xs font-normal text-muted-foreground">(select 1 or more)</span>
+        </SectionLabel>
         {GROUPS.map(([group, groupTopics]) => (
-          <div key={group} className="rounded-lg border border-border/70 bg-card p-4">
-            <p className="mb-3 text-xs font-semibold text-muted-foreground">{group}</p>
+          <div key={group} className="rounded-xl border border-border/60 bg-card p-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              {group}
+            </p>
             <div className="grid gap-3 sm:grid-cols-3">
               {groupTopics.map((topic) => (
                 <TopicCheck
@@ -146,11 +154,20 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
 
       {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
       <div className="flex justify-end">
-        <Button onClick={handleStart} disabled={pending || topics.length === 0}>
-          {pending ? 'Starting...' : 'Start session'}
+        <Button size="lg" onClick={handleStart} disabled={pending || topics.length === 0}>
+          {pending ? 'Starting…' : 'Start session →'}
         </Button>
       </div>
     </div>
+  );
+}
+
+function SectionLabel({ children, icon }: { children: React.ReactNode; icon?: React.ReactNode }) {
+  return (
+    <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
+      {icon && <span className="text-muted-foreground">{icon}</span>}
+      {children}
+    </h2>
   );
 }
 
@@ -160,10 +177,10 @@ function ChoiceCard(props: { active: boolean; title: string; detail: string; onC
       type="button"
       onClick={props.onClick}
       className={
-        'rounded-lg border p-4 text-left transition ' +
+        'rounded-xl border p-4 text-left transition-all ' +
         (props.active
-          ? 'border-primary bg-primary text-primary-foreground'
-          : 'border-border/70 bg-card hover:border-primary/40')
+          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
+          : 'border-border/60 bg-card hover:border-primary/40 hover:shadow-sm')
       }
     >
       <p className="text-sm font-semibold">{props.title}</p>
@@ -176,13 +193,25 @@ function ChoiceCard(props: { active: boolean; title: string; detail: string; onC
 
 function TopicCheck(props: { active: boolean; topic: string; count: number; onClick: () => void }) {
   return (
-    <button type="button" onClick={props.onClick} className="flex items-start gap-3 text-left">
-      <span className={'mt-0.5 flex h-4 w-4 items-center justify-center rounded border ' + (props.active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background')}>
+    <button
+      type="button"
+      onClick={props.onClick}
+      className={
+        'flex items-start gap-3 rounded-lg border p-3 text-left transition-all ' +
+        (props.active
+          ? 'border-primary/50 bg-primary/5'
+          : 'border-border/40 bg-background/60 hover:border-primary/30')
+      }
+    >
+      <span className={
+        'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ' +
+        (props.active ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background')
+      }>
         {props.active && <Check className="h-3 w-3" />}
       </span>
       <span>
-        <span className="block text-sm font-medium">{props.topic}</span>
-        <span className="text-xs text-muted-foreground">{props.count} questions</span>
+        <span className="block text-sm font-medium leading-5">{props.topic}</span>
+        <span className="text-[11px] text-muted-foreground">{props.count} questions</span>
       </span>
     </button>
   );

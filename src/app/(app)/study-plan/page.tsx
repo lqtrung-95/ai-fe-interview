@@ -20,7 +20,7 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
 
   if (!plan || isEdit) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-10 space-y-8">
+      <div className="mx-auto max-w-2xl px-6 py-8 space-y-8">
         <div className="space-y-1.5">
           {isEdit && (
             <Link
@@ -30,7 +30,7 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
               ← Back to plan
             </Link>
           )}
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-3xl font-extrabold tracking-tight">
             {isEdit ? 'Edit study plan' : 'Create your study plan'}
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -51,11 +51,11 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-10 space-y-8">
+    <div className="mx-auto max-w-2xl px-6 py-8 space-y-8">
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Study Plan</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Study Plan</h1>
           <p className="mt-1 text-sm text-muted-foreground line-clamp-1">
             {plan.topics.join(' · ')}
           </p>

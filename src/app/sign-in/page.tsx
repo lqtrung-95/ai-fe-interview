@@ -20,19 +20,22 @@ export default async function SignInPage({
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6">
+    <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
       <div className="mb-8 text-center">
-        <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
+        <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
           ← Home
         </Link>
-        <h1 className="mt-4 text-2xl font-semibold tracking-tight">Sign in to continue</h1>
+        <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-primary">Frontend Coach</p>
+        <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Welcome back</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Save your progress, track scores, and pick up where you left off.
+          Sign in to track your scores, streaks, and study plan.
         </p>
       </div>
-      <Suspense fallback={<div className="h-40" />}>
-        <SignInForm />
-      </Suspense>
+      <div className="rounded-2xl border border-border/60 bg-card/80 p-8 backdrop-blur-sm">
+        <Suspense fallback={<div className="h-40" />}>
+          <SignInForm />
+        </Suspense>
+      </div>
     </div>
   );
 }

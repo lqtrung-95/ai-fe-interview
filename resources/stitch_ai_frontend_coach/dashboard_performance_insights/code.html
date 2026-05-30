@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>InterviewPrep AI - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(59, 130, 246, 0.1);
+        }
+        .terminal-glow {
+            box-shadow: 0 0 20px rgba(173, 198, 255, 0.05);
+        }
+        body {
+            background-color: #020617;
+            color: #dae2fd;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#2d3449",
+                        "surface-container-lowest": "#060e20",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-primary": "#002e6a",
+                        "primary-container": "#4d8eff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "inverse-surface": "#dae2fd",
+                        "surface-container-low": "#131b2e",
+                        "on-background": "#dae2fd",
+                        "tertiary-container": "#ca8100",
+                        "on-tertiary-container": "#3e2400",
+                        "secondary-fixed": "#6ffbbe",
+                        "outline-variant": "#424754",
+                        "on-error": "#690005",
+                        "on-error-container": "#ffdad6",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#222a3d",
+                        "on-secondary-fixed-variant": "#005236",
+                        "primary-fixed-dim": "#adc6ff",
+                        "primary": "#adc6ff",
+                        "surface-charcoal": "#1E293B",
+                        "surface": "#0b1326",
+                        "surface-container": "#171f33",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-secondary-container": "#00311f",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-surface": "#dae2fd",
+                        "on-secondary": "#003824",
+                        "secondary-container": "#00a572",
+                        "tertiary": "#ffb95f",
+                        "on-primary-container": "#00285d",
+                        "terminal-black": "#020617",
+                        "border-slate": "#334155",
+                        "secondary": "#4edea3",
+                        "primary-fixed": "#d8e2ff",
+                        "error-rose": "#F43F5E",
+                        "on-primary-fixed-variant": "#004395",
+                        "inverse-on-surface": "#283044",
+                        "outline": "#8c909f",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary": "#472a00",
+                        "on-tertiary-fixed": "#2a1700",
+                        "surface-variant": "#2d3449",
+                        "inverse-primary": "#005ac2",
+                        "surface-dim": "#0b1326",
+                        "background": "#0b1326",
+                        "surface-tint": "#adc6ff",
+                        "surface-bright": "#31394d",
+                        "on-surface-variant": "#c2c6d6",
+                        "on-primary-fixed": "#001a42"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-desktop": "40px",
+                        "unit": "4px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Geist"],
+                        "body-sm": ["Geist"],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["Geist"],
+                        "code-base": ["JetBrains Mono"],
+                        "body-base": ["Geist"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "code-base": ["14px", {"lineHeight": "1.6", "fontWeight": "450"}],
+                        "body-base": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-body-base text-on-surface bg-terminal-black selection:bg-primary/30">
+<!-- Sidebar Navigation -->
+<aside class="hidden lg:flex flex-col h-screen fixed left-0 py-8 bg-surface-charcoal border-r border-border-slate/50 w-64 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-headline-md font-bold text-primary font-headline-md">InterviewPrep AI</h1>
+</div>
+<div class="px-4 mb-8">
+<div class="flex items-center gap-3 p-3 rounded-xl bg-terminal-black/40 border border-border-slate/30">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+</div>
+<div>
+<p class="text-label-caps font-label-caps text-on-surface">AI Coach</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Ready for your session?</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-2 space-y-2">
+<a class="flex items-center gap-4 text-primary font-bold border-l-4 border-primary pl-4 py-3 transition-transform active:translate-x-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant pl-4 py-3 hover:bg-surface-container-highest/50 hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">dvr</span>
+<span class="text-label-caps font-label-caps">Mock Interviews</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant pl-4 py-3 hover:bg-surface-container-highest/50 hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">code</span>
+<span class="text-label-caps font-label-caps">Code Sandbox</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant pl-4 py-3 hover:bg-surface-container-highest/50 hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-caps font-label-caps">Performance</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant pl-4 py-3 hover:bg-surface-container-highest/50 hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-label-caps font-label-caps">History</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full py-3 px-4 rounded-lg bg-primary text-on-primary font-bold text-label-caps hover:opacity-90 transition-opacity">
+                Upgrade to Pro
+            </button>
+<div class="pt-4 border-t border-border-slate/30">
+<a class="flex items-center gap-4 text-on-surface-variant pl-4 py-2 hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+<span class="text-label-caps font-label-caps">Help</span>
+</a>
+<a class="flex items-center gap-4 text-on-surface-variant pl-4 py-2 hover:text-on-surface" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-label-caps font-label-caps">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Top Navigation (Mobile) -->
+<header class="lg:hidden sticky top-0 z-50 flex justify-between items-center w-full px-4 h-16 bg-terminal-black/80 backdrop-blur-xl border-b border-border-slate/50">
+<h1 class="text-headline-md font-bold text-primary">InterviewPrep AI</h1>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary">notifications</span>
+<span class="material-symbols-outlined text-primary">settings</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 min-h-screen p-6 lg:p-10 max-w-container-max mx-auto">
+<!-- Dashboard Header -->
+<header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Dashboard</h2>
+<p class="text-body-base text-on-surface-variant mt-1">Welcome back. Your interview readiness is at <span class="text-secondary font-bold">84%</span>.</p>
+</div>
+<button class="px-6 py-3 bg-primary text-on-primary rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                Start Interview
+            </button>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Score Trend Chart (Line Chart Simulation) -->
+<section class="md:col-span-8 bg-surface-charcoal border border-border-slate/50 rounded-2xl p-6 relative overflow-hidden terminal-glow">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-headline-md font-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+                        Score Trend
+                    </h3>
+<span class="text-label-caps font-label-caps text-secondary bg-secondary/10 px-3 py-1 rounded-full">+12% vs last week</span>
+</div>
+<!-- Visual Chart Simulation -->
+<div class="h-64 flex items-end justify-between gap-1 mt-4 relative">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+<div class="border-b border-on-surface"></div>
+<div class="border-b border-on-surface"></div>
+<div class="border-b border-on-surface"></div>
+<div class="border-b border-on-surface"></div>
+</div>
+<!-- Data Points -->
+<div class="w-full h-full flex items-end justify-between px-2 relative z-10">
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-2 bg-primary/20 rounded-t-full h-[40%] transition-all group-hover:h-[45%]"></div>
+<div class="w-3 bg-primary rounded-t-full h-[35%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S01</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[42%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S02</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[48%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S03</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[45%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S04</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[55%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S05</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[62%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S06</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[70%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S07</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[68%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S08</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-primary rounded-t-full h-[78%] absolute bottom-0 shadow-[0_0_10px_rgba(173,198,255,0.4)]"></div>
+<span class="text-label-caps text-[10px] text-on-surface-variant">S09</span>
+</div>
+<div class="group relative w-12 flex flex-col items-center gap-2">
+<div class="w-3 bg-secondary rounded-t-full h-[85%] absolute bottom-0 shadow-[0_0_15px_rgba(78,222,163,0.5)]"></div>
+<span class="text-label-caps text-[10px] text-secondary font-bold">NOW</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Topic Radar Simulation -->
+<section class="md:col-span-4 bg-surface-charcoal border border-border-slate/50 rounded-2xl p-6 terminal-glow">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">track_changes</span>
+                    Topic Radar
+                </h3>
+<div class="aspect-square relative flex items-center justify-center">
+<!-- Radar Octagon -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-full h-full border border-border-slate/20 rounded-full flex items-center justify-center">
+<div class="w-3/4 h-3/4 border border-border-slate/20 rounded-full flex items-center justify-center">
+<div class="w-1/2 h-1/2 border border-border-slate/20 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Label Positions -->
+<div class="absolute inset-0">
+<span class="absolute top-0 left-1/2 -translate-x-1/2 text-label-caps text-on-surface-variant">React</span>
+<span class="absolute top-1/4 right-0 text-label-caps text-on-surface-variant">JS</span>
+<span class="absolute bottom-1/4 right-0 text-label-caps text-on-surface-variant">TS</span>
+<span class="absolute bottom-0 left-1/2 -translate-x-1/2 text-label-caps text-on-surface-variant">Testing</span>
+<span class="absolute top-1/4 left-0 text-label-caps text-on-surface-variant">Web Perf</span>
+</div>
+<!-- Radar Data Shape -->
+<svg class="w-40 h-40 fill-primary/20 stroke-primary stroke-1 drop-shadow-[0_0_8px_rgba(173,198,255,0.4)]" viewbox="0 0 100 100">
+<polygon points="50,10 85,35 75,75 25,75 15,35"></polygon>
+</svg>
+</div>
+</section>
+<!-- Weak Areas List -->
+<section class="md:col-span-6 glass-panel border border-border-slate/50 rounded-2xl p-6">
+<h3 class="text-headline-md font-headline-md text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-error-rose">warning</span>
+                    Weak Areas
+                </h3>
+<p class="text-body-sm text-on-surface-variant mb-6">Topics that were flagged in your recent mock sessions for technical depth issues.</p>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-terminal-black/30 rounded-xl border border-border-slate/20 group hover:border-error-rose/40 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-error-rose animate-pulse-slow"></div>
+<div>
+<h4 class="font-bold text-on-surface">React Concurrent Mode</h4>
+<p class="text-body-sm text-on-surface-variant">Knowledge gap in useTransition mechanics.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-error-rose">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-terminal-black/30 rounded-xl border border-border-slate/20 group hover:border-error-rose/40 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-error-rose animate-pulse-slow"></div>
+<div>
+<h4 class="font-bold text-on-surface">Memory Leaks</h4>
+<p class="text-body-sm text-on-surface-variant">Failed to identify closure-based leaks.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-error-rose">chevron_right</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-terminal-black/30 rounded-xl border border-border-slate/20 group hover:border-error-rose/40 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-error-rose opacity-40"></div>
+<div>
+<h4 class="font-bold text-on-surface">CSS Container Queries</h4>
+<p class="text-body-sm text-on-surface-variant">Optimization opportunities missed.</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-error-rose">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- AI Recommendations Section -->
+<section class="md:col-span-6 bg-primary-container/10 border border-primary/20 rounded-2xl p-6 overflow-hidden relative">
+<!-- Decorative Glow -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-[60px]"></div>
+<h3 class="text-headline-md font-headline-md text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                    AI Recommendations
+                </h3>
+<div class="relative z-10 space-y-6">
+<div class="bg-surface-charcoal/80 border border-primary/30 p-5 rounded-2xl">
+<p class="text-label-caps text-primary mb-2">NEXT RECOMMENDED SESSION</p>
+<h4 class="text-headline-md font-bold text-on-surface mb-2">Deep Coaching: React Concurrent Mode</h4>
+<p class="text-body-base text-on-surface-variant mb-6">Based on your last interview with 'Meta-Bot', focusing on scheduling and hydration would boost your Senior frontend score significantly.</p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-label-caps text-on-surface">45 MIN</span>
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-label-caps text-on-surface">ADVANCED</span>
+<span class="px-3 py-1 bg-primary/10 rounded-full text-label-caps text-primary">PRIORITY</span>
+</div>
+<button class="w-full py-4 bg-primary text-on-primary rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+                            Launch Recommended Session
+                            <span class="material-symbols-outlined">bolt</span>
+</button>
+</div>
+<div class="flex items-center gap-4 px-4 py-3 bg-terminal-black/40 rounded-xl border border-border-slate/30">
+<div class="flex -space-x-2">
+<img alt="User" class="w-8 h-8 rounded-full border-2 border-surface-charcoal" data-alt="A portrait of a diverse tech professional with minimalist glasses, short dark hair, wearing a dark navy mock neck sweater. The person is in a softly lit, modern home office setting with a blurred background of code on a vertical monitor and warm, ambient architectural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApX37K-q34xTQeiR2647N4CkhZY1HcGDbkuutJq8Q_T0RTf3y1mk9RHeDwAyy4U3ccnMUg7rYR14hsT8u9rSfR60Y4Udi9FcM_exO70k4NnaxwwtVPQ-N6VcTh2DbAhjwaFWgj5h9CrtRjZIftRPMX2tejbFCzMcW0_bY7hTcIiMlBFUWL5nOApUf3ZQZ7FNHcCoiNONMsLi9ZnN9VCzI1GYnB7V8w_kTpxoYlY72ZH70dYJfIJ3L46N_aHO9hNeG7O7UU4cUzo6Q"/>
+<img alt="User" class="w-8 h-8 rounded-full border-2 border-surface-charcoal" data-alt="A professional woman with curly red hair, wearing a white blazer and stylish modern frames. She is positioned in a sleek, high-tech workspace environment featuring glass dividers and deep charcoal architectural details. Soft, cool-toned lighting highlights her focused and intelligent expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJAx4zI8RycTkKHOHLS6WofwqM8NVh8tXzpdaxLJIyVQuYApFUGnLA9IPOBWKgyAgwyHBGjgzYmeqN08jg-FO4n4Nho8h2kMhllHwZ4yF_SCveAx9z8oc_I6YRlGR3F6tcjFyLTno1MqHJ4VHbWsmV12gp-TRdnRbeuhDtsG_Fe4yMr9gYZV8M24q3D0qGwvtjSg5bRflFvTfKrrzylKLsQCbOuPr_XanbaJ8frjWtved3_tEtYK5cULwwL8KTFNIT7TzVyzPmsKI"/>
+</div>
+<p class="text-body-sm text-on-surface-variant">
+<span class="text-on-surface font-bold">120+ Engineers</span> practiced this session today.
+                        </p>
+</div>
+</div>
+</section>
+</div>
+<!-- Footer Shell -->
+<footer class="w-full py-10 mt-12 border-t border-border-slate/30 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex flex-col items-center md:items-start">
+<h4 class="text-headline-md font-headline-md text-primary mb-2">InterviewPrep AI</h4>
+<p class="text-body-sm font-body-sm text-on-surface-variant">© 2024 InterviewPrep AI. Built for Frontend Engineers.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant hover:text-secondary transition-colors font-body-sm" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors font-body-sm" href="#">Terms</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors font-body-sm" href="#">Feedback</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors font-body-sm" href="#">Twitter</a>
+<a class="text-on-surface-variant hover:text-secondary transition-colors font-body-sm" href="#">Discord</a>
+</div>
+</footer>
+</main>
+<!-- Bottom Navigation (Mobile) -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-surface-charcoal flex justify-around items-center z-50 border-t border-border-slate/30">
+<a class="flex flex-col items-center text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">dvr</span>
+<span class="text-[10px] font-label-caps">Mock</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px] font-label-caps">Stats</span>
+</a>
+<a class="flex flex-col items-center text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-[10px] font-label-caps">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for cards
+        document.querySelectorAll('section').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('scale-[1.005]');
+                card.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('scale-[1.005]');
+            });
+        });
+
+        // Simulating some dynamic "live" data update for the trend chart
+        setInterval(() => {
+            const points = document.querySelectorAll('.group.relative.w-12 div:nth-child(2)');
+            const lastPoint = points[points.length - 1];
+            if (lastPoint) {
+                lastPoint.classList.toggle('brightness-125');
+            }
+        }, 2000);
+    </script>
+</body></html>

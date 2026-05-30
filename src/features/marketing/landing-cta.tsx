@@ -4,25 +4,38 @@ import { buttonVariants } from '@/components/ui/button';
 export function LandingCta({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref?: string }) {
   return (
     <section className="mx-auto max-w-5xl px-6 py-16">
-      <div className="rounded-2xl bg-primary px-8 py-14 text-center text-primary-foreground">
-        <h2 className="text-3xl font-bold tracking-tight">Start your first mock interview</h2>
-        <p className="mt-3 text-primary-foreground/80">
-          Three questions. Honest feedback. Five minutes well spent.
+      <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card px-8 py-16 text-center shadow-sm">
+        <div className="pointer-events-none absolute left-1/2 top-0 -z-0 h-64 w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[80px]" />
+
+        <p className="relative text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          Your next role is waiting
         </p>
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+          Ready to land your dream role at{' '}
+          <span className="text-primary">OpenAI</span>, Google, or Meta?
+        </h2>
+        <p className="relative mt-4 text-sm leading-7 text-muted-foreground">
+          Three questions. Honest AI feedback. Five minutes well spent.
+        </p>
+
+        <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
           <Link
             href={ctaHref}
-            className={buttonVariants({ size: 'lg', variant: 'secondary' })}
+            className={buttonVariants({ size: 'lg' })}
           >
-            Start practicing free
+            Start Free Session
           </Link>
           <Link
             href="/demo"
-            className="inline-flex h-11 items-center justify-center rounded-md border border-primary-foreground/30 bg-transparent px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-foreground/10 focus-visible:outline-none focus-visible:ring-2"
+            className={buttonVariants({ size: 'lg', variant: 'outline' })}
           >
             See how it works
           </Link>
         </div>
+
+        <p className="relative mt-4 text-xs text-muted-foreground">
+          No credit card required · Takes 5 minutes
+        </p>
       </div>
     </section>
   );

@@ -26,13 +26,14 @@ export default async function QuestionBankPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 space-y-8">
+    <div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Question Bank</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Browse all interview questions with explanations and diagrams before you practice.
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">Study</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Question Bank</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Browse all {total} questions with explanations and diagrams before you practice.
           </p>
         </div>
         <Suspense fallback={null}>

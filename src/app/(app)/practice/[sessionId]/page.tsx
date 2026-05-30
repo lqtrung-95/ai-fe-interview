@@ -51,7 +51,7 @@ export default async function SessionPage({
   const target = QUESTION_TARGETS[session.mode];
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <div className="mx-auto max-w-5xl px-6 py-8">
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">

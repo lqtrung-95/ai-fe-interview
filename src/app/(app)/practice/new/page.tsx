@@ -44,11 +44,12 @@ export default async function NewSessionPage({
   const defaultDifficulty: SessionDifficulty = toSessionDifficulty(requestedDifficulty ?? user.level);
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
+    <div className="mx-auto max-w-5xl px-6 py-8">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">New practice session</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Let&apos;s set up your session.
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">Practice</p>
+        <h1 className="text-3xl font-extrabold tracking-tight">New session</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground">
+          Pick your topics, difficulty, and mode — then go.
         </p>
       </header>
       <TopicSelectionForm
