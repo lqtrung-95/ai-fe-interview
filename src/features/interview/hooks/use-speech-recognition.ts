@@ -77,6 +77,10 @@ export function useSpeechRecognition({ onTranscript }: Options) {
 
   // Forward-ref so onend can call startSession without a stale closure.
   const startSessionRef = useRef<() => void>(() => {});
+  // Tracks consecutive network errors; resets on a successful transcript.
+  // Edge routes speech through Microsoft servers — transient failures are common.
+  const networkErrorsRef = useRef(0);
+  const MAX_NETWORK_ERRORS = 4;
 
   const startSession = useCallback(() => {
     const Ctor = getSpeechRecognitionCtor();
@@ -93,6 +97,7 @@ export function useSpeechRecognition({ onTranscript }: Options) {
     log('recognition instance created, calling .start()');
 
     recognition.onresult = (event: ISpeechRecognitionEvent) => {
+      networkErrorsRef.current = 0; // successful audio → reset network error counter
       let finalChunk = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) finalChunk += event.results[i][0].transcript;
@@ -102,7 +107,19 @@ export function useSpeechRecognition({ onTranscript }: Options) {
     };
 
     recognition.onerror = (event) => {
-      log('onerror | error:', event.error, '| statusRef:', statusRef.current);
+      log('onerror | error:', event.error, '| statusRef:', statusRef.current, '| networkErrors:', networkErrorsRef.current);
+      if (event.error === 'network') {
+        // Edge/Chrome send audio to cloud speech servers; transient network
+        // failures are common. Let onend handle the restart up to MAX_NETWORK_ERRORS.
+        networkErrorsRef.current += 1;
+        if (networkErrorsRef.current > MAX_NETWORK_ERRORS) {
+          log('onerror: too many network errors, going idle');
+          setStatusBoth('idle');
+        } else {
+          log('onerror: network error #', networkErrorsRef.current, '— letting onend restart');
+        }
+        return;
+      }
       // 'aborted'  → intentional stop via recognition.stop(), ignore.
       // 'no-speech'→ silence window expired; onend fires next, we restart there.
       const ignored = new Set(['aborted', 'no-speech']);
@@ -139,6 +156,7 @@ export function useSpeechRecognition({ onTranscript }: Options) {
 
   const start = useCallback(() => {
     log('start() called');
+    networkErrorsRef.current = 0;
     setStatusBoth('listening');
     startSession();
   }, [setStatusBoth, startSession]);
