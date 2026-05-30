@@ -37,14 +37,17 @@ function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
   return (window as any).SpeechRecognition ?? (window as any).webkitSpeechRecognition ?? null;
 }
 
+const LOG = true; // set false to silence debug output
+const log = (...args: unknown[]) => LOG && console.log('[SpeechRec]', ...args);
+
 /**
  * Continuous Web Speech API wrapper for the answer textarea.
  *
  * Key design decisions:
  * - A FRESH SpeechRecognition instance is created on every restart (including
  *   the auto-restart in `onend`). Reusing the same instance after `onend` fires
- *   is unreliable in Chrome — the engine often garbage-collects it, causing a
- *   silent failure that makes the mic appear to stop immediately.
+ *   is unreliable in Chrome/Edge — the engine often garbage-collects it, causing
+ *   a silent failure that makes the mic appear to stop immediately.
  * - `onTranscript` is accessed through a ref so the recognition callback always
  *   uses the latest version without needing to recreate the recognition object
  *   on every render (which would break the session mid-speech).
@@ -61,8 +64,13 @@ export function useSpeechRecognition({ onTranscript }: Options) {
   onTranscriptRef.current = onTranscript;
 
   const isSupported = !!getSpeechRecognitionCtor();
+  log('isSupported:', isSupported, '| ctor:', typeof window !== 'undefined'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ? `SpeechRecognition=${!!(window as any).SpeechRecognition} webkitSpeechRecognition=${!!(window as any).webkitSpeechRecognition}`
+    : 'SSR');
 
   const setStatusBoth = useCallback((s: SpeechStatus) => {
+    log('setStatus:', s);
     statusRef.current = s;
     setStatus(s);
   }, []);
@@ -72,40 +80,56 @@ export function useSpeechRecognition({ onTranscript }: Options) {
 
   const startSession = useCallback(() => {
     const Ctor = getSpeechRecognitionCtor();
-    if (!Ctor || statusRef.current !== 'listening') return;
+    log('startSession called | Ctor:', !!Ctor, '| statusRef:', statusRef.current);
+    if (!Ctor || statusRef.current !== 'listening') {
+      log('startSession: bailing out');
+      return;
+    }
 
     const recognition = new Ctor();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
+    log('recognition instance created, calling .start()');
 
     recognition.onresult = (event: ISpeechRecognitionEvent) => {
       let finalChunk = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (event.results[i].isFinal) finalChunk += event.results[i][0].transcript;
       }
+      log('onresult | finalChunk:', JSON.stringify(finalChunk));
       if (finalChunk) onTranscriptRef.current(finalChunk);
     };
 
     recognition.onerror = (event) => {
+      log('onerror | error:', event.error, '| statusRef:', statusRef.current);
       // 'aborted'  → intentional stop via recognition.stop(), ignore.
       // 'no-speech'→ silence window expired; onend fires next, we restart there.
       const ignored = new Set(['aborted', 'no-speech']);
-      if (!ignored.has(event.error)) setStatusBoth('idle');
+      if (!ignored.has(event.error)) {
+        log('onerror: non-ignored error, going idle');
+        setStatusBoth('idle');
+      }
     };
 
     recognition.onend = () => {
-      // Chrome tears down the recognition object after onend — do NOT call
+      log('onend | statusRef:', statusRef.current);
+      // Edge/Chrome tears down the recognition object after onend — do NOT call
       // recognition.start() on the old instance. Create a fresh one instead.
       if (statusRef.current === 'listening') {
+        log('onend: still listening, restarting fresh session');
         startSessionRef.current();
+      } else {
+        log('onend: status is not listening, NOT restarting');
       }
     };
 
     recognitionRef.current = recognition;
     try {
       recognition.start();
-    } catch {
+      log('.start() succeeded');
+    } catch (err) {
+      log('.start() threw:', err);
       setStatusBoth('idle');
     }
   }, [setStatusBoth]);
@@ -114,23 +138,27 @@ export function useSpeechRecognition({ onTranscript }: Options) {
   startSessionRef.current = startSession;
 
   const start = useCallback(() => {
+    log('start() called');
     setStatusBoth('listening');
     startSession();
   }, [setStatusBoth, startSession]);
 
   const stop = useCallback(() => {
+    log('stop() called');
     setStatusBoth('idle');           // set BEFORE .stop() so onend sees idle
     recognitionRef.current?.stop();
     recognitionRef.current = null;
   }, [setStatusBoth]);
 
   const toggle = useCallback(() => {
+    log('toggle() | statusRef:', statusRef.current);
     if (statusRef.current === 'listening') stop();
     else start();
   }, [start, stop]);
 
   // Release the microphone on unmount.
   useEffect(() => () => {
+    log('unmount cleanup');
     statusRef.current = 'idle';     // prevent onend from restarting after unmount
     recognitionRef.current?.stop();
   }, []);
