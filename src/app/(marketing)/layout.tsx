@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { getCurrentUser } from '@/lib/auth/session';
+import { MarketingThemeToggle } from './marketing-theme-toggle';
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -17,22 +18,21 @@ export default async function MarketingLayout({ children }: { children: React.Re
             <span className="font-semibold tracking-tight">Interview Coach</span>
           </Link>
           <nav className="flex items-center gap-2">
+            <Link href="/resources/frontend-system-design" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+              Handbook
+            </Link>
             <Link href="/demo" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
               Demo
             </Link>
+            <MarketingThemeToggle />
             {user ? (
               <Link href="/dashboard" className={buttonVariants({ size: 'sm' })}>
                 Go to dashboard →
               </Link>
             ) : (
-              <>
-                <Link href="/sign-in" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-                  Sign in
-                </Link>
-                <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm' })}>
-                  Get started
-                </Link>
-              </>
+              <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm' })}>
+                Get started
+              </Link>
             )}
           </nav>
         </div>

@@ -15,7 +15,9 @@
     "seed": "tsx prisma/seed.ts",
     "seed:diagrams": "tsx scripts/seed-diagrams-to-db.ts",
     "regen-diagram": "tsx scripts/regen-diagram.ts",
-    "extract-seed": "tsx scripts/extract-seed-from-html.ts"
+    "extract-seed": "tsx scripts/extract-seed-from-html.ts",
+    "extract-handbook": "tsx scripts/extract-resource-handbook.ts",
+    "patch-handbook": "tsx scripts/patch-handbook-untranslated.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.79",

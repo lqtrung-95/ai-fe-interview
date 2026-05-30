@@ -1,6 +1,7 @@
 'use client';
 
-import { LogOut, Moon, Sun } from 'lucide-react';
+import { LogOut, Moon, Sun, Library } from 'lucide-react';
+import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { signOut } from '@/features/auth/sign-out-action';
@@ -20,7 +21,17 @@ export function AppHeader({ userName, userEmail, userImage }: Props) {
   const displayName = userName ?? userEmail;
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-end border-b border-border/60 bg-background/90 px-5 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/90 px-5 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+      {/* Left — Handbook link (no "App" breadcrumb — we're already in the app) */}
+      <Link
+        href="/resources/frontend-system-design"
+        className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted/60 hover:text-foreground"
+      >
+        <Library className="h-3.5 w-3.5 shrink-0" />
+        Handbook
+      </Link>
+
+      {/* Right — user controls */}
       <div className="flex items-center gap-2">
         {/* Name + email */}
         <div className="hidden min-w-0 text-right sm:block mr-1">
