@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Camera, Check, Loader2 } from 'lucide-react';
 import { createSupabaseBrowserClient } from '@/lib/auth/supabase-browser';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ export function ProfileForm({ userId, initialName, initialAvatarUrl, email }: Pr
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const displayAvatar = previewUrl ?? avatarUrl;
 
@@ -74,16 +76,11 @@ export function ProfileForm({ userId, initialName, initialAvatarUrl, email }: Pr
         setPendingFile(null);
       }
 
-      await new Promise<void>((resolve, reject) =>
-        startTransition(async () => {
-          try {
-            await updateProfileAction({ name, avatarUrl: newAvatarUrl });
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        })
-      );
+      await updateProfileAction({ name, avatarUrl: newAvatarUrl });
+
+      // Refresh in the browser request context so the header avatar/name update
+      // without triggering the layout's onboarding redirect.
+      startTransition(() => router.refresh());
 
       setSaveState('saved');
       setTimeout(() => setSaveState('idle'), 2500);

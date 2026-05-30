@@ -11,8 +11,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   // New users who haven't completed onboarding must do so before accessing the app.
+  // /settings is explicitly excluded so users can update their profile even if
+  // targetRole is transiently missing (e.g. right after account creation).
   const pathname = (await headers()).get('x-pathname') ?? '';
-  if (!user.targetRole && pathname !== '/onboarding') {
+  const onboardingExempt = ['/onboarding', '/settings'];
+  if (!user.targetRole && !onboardingExempt.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
     redirect('/onboarding');
   }
 
