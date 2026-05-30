@@ -19,6 +19,8 @@ loadEnv({ path: '.env', quiet: true });
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   datasource: {
-    url: env('DIRECT_URL') || env('DATABASE_URL'),
+    // process.env (not Prisma's env()) so missing DIRECT_URL returns undefined
+    // instead of throwing PrismaConfigEnvError on Vercel where it isn't set.
+    url: process.env.DIRECT_URL ?? env('DATABASE_URL'),
   },
 });
