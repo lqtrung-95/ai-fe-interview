@@ -22,7 +22,8 @@ export default defineConfig({
   schema: 'prisma/schema.prisma',
   datasource: {
     // DIRECT_URL is the non-pooled Supabase connection (port 5432) required for
-    // migrate/db push. Falls back to DATABASE_URL when DIRECT_URL is not set.
-    url: env('DIRECT_URL') || env('DATABASE_URL'),
+    // migrate/db push. Falls back to DATABASE_URL (pooler) when not set (e.g. Vercel).
+    // Use process.env directly — env() throws on missing vars, which breaks Vercel build.
+    url: process.env.DIRECT_URL ?? env('DATABASE_URL'),
   },
 });
