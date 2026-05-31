@@ -38,12 +38,25 @@ const TYPE_LABELS: Record<string, string> = {
   tradeoff:      'Trade-off',
 };
 
+// force-dynamic prevents Next.js from streaming this page with a <template>
+// placeholder, which causes a hydration mismatch on the client.
+export const dynamic = 'force-dynamic';
+
 export default async function QuestionDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const [user, q] = await Promise.all([requireUser(), getStudyQuestion(id)]);
+
+  // Fetch user + question in parallel, then plan status (needs user.id) in one
+  // chained Promise so everything resolves before the first byte is sent.
+  const [{ user, planStatus }, q] = await Promise.all([
+    requireUser().then(async (u) => ({
+      user: u,
+      planStatus: await getStudyPlanStatus(u.id),
+    })),
+    getStudyQuestion(id),
+  ]);
   if (!q) notFound();
 
-  const { hasPlan, studiedIds } = await getStudyPlanStatus(user.id);
+  const { hasPlan, studiedIds } = planStatus;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">

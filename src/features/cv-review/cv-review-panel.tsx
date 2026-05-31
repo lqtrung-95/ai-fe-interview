@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { CvReviewLoadingState } from './cv-review-loading-state';
 import type { CvReview } from './cv-review-types';
 
 const PROGRESS_STEPS = [
@@ -91,17 +92,7 @@ export function CvReviewPanel({ hasCv }: Props) {
   }
 
   if (status === 'loading') {
-    return (
-      <div className="rounded-xl border border-border/60 bg-card p-10 text-center space-y-4">
-        <svg className="h-8 w-8 animate-spin text-primary mx-auto" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-        </svg>
-        <p className="text-sm text-muted-foreground animate-pulse">
-          {PROGRESS_STEPS[progressStep]}
-        </p>
-      </div>
-    );
+    return <CvReviewLoadingState message={PROGRESS_STEPS[progressStep]} />;
   }
 
   if (status === 'error') {

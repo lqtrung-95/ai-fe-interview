@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { RateLimitBanner } from '@/components/common/rate-limit-banner';
 import { InterviewEmptyState } from './interview-empty-state';
 import { InterviewMainPanel } from './interview-main-panel';
@@ -93,18 +94,15 @@ export function InterviewShell({
   // Show a loading state so users don't see a confusing flash of empty content.
   if (state.phase === 'completed') {
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
-        <svg
-          className="h-8 w-8 animate-spin text-primary"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-        </svg>
-        <p className="text-sm font-medium text-muted-foreground">Preparing your session summary…</p>
+      <div className="mx-auto max-w-3xl space-y-4 py-12">
+        <div className="space-y-2 text-center">
+          <p className="text-sm font-medium text-muted-foreground">Preparing your session summary…</p>
+          <p className="text-xs text-muted-foreground">Organising scores and your next practice steps.</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[1, 2, 3].map((item) => <Skeleton key={item} className="h-24 rounded-xl" />)}
+        </div>
+        <Skeleton className="h-40 rounded-xl" />
       </div>
     );
   }

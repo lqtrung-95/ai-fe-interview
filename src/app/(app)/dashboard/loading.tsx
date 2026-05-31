@@ -1,2 +1,5 @@
-import { PageSpinner } from '@/components/ui/page-spinner';
-export default function Loading() { return <PageSpinner />; }
+import { DashboardPageSkeleton } from '@/components/ui/dashboard-page-skeleton';
+
+export default function Loading() {
+  return <DashboardPageSkeleton />;
+}

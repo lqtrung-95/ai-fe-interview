@@ -831,7 +831,7 @@
           "type": "table",
           "headers": [
             "Type",
-            "Here are a few examples of how Vietnamese technical interview prep text would be translated into natural English:\n\n**Vietnamese:** \"Khi component re-render, nếu bạn không dùng useMemo, hàm đó sẽ được tạo lại mỗi lần.\"\n**English:** \"When the component re-renders, if you don't use useMemo, that function will be recreated every time.\"\n\n**Vietnamese:** \"Vấn đề stale closure xảy ra khi closure giữ giá trị cũ của state.\"\n**English:** \"The stale closure issue occurs when the closure holds an old value of the state.\"\n\n**Vietnamese:** \"Hydration là quá trình React gắn sự kiện vào HTML tĩnh từ server.\"\n**English:** \"Hydration is the process where React attaches event handlers to static HTML from the server.\"\n\n**Vietnamese:** \"Event loop trong JavaScript có microtask và macrotask.\"\n**English:** \"The event loop in JavaScript has microtasks and macrotasks.\"\n\nPlease provide the specific Vietnamese text you want translated.",
+            "Description",
             "The right tool"
           ],
           "rows": [
@@ -1895,7 +1895,7 @@
         {
           "type": "callout",
           "variant": "interview",
-          "title": "A valuable question.",
+          "title": "A valuable question",
           "body": "How to deploy without breaking the experience for users on an old tab? → Use versioned assets with content hashes, keep old files for a period of time, and handle \"chunk load failed\" errors by reloading the page when a new version is detected."
         },
         {
@@ -2059,7 +2059,7 @@
         {
           "type": "callout",
           "variant": "interview",
-          "title": "A high-scoring answer.",
+          "title": "A high-scoring answer",
           "body": "I test based on user behavior, mock at the network boundary using MSW, use fake timers for debounce/throttle, and apply contract tests for the FE-BE boundary. → This shows you understand testing at the correct layers."
         },
         {
@@ -2293,7 +2293,7 @@
         {
           "type": "callout",
           "variant": "interview",
-          "title": "Why p95 is more important than the average.",
+          "title": "Why p95 is more important than the average",
           "body": "\"Average 200ms\" sounds fine, but if p99 is 5 seconds, then 1% of users are suffering — often the most important ones (heavy data users). Seniors always look at tail latency, not just the average."
         },
         {
@@ -2362,7 +2362,7 @@
         {
           "type": "callout",
           "variant": "warn",
-          "title": "Always set width & height.",
+          "title": "Always set width & height",
           "body": "Declare width/height (or aspect-ratio) so the browser reserves space in advance — preventing layout shifts when images finish loading (improving CLS). Images without dimensions are the most common cause of CLS."
         },
         {
@@ -2585,7 +2585,7 @@
         {
           "type": "callout",
           "variant": "key",
-          "title": "Ensure no data loss.",
+          "title": "Ensure no data loss",
           "body": "Each message has a client-generated ID (idempotency key). When resending due to network loss, the same ID is used, and the server handles deduplication. Combine a local queue with IndexedDB so that messages composed offline are sent when connectivity is restored."
         },
         {
@@ -3201,7 +3201,7 @@
             "aria-hidden",
             "aria-live (polite/assertive)",
             "**tabindex**",
-            "I'm sorry, but you didn't provide any Vietnamese text for me to translate. Please provide the Vietnamese technical interview prep text you'd like me to translate into natural English."
+            "role=\"alert\""
           ],
           "answer": 1,
           "explanation": "aria-live tells the screen reader to read content when that region changes without requiring focus. Polite waits until the current reading finishes, while assertive interrupts immediately."

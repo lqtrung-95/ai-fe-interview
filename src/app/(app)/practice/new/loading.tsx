@@ -1,3 +1,5 @@
-import { PageSpinner } from '@/components/ui/page-spinner';
-export default function Loading() { return <PageSpinner />; }
+import { PracticePageSkeleton } from '@/components/ui/practice-page-skeleton';
 
+export default function Loading() {
+  return <PracticePageSkeleton />;
+}
