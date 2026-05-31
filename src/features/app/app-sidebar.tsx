@@ -22,7 +22,7 @@ export function AppSidebar({ isPro = false }: Props) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-56 shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex">
+    <aside className="sticky top-0 hidden h-screen w-56 shrink-0 self-start flex-col overflow-hidden border-r border-sidebar-border bg-sidebar md:flex">
       {/* Logo */}
       <div className="px-4 py-5">
         <Link href="/dashboard" className="flex items-center gap-2.5">
@@ -39,7 +39,7 @@ export function AppSidebar({ isPro = false }: Props) {
       </p>
 
       {/* Nav items */}
-      <nav className="flex-1 px-2 pb-4">
+      <nav className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
         <ul className="space-y-0.5">
           {NAV.map((item) => {
             const Icon = item.icon;
@@ -76,11 +76,11 @@ export function AppSidebar({ isPro = false }: Props) {
       </nav>
 
       {/* Bottom gradient accent line */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="h-px w-full shrink-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       {/* Upgrade CTA for free users */}
       {!isPro && (
-        <div className="px-3 py-3">
+        <div className="shrink-0 px-3 py-3">
           <Link
             href="/upgrade"
             className="flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/8 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/12 transition-colors"
@@ -91,7 +91,7 @@ export function AppSidebar({ isPro = false }: Props) {
         </div>
       )}
 
-      <div className="px-4 py-3">
+      <div className="shrink-0 px-4 py-3">
         <p className="text-[10px] text-sidebar-foreground/25">Frontend Coach v1.0</p>
       </div>
     </aside>
