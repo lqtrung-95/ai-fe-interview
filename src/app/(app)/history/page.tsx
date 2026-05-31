@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Clock3, Plus } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { requireUser } from '@/lib/auth/session';
 import { listSessions } from '@/features/history/server/history-service';
@@ -21,7 +22,7 @@ export default async function HistoryPage({
   const hasActiveFilters = Boolean(filters.topic || filters.minScore || filters.from || filters.to);
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="mx-auto max-w-5xl px-6 py-10">
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">History</p>
@@ -31,16 +32,18 @@ export default async function HistoryPage({
           </p>
         </div>
         <Link href="/practice/new" className={buttonVariants()}>
+          <Plus className="size-4" />
           New session
         </Link>
       </header>
 
-      <div className="mb-6">
+      <div className="mb-8">
         <HistoryFilterBar />
       </div>
 
       {sessions.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border/50 bg-card/40 px-8 py-20 text-center">
+          <Clock3 className="mx-auto mb-4 size-8 text-muted-foreground" />
           <p className="text-lg font-bold tracking-tight">
             {hasActiveFilters ? 'No sessions match these filters.' : 'No sessions yet.'}
           </p>
@@ -58,11 +61,16 @@ export default async function HistoryPage({
           )}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border/60 bg-card">
-          {sessions.map((session) => (
-            <SessionListItem key={session.id} session={session} />
-          ))}
-        </div>
+        <section>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {sessions.length} {sessions.length === 1 ? 'session' : 'sessions'}
+          </p>
+          <div className="space-y-3">
+            {sessions.map((session) => (
+              <SessionListItem key={session.id} session={session} />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

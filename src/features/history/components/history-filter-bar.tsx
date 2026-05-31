@@ -2,12 +2,14 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ONBOARDING_TOPICS } from '@/features/onboarding/schema';
 
 const TOPICS = ['', ...ONBOARDING_TOPICS] as const;
 const SCORE_OPTIONS = ['', '2', '3', '3.5', '4', '4.5'] as const;
+const controlClass = 'h-9 w-full rounded-md border border-border/70 bg-background px-3 text-sm text-foreground';
 
 export function HistoryFilterBar() {
   const router = useRouter();
@@ -34,66 +36,46 @@ export function HistoryFilterBar() {
   }
 
   return (
-    <div
-      className="grid gap-3 rounded-lg border border-border/70 bg-card p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-5"
-      data-pending={pending ? '' : undefined}
-    >
-      <FilterField label="Topic">
-        <select
-          value={topic}
-          onChange={(e) => update('topic', e.target.value)}
-          className="w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm"
-        >
-          {TOPICS.map((t) => (
-            <option key={t || 'all'} value={t}>
-              {t || 'Any topic'}
-            </option>
-          ))}
-        </select>
-      </FilterField>
+    <div className="rounded-xl border border-border/70 bg-card p-4 shadow-sm" data-pending={pending ? '' : undefined}>
+      <div className="mb-3 flex items-center gap-2">
+        <SlidersHorizontal className="size-4 text-primary" />
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filter sessions</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
+        <FilterField label="Topic">
+          <select value={topic} onChange={(e) => update('topic', e.target.value)} className={controlClass}>
+            {TOPICS.map((t) => (
+              <option key={t || 'all'} value={t}>
+                {t || 'Any topic'}
+              </option>
+            ))}
+          </select>
+        </FilterField>
 
-      <FilterField label="Min score">
-        <select
-          value={minScore}
-          onChange={(e) => update('minScore', e.target.value)}
-          className="w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm"
-        >
-          {SCORE_OPTIONS.map((s) => (
-            <option key={s || 'all'} value={s}>
-              {s ? `≥ ${s}` : 'Any score'}
-            </option>
-          ))}
-        </select>
-      </FilterField>
+        <FilterField label="Min score">
+          <select value={minScore} onChange={(e) => update('minScore', e.target.value)} className={controlClass}>
+            {SCORE_OPTIONS.map((s) => (
+              <option key={s || 'all'} value={s}>
+                {s ? `≥ ${s}` : 'Any score'}
+              </option>
+            ))}
+          </select>
+        </FilterField>
 
-      <FilterField label="From">
-        <input
-          type="date"
-          value={from}
-          onChange={(e) => update('from', e.target.value)}
-          className="w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm"
-        />
-      </FilterField>
+        <FilterField label="From date">
+          <input type="date" value={from} onChange={(e) => update('from', e.target.value)} className={controlClass} />
+        </FilterField>
 
-      <FilterField label="To">
-        <input
-          type="date"
-          value={to}
-          onChange={(e) => update('to', e.target.value)}
-          className="w-full rounded-md border border-border/70 bg-background px-3 py-2 text-sm"
-        />
-      </FilterField>
+        <FilterField label="To date">
+          <input type="date" value={to} onChange={(e) => update('to', e.target.value)} className={controlClass} />
+        </FilterField>
 
-      <div className="flex items-end">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={clearAll}
-          disabled={!hasAny || pending}
-          className="w-full"
-        >
-          Clear filters
-        </Button>
+        <div className="flex items-end">
+          <Button variant="ghost" size="sm" onClick={clearAll} disabled={!hasAny || pending} className="w-full lg:w-auto">
+            <X className="size-4" />
+            Clear
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -24,6 +24,10 @@ model User {
   targetRole        String?
   targetCompanyType String?
   preferredTopics   String[] @default([])
+  // CV profile — populated by the CV upload + parse feature
+  cvFileUrl         String?  // Supabase Storage path: cvs/{userId}/resume.pdf (never a public URL)
+  cvData            Json?    // Parsed CvData (roles, skills, projects) — see src/lib/cv/cv-types.ts
+  cvParsedAt        DateTime? // Timestamp of last successful LLM parse
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -44,6 +48,7 @@ model InterviewSession {
   difficulty   Difficulty
   status       SessionStatus @default(in_progress)
   overallScore Float?
+  usesCv       Boolean       @default(false) // true when session was started with CV-grounded mode
   startedAt    DateTime      @default(now())
   completedAt  DateTime?
 

@@ -1,6 +1,8 @@
 import 'server-only';
 import { prisma } from '@/lib/db/client';
 import { streamAITask } from '@/lib/ai/orchestrator';
+import { buildCvContext } from '@/lib/cv/cv-context-builder';
+import type { CvData } from '@/lib/cv/cv-types';
 import { questionOutputSchema, type QuestionInput } from '../ai-schemas';
 import type { InterviewSession, User } from '@prisma/client';
 
@@ -34,6 +36,14 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
           sessionId: args.session.id,
         })
       : null;
+  // Build CV context when this session was started with the "personalise with my CV" toggle.
+  // cvContext is NOT stored in AICall logs — only lives in the LLM prompt for this request.
+  let cvContext: string | undefined;
+  if (args.session.usesCv && args.user.cvData) {
+    const ctx = buildCvContext(args.user.cvData as CvData);
+    cvContext = ctx ?? undefined;
+  }
+
   const input: QuestionInput = {
     topic,
     difficulty: args.session.difficulty,
@@ -43,6 +53,7 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
     targetCompanyType: args.user.targetCompanyType,
     avoidQuestions: previous.map((p) => p.question),
     seed: seedQuestion ?? undefined,
+    cvContext,
   };
 
   const result = streamAITask(

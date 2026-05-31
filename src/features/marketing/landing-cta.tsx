@@ -34,7 +34,7 @@ export function LandingCta({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref?
         </div>
 
         <p className="relative mt-4 text-xs text-muted-foreground">
-          No credit card required · Takes 5 minutes
+          No credit card required · No CV required · Add one anytime for personalized questions
         </p>
       </div>
     </section>

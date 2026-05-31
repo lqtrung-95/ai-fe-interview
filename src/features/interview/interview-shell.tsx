@@ -89,14 +89,34 @@ export function InterviewShell({
     );
   }
 
-  if (state.phase === 'completed' || state.phase === 'ended') {
-    const verb = state.phase === 'completed' ? 'complete' : 'ended';
+  // 'completed' = all questions answered, waiting for completeSession API + redirect.
+  // Show a loading state so users don't see a confusing flash of empty content.
+  if (state.phase === 'completed') {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
+        <svg
+          className="h-8 w-8 animate-spin text-primary"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+        </svg>
+        <p className="text-sm font-medium text-muted-foreground">Preparing your session summary…</p>
+      </div>
+    );
+  }
+
+  // 'ended' = user clicked "End session" early
+  if (state.phase === 'ended') {
     return (
       <>
         {banner}
         <InterviewEmptyState
-          title={`Session ${verb} — ${state.completed} of ${questionTarget} answered.`}
-          cta={<p className="text-sm text-muted-foreground">Summary lands next in Phase 03.</p>}
+          title={`Session ended — ${state.completed} of ${questionTarget} answered.`}
+          detail="Your answers have been saved. Check History to review your performance."
         />
       </>
     );

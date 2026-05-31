@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
+import { CheckCircle2, Upload } from 'lucide-react';
 import { saveOnboarding } from './save-action';
 import {
   ONBOARDING_TOPICS,
@@ -12,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 const LEVELS: Array<{ value: 'junior' | 'mid' | 'senior' | 'staff'; label: string }> = [
   { value: 'junior', label: 'Junior' },
@@ -109,6 +111,9 @@ export function OnboardingForm({ defaults, isEdit = false, redirectTo }: Onboard
         </div>
       </FieldGroup>
 
+      {/* Optional CV upload — only shown on first-time onboarding, not edit mode */}
+      {!isEdit && <CvUploadSection />}
+
       {error && (
         <p className="text-sm text-destructive" role="alert">
           {error}
@@ -126,6 +131,83 @@ export function OnboardingForm({ defaults, isEdit = false, redirectTo }: Onboard
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * Optional CV upload during first-time onboarding.
+ * Calls the same /api/cv/parse endpoint as the Settings page.
+ * No state management beyond this component — success is enough.
+ */
+function CvUploadSection() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'done' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  async function handleFile(file: File) {
+    setStatus('uploading');
+    setErrorMsg('');
+    const form = new FormData();
+    form.append('file', file);
+    try {
+      const res = await fetch('/api/cv/parse', { method: 'POST', body: form });
+      const data = await res.json() as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) throw new Error(data.error ?? 'Upload failed');
+      setStatus('done');
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Upload failed');
+      setStatus('error');
+    }
+  }
+
+  return (
+    <div className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-5">
+      <div className="flex items-center gap-2">
+        <Label className="text-sm font-medium">Upload your CV</Label>
+        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Optional
+        </span>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Your first practice session will reference your real companies, projects, and tech stack.
+        You can always add or update it later in Settings.
+      </p>
+
+      {status === 'done' ? (
+        <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          CV uploaded — your sessions will be personalised from the start.
+        </div>
+      ) : (
+        <label
+          className={cn(
+            'flex items-center gap-3 rounded-lg border border-dashed border-border/60 px-4 py-3',
+            'cursor-pointer transition-colors hover:border-primary/40 hover:bg-primary/[0.03]',
+            status === 'uploading' && 'pointer-events-none opacity-50',
+          )}
+        >
+          <Upload className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+          <span className="text-sm text-muted-foreground">
+            {status === 'uploading' ? 'Uploading and parsing…' : 'Click to upload PDF or text file'}
+          </span>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.txt,application/pdf,text/plain"
+            className="sr-only"
+            disabled={status === 'uploading'}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFile(file);
+            }}
+          />
+        </label>
+      )}
+
+      {status === 'error' && errorMsg && (
+        <p className="text-xs text-destructive">{errorMsg}</p>
+      )}
+    </div>
   );
 }
 

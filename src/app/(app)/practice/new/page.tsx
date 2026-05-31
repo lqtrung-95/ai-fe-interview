@@ -56,6 +56,7 @@ export default async function NewSessionPage({
         defaultTopics={defaultTopics}
         defaultDifficulty={defaultDifficulty}
         topicCounts={topicCounts}
+        hasCv={!!user.cvData}
       />
     </div>
   );

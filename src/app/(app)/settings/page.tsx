@@ -1,12 +1,17 @@
 import { requireUser } from '@/lib/auth/session';
 import { ProfileForm } from '@/features/settings/components/profile-form';
 import { InterviewPreferencesCard } from '@/features/settings/components/interview-preferences-card';
+import { CvProfileCard } from '@/features/settings/components/cv-profile-card';
+import type { CvData } from '@/lib/cv/cv-types';
 
 export const metadata = { title: 'Settings' };
 
 export default async function SettingsPage() {
   const user = await requireUser();
   const topics = (user.preferredTopics ?? []) as string[];
+
+  // cvData is Json? in Prisma — cast safely to CvData | null
+  const cvData = (user.cvData as CvData | null) ?? null;
 
   return (
     <div className="mx-auto max-w-4xl space-y-8 px-6 py-10">
@@ -34,6 +39,11 @@ export default async function SettingsPage() {
         level={user.level}
         role={user.targetRole}
         topics={topics}
+      />
+
+      <CvProfileCard
+        cvData={cvData}
+        cvParsedAt={user.cvParsedAt?.toISOString() ?? null}
       />
     </div>
   );

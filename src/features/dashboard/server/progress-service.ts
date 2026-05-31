@@ -6,6 +6,7 @@ import type {
   OverviewMetrics,
   ScoreTrendPoint,
   TopicBreakdownEntry,
+  TopicWeakArea,
 } from '../dashboard-types';
 
 /** Cache tag for a user's dashboard data. Call revalidateTag with this after sessions complete. */
@@ -144,6 +145,56 @@ export function getDimensionWeakAreas(userId: string): Promise<DimensionAverage[
         .slice(0, 3);
     },
     ['dashboard-weak-areas', userId],
+    { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+  )();
+}
+
+/**
+ * Returns the 3 topics where the user consistently scores lowest, each with
+ * the most-recently flagged "what was missing" item from AI feedback.
+ * Used to power the "Weak Areas" dashboard panel with specific, actionable gaps.
+ */
+export function getTopicWeakAreas(userId: string): Promise<TopicWeakArea[]> {
+  return unstable_cache(
+    async () => {
+      // Load recent answers with topic + overallScore + whatWasMissing (most recent first)
+      const rows = await prisma.userAnswer.findMany({
+        where: { userId, feedback: { isNot: null } },
+        orderBy: { createdAt: 'desc' },
+        take: 60,
+        select: {
+          createdAt: true,
+          question: { select: { topic: true } },
+          feedback: { select: { overallScore: true, whatWasMissing: true } },
+        },
+      });
+
+      // Group by topic: accumulate scores and keep the most recent whatWasMissing
+      const topicMap = new Map<string, { sum: number; count: number; recentGap: string | null }>();
+      for (const row of rows) {
+        if (!row.feedback) continue;
+        const topic = row.question.topic;
+        const existing = topicMap.get(topic) ?? { sum: 0, count: 0, recentGap: null };
+        existing.sum += row.feedback.overallScore;
+        existing.count += 1;
+        // Keep the gap from the most recent answer (rows are ordered desc)
+        if (!existing.recentGap && row.feedback.whatWasMissing.length > 0) {
+          existing.recentGap = row.feedback.whatWasMissing[0];
+        }
+        topicMap.set(topic, existing);
+      }
+
+      return [...topicMap.entries()]
+        .map(([topic, { sum, count, recentGap }]) => ({
+          topic,
+          avgScore: Number((sum / count).toFixed(2)),
+          answers: count,
+          specificGap: recentGap,
+        }))
+        .sort((a, b) => a.avgScore - b.avgScore) // weakest first
+        .slice(0, 3);
+    },
+    ['dashboard-topic-weak-areas', userId],
     { revalidate: 60, tags: [dashboardCacheTag(userId)] },
   )();
 }

@@ -17,6 +17,8 @@ export const createSessionSchema = z.object({
   mode: z.enum(['quick', 'standard', 'deep_coaching']),
   difficulty: z.enum(['junior', 'mid', 'senior']),
   topics: z.array(z.enum(ONBOARDING_TOPICS)).min(1, 'Pick at least one topic'),
+  /** When true, question generation is grounded in the user's parsed CV data. */
+  usesCv: z.boolean().optional().default(false),
 });
 
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;

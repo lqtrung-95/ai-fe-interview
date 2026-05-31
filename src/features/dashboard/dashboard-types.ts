@@ -38,3 +38,12 @@ export interface RecommendedTopic {
   reason: string;
   difficulty: Level;
 }
+
+/** A topic where the user consistently scores low, with a specific gap from their feedback. */
+export interface TopicWeakArea {
+  topic: string;
+  avgScore: number;
+  answers: number;
+  /** The most recently flagged "what was missing" from AI feedback for this topic. */
+  specificGap: string | null;
+}

@@ -1,45 +1,12 @@
 import Link from 'next/link';
-import { ArrowRight, Clock3, Sparkles, Timer } from 'lucide-react';
+import { ArrowRight, Clock3, Sparkles, Zap } from 'lucide-react';
 import type { RecommendedTopic } from '../dashboard-types';
-
-const TOPIC_ACCENT: Record<string, { icon: string; border: string; badge: string }> = {
-  React: {
-    icon: 'bg-sky-500/10 text-sky-400',
-    border: 'hover:border-sky-500/40',
-    badge: 'bg-sky-500/10 text-sky-400',
-  },
-  JavaScript: {
-    icon: 'bg-yellow-500/10 text-yellow-400',
-    border: 'hover:border-yellow-500/40',
-    badge: 'bg-yellow-500/10 text-yellow-400',
-  },
-  'Web Performance': {
-    icon: 'bg-emerald-500/10 text-emerald-400',
-    border: 'hover:border-emerald-500/40',
-    badge: 'bg-emerald-500/10 text-emerald-400',
-  },
-  Testing: {
-    icon: 'bg-violet-500/10 text-violet-400',
-    border: 'hover:border-violet-500/40',
-    badge: 'bg-violet-500/10 text-violet-400',
-  },
-};
-
-function topicAccent(topic: string) {
-  for (const [key, value] of Object.entries(TOPIC_ACCENT)) {
-    if (topic.includes(key)) return value;
-  }
-  return {
-    icon: 'bg-primary/10 text-primary',
-    border: 'hover:border-primary/40',
-    badge: 'bg-primary/10 text-primary',
-  };
-}
 
 const DIFFICULTY_LABELS: Record<string, string> = {
   junior: 'Junior',
-  mid:    'Mid',
+  mid:    'Mid-level',
   senior: 'Senior',
+  staff:  'Staff',
 };
 
 interface Props {
@@ -47,65 +14,80 @@ interface Props {
 }
 
 export function RecommendedPractice({ recommendations }: Props) {
+  const [primary, ...secondary] = recommendations;
+
   return (
     <section className="rounded-xl border border-border/60 bg-card p-5">
       <div className="mb-4 flex items-center gap-2.5">
-        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
-          <Sparkles className="h-3.5 w-3.5" />
+        <span className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <Sparkles className="size-3.5" />
         </span>
         <div>
-          <h2 className="text-sm font-semibold">Recommended sessions</h2>
-          <p className="text-xs text-muted-foreground">Based on your latest feedback.</p>
+          <h2 className="text-sm font-semibold">AI Recommendations</h2>
+          <p className="text-xs text-muted-foreground">Personalised based on your recent feedback.</p>
         </div>
       </div>
 
-      {recommendations.length === 0 ? (
+      {!primary ? (
         <EmptyState />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-3">
-          {recommendations.map((rec) => {
-            const accent = topicAccent(rec.topic);
-            const { title, focus } = splitTopic(rec.topic);
-            return (
-              <Link
-                key={rec.topic}
-                href={`/practice/new?topic=${encodeURIComponent(rec.topic)}&difficulty=${rec.difficulty}`}
-                className={`group flex min-h-40 flex-col rounded-xl border border-border/60 bg-background/60 p-3.5 transition-all dark:bg-muted/20 ${accent.border} hover:shadow-sm`}
-              >
-                {/* Top row: icon + difficulty badge */}
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${accent.icon}`}>
-                    <Sparkles className="h-3.5 w-3.5" />
-                  </span>
-                  <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${accent.badge}`}>
-                    {DIFFICULTY_LABELS[rec.difficulty] ?? rec.difficulty}
-                  </span>
-                </div>
+        <div className="space-y-3">
+          <div className="space-y-3 rounded-xl border border-primary/25 bg-primary/[0.04] p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
+              Next recommended session
+            </p>
 
-                {/* Topic title */}
-                <div className="mt-3 min-w-0 flex-1">
-                  <h3 className="line-clamp-2 text-[13px] font-semibold leading-5">{title}</h3>
-                  {focus && (
-                    <p className="mt-1 line-clamp-1 text-[11px] text-muted-foreground">{focus}</p>
-                  )}
-                  <p className="mt-2 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-                    {rec.reason}
-                  </p>
-                </div>
+            <div>
+              <h3 className="text-base font-bold leading-snug">{primary.topic}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                {primary.reason}
+              </p>
+            </div>
 
-                {/* Footer */}
-                <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2.5">
-                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                    <Timer className="h-3 w-3" />
-                    10 min
-                  </span>
-                  <span className="flex items-center gap-0.5 text-[11px] font-semibold text-primary transition-colors group-hover:underline">
-                    Start <ArrowRight className="h-3 w-3" />
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full bg-muted/60 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {DIFFICULTY_LABELS[primary.difficulty] ?? primary.difficulty}
+              </span>
+              <span className="rounded-full bg-muted/60 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                5 questions
+              </span>
+            </div>
+
+            <Link
+              href={`/practice/new?topic=${encodeURIComponent(primary.topic)}&difficulty=${primary.difficulty}`}
+              className="flex w-full items-center justify-between gap-3 rounded-lg bg-primary px-3.5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              <span className="flex items-center gap-2">
+                <Zap className="size-4" />
+                Start recommended drill
+              </span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+
+          {secondary.length > 0 && (
+            <div>
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">More to revisit</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {secondary.map((rec) => (
+                  <Link
+                    key={rec.topic}
+                    href={`/practice/new?topic=${encodeURIComponent(rec.topic)}&difficulty=${rec.difficulty}`}
+                    className="group flex flex-col gap-1.5 rounded-xl border border-border/50 bg-background/60 p-3.5 transition-all hover:border-primary/30 hover:bg-primary/[0.02] dark:bg-muted/20"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="text-xs font-semibold leading-snug text-foreground">{rec.topic}</h4>
+                      <ArrowRight className="mt-0.5 size-3.5 shrink-0 text-muted-foreground/50 transition-colors group-hover:text-primary" />
+                    </div>
+                    <p className="line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">{rec.reason}</p>
+                    <span className="mt-auto text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                      {DIFFICULTY_LABELS[rec.difficulty] ?? rec.difficulty}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>
@@ -122,9 +104,4 @@ function EmptyState() {
       </p>
     </div>
   );
-}
-
-function splitTopic(topic: string) {
-  const [title, ...rest] = topic.split(':');
-  return { title: title.trim(), focus: rest.join(':').trim() };
 }

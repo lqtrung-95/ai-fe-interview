@@ -25,6 +25,7 @@ export async function createSession(input: CreateSessionInput): Promise<CreateRe
       mode: parsed.data.mode,
       difficulty: parsed.data.difficulty,
       topics: parsed.data.topics,
+      usesCv: parsed.data.usesCv ?? false,
     },
     select: { id: true },
   });

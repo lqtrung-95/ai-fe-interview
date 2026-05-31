@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Timer } from 'lucide-react';
+import { Check, Timer, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { createSession } from './server/create-session-action';
 import { SESSION_DIFFICULTIES, SESSION_MODES, type CreateSessionInput } from './session-config-schema';
 
@@ -16,6 +17,8 @@ interface Props {
   defaultTopics: string[];
   defaultDifficulty: Difficulty;
   topicCounts: Record<string, number>;
+  /** Whether the user has a parsed CV — shows the "Based on my CV" toggle when true. */
+  hasCv?: boolean;
 }
 
 const GROUPS = [
@@ -34,13 +37,14 @@ const TIMER_OPTIONS = [
   { value: CUSTOM_SENTINEL, label: 'Custom' },
 ] as const;
 
-export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts }: Props) {
+export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts, hasCv = false }: Props) {
   const router = useRouter();
   const [topics, setTopics] = useState<string[]>(defaultTopics.length ? defaultTopics : ['JavaScript']);
   const [difficulty, setDifficulty] = useState<Difficulty>(defaultDifficulty);
   const [mode, setMode] = useState<Mode>('standard');
   const [timerSeconds, setTimerSeconds] = useState(0); // 0=no limit, CUSTOM_SENTINEL=custom
   const [customMinutes, setCustomMinutes] = useState('');  // raw input for custom mode
+  const [usesCv, setUsesCv] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isCustom = timerSeconds === CUSTOM_SENTINEL;
@@ -58,7 +62,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
 
   function handleStart() {
     setError(null);
-    const payload = { mode, difficulty, topics } as CreateSessionInput;
+    const payload = { mode, difficulty, topics, usesCv } as CreateSessionInput;
     startTransition(async () => {
       const result = await createSession(payload);
       if (!result.ok) {
@@ -151,6 +155,38 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
           )}
         </div>
       </section>
+
+      {/* CV personalisation toggle — only shown when user has a parsed CV */}
+      {hasCv && (
+        <section className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setUsesCv((v) => !v)}
+            className={cn(
+              'flex items-center gap-3 w-full rounded-xl border p-4 text-left transition-all',
+              usesCv
+                ? 'border-primary/50 bg-primary/8'
+                : 'border-border/60 bg-card hover:border-primary/30',
+            )}
+          >
+            <span className={cn(
+              'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors',
+              usesCv ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background',
+            )}>
+              {usesCv && <Check className="h-3 w-3" />}
+            </span>
+            <span>
+              <span className="flex items-center gap-1.5 text-sm font-semibold">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Personalise with my CV
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Questions will reference your real experience — companies, projects, and tech stack. Still pick topics below to set the domain.
+              </span>
+            </span>
+          </button>
+        </section>
+      )}
 
       {/* Topics */}
       <section className="space-y-4">

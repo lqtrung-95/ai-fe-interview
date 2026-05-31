@@ -1,6 +1,8 @@
 import 'server-only';
 import { prisma } from '@/lib/db/client';
 import { runAITask } from '@/lib/ai/orchestrator';
+import { buildCvContext } from '@/lib/cv/cv-context-builder';
+import type { CvData } from '@/lib/cv/cv-types';
 import type { QuestionInput } from '../ai-schemas';
 import type { InterviewQuestion, InterviewSession, User } from '@prisma/client';
 
@@ -45,6 +47,14 @@ export async function nextQuestion(args: NextQuestionArgs): Promise<InterviewQue
     });
   }
 
+  // Build CV context when the session was started with CV-grounded mode.
+  // cvContext is NOT stored in AICall logs (privacy).
+  let cvContext: string | undefined;
+  if (args.session.usesCv && args.user.cvData) {
+    const ctx = buildCvContext(args.user.cvData as CvData);
+    cvContext = ctx ?? undefined;
+  }
+
   const input: QuestionInput = {
     topic,
     difficulty: args.session.difficulty,
@@ -54,6 +64,7 @@ export async function nextQuestion(args: NextQuestionArgs): Promise<InterviewQue
     targetCompanyType: args.user.targetCompanyType,
     avoidQuestions: previous.map((p) => p.question),
     seed: seedQuestion ?? undefined,
+    cvContext,
   };
 
   const ai = await runAITask(

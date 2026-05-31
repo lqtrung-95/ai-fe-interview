@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { buttonVariants } from '@/components/ui/button';
 import { requireUser } from '@/lib/auth/session';
 import {
-  getDimensionWeakAreas,
+  getTopicWeakAreas,
   getOverview,
   getScoreTrend,
   getTopicBreakdown,
@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     getOverview(user.id),
     getScoreTrend(user.id, 30),
     getTopicBreakdown(user.id),
-    getDimensionWeakAreas(user.id),
+    getTopicWeakAreas(user.id),
     getRecommendations(user.id, user.level),
   ]);
 
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
             <TopicRadarChart data={topics} />
           </div>
           <div className="grid gap-5 lg:grid-cols-2">
-            <WeakAreasList dimensions={weakAreas} />
+            <WeakAreasList weakAreas={weakAreas} />
             <RecommendedPractice recommendations={recommendations} />
           </div>
         </div>

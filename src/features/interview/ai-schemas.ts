@@ -37,6 +37,9 @@ export const questionInputSchema = z.object({
     .optional(),
   // Avoid repeating questions already asked in this session.
   avoidQuestions: z.array(z.string()).default([]),
+  // Formatted CV context injected when the session uses CV-grounded mode.
+  // Max 1 200 chars — built by buildCvContext(). NOT stored in AICall logs.
+  cvContext: z.string().max(1200).optional(),
 });
 export type QuestionInput = z.infer<typeof questionInputSchema>;
 
