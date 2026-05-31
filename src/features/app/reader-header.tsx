@@ -12,6 +12,7 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Library, LayoutDashboard, ChevronRight, Moon, Sun, LogOut } from 'lucide-react';
+import { BrandLogo } from '@/components/common/brand-logo';
 import { buttonVariants } from '@/components/ui/button';
 import { signOut } from '@/features/auth/sign-out-action';
 
@@ -73,6 +74,7 @@ export function ReaderHeader({ user }: Props) {
             href="/"
             className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted/60 hover:text-foreground"
           >
+            <BrandLogo className="size-5" />
             <span className="hidden sm:inline font-semibold">Frontend Coach</span>
           </Link>
         )}

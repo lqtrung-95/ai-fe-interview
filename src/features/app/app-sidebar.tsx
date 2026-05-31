@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, Clock, Database, LayoutDashboard, Settings, Zap } from 'lucide-react';
+import { BrandLogo } from '@/components/common/brand-logo';
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -25,9 +26,7 @@ export function AppSidebar({ isPro = false }: Props) {
       {/* Logo */}
       <div className="px-4 py-5">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-brand-indigo shadow-md shadow-primary/30">
-            <BookOpen className="h-4 w-4 text-primary-foreground" />
-          </span>
+          <BrandLogo />
           <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
             Frontend Coach
           </span>

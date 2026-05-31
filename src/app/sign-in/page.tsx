@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { BrandLogo } from '@/components/common/brand-logo';
 import { SignInForm } from '@/features/auth/sign-in-form';
 import { getCurrentUser } from '@/lib/auth/session';
 
@@ -25,7 +26,8 @@ export default async function SignInPage({
         <Link href="/" className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
           ← Home
         </Link>
-        <p className="mt-6 text-xs font-semibold uppercase tracking-widest text-primary">Frontend Coach</p>
+        <BrandLogo className="mx-auto mt-6 size-12" />
+        <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-primary">Frontend Coach</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Welcome back</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Sign in to track your scores, streaks, and study plan.

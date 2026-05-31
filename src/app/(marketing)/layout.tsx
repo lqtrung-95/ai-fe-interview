@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BookOpen } from 'lucide-react';
+import { BrandLogo } from '@/components/common/brand-logo';
 import { buttonVariants } from '@/components/ui/button';
 import { getCurrentUser } from '@/lib/auth/session';
 import { MarketingThemeToggle } from './marketing-theme-toggle';
@@ -12,9 +12,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary shadow-sm">
-              <BookOpen className="h-4 w-4 text-primary-foreground" />
-            </span>
+            <BrandLogo className="size-7" />
             <span className="font-semibold tracking-tight">FrontEnd Coach</span>
           </Link>
           <nav className="flex items-center gap-2">
