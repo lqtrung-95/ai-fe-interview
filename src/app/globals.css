@@ -298,6 +298,27 @@
 
 .study-prose li strong { color: var(--foreground); }
 
+/* Disable programming ligatures globally on monospace text so === and == render
+   as distinct characters rather than ligature glyphs (Geist Mono enables these by default). */
+code, pre, .font-mono, [class*="font-mono"] {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/* Inline <code> rendered inside dangerouslySetInnerHTML fields (callout body, list items, etc.)
+   Matches the .study-prose code style so handbook callouts look consistent. */
+.handbook-inline-html code {
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
 .study-prose code {
   font-family: var(--font-mono);
   font-size: 0.8125rem;

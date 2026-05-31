@@ -13,7 +13,11 @@ const NAV = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-export function AppSidebar() {
+interface Props {
+  isPro?: boolean;
+}
+
+export function AppSidebar({ isPro = false }: Props) {
   const pathname = usePathname();
 
   return (
@@ -74,6 +78,20 @@ export function AppSidebar() {
 
       {/* Bottom gradient accent line */}
       <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
+      {/* Upgrade CTA for free users */}
+      {!isPro && (
+        <div className="px-3 py-3">
+          <Link
+            href="/upgrade"
+            className="flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/8 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/12 transition-colors"
+          >
+            <Zap className="h-3 w-3 shrink-0" />
+            Upgrade to Pro
+          </Link>
+        </div>
+      )}
+
       <div className="px-4 py-3">
         <p className="text-[10px] text-sidebar-foreground/25">Frontend Coach v1.0</p>
       </div>

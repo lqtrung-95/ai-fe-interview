@@ -1,0 +1,1442 @@
+{
+  "meta": {
+    "title": "JavaScript Core — Interview Handbook",
+    "description": "Deep-dive into JavaScript fundamentals that appear in every frontend interview: types, closures, prototypes, the event loop, promises, ES6+, and performance.",
+    "stats": [
+      {
+        "value": "10",
+        "label": "Core Topics"
+      },
+      {
+        "value": "10",
+        "label": "Quizzes"
+      },
+      {
+        "value": "42",
+        "label": "Flashcards"
+      },
+      {
+        "value": "58",
+        "label": "Code Examples"
+      }
+    ]
+  },
+  "nav": [
+    {
+      "id": "types",
+      "label": "Types, Values & Coercion",
+      "group": "FOUNDATION"
+    },
+    {
+      "id": "scope",
+      "label": "Scope, Closures & Hoisting",
+      "group": "FOUNDATION"
+    },
+    {
+      "id": "functions",
+      "label": "Functions, this & Execution",
+      "group": "FOUNDATION"
+    },
+    {
+      "id": "prototypes",
+      "label": "Prototypes & Inheritance",
+      "group": "CORE"
+    },
+    {
+      "id": "eventloop",
+      "label": "Event Loop & Asynchrony",
+      "group": "CORE"
+    },
+    {
+      "id": "promises",
+      "label": "Promises & Async/Await",
+      "group": "CORE"
+    },
+    {
+      "id": "es6",
+      "label": "ES6+ & Modern Syntax",
+      "group": "MODERN JS"
+    },
+    {
+      "id": "modules",
+      "label": "Modules & the Build Pipeline",
+      "group": "MODERN JS"
+    },
+    {
+      "id": "patterns",
+      "label": "Patterns & Functional Techniques",
+      "group": "ADVANCED"
+    },
+    {
+      "id": "memory",
+      "label": "Memory Management & Performance",
+      "group": "ADVANCED"
+    }
+  ],
+  "sections": [
+    {
+      "id": "types",
+      "num": "01 — FOUNDATION",
+      "title": "Types, Values & Coercion",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Understanding types, values, and coercion is crucial for JavaScript interviews because these concepts are the foundation of how JavaScript operates and are frequently tested. Misunderstandings about primitive vs reference types, coercion rules, and special values like <code>NaN</code> and <code>null</code> can lead to subtle bugs. Mastering these topics demonstrates a deep grasp of the language's core mechanics."
+        },
+        {
+          "type": "h3",
+          "text": "Primitive vs Reference Types"
+        },
+        {
+          "type": "p",
+          "html": "Primitive types (<code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code>, <code>undefined</code>, <code>symbol</code>, <code>bigint</code>) are immutable and stored by value. Reference types (<code>object</code>, <code>array</code>, <code>function</code>) are mutable and stored by reference. When you assign or compare, primitives copy the value, while references copy the memory address."
+        },
+        {
+          "type": "pre",
+          "code": "let a = 10;\nlet b = a;\nb = 20;\nconsole.log(a); // 10 (primitive, independent)\n\nlet obj1 = { value: 10 };\nlet obj2 = obj1;\nobj2.value = 20;\nconsole.log(obj1.value); // 20 (reference, shared)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Type Coercion and =="
+        },
+        {
+          "type": "p",
+          "html": "JavaScript's <code>==</code> operator performs type coercion before comparing, converting values to a common type. This can lead to unexpected results. Always prefer <code>===</code> (strict equality) to avoid coercion surprises, unless you intentionally need coercion."
+        },
+        {
+          "type": "pre",
+          "code": "console.log(5 == '5');   // true (coercion: string to number)\nconsole.log(5 === '5');  // false (no coercion)\nconsole.log(false == 0); // true (coercion: boolean to number)\nconsole.log(null == undefined); // true (special rule)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "Memorize the coercion table for <code>==</code>: <code>null</code> and <code>undefined</code> are equal to each other but not to anything else. For other types, JavaScript converts to numbers or strings. In interviews, always explain that <code>===</code> is safer and preferred."
+        },
+        {
+          "type": "h3",
+          "text": "typeof and instanceof"
+        },
+        {
+          "type": "p",
+          "html": "<code>typeof</code> returns a string indicating the type of a value. It's useful for primitives but has quirks (e.g., <code>typeof null</code> returns <code>'object'</code>). <code>instanceof</code> checks if an object is an instance of a constructor in its prototype chain, working only with objects."
+        },
+        {
+          "type": "pre",
+          "code": "console.log(typeof 42);        // 'number'\nconsole.log(typeof 'hello');   // 'string'\nconsole.log(typeof null);      // 'object' (historical bug)\nconsole.log(typeof undefined); // 'undefined'\n\nconsole.log([] instanceof Array);   // true\nconsole.log({} instanceof Object);  // true\nconsole.log(5 instanceof Number);   // false (5 is primitive)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "null vs undefined"
+        },
+        {
+          "type": "p",
+          "html": "<code>undefined</code> is the default value for uninitialized variables or missing properties. <code>null</code> is an intentional absence of any object value. They are loosely equal (<code>null == undefined</code> is <code>true</code>) but strictly different (<code>null === undefined</code> is <code>false</code>)."
+        },
+        {
+          "type": "pre",
+          "code": "let x;\nconsole.log(x); // undefined\n\nlet y = null;\nconsole.log(y); // null\n\nconsole.log(null == undefined);  // true\nconsole.log(null === undefined); // false",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "NaN"
+        },
+        {
+          "type": "p",
+          "html": "<code>NaN</code> (Not-a-Number) is a special number value resulting from invalid math operations. It is the only value in JavaScript that is not equal to itself (<code>NaN !== NaN</code>). Use <code>Number.isNaN()</code> to reliably check for <code>NaN</code>."
+        },
+        {
+          "type": "pre",
+          "code": "console.log(0 / 0);        // NaN\nconsole.log(NaN === NaN);  // false\nconsole.log(Number.isNaN(NaN)); // true\nconsole.log(isNaN('hello'));    // true (coerces to number)\nconsole.log(Number.isNaN('hello')); // false (no coercion)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "BigInt and Symbol"
+        },
+        {
+          "type": "p",
+          "html": "<code>BigInt</code> allows representation of integers larger than <code>Number.MAX_SAFE_INTEGER</code> (2^53 - 1). <code>Symbol</code> creates unique, immutable values often used as object property keys to avoid name collisions."
+        },
+        {
+          "type": "pre",
+          "code": "const big = 9007199254740991n + 1n;\nconsole.log(big); // 9007199254740992n\n\nconst sym1 = Symbol('id');\nconst sym2 = Symbol('id');\nconsole.log(sym1 === sym2); // false (unique)\n\nconst obj = { [sym1]: 'value' };\nconsole.log(obj[sym1]); // 'value'",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "What does the following code output? console.log(typeof NaN);",
+          "options": [
+            "'undefined'",
+            "'number'",
+            "'NaN'",
+            "'object'"
+          ],
+          "answer": 1,
+          "explanation": "typeof NaN returns 'number' because NaN is a numeric value, even though it represents an invalid number."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the difference between == and ===?",
+              "back": "== performs type coercion before comparison; === does not (strict equality)."
+            },
+            {
+              "front": "Why is typeof null 'object'?",
+              "back": "It's a historical bug in JavaScript's initial implementation that cannot be fixed for backward compatibility."
+            },
+            {
+              "front": "How do you reliably check if a value is NaN?",
+              "back": "Use Number.isNaN(value) to avoid coercion issues with the global isNaN()."
+            },
+            {
+              "front": "What is the purpose of Symbol?",
+              "back": "To create unique, immutable identifiers, often used as object property keys to prevent name collisions."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scope",
+      "num": "02 — FOUNDATION",
+      "title": "Scope, Closures & Hoisting",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Scope, closures, and hoisting are foundational JavaScript concepts that appear in nearly every technical interview. Understanding how variables are accessed, how functions remember their lexical environment, and how declarations are processed before execution will help you debug tricky code and write more predictable programs."
+        },
+        {
+          "type": "h3",
+          "text": "var vs let vs const"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Feature",
+            "var",
+            "let",
+            "const"
+          ],
+          "rows": [
+            [
+              "Scope",
+              "Function scope",
+              "Block scope",
+              "Block scope"
+            ],
+            [
+              "Hoisting",
+              "Hoisted (initialized as undefined)",
+              "Hoisted (TDZ)",
+              "Hoisted (TDZ)"
+            ],
+            [
+              "Reassignment",
+              "Allowed",
+              "Allowed",
+              "Not allowed"
+            ],
+            [
+              "Redeclaration",
+              "Allowed",
+              "Not allowed",
+              "Not allowed"
+            ]
+          ]
+        },
+        {
+          "type": "pre",
+          "code": "function example() {\n  console.log(a); // undefined (hoisted)\n  var a = 5;\n  \n  console.log(b); // ReferenceError: Cannot access 'b' before initialization\n  let b = 10;\n  \n  const c = 15;\n  c = 20; // TypeError: Assignment to constant variable\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Function vs Block Scope"
+        },
+        {
+          "type": "p",
+          "html": "Variables declared with <code>var</code> are scoped to the nearest function, while <code>let</code> and <code>const</code> are scoped to the nearest block (e.g., <code>if</code>, <code>for</code>, <code>while</code>). This distinction is critical for avoiding unintended variable leakage."
+        },
+        {
+          "type": "pre",
+          "code": "if (true) {\n  var x = 10;\n  let y = 20;\n}\nconsole.log(x); // 10 (function scope, leaks out)\nconsole.log(y); // ReferenceError: y is not defined (block scope)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Hoisting Mechanics"
+        },
+        {
+          "type": "p",
+          "html": "Hoisting moves variable and function declarations to the top of their scope during compilation. <code>var</code> declarations are hoisted and initialized with <code>undefined</code>, while <code>let</code> and <code>const</code> are hoisted but remain in the temporal dead zone (TDZ) until their actual declaration line."
+        },
+        {
+          "type": "pre",
+          "code": "console.log(foo); // undefined (var hoisted)\nvar foo = 'bar';\n\nconsole.log(baz); // ReferenceError: Cannot access 'baz' before initialization\nlet baz = 'qux';\n\nsayHello(); // 'Hello!' (function declaration hoisted)\nfunction sayHello() {\n  console.log('Hello!');\n}\n\nsayHi(); // TypeError: sayHi is not a function (var hoisted, not initialized)\nvar sayHi = function() {\n  console.log('Hi!');\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Temporal Dead Zone (TDZ)"
+        },
+        {
+          "type": "p",
+          "html": "The TDZ is the period between entering a scope and the actual declaration of a <code>let</code> or <code>const</code> variable. Accessing the variable during this time throws a <code>ReferenceError</code>. This prevents the common bugs associated with <code>var</code> hoisting."
+        },
+        {
+          "type": "pre",
+          "code": "{\n  // TDZ for 'name' starts here\n  console.log(name); // ReferenceError\n  let name = 'Alice';\n  // TDZ ends here\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "When asked about hoisting, always mention the temporal dead zone for <code>let</code> and <code>const</code>. Interviewers love to see that you understand the difference between hoisting (declaration moved) and initialization (value assignment). A common trick question: 'What does <code>console.log(a)</code> output before <code>let a = 5</code>?' The answer is a ReferenceError, not undefined."
+        },
+        {
+          "type": "h3",
+          "text": "Closures: Definition and Use Cases"
+        },
+        {
+          "type": "p",
+          "html": "A closure is a function that retains access to its lexical scope even when executed outside that scope. Closures are used for data privacy, creating function factories, and maintaining state in asynchronous code."
+        },
+        {
+          "type": "pre",
+          "code": "function createCounter() {\n  let count = 0;\n  return function() {\n    count++;\n    return count;\n  };\n}\n\nconst counter = createCounter();\nconsole.log(counter()); // 1\nconsole.log(counter()); // 2\n// 'count' is private and persists across calls",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "IIFE Pattern (Immediately Invoked Function Expression)"
+        },
+        {
+          "type": "p",
+          "html": "An IIFE is a function that runs as soon as it is defined. It creates a new scope to avoid polluting the global namespace, often used for data privacy and module patterns before ES6 modules."
+        },
+        {
+          "type": "pre",
+          "code": "(function() {\n  var privateVar = 'secret';\n  console.log(privateVar); // 'secret'\n})();\n\nconsole.log(typeof privateVar); // 'undefined' (private)\n\n// Modern alternative using block scope:\n{\n  let privateVar = 'secret';\n  console.log(privateVar);\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "What will be the output of the following code?\n\nfor (var i = 0; i < 3; i++) {\n  setTimeout(() => console.log(i), 100);\n}",
+          "options": [
+            "0, 1, 2",
+            "3, 3, 3",
+            "undefined, undefined, undefined",
+            "ReferenceError"
+          ],
+          "answer": 1,
+          "explanation": "Because <code>var</code> has function scope, the loop creates only one <code>i</code> variable that is shared across all closures. By the time the setTimeout callbacks run, the loop has finished and <code>i</code> is 3. Using <code>let</code> instead would create a new binding for each iteration, outputting 0, 1, 2."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the temporal dead zone (TDZ)?",
+              "back": "The period between entering a scope and the declaration of a <code>let</code> or <code>const</code> variable, during which accessing the variable throws a ReferenceError."
+            },
+            {
+              "front": "How does hoisting differ between var and let/const?",
+              "back": "<code>var</code> is hoisted and initialized with <code>undefined</code>. <code>let</code> and <code>const</code> are hoisted but not initialized (TDZ)."
+            },
+            {
+              "front": "What is a closure?",
+              "back": "A function that retains access to its lexical scope even when executed outside that scope."
+            },
+            {
+              "front": "What is an IIFE and why is it used?",
+              "back": "An Immediately Invoked Function Expression that creates a new scope to avoid global variable pollution and provide data privacy."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "functions",
+      "num": "03 — FOUNDATION",
+      "title": "Functions, this & Execution",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Functions are the building blocks of JavaScript, and mastering how they work—especially the <code>this</code> keyword—is critical for acing interviews. This section covers function declarations vs expressions, arrow vs regular functions, <code>this</code> binding rules, <code>call</code>/<code>apply</code>/<code>bind</code>, the <code>arguments</code> object vs rest parameters, and currying. Understanding these concepts will help you write cleaner, more predictable code and answer common interview questions with confidence."
+        },
+        {
+          "type": "h3",
+          "text": "Function Declarations vs Expressions"
+        },
+        {
+          "type": "p",
+          "html": "A <strong>function declaration</strong> is hoisted to the top of its scope, meaning you can call it before its definition. A <strong>function expression</strong> is not hoisted—it's assigned to a variable and can only be used after the assignment. Use declarations for named functions you want to hoist; use expressions for anonymous functions or when you need to assign them conditionally."
+        },
+        {
+          "type": "pre",
+          "code": "// Function declaration (hoisted)\nconsole.log(add(2, 3)); // 5\nfunction add(a, b) {\n  return a + b;\n}\n\n// Function expression (not hoisted)\nconsole.log(subtract(5, 2)); // ReferenceError\nconst subtract = function(a, b) {\n  return a - b;\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Arrow vs Regular Functions"
+        },
+        {
+          "type": "p",
+          "html": "Arrow functions are syntactically shorter and do not have their own <code>this</code>, <code>arguments</code>, or <code>super</code>—they inherit <code>this</code> from the enclosing lexical scope. Regular functions have their own <code>this</code> based on how they are called. Use arrow functions for callbacks or when you want to preserve the outer <code>this</code>; use regular functions when you need dynamic <code>this</code> binding or the <code>arguments</code> object."
+        },
+        {
+          "type": "pre",
+          "code": "const obj = {\n  name: 'Alice',\n  regularFunc: function() {\n    console.log(this.name); // 'Alice' (own this)\n  },\n  arrowFunc: () => {\n    console.log(this.name); // undefined (inherits from outer scope)\n  }\n};\nobj.regularFunc();\nobj.arrowFunc();",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "this Binding Rules"
+        },
+        {
+          "type": "p",
+          "html": "The value of <code>this</code> is determined by how a function is called, not where it's defined. There are four main rules: <strong>default binding</strong> (global object or <code>undefined</code> in strict mode), <strong>implicit binding</strong> (object method call), <strong>explicit binding</strong> (<code>call</code>/<code>apply</code>/<code>bind</code>), and <strong>new binding</strong> (constructor call). Arrow functions ignore these rules and use lexical scoping."
+        },
+        {
+          "type": "pre",
+          "code": "function showThis() {\n  console.log(this);\n}\n\n// Default binding (non-strict mode)\nshowThis(); // Window (or global)\n\n// Implicit binding\nconst obj = { name: 'Bob', show: showThis };\nobj.show(); // { name: 'Bob', show: f }\n\n// Explicit binding\nshowThis.call({ name: 'Charlie' }); // { name: 'Charlie' }\n\n// New binding\nnew showThis(); // showThis {}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip: this in Event Handlers",
+          "body": "In DOM event handlers, <code>this</code> refers to the element that fired the event when using a regular function. With an arrow function, <code>this</code> comes from the surrounding lexical context (e.g., the class instance). Interviewers often ask about this difference—be ready to explain it with an example."
+        },
+        {
+          "type": "h3",
+          "text": "call, apply, and bind"
+        },
+        {
+          "type": "p",
+          "html": "<code>call</code> and <code>apply</code> invoke a function immediately with a specified <code>this</code> value. <code>call</code> takes arguments individually; <code>apply</code> takes an array of arguments. <code>bind</code> returns a new function with a permanently bound <code>this</code> (and optional partial arguments) that can be called later. These are essential for borrowing methods and setting context."
+        },
+        {
+          "type": "pre",
+          "code": "const person = {\n  name: 'Dave',\n  greet: function(greeting, punctuation) {\n    console.log(greeting + ', ' + this.name + punctuation);\n  }\n};\n\nconst otherPerson = { name: 'Eve' };\n\nperson.greet.call(otherPerson, 'Hello', '!'); // Hello, Eve!\nperson.greet.apply(otherPerson, ['Hi', '?']); // Hi, Eve?\n\nconst boundGreet = person.greet.bind(otherPerson, 'Hey');\nboundGreet('.'); // Hey, Eve.",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "arguments Object vs Rest Parameters"
+        },
+        {
+          "type": "p",
+          "html": "The <code>arguments</code> object is an array-like object available inside regular functions (not arrow functions) that contains all passed arguments. Rest parameters (<code>...args</code>) are a modern alternative that provides a real array. Use rest parameters for cleaner code and array methods; avoid <code>arguments</code> unless you need backward compatibility."
+        },
+        {
+          "type": "pre",
+          "code": "// arguments object (regular function only)\nfunction sumArgs() {\n  let total = 0;\n  for (let i = 0; i < arguments.length; i++) {\n    total += arguments[i];\n  }\n  return total;\n}\nconsole.log(sumArgs(1, 2, 3)); // 6\n\n// Rest parameters (works in arrow functions too)\nconst sumRest = (...numbers) => numbers.reduce((acc, n) => acc + n, 0);\nconsole.log(sumRest(1, 2, 3)); // 6",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Currying"
+        },
+        {
+          "type": "p",
+          "html": "Currying transforms a function that takes multiple arguments into a sequence of functions each taking a single argument. It's useful for partial application and creating reusable, composable functions. In JavaScript, currying is often implemented manually or with libraries like Lodash."
+        },
+        {
+          "type": "pre",
+          "code": "// Manual currying\nfunction multiply(a) {\n  return function(b) {\n    return a * b;\n  };\n}\n\nconst double = multiply(2);\nconsole.log(double(5)); // 10\n\n// Arrow function currying\nconst add = a => b => a + b;\nconst add5 = add(5);\nconsole.log(add5(3)); // 8",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "What will the following code log?",
+          "options": [
+            "undefined",
+            "Window (global object)",
+            "The button element",
+            "The outer object"
+          ],
+          "answer": 2,
+          "explanation": "In a regular function used as a DOM event handler, <code>this</code> refers to the element that fired the event (the button). Arrow functions would inherit <code>this</code> from the enclosing scope, but here a regular function is used."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the difference between function declaration and function expression regarding hoisting?",
+              "back": "Function declarations are hoisted (can be called before definition); function expressions are not hoisted (must be defined before use)."
+            },
+            {
+              "front": "How does `this` behave differently in arrow functions vs regular functions?",
+              "back": "Arrow functions inherit `this` from the enclosing lexical scope; regular functions have their own `this` determined by how they are called."
+            },
+            {
+              "front": "What is the purpose of `bind`?",
+              "back": "`bind` creates a new function with a permanently bound `this` value (and optional partial arguments) that can be called later."
+            },
+            {
+              "front": "What is a key advantage of rest parameters over the `arguments` object?",
+              "back": "Rest parameters provide a real array, allowing use of array methods like `map`, `filter`, and `reduce` directly."
+            },
+            {
+              "front": "What is currying in JavaScript?",
+              "back": "Currying transforms a function with multiple arguments into a sequence of nested functions, each taking a single argument, enabling partial application."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "prototypes",
+      "num": "04 — CORE",
+      "title": "Prototypes & Inheritance",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Prototypes and inheritance are foundational to how JavaScript objects work. Interviewers frequently test your understanding of the prototype chain, <code>Object.create</code>, and how modern <code>class</code> syntax relates to prototypal inheritance. Mastering these concepts shows you grasp JavaScript's unique object model, not just syntactic sugar."
+        },
+        {
+          "type": "h3",
+          "text": "The Prototype Chain"
+        },
+        {
+          "type": "p",
+          "html": "Every JavaScript object has an internal link to another object called its <strong>prototype</strong>. When you access a property on an object, JavaScript first checks the object itself, then walks up the prototype chain until it finds the property or reaches <code>null</code>. This is how inheritance works in JavaScript."
+        },
+        {
+          "type": "pre",
+          "code": "const animal = { eats: true };\nconst dog = { barks: true };\nObject.setPrototypeOf(dog, animal);\n\nconsole.log(dog.eats); // true (inherited from animal)\nconsole.log(dog.barks); // true (own property)\nconsole.log(dog.hasOwnProperty('eats')); // false",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Object.create"
+        },
+        {
+          "type": "p",
+          "html": "<code>Object.create(proto)</code> creates a new object with the specified prototype. It's a clean way to set up inheritance without constructor functions. You can also pass a properties descriptor object as the second argument."
+        },
+        {
+          "type": "pre",
+          "code": "const vehicle = {\n  start() { return 'Engine started'; }\n};\n\nconst car = Object.create(vehicle);\ncar.drive = () => 'Driving';\n\nconsole.log(car.start()); // 'Engine started'\nconsole.log(Object.getPrototypeOf(car) === vehicle); // true",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Class Syntax Under the Hood"
+        },
+        {
+          "type": "p",
+          "html": "ES6 <code>class</code> is syntactic sugar over the existing prototype-based inheritance. A class's methods are stored on <code>ClassName.prototype</code>, and instances have a <code>__proto__</code> link to that prototype. The <code>constructor</code> method is called when you use <code>new</code>."
+        },
+        {
+          "type": "pre",
+          "code": "class Animal {\n  constructor(name) {\n    this.name = name;\n  }\n  speak() {\n    return `${this.name} makes a sound`;\n  }\n}\n\nclass Dog extends Animal {\n  speak() {\n    return `${this.name} barks`;\n  }\n}\n\nconst d = new Dog('Rex');\nconsole.log(d.speak()); // 'Rex barks'\nconsole.log(Object.getPrototypeOf(d) === Dog.prototype); // true\nconsole.log(Dog.prototype.__proto__ === Animal.prototype); // true",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Mixin Patterns"
+        },
+        {
+          "type": "p",
+          "html": "Since JavaScript only supports single inheritance through the prototype chain, mixins allow you to compose behavior from multiple sources. A mixin is an object with methods that you copy into another object's prototype."
+        },
+        {
+          "type": "pre",
+          "code": "const canFly = {\n  fly() { return `${this.name} is flying`; }\n};\n\nconst canSwim = {\n  swim() { return `${this.name} is swimming`; }\n};\n\nclass Bird {\n  constructor(name) { this.name = name; }\n}\n\n// Apply mixins\nObject.assign(Bird.prototype, canFly, canSwim);\n\nconst duck = new Bird('Duck');\nconsole.log(duck.fly());  // 'Duck is flying'\nconsole.log(duck.swim()); // 'Duck is swimming'",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "instanceof and Prototype Checks"
+        },
+        {
+          "type": "p",
+          "html": "The <code>instanceof</code> operator checks if the prototype property of a constructor appears anywhere in an object's prototype chain. For more precise checks, use <code>Object.getPrototypeOf</code> or <code>isPrototypeOf</code>."
+        },
+        {
+          "type": "pre",
+          "code": "function Car() {}\nconst myCar = new Car();\n\nconsole.log(myCar instanceof Car); // true\nconsole.log(myCar instanceof Object); // true\n\n// Manual check\nconsole.log(Car.prototype.isPrototypeOf(myCar)); // true\nconsole.log(Object.getPrototypeOf(myCar) === Car.prototype); // true",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Object.getPrototypeOf"
+        },
+        {
+          "type": "p",
+          "html": "<code>Object.getPrototypeOf(obj)</code> returns the prototype of a given object. It's the standard way to get the prototype (preferred over the deprecated <code>__proto__</code>). Use it to inspect or traverse the prototype chain."
+        },
+        {
+          "type": "pre",
+          "code": "const base = { x: 1 };\nconst derived = Object.create(base);\n\nconsole.log(Object.getPrototypeOf(derived)); // { x: 1 }\nconsole.log(Object.getPrototypeOf(derived) === base); // true\n\n// Traverse chain\nlet proto = Object.getPrototypeOf(derived);\nwhile (proto) {\n  console.log(proto);\n  proto = Object.getPrototypeOf(proto);\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip: Distinguish Own vs Inherited Properties",
+          "body": "Interviewers often ask how to tell if a property is on the object itself or inherited. Use <code>hasOwnProperty</code> (or <code>Object.hasOwn</code> in modern JS) to check. For example: <code>obj.hasOwnProperty('toString')</code> returns <code>false</code> because <code>toString</code> is inherited from <code>Object.prototype</code>."
+        },
+        {
+          "type": "quiz",
+          "question": "What does the following code log?",
+          "options": [
+            "true, true",
+            "true, false",
+            "false, true",
+            "false, false"
+          ],
+          "answer": 1,
+          "explanation": "The first log is true because 'bark' is an own property of dog. The second log is false because 'eat' is inherited from the prototype, not an own property of dog."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the prototype chain?",
+              "back": "A series of links between objects, where each object has a reference to its prototype. Property lookup traverses this chain until found or null."
+            },
+            {
+              "front": "How does Object.create work?",
+              "back": "Object.create(proto) creates a new object with proto as its prototype. Optionally accepts a properties descriptor object."
+            },
+            {
+              "front": "What does instanceof check?",
+              "back": "It checks if the prototype property of a constructor appears anywhere in an object's prototype chain."
+            },
+            {
+              "front": "How do mixins work in JavaScript?",
+              "back": "Mixins are objects with methods that are copied into another object's prototype using Object.assign, allowing composition of behavior."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "eventloop",
+      "num": "05 — CORE",
+      "title": "Event Loop & Asynchrony",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "The event loop is the core mechanism that enables JavaScript's non-blocking concurrency despite being single-threaded. Interviewers frequently probe this topic to assess your understanding of asynchronous execution order, which is critical for debugging race conditions and optimizing UI performance. Mastering the event loop distinguishes junior from senior developers."
+        },
+        {
+          "type": "h3",
+          "text": "Call Stack"
+        },
+        {
+          "type": "p",
+          "html": "The call stack is a LIFO (Last In, First Out) data structure that tracks function execution. When a function is called, it's pushed onto the stack; when it returns, it's popped off. The event loop can only process tasks when the call stack is empty."
+        },
+        {
+          "type": "pre",
+          "code": "function foo() {\n  console.log('foo');\n  bar();\n}\nfunction bar() {\n  console.log('bar');\n}\nfoo();\n// Stack: foo -> bar (then pop bar, pop foo)\n// Output: foo, bar",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Task Queue vs Microtask Queue"
+        },
+        {
+          "type": "p",
+          "html": "The task queue (macrotask queue) holds callbacks from <code>setTimeout</code>, <code>setInterval</code>, and I/O events. The microtask queue holds promises, <code>queueMicrotask</code>, and <code>MutationObserver</code> callbacks. After each macrotask, the event loop empties the entire microtask queue before processing the next macrotask."
+        },
+        {
+          "type": "pre",
+          "code": "console.log('1');\nsetTimeout(() => console.log('2'), 0);\nPromise.resolve().then(() => console.log('3'));\nconsole.log('4');\n// Output: 1, 4, 3, 2\n// Explanation: 1 and 4 are sync, then microtask (3) runs before macrotask (2)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip: Microtask Starvation",
+          "body": "If you recursively enqueue microtasks (e.g., a promise chain that never resolves), the microtask queue never empties, blocking macrotasks like rendering or <code>setTimeout</code>. This is a common performance pitfall—always ensure microtasks eventually yield."
+        },
+        {
+          "type": "h3",
+          "text": "setTimeout / setInterval Ordering"
+        },
+        {
+          "type": "p",
+          "html": "<code>setTimeout(fn, 0)</code> does not execute immediately; it schedules the callback as a macrotask with a minimum delay of 0ms (browsers clamp to 4ms after nesting). <code>setInterval</code> similarly queues callbacks, but if execution takes longer than the interval, callbacks can stack."
+        },
+        {
+          "type": "pre",
+          "code": "let count = 0;\nconst id = setInterval(() => {\n  console.log(count++);\n  if (count === 3) clearInterval(id);\n}, 100);\n// Output: 0, 1, 2 (each ~100ms apart)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "requestAnimationFrame"
+        },
+        {
+          "type": "p",
+          "html": "<code>requestAnimationFrame</code> schedules a callback before the next browser repaint, making it ideal for animations. It runs after microtasks but before the next macrotask, and is tied to the display refresh rate (typically 60fps)."
+        },
+        {
+          "type": "pre",
+          "code": "let start = null;\nfunction animate(timestamp) {\n  if (!start) start = timestamp;\n  const progress = timestamp - start;\n  element.style.transform = `translateX(${Math.min(progress / 10, 200)}px)`;\n  if (progress < 2000) requestAnimationFrame(animate);\n}\nrequestAnimationFrame(animate);",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "queueMicrotask"
+        },
+        {
+          "type": "p",
+          "html": "<code>queueMicrotask</code> explicitly adds a function to the microtask queue. It's useful for deferring work until after the current synchronous execution but before any macrotasks, such as batching DOM updates."
+        },
+        {
+          "type": "pre",
+          "code": "console.log('sync');\nqueueMicrotask(() => console.log('microtask'));\nconsole.log('sync end');\n// Output: sync, sync end, microtask",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Event Loop in Node.js vs Browser"
+        },
+        {
+          "type": "p",
+          "html": "Both environments use the same event loop concept, but Node.js has additional phases: timers, I/O callbacks, idle/prepare, poll, check (<code>setImmediate</code>), and close callbacks. The browser's event loop prioritizes rendering and user interactions, while Node.js focuses on I/O and timers."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Feature",
+            "Browser",
+            "Node.js"
+          ],
+          "rows": [
+            [
+              "Microtask execution",
+              "After each macrotask",
+              "After each phase"
+            ],
+            [
+              "requestAnimationFrame",
+              "Yes, before repaint",
+              "Not available"
+            ],
+            [
+              "setImmediate",
+              "Not available",
+              "Yes, in check phase"
+            ],
+            [
+              "I/O handling",
+              "Event-driven (e.g., fetch)",
+              "libuv thread pool"
+            ]
+          ]
+        },
+        {
+          "type": "quiz",
+          "question": "What is the output of the following code?\n\nconsole.log('A');\nsetTimeout(() => console.log('B'), 0);\nPromise.resolve().then(() => console.log('C'));\nconsole.log('D');",
+          "options": [
+            "A, B, C, D",
+            "A, D, C, B",
+            "A, D, B, C",
+            "D, A, C, B"
+          ],
+          "answer": 1,
+          "explanation": "Synchronous code runs first (A, D). Then microtasks (promise) run before macrotasks (setTimeout), so C logs before B. Output: A, D, C, B."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the event loop?",
+              "back": "A mechanism that continuously checks the call stack and queues, pushing callbacks from task/microtask queues onto the stack when it's empty."
+            },
+            {
+              "front": "Difference between macrotask and microtask?",
+              "back": "Macrotasks (setTimeout, I/O) are processed one per loop iteration; microtasks (promises, queueMicrotask) are all processed after each macrotask."
+            },
+            {
+              "front": "When does requestAnimationFrame run?",
+              "back": "After microtasks but before the next browser repaint, synchronized with the display refresh rate."
+            },
+            {
+              "front": "What is setImmediate in Node.js?",
+              "back": "A macrotask that runs in the check phase, after I/O callbacks but before timers (if scheduled in the same phase)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "promises",
+      "num": "06 — CORE",
+      "title": "Promises & Async/Await",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Promises and async/await are fundamental to modern JavaScript, especially for handling asynchronous operations like API calls and file I/O. Interviewers frequently test your understanding of promise states, chaining, and error handling to gauge your ability to write robust, non-blocking code. Mastery of these concepts is essential for senior-level roles and is a common topic in technical screens."
+        },
+        {
+          "type": "h3",
+          "text": "Promise States"
+        },
+        {
+          "type": "p",
+          "html": "A Promise has three states: <code>pending</code>, <code>fulfilled</code>, and <code>rejected</code>. Once settled (fulfilled or rejected), it cannot change state. This immutability is key for reliable async code."
+        },
+        {
+          "type": "pre",
+          "code": "const promise = new Promise((resolve, reject) => {\n  // pending\n  setTimeout(() => resolve('done'), 1000);\n});\nconsole.log(promise); // Promise { <pending> }\npromise.then(value => console.log(value)); // 'done' after 1s",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Promise Chaining"
+        },
+        {
+          "type": "p",
+          "html": "Chaining allows sequential async operations. Each <code>.then()</code> returns a new promise, enabling clean composition. Always return a value or promise from a <code>.then()</code> to continue the chain."
+        },
+        {
+          "type": "pre",
+          "code": "fetch('/api/user')\n  .then(res => res.json())\n  .then(user => fetch(`/api/posts?userId=${user.id}`))\n  .then(res => res.json())\n  .then(posts => console.log(posts))\n  .catch(err => console.error(err));",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Promise.all / race / allSettled / any"
+        },
+        {
+          "type": "p",
+          "html": "These static methods handle multiple promises: <code>Promise.all</code> rejects fast on any error; <code>Promise.race</code> settles on first settled promise; <code>Promise.allSettled</code> waits for all to settle (never rejects); <code>Promise.any</code> resolves on first fulfillment, rejects only if all reject."
+        },
+        {
+          "type": "pre",
+          "code": "const p1 = Promise.resolve(1);\nconst p2 = Promise.reject('err');\nconst p3 = new Promise(resolve => setTimeout(() => resolve(3), 100));\n\nPromise.allSettled([p1, p2, p3]).then(results => {\n  console.log(results);\n  // [{status:'fulfilled', value:1}, {status:'rejected', reason:'err'}, {status:'fulfilled', value:3}]\n});",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip: Error Handling in Promise.all",
+          "body": "Remember that <code>Promise.all</code> fails fast—if any promise rejects, the entire promise rejects immediately. Use <code>Promise.allSettled</code> when you need results from all promises regardless of failures, such as batch API calls where partial success is acceptable."
+        },
+        {
+          "type": "h3",
+          "text": "Async/Await Internals"
+        },
+        {
+          "type": "p",
+          "html": "An <code>async</code> function always returns a promise. <code>await</code> pauses execution until the awaited promise settles, then resumes the function. Under the hood, it's syntactic sugar over generators and promises, managed by the event loop."
+        },
+        {
+          "type": "pre",
+          "code": "async function fetchData() {\n  const response = await fetch('/api/data');\n  const data = await response.json();\n  return data;\n}\n// Equivalent to:\n// function fetchData() { return fetch('/api/data').then(res => res.json()); }",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Error Handling with try/catch"
+        },
+        {
+          "type": "p",
+          "html": "Use <code>try/catch</code> blocks to handle errors in async functions. Uncaught rejections in async functions result in unhandled promise rejections. Always wrap <code>await</code> calls in try/catch or attach a <code>.catch()</code> to the returned promise."
+        },
+        {
+          "type": "pre",
+          "code": "async function getUser(id) {\n  try {\n    const user = await fetch(`/api/users/${id}`);\n    if (!user.ok) throw new Error('User not found');\n    return await user.json();\n  } catch (error) {\n    console.error('Failed to fetch user:', error);\n    throw error; // re-throw if needed\n  }\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Common Async Pitfalls"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Forgetting to <code>await</code> inside an async function (returns a promise, not the value).",
+            "Using <code>forEach</code> with async callbacks (doesn't wait for promises); use <code>for...of</code> or <code>Promise.all</code> instead.",
+            "Not handling errors in promise chains (missing <code>.catch()</code> or try/catch).",
+            "Mixing callbacks and promises (leads to callback hell or unhandled rejections).",
+            "Assuming <code>Promise.all</code> runs promises in sequence (it runs them concurrently)."
+          ]
+        },
+        {
+          "type": "quiz",
+          "question": "What does the following code log?",
+          "options": [
+            "1, 2, 3",
+            "3, 2, 1",
+            "1, 3, 2",
+            "2, 1, 3"
+          ],
+          "answer": 2,
+          "explanation": "The async function logs 1, then awaits a microtask (Promise.resolve), so 3 is logged next (since the await yields to the microtask queue), then 2 is logged after the await completes. Output: 1, 3, 2."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What are the three states of a Promise?",
+              "back": "Pending, Fulfilled, Rejected"
+            },
+            {
+              "front": "How does Promise.allSettled differ from Promise.all?",
+              "back": "Promise.allSettled never rejects; it waits for all promises to settle and returns an array of result objects with status and value/reason."
+            },
+            {
+              "front": "What does an async function always return?",
+              "back": "A Promise. If the function returns a value, it's wrapped in a resolved promise; if it throws, it's a rejected promise."
+            },
+            {
+              "front": "Why is using forEach with async/await problematic?",
+              "back": "forEach does not await promises; it fires all callbacks concurrently. Use for...of or Promise.all for sequential or parallel async operations."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "es6",
+      "num": "07 — MODERN JS",
+      "title": "ES6+ & Modern Syntax",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Modern JavaScript (ES6+) features are essential for writing cleaner, more efficient code and are frequently tested in interviews. Mastering destructuring, spread/rest, template literals, optional chaining, nullish coalescing, generators, iterators, and weak collections demonstrates a deep understanding of the language's evolution. This section covers the most commonly asked topics with practical examples."
+        },
+        {
+          "type": "h3",
+          "text": "Destructuring"
+        },
+        {
+          "type": "p",
+          "html": "Destructuring allows you to unpack values from arrays or properties from objects into distinct variables. It simplifies code and reduces repetition, especially when working with function returns or API responses."
+        },
+        {
+          "type": "pre",
+          "code": "// Array destructuring\nconst [first, second] = [10, 20];\nconsole.log(first); // 10\n\n// Object destructuring with renaming\nconst user = { name: 'Alice', age: 30 };\nconst { name: userName, age } = user;\nconsole.log(userName); // 'Alice'",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Spread and Rest Operators"
+        },
+        {
+          "type": "p",
+          "html": "The spread operator (<code>...</code>) expands an iterable into individual elements, while the rest operator collects multiple elements into an array. They are used for copying arrays/objects, merging, and handling variable arguments."
+        },
+        {
+          "type": "pre",
+          "code": "// Spread: copy and merge arrays\nconst arr1 = [1, 2];\nconst arr2 = [...arr1, 3, 4]; // [1, 2, 3, 4]\n\n// Rest: collect function arguments\nfunction sum(...numbers) {\n  return numbers.reduce((acc, n) => acc + n, 0);\n}\nconsole.log(sum(1, 2, 3)); // 6",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Template Literals"
+        },
+        {
+          "type": "p",
+          "html": "Template literals use backticks (<code>`</code>) and support embedded expressions via <code>${}</code>. They make string interpolation and multi-line strings much more readable."
+        },
+        {
+          "type": "pre",
+          "code": "const name = 'Bob';\nconst greeting = `Hello, ${name}!`;\nconsole.log(greeting); // 'Hello, Bob!'\n\nconst multiLine = `This is\na multi-line\nstring.`;",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Optional Chaining and Nullish Coalescing"
+        },
+        {
+          "type": "p",
+          "html": "Optional chaining (<code>?.</code>) safely accesses nested properties without throwing an error if a reference is <code>null</code> or <code>undefined</code>. Nullish coalescing (<code>??</code>) returns the right-hand operand only when the left is <code>null</code> or <code>undefined</code> (not for other falsy values)."
+        },
+        {
+          "type": "pre",
+          "code": "const user = { profile: { name: 'Alice' } };\nconsole.log(user?.profile?.name); // 'Alice'\nconsole.log(user?.address?.city); // undefined\n\nconst value = 0;\nconst result = value ?? 'default';\nconsole.log(result); // 0 (not 'default')",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "When asked about optional chaining, emphasize that it short-circuits—if a property is null/undefined, the entire chain returns undefined without evaluating further. This prevents runtime errors in deeply nested data."
+        },
+        {
+          "type": "h3",
+          "text": "Generators and Iterators"
+        },
+        {
+          "type": "p",
+          "html": "Generators are functions that can be paused and resumed using <code>function*</code> and <code>yield</code>. They return an iterator object. Iterators implement the <code>next()</code> method and are used with <code>for...of</code> loops."
+        },
+        {
+          "type": "pre",
+          "code": "function* idGenerator() {\n  let id = 1;\n  while (true) {\n    yield id++;\n  }\n}\nconst gen = idGenerator();\nconsole.log(gen.next().value); // 1\nconsole.log(gen.next().value); // 2\n\n// Custom iterator\nconst range = {\n  from: 1, to: 3,\n  [Symbol.iterator]() {\n    let current = this.from;\n    const end = this.to;\n    return {\n      next() {\n        return current <= end\n          ? { value: current++, done: false }\n          : { done: true };\n      }\n    };\n  }\n};\nfor (const num of range) console.log(num); // 1, 2, 3",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "WeakMap, WeakSet, and WeakRef"
+        },
+        {
+          "type": "p",
+          "html": "WeakMap and WeakSet hold weak references to objects, meaning they don't prevent garbage collection. They are useful for private data or caching without memory leaks. WeakRef (ES2021) allows holding a weak reference to an object without preventing its collection."
+        },
+        {
+          "type": "pre",
+          "code": "// WeakMap: keys must be objects\nconst wm = new WeakMap();\nlet obj = {};\nwm.set(obj, 'private data');\nobj = null; // obj can be garbage collected\n\n// WeakSet: similar, stores objects weakly\nconst ws = new WeakSet();\nlet obj2 = {};\nws.add(obj2);\nobj2 = null; // obj2 can be garbage collected\n\n// WeakRef (ES2021)\nlet ref = new WeakRef({});\nconsole.log(ref.deref()); // object or undefined if collected",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "What does the nullish coalescing operator (??) return for the expression: `null ?? 'default'`?",
+          "options": [
+            "null",
+            "'default'",
+            "undefined",
+            "Error"
+          ],
+          "answer": 1,
+          "explanation": "The nullish coalescing operator returns the right-hand operand only when the left is null or undefined. Here, null triggers the default, so it returns 'default'."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the difference between spread and rest operators?",
+              "back": "Spread expands an iterable into elements (used in arrays/objects). Rest collects multiple elements into an array (used in function parameters)."
+            },
+            {
+              "front": "How does optional chaining prevent errors?",
+              "back": "It short-circuits and returns undefined if a property is null/undefined, instead of throwing a TypeError."
+            },
+            {
+              "front": "What is a generator function?",
+              "back": "A function declared with function* that can pause execution using yield and resume later, returning an iterator."
+            },
+            {
+              "front": "Why use WeakMap instead of Map?",
+              "back": "WeakMap holds weak references to keys (objects), allowing garbage collection when no other references exist, preventing memory leaks."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "modules",
+      "num": "08 — MODERN JS",
+      "title": "Modules & the Build Pipeline",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "This section covers the module system and build pipeline—critical knowledge for any JavaScript interview. You'll need to understand the differences between ES modules and CommonJS, how bundlers like Webpack and Rollup work, and modern features like tree shaking and top-level await. Mastering these topics shows you can write maintainable, performant code in real-world projects."
+        },
+        {
+          "type": "h3",
+          "text": "ES Modules vs CommonJS"
+        },
+        {
+          "type": "p",
+          "html": "ES modules (ESM) are the official standard for JavaScript modules, using <code>import</code>/<code>export</code> syntax. CommonJS (CJS) is Node.js's original module system, using <code>require()</code>/<code>module.exports</code>. Key differences: ESM is static (imports are hoisted and analyzed at parse time), while CJS is dynamic (require can be called conditionally). ESM supports tree shaking; CJS does not."
+        },
+        {
+          "type": "pre",
+          "code": "// ES module (ESM)\n// math.mjs\nexport const add = (a, b) => a + b;\nexport default function multiply(a, b) { return a * b; }\n\n// app.mjs\nimport multiply, { add } from './math.mjs';\nconsole.log(add(2, 3)); // 5\nconsole.log(multiply(2, 3)); // 6",
+          "label": "JavaScript (ESM)"
+        },
+        {
+          "type": "pre",
+          "code": "// CommonJS (CJS)\n// math.js\nconst add = (a, b) => a + b;\nfunction multiply(a, b) { return a * b; }\nmodule.exports = { add, multiply };\n\n// app.js\nconst { add, multiply } = require('./math.js');\nconsole.log(add(2, 3)); // 5\nconsole.log(multiply(2, 3)); // 6",
+          "label": "JavaScript (CJS)"
+        },
+        {
+          "type": "h3",
+          "text": "Static vs Dynamic Import"
+        },
+        {
+          "type": "p",
+          "html": "Static imports (<code>import ... from 'module'</code>) are evaluated at parse time, enabling optimizations like tree shaking. Dynamic imports (<code>import('module')</code>) return a promise and allow lazy loading at runtime. Use dynamic imports for code splitting or conditionally loading modules."
+        },
+        {
+          "type": "pre",
+          "code": "// Static import (compile-time)\nimport { format } from 'date-fns';\n\n// Dynamic import (runtime)\nconst loadChart = async () => {\n  const { Chart } = await import('chart.js');\n  new Chart(ctx, config);\n};\n\n// Conditional dynamic import\nif (user.isAdmin) {\n  const adminModule = await import('./admin.js');\n  adminModule.init();\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Tree Shaking"
+        },
+        {
+          "type": "p",
+          "html": "Tree shaking is a dead-code elimination technique performed by bundlers (like Webpack, Rollup) that removes unused exports. It relies on static analysis of ES module imports. Only works with ESM, not CJS. To maximize tree shaking, avoid side effects in modules and use named exports."
+        },
+        {
+          "type": "pre",
+          "code": "// utils.js\nexport const used = () => 'I am used';\nexport const unused = () => 'I am dead code'; // will be removed\n\n// app.js\nimport { used } from './utils.js';\nconsole.log(used()); // Only 'used' survives bundling",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "When asked about tree shaking, mention that bundlers mark modules with <code>sideEffects: false</code> in <code>package.json</code> to safely remove unused code. Also note that dynamic imports can break tree shaking because the module is loaded at runtime."
+        },
+        {
+          "type": "h3",
+          "text": "Circular Dependency Pitfalls"
+        },
+        {
+          "type": "p",
+          "html": "Circular dependencies occur when two modules import each other. In CJS, this can lead to <code>undefined</code> values because <code>module.exports</code> is not fully populated at the time of require. ESM handles this better with live bindings, but still requires careful design. Best practice: refactor to avoid cycles."
+        },
+        {
+          "type": "pre",
+          "code": "// CJS circular dependency example\n// a.js\nconst b = require('./b.js');\nconsole.log(b); // undefined (if b.js requires a.js first)\nmodule.exports = { value: 'A' };\n\n// b.js\nconst a = require('./a.js');\nconsole.log(a); // { value: 'A' }\nmodule.exports = { value: 'B' };",
+          "label": "JavaScript (CJS)"
+        },
+        {
+          "type": "h3",
+          "text": "Bundler Basics"
+        },
+        {
+          "type": "p",
+          "html": "Bundlers like Webpack, Rollup, and Parcel take multiple JavaScript files and combine them into optimized bundles for the browser. They handle module resolution, code splitting, minification, and asset processing. Key concepts: entry point, output, loaders (for non-JS files), and plugins (for advanced transformations)."
+        },
+        {
+          "type": "pre",
+          "code": "// Simple Webpack config (webpack.config.js)\nconst path = require('path');\n\nmodule.exports = {\n  entry: './src/index.js',\n  output: {\n    filename: 'bundle.js',\n    path: path.resolve(__dirname, 'dist'),\n  },\n  module: {\n    rules: [\n      { test: /\\.css$/, use: ['style-loader', 'css-loader'] },\n    ],\n  },\n  mode: 'production',\n};",
+          "label": "JavaScript (Webpack)"
+        },
+        {
+          "type": "h3",
+          "text": "Top-Level Await"
+        },
+        {
+          "type": "p",
+          "html": "Top-level await allows using <code>await</code> outside of async functions in ES modules. It blocks the module's execution until the promise resolves, making it easier to initialize modules with async dependencies. Supported in modern browsers and Node.js (ESM only)."
+        },
+        {
+          "type": "pre",
+          "code": "// db.mjs\nimport { connect } from 'db-driver';\nexport const db = await connect('mongodb://localhost:27017');\n\n// app.mjs\nimport { db } from './db.mjs';\n// db is ready to use immediately\nconst data = await db.find('users');",
+          "label": "JavaScript (ESM)"
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is true about tree shaking?",
+          "options": [
+            "It works with both CommonJS and ES modules",
+            "It removes unused code at runtime",
+            "It relies on static analysis of ES module imports",
+            "It is automatically enabled in all bundlers"
+          ],
+          "answer": 2,
+          "explanation": "Tree shaking uses static analysis of ES module imports to remove dead code at build time. It does not work with CommonJS (which is dynamic) and must be explicitly configured in bundlers like Webpack."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the key difference between ES modules and CommonJS?",
+              "back": "ES modules use static import/export syntax (analyzed at parse time), while CommonJS uses dynamic require() (evaluated at runtime). ESM supports tree shaking; CJS does not."
+            },
+            {
+              "front": "What is tree shaking?",
+              "back": "A build-time optimization that removes unused exports from the final bundle, relying on static analysis of ES module imports."
+            },
+            {
+              "front": "What is a circular dependency and why is it problematic?",
+              "back": "When two modules import each other. In CJS, it can cause undefined values because module.exports is not fully populated. ESM handles it better with live bindings, but cycles should still be avoided."
+            },
+            {
+              "front": "What is top-level await?",
+              "back": "A feature in ES modules that allows using await outside of async functions, blocking module execution until the promise resolves. Useful for async module initialization."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "patterns",
+      "num": "09 — ADVANCED",
+      "title": "Patterns & Functional Techniques",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Patterns and functional techniques are core to writing maintainable, scalable JavaScript. Interviewers frequently test your understanding of these patterns to gauge your ability to structure code, manage state, and optimize performance. Mastering these topics demonstrates both theoretical knowledge and practical problem-solving skills."
+        },
+        {
+          "type": "h3",
+          "text": "Module Pattern"
+        },
+        {
+          "type": "p",
+          "html": "The module pattern encapsulates private state and exposes only a public API, preventing global scope pollution. It leverages closures to create private variables and methods."
+        },
+        {
+          "type": "pre",
+          "code": "const CounterModule = (function() {\n  let count = 0; // private\n\n  return {\n    increment() { count++; },\n    decrement() { count--; },\n    getCount() { return count; }\n  };\n})();\n\nCounterModule.increment();\nconsole.log(CounterModule.getCount()); // 1\nconsole.log(CounterModule.count); // undefined (private)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Observer / Pub-Sub Pattern"
+        },
+        {
+          "type": "p",
+          "html": "The Observer pattern allows objects (subscribers) to listen for events on another object (subject). Pub-Sub (Publish-Subscribe) decouples this further with a message broker. Both are essential for event-driven architectures."
+        },
+        {
+          "type": "pre",
+          "code": "class EventBus {\n  constructor() {\n    this.listeners = {};\n  }\n\n  subscribe(event, callback) {\n    if (!this.listeners[event]) this.listeners[event] = [];\n    this.listeners[event].push(callback);\n    return () => this.unsubscribe(event, callback);\n  }\n\n  publish(event, data) {\n    (this.listeners[event] || []).forEach(cb => cb(data));\n  }\n\n  unsubscribe(event, callback) {\n    this.listeners[event] = (this.listeners[event] || []).filter(cb => cb !== callback);\n  }\n}\n\nconst bus = new EventBus();\nconst unsub = bus.subscribe('userLogin', (user) => console.log(`Welcome ${user}`));\nbus.publish('userLogin', 'Alice'); // Welcome Alice\nunsub();\nbus.publish('userLogin', 'Bob'); // no output",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Debounce vs Throttle"
+        },
+        {
+          "type": "p",
+          "html": "Debounce delays execution until after a pause in calls, while throttle ensures execution at most once per interval. Use debounce for search inputs, throttle for scroll/resize events."
+        },
+        {
+          "type": "pre",
+          "code": "function debounce(fn, delay) {\n  let timer;\n  return function(...args) {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn.apply(this, args), delay);\n  };\n}\n\nfunction throttle(fn, limit) {\n  let inThrottle = false;\n  return function(...args) {\n    if (!inThrottle) {\n      fn.apply(this, args);\n      inThrottle = true;\n      setTimeout(() => inThrottle = false, limit);\n    }\n  };\n}\n\n// Usage\nconst log = () => console.log('called');\nconst debouncedLog = debounce(log, 300);\nconst throttledLog = throttle(log, 300);",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "When implementing debounce or throttle, always handle the <code>this</code> context correctly using <code>fn.apply(this, args)</code>. Interviewers often check for this subtlety."
+        },
+        {
+          "type": "h3",
+          "text": "Memoization"
+        },
+        {
+          "type": "p",
+          "html": "Memoization caches function results based on arguments, avoiding redundant computations for pure functions. It's a classic optimization technique."
+        },
+        {
+          "type": "pre",
+          "code": "function memoize(fn) {\n  const cache = new Map();\n  return function(...args) {\n    const key = JSON.stringify(args);\n    if (cache.has(key)) return cache.get(key);\n    const result = fn.apply(this, args);\n    cache.set(key, result);\n    return result;\n  };\n}\n\nconst factorial = memoize(function(n) {\n  if (n <= 1) return 1;\n  return n * factorial(n - 1);\n});\n\nconsole.log(factorial(5)); // 120 (computed)\nconsole.log(factorial(5)); // 120 (cached)",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Factory vs Constructor"
+        },
+        {
+          "type": "p",
+          "html": "Constructors (with <code>new</code>) create instances linked to a prototype, while factories return any object without <code>new</code>. Factories offer more flexibility (closures, conditionals) but lack prototype inheritance."
+        },
+        {
+          "type": "pre",
+          "code": "// Constructor\nfunction Car(make, model) {\n  this.make = make;\n  this.model = model;\n}\nCar.prototype.drive = function() { console.log('Driving'); };\nconst car1 = new Car('Toyota', 'Camry');\n\n// Factory\nfunction createCar(make, model) {\n  return {\n    make,\n    model,\n    drive() { console.log('Driving'); }\n  };\n}\nconst car2 = createCar('Honda', 'Civic');\n\nconsole.log(car1 instanceof Car); // true\nconsole.log(car2 instanceof Car); // false",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Immutability Patterns"
+        },
+        {
+          "type": "p",
+          "html": "Immutability prevents unintended side effects by creating new objects/arrays instead of mutating existing ones. Use <code>Object.assign</code>, spread operator, or libraries like Immer."
+        },
+        {
+          "type": "pre",
+          "code": "const state = { user: { name: 'Alice', age: 30 }, items: [1, 2, 3] };\n\n// Mutating (bad)\nstate.user.age = 31;\n\n// Immutable update\nconst newState = {\n  ...state,\n  user: { ...state.user, age: 31 },\n  items: [...state.items, 4]\n};\n\nconsole.log(state.user.age); // 30 (unchanged)\nconsole.log(newState.user.age); // 31",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "Which pattern is best for decoupling components in an event-driven system?",
+          "options": [
+            "Module Pattern",
+            "Factory Pattern",
+            "Pub-Sub Pattern",
+            "Memoization"
+          ],
+          "answer": 2,
+          "explanation": "Pub-Sub (Publish-Subscribe) decouples publishers from subscribers via a message broker, making it ideal for event-driven architectures."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the module pattern?",
+              "back": "Encapsulates private state using closures, exposing only a public API to avoid global scope pollution."
+            },
+            {
+              "front": "Difference between debounce and throttle?",
+              "back": "Debounce delays execution until after a pause; throttle limits execution to once per interval."
+            },
+            {
+              "front": "What does memoization cache?",
+              "back": "Function return values based on arguments, avoiding recomputation for pure functions."
+            },
+            {
+              "front": "Factory vs Constructor: key difference?",
+              "back": "Constructors use 'new' and prototype inheritance; factories return any object without 'new', offering more flexibility."
+            },
+            {
+              "front": "How to update an object immutably?",
+              "back": "Use spread operator or Object.assign to create a new object with the desired changes, leaving the original unchanged."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "memory",
+      "num": "10 — ADVANCED",
+      "title": "Memory Management & Performance",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Memory management and performance are critical topics in JavaScript interviews, as they test your understanding of how the engine handles resources under the hood. Interviewers often probe these areas to gauge your ability to write efficient, leak-free code in production. This section covers garbage collection, common memory leaks, and profiling techniques to help you stand out."
+        },
+        {
+          "type": "h3",
+          "text": "Garbage Collection: Mark-and-Sweep"
+        },
+        {
+          "type": "p",
+          "html": "JavaScript uses automatic garbage collection, primarily via the <strong>mark-and-sweep</strong> algorithm. It starts from root objects (e.g., global object, local variables) and marks all reachable objects, then sweeps away unmarked ones. This is why unreferenced objects are eventually freed."
+        },
+        {
+          "type": "pre",
+          "code": "// Object becomes unreachable after function returns\nfunction createUser() {\n  let user = { name: 'Alice' };\n  return user;\n}\nlet userRef = createUser();\nuserRef = null; // Now eligible for GC",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Common Causes of Memory Leaks"
+        },
+        {
+          "type": "p",
+          "html": "Memory leaks occur when objects are no longer needed but remain referenced, preventing garbage collection. Common causes include: <strong>global variables</strong>, <strong>forgotten timers</strong>, <strong>detached DOM nodes</strong>, and <strong>closures</strong> that retain large data."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Global variables: Accidental globals (e.g., undeclared variable) persist forever.",
+            "Timers: setInterval/setTimeout with references to DOM or large objects.",
+            "Detached DOM: JavaScript holding references to removed DOM elements.",
+            "Closures: Functions that capture outer scope variables, preventing their release."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Closure-Based Leaks"
+        },
+        {
+          "type": "p",
+          "html": "Closures can cause memory leaks when they capture large objects or DOM references that outlive their intended use. For example, an event listener inside a closure may keep a reference to a whole scope."
+        },
+        {
+          "type": "pre",
+          "code": "function setupButton() {\n  let largeData = new Array(1000000).fill('leak');\n  document.getElementById('btn').addEventListener('click', function() {\n    console.log('clicked'); // closure retains largeData\n  });\n}\n// largeData persists as long as the listener exists",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "When asked about closure leaks, mention that modern engines optimize by not retaining unused variables, but <code>eval</code> or <code>with</code> can break this. Always nullify references when removing listeners."
+        },
+        {
+          "type": "h3",
+          "text": "WeakMap for Private Data"
+        },
+        {
+          "type": "p",
+          "html": "<code>WeakMap</code> holds weak references to keys, meaning it doesn't prevent garbage collection if no other references exist. This is ideal for storing private data without causing memory leaks."
+        },
+        {
+          "type": "pre",
+          "code": "const privateData = new WeakMap();\nclass User {\n  constructor(name) {\n    privateData.set(this, { name });\n  }\n  getName() {\n    return privateData.get(this).name;\n  }\n}\nlet user = new User('Bob');\nuser = null; // privateData entry is GC'd automatically",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Performance.now and Profiling"
+        },
+        {
+          "type": "p",
+          "html": "Use <code>performance.now()</code> for high-resolution timing (microseconds) to measure code execution. For deeper profiling, browser DevTools (Performance tab) can record memory allocations and identify bottlenecks."
+        },
+        {
+          "type": "pre",
+          "code": "const start = performance.now();\nfor (let i = 0; i < 1000000; i++) {\n  Math.sqrt(i);\n}\nconst end = performance.now();\nconsole.log(`Loop took ${end - start} ms`);",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "V8 Hidden Classes"
+        },
+        {
+          "type": "p",
+          "html": "V8 optimizes object property access using <strong>hidden classes</strong> (also called maps). When you add properties in a consistent order, objects share the same hidden class, enabling faster property lookups. Changing property order or deleting properties can cause deoptimization."
+        },
+        {
+          "type": "pre",
+          "code": "// Efficient: same property order\nfunction Point(x, y) {\n  this.x = x;\n  this.y = y;\n}\nlet p1 = new Point(1, 2);\nlet p2 = new Point(3, 4); // shares hidden class\n\n// Inefficient: different order\nfunction BadPoint(x, y) {\n  this.y = y;\n  this.x = x; // different order\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is NOT a common cause of memory leaks in JavaScript?",
+          "options": [
+            "Using WeakMap for private data",
+            "Global variables from undeclared variables",
+            "Closures that capture large objects",
+            "Forgotten setInterval callbacks"
+          ],
+          "answer": 0,
+          "explanation": "WeakMap actually helps prevent memory leaks by allowing garbage collection of keys. The other options are well-known leak causes."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What algorithm does JavaScript use for garbage collection?",
+              "back": "Mark-and-sweep: marks reachable objects from roots, then sweeps unmarked ones."
+            },
+            {
+              "front": "How does WeakMap help with memory management?",
+              "back": "It holds weak references to keys, so if no other reference exists, the key-value pair is garbage collected."
+            },
+            {
+              "front": "What is a hidden class in V8?",
+              "back": "An internal structure that tracks object property layout for optimized access; consistent property order improves performance."
+            },
+            {
+              "front": "Name two common memory leak sources.",
+              "back": "Global variables and forgotten timers/event listeners that retain references."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

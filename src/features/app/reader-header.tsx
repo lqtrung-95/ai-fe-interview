@@ -32,22 +32,27 @@ export function ReaderHeader({ user }: Props) {
   const pathname = usePathname();
 
   const isDark = resolvedTheme === 'dark';
-  const resourcesActive = pathname === '/resources' || pathname.startsWith('/resources/');
+  const isResourcesIndex = pathname === '/resources';
 
-  // Derive breadcrumb label + href from the current path
-  const resourceLabel = pathname.startsWith('/resources/glossary')
-    ? 'Glossary'
-    : pathname.startsWith('/resources/frontend-system-design')
-      ? 'Handbook'
-      : 'Resources';
-  const resourceHref = pathname.startsWith('/resources/glossary')
-    ? '/resources/glossary'
-    : pathname.startsWith('/resources/frontend-system-design')
-      ? '/resources/frontend-system-design'
-      : '/resources';
+  // Label + href for the specific handbook/glossary sub-page (null on the index)
+  const handbookLabel =
+    pathname.startsWith('/resources/glossary')          ? 'Glossary'
+    : pathname.startsWith('/resources/frontend-system-design') ? 'System Design'
+    : pathname.startsWith('/resources/javascript-core') ? 'JavaScript Core'
+    : pathname.startsWith('/resources/react-deep-dive') ? 'React Deep Dive'
+    : pathname.startsWith('/resources/optimization-deep-dive') ? 'Optimization'
+    : null;
+
+  const handbookHref =
+    pathname.startsWith('/resources/glossary')          ? '/resources/glossary'
+    : pathname.startsWith('/resources/frontend-system-design') ? '/resources/frontend-system-design'
+    : pathname.startsWith('/resources/javascript-core') ? '/resources/javascript-core'
+    : pathname.startsWith('/resources/react-deep-dive') ? '/resources/react-deep-dive'
+    : pathname.startsWith('/resources/optimization-deep-dive') ? '/resources/optimization-deep-dive'
+    : '/resources';
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/90 px-5 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/90 px-5 backdrop-blur-md supports-[backdrop-filter]:bg-background/75 print:hidden">
       {/* Left — breadcrumb */}
       <div className="flex items-center gap-1">
         {user ? (
@@ -71,18 +76,32 @@ export function ReaderHeader({ user }: Props) {
             <span className="hidden sm:inline font-semibold">Frontend Coach</span>
           </Link>
         )}
+        {/* Resources crumb — active when on the index, otherwise a link */}
         <Link
-          href={resourceHref}
+          href="/resources"
           className={
             'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 ' +
-            (resourcesActive
+            (isResourcesIndex
               ? 'bg-primary/12 text-primary'
               : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground')
           }
         >
           <Library className="h-3.5 w-3.5 shrink-0" />
-          {resourceLabel}
+          Resources
         </Link>
+
+        {/* Handbook crumb — only on a specific handbook/glossary page */}
+        {handbookLabel && (
+          <>
+            <ChevronRight className="h-3 w-3 text-muted-foreground/30 shrink-0" />
+            <Link
+              href={handbookHref}
+              className="rounded-lg px-2.5 py-1.5 text-xs font-medium bg-primary/12 text-primary"
+            >
+              {handbookLabel}
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Right — controls */}

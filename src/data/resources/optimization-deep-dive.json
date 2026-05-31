@@ -1,0 +1,3079 @@
+{
+  "meta": {
+    "title": "Optimization Deep Dive — Staff-Level Performance Handbook",
+    "description": "Every frontend performance technique organized by use case — from measurement and bundle size to rendering, React internals, network, and memory. Each with its trade-offs and when NOT to use it.",
+    "stats": [
+      {
+        "value": "17",
+        "label": "Use Cases"
+      },
+      {
+        "value": "17",
+        "label": "Quizzes"
+      },
+      {
+        "value": "85",
+        "label": "Flashcards"
+      },
+      {
+        "value": "20",
+        "label": "Decision Tables"
+      }
+    ]
+  },
+  "nav": [
+    {
+      "id": "measure",
+      "label": "Measurement & Profiling",
+      "group": "DIAGNOSE"
+    },
+    {
+      "id": "bundle",
+      "label": "Bundle Size & Code Splitting",
+      "group": "LOADING"
+    },
+    {
+      "id": "buildtool",
+      "label": "Build Tooling & Chunking",
+      "group": "LOADING"
+    },
+    {
+      "id": "assets",
+      "label": "Image & Font Optimization",
+      "group": "LOADING"
+    },
+    {
+      "id": "crp",
+      "label": "Critical Rendering Path",
+      "group": "LOADING"
+    },
+    {
+      "id": "thirdparty",
+      "label": "Third-Party Scripts",
+      "group": "LOADING"
+    },
+    {
+      "id": "rendering",
+      "label": "Rendering & Paint Performance",
+      "group": "RUNTIME"
+    },
+    {
+      "id": "css",
+      "label": "CSS Performance",
+      "group": "RUNTIME"
+    },
+    {
+      "id": "lists",
+      "label": "Large Lists & Heavy DOM",
+      "group": "RUNTIME"
+    },
+    {
+      "id": "concurrency",
+      "label": "Main Thread & Concurrency",
+      "group": "RUNTIME"
+    },
+    {
+      "id": "react-render",
+      "label": "React Re-render Optimization",
+      "group": "REACT"
+    },
+    {
+      "id": "react-concurrent",
+      "label": "React Concurrent & Loading",
+      "group": "REACT"
+    },
+    {
+      "id": "ssr-hydration",
+      "label": "SSR & Hydration Cost",
+      "group": "REACT"
+    },
+    {
+      "id": "network",
+      "label": "Network & Caching",
+      "group": "NETWORK & DATA"
+    },
+    {
+      "id": "data",
+      "label": "Data Fetching Optimization",
+      "group": "NETWORK & DATA"
+    },
+    {
+      "id": "perceived",
+      "label": "Perceived Performance",
+      "group": "PERCEIVED & MEMORY"
+    },
+    {
+      "id": "memory",
+      "label": "Memory Optimization",
+      "group": "PERCEIVED & MEMORY"
+    }
+  ],
+  "sections": [
+    {
+      "id": "measure",
+      "num": "01 — DIAGNOSE",
+      "title": "Measurement & Profiling",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Before you touch a single line of code, you must identify the real bottleneck — not the one you <em>think</em> exists. At scale, optimizing the wrong thing wastes engineering time and can degrade user experience. This section teaches you to measure precisely, distinguish lab from field data, and apply a disciplined <strong>measure → optimize → verify</strong> loop."
+        },
+        {
+          "type": "h3",
+          "text": "Core Web Vitals: The North Star Metrics"
+        },
+        {
+          "type": "p",
+          "html": "Google's Core Web Vitals define user-centric thresholds: <strong>LCP</strong> (<2.5s) for loading, <strong>INP</strong> (<200ms) for interactivity, <strong>CLS</strong> (<0.1) for visual stability. Also track <strong>TTFB</strong> (<800ms) and <strong>FCP</strong> (<1.8s). These are the metrics that impact SEO and real user experience. A staff engineer knows that <em>meeting thresholds in the lab does not guarantee field performance</em>."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "LCP: Largest Contentful Paint — measures perceived load speed. Optimize by preloading critical resources, reducing render-blocking CSS/JS, and using a CDN.",
+            "INP: Interaction to Next Paint — measures responsiveness. Optimize by breaking long tasks (<50ms), using web workers, and debouncing input handlers.",
+            "CLS: Cumulative Layout Shift — measures visual stability. Optimize by setting explicit dimensions on images/ads, using font-display: swap, and avoiding dynamic content injection above the fold.",
+            "TTFB: Time to First Byte — measures server response. Optimize with edge caching, server-side rendering, and reducing backend latency.",
+            "FCP: First Contentful Paint — measures first visual. Optimize by inlining critical CSS and deferring non-critical scripts."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Lab Data vs Field Data: Why They Disagree"
+        },
+        {
+          "type": "p",
+          "html": "Lab data (Lighthouse, WebPageTest) runs in a controlled environment with a consistent device and network. Field data (RUM, Chrome UX Report) captures real user conditions — slow networks, low-end devices, ad blockers. They disagree because <strong>lab data measures potential; field data measures reality</strong>. A staff engineer uses both: lab for debugging and regression detection, field for prioritization and impact assessment."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Aspect",
+            "Lab Data",
+            "Field Data"
+          ],
+          "rows": [
+            [
+              "Environment",
+              "Controlled (e.g., Moto G4, Slow 3G)",
+              "Real user devices, networks, locations"
+            ],
+            [
+              "Metrics",
+              "Synthetic scores (Lighthouse performance)",
+              "Real user percentiles (p75, p95)"
+            ],
+            [
+              "Use Case",
+              "Debugging, CI gates, regression detection",
+              "Prioritization, user impact, long-term trends"
+            ],
+            [
+              "Limitation",
+              "May not reflect real-world variability",
+              "Noisy, requires sufficient sample size"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always Measure First",
+          "body": "A junior engineer says 'I think the bottleneck is the hero image.' A staff engineer says 'Let me check the field data — if LCP is above 2.5s for 75% of users, then we profile the main thread to see if it's network or rendering.' Never guess; always measure with real data."
+        },
+        {
+          "type": "h3",
+          "text": "Chrome DevTools Performance Panel: Flame Charts & Long Tasks"
+        },
+        {
+          "type": "p",
+          "html": "The Performance panel records a timeline of main thread activity. Look for <strong>long tasks</strong> (>50ms) that block the main thread — these cause INP issues. Flame charts show function call stacks; identify expensive scripts, layout thrashing, or excessive garbage collection. Use the <strong>Bottom-Up</strong> tab to sort by total time and find the heaviest functions."
+        },
+        {
+          "type": "pre",
+          "code": "// Simulate a long task that blocks the main thread\nfunction blockMainThread(ms) {\n  const start = performance.now();\n  while (performance.now() - start < ms) {\n    // Busy wait — never do this in production\n  }\n}\n\n// Use requestIdleCallback to defer non-critical work\nrequestIdleCallback(() => {\n  // Process analytics or logging here\n}, { timeout: 2000 });",
+          "label": "JavaScript"
+        },
+        {
+          "type": "pre",
+          "code": "// Measure long tasks programmatically with PerformanceObserver\nconst observer = new PerformanceObserver((list) => {\n  for (const entry of list.getEntries()) {\n    if (entry.duration > 50) {\n      console.warn(`Long task detected: ${entry.duration}ms`, entry);\n    }\n  }\n});\nobserver.observe({ type: 'longtask', buffered: true });",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Performance Budgets & CI Gates"
+        },
+        {
+          "type": "p",
+          "html": "Performance budgets enforce thresholds in CI. Common budgets: <strong>bundle size</strong> (<300kB gzipped for JS), <strong>Lighthouse score</strong> (>90), <strong>LCP</strong> (<2.5s in lab). Use tools like <code>bundlesize</code> or <code>Lighthouse CI</code> to fail builds that exceed budgets. A staff engineer sets budgets based on field data percentiles, not arbitrary numbers."
+        },
+        {
+          "type": "pre",
+          "code": "// Example: bundlesize configuration (bundlesize.json)\n{\n  \"files\": [\n    {\n      \"path\": \"./dist/main.js\",\n      \"maxSize\": \"200 kB\"\n    },\n    {\n      \"path\": \"./dist/vendor.js\",\n      \"maxSize\": \"100 kB\"\n    }\n  ]\n}",
+          "label": "JSON"
+        },
+        {
+          "type": "pre",
+          "code": "// Example: Lighthouse CI configuration (lighthouserc.js)\nmodule.exports = {\n  ci: {\n    collect: {\n      url: ['https://example.com'],\n      numberOfRuns: 3\n    },\n    assert: {\n      assertions: {\n        'largest-contentful-paint': ['error', { maxNumericValue: 2500 }],\n        'cumulative-layout-shift': ['error', { maxNumericValue: 0.1 }],\n        'interaction-to-next-paint': ['error', { maxNumericValue: 200 }]\n      }\n    },\n    upload: {\n      target: 'temporary-public-storage'\n    }\n  }\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "The Measure → Optimize → Verify Loop"
+        },
+        {
+          "type": "p",
+          "html": "This is the core discipline: <strong>measure</strong> the current state (lab + field), <strong>optimize</strong> one bottleneck at a time, then <strong>verify</strong> the improvement with the same metrics. Never skip verification — an optimization that doesn't move the needle is wasted effort. Use A/B testing or feature flags to isolate changes."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "Avoid Premature Optimization",
+          "body": "Optimizing before measuring is the #1 performance mistake. A junior engineer might preload every image or inline all CSS, bloating the page. A staff engineer measures first, finds the real bottleneck (e.g., a 300ms server response), and optimizes that. Premature optimization adds complexity without guaranteed benefit."
+        },
+        {
+          "type": "h3",
+          "text": "User-Centric Metrics vs Vanity Metrics"
+        },
+        {
+          "type": "p",
+          "html": "Vanity metrics like <strong>DOMContentLoaded</strong> or <strong>total page weight</strong> don't correlate with user experience. User-centric metrics like <strong>LCP</strong>, <strong>INP</strong>, and <strong>CLS</strong> measure what users actually perceive. A staff engineer ignores vanity metrics and focuses on Core Web Vitals and custom metrics that reflect user tasks (e.g., time to first interaction)."
+        },
+        {
+          "type": "quiz",
+          "question": "Your team's Lighthouse score is 95, but field data shows LCP is 3.2s at p75. What should you do?",
+          "options": [
+            "Optimize the hero image because Lighthouse says it's slow",
+            "Ignore field data since Lighthouse is the standard",
+            "Profile the main thread in DevTools to find the real bottleneck, then optimize based on field data",
+            "Reduce bundle size to improve Lighthouse score further"
+          ],
+          "answer": 2,
+          "explanation": "Lighthouse runs on a fast machine; field data reflects real users. The gap indicates a bottleneck (e.g., slow server or third-party scripts) that Lighthouse doesn't catch. Profile the main thread to find the cause, then optimize based on field data percentiles."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the threshold for a long task?",
+              "back": "50ms — tasks longer than this block the main thread and degrade INP."
+            },
+            {
+              "front": "What is the difference between lab and field data?",
+              "back": "Lab data is synthetic and controlled; field data is from real users and captures variability."
+            },
+            {
+              "front": "What is the measure → optimize → verify loop?",
+              "back": "Measure current performance, optimize one bottleneck, then verify the improvement with the same metrics."
+            },
+            {
+              "front": "What is a vanity metric?",
+              "back": "A metric that doesn't correlate with user experience, e.g., DOMContentLoaded or total page weight."
+            },
+            {
+              "front": "What is a performance budget?",
+              "back": "A limit on metrics (e.g., bundle size <200kB, LCP <2.5s) enforced in CI to prevent regressions."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle",
+      "num": "02 — LOADING",
+      "title": "Bundle Size & Code Splitting",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "When your JavaScript bundle exceeds ~200kB (uncompressed), you start to see real-world regressions in <strong>LCP</strong> (download time), <strong>INP</strong> (parse/eval blocking the main thread), and <strong>First Byte</strong> (server push limits). At scale, a single monolithic bundle can cost you 1–2 seconds of LCP and push your <strong>Total Blocking Time</strong> over 300ms. This section covers the techniques and trade-offs to shrink and split your bundle without breaking your architecture."
+        },
+        {
+          "type": "h3",
+          "text": "Bundle Analysis: Know What You Ship"
+        },
+        {
+          "type": "p",
+          "html": "Before optimizing, measure. Use <code>webpack-bundle-analyzer</code> (or <code>source-map-explorer</code> for production source maps) to visualize module sizes. A common pattern: a single utility library (e.g., <code>lodash</code>) imported as <code>import _ from 'lodash'</code> pulls in the entire 500kB+ library. The analyzer reveals these bloat sources immediately."
+        },
+        {
+          "type": "pre",
+          "code": "// webpack.config.js\nconst BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;\nmodule.exports = {\n  plugins: [\n    new BundleAnalyzerPlugin({\n      analyzerMode: 'static',\n      reportFilename: 'bundle-report.html',\n      openAnalyzer: false\n    })\n  ]\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Tree Shaking and the sideEffects Flag"
+        },
+        {
+          "type": "p",
+          "html": "Tree shaking relies on ES module static analysis. Webpack/Rollup can only eliminate dead code if imports are named (not default) and the package declares <code>\"sideEffects\": false</code> in its <code>package.json</code>. Without this flag, bundlers assume any import may have side effects and keep the entire module. Always verify your dependencies set this flag; if not, consider alternatives like <code>lodash-es</code> over <code>lodash</code>."
+        },
+        {
+          "type": "pre",
+          "code": "// Good: tree-shakeable\nimport { debounce } from 'lodash-es';\n\n// Bad: pulls in entire lodash\nimport _ from 'lodash';",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use tree shaking",
+          "body": "Tree shaking is ineffective for CommonJS modules (<code>require()</code>) or packages without <code>sideEffects: false</code>. Also, if your code uses dynamic property access (e.g., <code>import(`./${name}`)</code>), the bundler cannot statically analyze it. Don't waste time micro-optimizing tree shaking on a 10kB utility; focus on the 200kB+ libraries first."
+        },
+        {
+          "type": "h3",
+          "text": "Dynamic import() and Route-Based Splitting"
+        },
+        {
+          "type": "p",
+          "html": "Use <code>import()</code> to split your bundle at route boundaries. This is the highest-impact split because each route's code is only loaded when the user navigates to it. For a typical SPA, this can reduce initial bundle size by 40–60%. The trade-off: you add a network round-trip per route transition, which can hurt <strong>INP</strong> if the chunk is large (>100kB). Prefetch critical routes using <code><link rel=\"prefetch\"></code> or <code>webpackPrefetch</code>."
+        },
+        {
+          "type": "pre",
+          "code": "// Route-based splitting with React Router\nconst Dashboard = React.lazy(() => import('./pages/Dashboard'));\nconst Settings = React.lazy(() => import('./pages/Settings'));\n\nfunction App() {\n  return (\n    <Suspense fallback={<Spinner />}>\n      <Routes>\n        <Route path=\"/dashboard\" element={<Dashboard />} />\n        <Route path=\"/settings\" element={<Settings />} />\n      </Routes>\n    </Suspense>\n  );\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "React.lazy + Suspense for Component Splitting"
+        },
+        {
+          "type": "p",
+          "html": "For components that are not route-level (e.g., a heavy chart or a rich text editor), use <code>React.lazy</code> with <code>Suspense</code> to split them out. This is <strong>component-based splitting</strong>. The cost: you introduce a loading state and a potential layout shift if the fallback is not sized correctly. Only split components that are >50kB or that are rarely used (e.g., modals, admin panels)."
+        },
+        {
+          "type": "pre",
+          "code": "// Component-based splitting for a heavy chart\nconst HeavyChart = React.lazy(() => import('./HeavyChart'));\n\nfunction ReportPage() {\n  const [showChart, setShowChart] = useState(false);\n  return (\n    <div>\n      <button onClick={() => setShowChart(true)}>Show Chart</button>\n      {showChart && (\n        <Suspense fallback={<div style={{ height: 400 }}>Loading chart...</div>}>\n          <HeavyChart />\n        </Suspense>\n      )}\n    </div>\n  );\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "Route-based splitting",
+              "Large SPAs with many pages",
+              "Adds network round-trip per route",
+              "Routes are <10kB each"
+            ],
+            [
+              "Component-based splitting",
+              "Heavy, rarely-used components",
+              "Loading state + potential CLS",
+              "Component is <50kB or used on every page"
+            ],
+            [
+              "Vendor chunking",
+              "Stable third-party deps",
+              "Cache invalidation complexity",
+              "Vendor is <100kB or rarely changes"
+            ],
+            [
+              "Shared chunks",
+              "Common modules across routes",
+              "Increased initial bundle size",
+              "Shared code is <5kB per route"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Barrel-File Pitfalls (index.ts Re-exports)"
+        },
+        {
+          "type": "p",
+          "html": "Barrel files (<code>index.ts</code> that re-export everything) are a common pattern that <strong>breaks tree shaking</strong>. When you import from a barrel, the bundler often includes all re-exported modules because it cannot statically determine which are used. This can inflate your bundle by 20–50%. Prefer direct imports from the module file, or use <code>export *</code> only when the barrel is small and all exports are used."
+        },
+        {
+          "type": "pre",
+          "code": "// Bad: barrel file that breaks tree shaking\n// utils/index.ts\nexport * from './format';\nexport * from './validate';\nexport * from './api';\n\n// Good: direct import\nimport { formatDate } from './utils/format';",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Measure First, Then Optimize",
+          "body": "A junior engineer will say 'let's split everything into lazy chunks.' A staff engineer says: 'Let's run a bundle analysis, identify the top 3 bloat sources, and then decide if splitting or tree shaking gives the best ROI. For example, if a 200kB chart library is only used on one route, route-based splitting saves 200kB. But if it's used on 5 routes, a shared chunk might be better. Always measure the actual impact on LCP and INP before and after.'"
+        },
+        {
+          "type": "h3",
+          "text": "Vendor Chunking and Shared Chunks"
+        },
+        {
+          "type": "p",
+          "html": "Vendor chunking extracts third-party libraries (e.g., React, Lodash) into a separate chunk. This leverages browser caching: if the vendor chunk changes infrequently, users don't re-download it on every deploy. The trade-off: you add an extra HTTP request. For shared chunks (common modules used by multiple routes), the trade-off is that you increase the initial bundle size to avoid duplication. Use <code>splitChunks</code> in webpack with <code>minSize: 20000</code> (20kB) to avoid creating too many tiny chunks."
+        },
+        {
+          "type": "pre",
+          "code": "// webpack.config.js\nmodule.exports = {\n  optimization: {\n    splitChunks: {\n      chunks: 'all',\n      cacheGroups: {\n        vendor: {\n          test: /[\\\\/]node_modules[\\\\/]/,\n          name: 'vendors',\n          chunks: 'all',\n          priority: 10\n        },\n        common: {\n          minChunks: 2,\n          minSize: 20000,\n          name: 'common',\n          priority: 5\n        }\n      }\n    }\n  }\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "You are optimizing a large SPA with 50 routes. Your bundle analysis shows that a 300kB chart library is used on 3 routes. What is the best approach?",
+          "options": [
+            "Route-based split: lazy-load the chart on each route",
+            "Component-based split: lazy-load the chart component inside a shared wrapper",
+            "Vendor chunking: extract the chart library into a separate vendor chunk",
+            "Do nothing: 300kB is acceptable for a chart library"
+          ],
+          "answer": 1,
+          "explanation": "Component-based splitting (option 1) is best because the chart is used on multiple routes but not on all. Route-based splitting would duplicate the chunk across 3 routes, increasing total download size. Vendor chunking would load it on every page, even those that don't use it. Option 3 is wrong because 300kB is too large for initial load. Option 0 is wrong because 300kB is not acceptable for LCP."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the minimum bundle size that typically causes performance regressions?",
+              "back": "~200kB uncompressed; above this, LCP and TBT degrade noticeably."
+            },
+            {
+              "front": "What flag must a package set in package.json for tree shaking to work?",
+              "back": "\"sideEffects\": false"
+            },
+            {
+              "front": "What is the main trade-off of route-based code splitting?",
+              "back": "Reduces initial bundle size but adds a network round-trip per route transition, potentially hurting INP."
+            },
+            {
+              "front": "Why do barrel files (index.ts re-exports) break tree shaking?",
+              "back": "Bundlers cannot statically determine which exports are used, so they include all re-exported modules."
+            },
+            {
+              "front": "What is the recommended minSize for shared chunks in webpack splitChunks?",
+              "back": "20kB (20000 bytes) to avoid creating too many tiny chunks."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "buildtool",
+      "num": "03 — LOADING",
+      "title": "Build Tooling & Chunking",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Build tooling and chunking decisions directly control how fast your app loads, how efficiently it caches, and how quickly developers iterate. At scale, a poorly configured bundler can inflate bundle size by 40%+, waste cache with every deploy, and make micro-frontend integration a nightmare. This section covers the trade-offs between modern bundlers, chunk splitting strategies, and caching techniques that separate staff-level engineers from those who just know the APIs."
+        },
+        {
+          "type": "h3",
+          "text": "Bundler Speed vs Output Quality: webpack, Vite, esbuild, Rollup"
+        },
+        {
+          "type": "p",
+          "html": "Each bundler optimizes for different constraints. <strong>webpack</strong> is the most configurable but slowest for cold builds (30-60s for medium apps). <strong>Vite</strong> uses esbuild for dev (sub-second HMR) and Rollup for production (better tree-shaking). <strong>esbuild</strong> is 10-100x faster than webpack but lacks plugin maturity and produces slightly larger bundles (5-10% more bytes). <strong>Rollup</strong> excels at library bundling with superior tree-shaking and smaller output, but its dev server is less polished. For production, Vite (Rollup) often gives the best balance: <2s cold start, <50ms HMR, and output within 5% of Rollup's optimal size."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Bundler",
+            "Dev Speed",
+            "Production Output Size",
+            "Plugin Ecosystem",
+            "Best For"
+          ],
+          "rows": [
+            [
+              "webpack 5",
+              "Slow (10-60s cold)",
+              "Good (baseline)",
+              "Excellent",
+              "Complex SPAs, legacy migration"
+            ],
+            [
+              "Vite",
+              "Fast (<2s cold, <50ms HMR)",
+              "Excellent (Rollup)",
+              "Good (growing)",
+              "New SPAs, SSR, modern stacks"
+            ],
+            [
+              "esbuild",
+              "Very fast (<1s cold)",
+              "Good (5-10% larger)",
+              "Limited",
+              "Dev builds, simple apps, transpilation"
+            ],
+            [
+              "Rollup",
+              "Moderate (no HMR)",
+              "Excellent (smallest)",
+              "Good",
+              "Libraries, component packages"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: 'Always measure before optimizing'",
+          "body": "A junior says 'Vite is faster' and switches. A staff engineer says: 'I measured our cold build at 45s and HMR at 200ms. The bottleneck was our custom webpack plugin, not webpack itself. We profiled, found the plugin was doing O(n²) lookups, fixed it, and got cold builds to 12s without changing bundlers. Only then did we evaluate Vite for the next project.' Always profile your actual build pipeline before blaming the tool."
+        },
+        {
+          "type": "h3",
+          "text": "Chunk Splitting Strategy: splitChunks vs manualChunks"
+        },
+        {
+          "type": "p",
+          "html": "Chunk splitting balances parallelism (more small files) against HTTP/2 multiplexing overhead (too many files). The goal: keep each chunk under 100-200kB for fast parsing, but avoid creating more than 20-30 chunks for a typical app. <strong>splitChunks</strong> (webpack) or <strong>manualChunks</strong> (Vite/Rollup) let you group dependencies by stability: vendor (React, lodash), shared UI (antd, material), and async routes. A common mistake is splitting too aggressively—creating 50+ chunks that each take 50ms to fetch, adding 2.5s to load time. Instead, aim for 3-6 core chunks: app, vendor, shared, and route-level async chunks."
+        },
+        {
+          "type": "pre",
+          "code": "// webpack.config.js - production-grade splitChunks\nmodule.exports = {\n  optimization: {\n    splitChunks: {\n      chunks: 'all',\n      cacheGroups: {\n        vendor: {\n          test: /[\\\\/]node_modules[\\\\/](react|react-dom|redux)[\\\\/]/,\n          name: 'vendor-core',\n          chunks: 'all',\n          priority: 20\n        },\n        shared: {\n          test: /[\\\\/]node_modules[\\\\/](antd|@ant-design)[\\\\/]/,\n          name: 'vendor-ui',\n          chunks: 'all',\n          priority: 10\n        },\n        common: {\n          minChunks: 2,\n          minSize: 30000,\n          name: 'common',\n          priority: 5\n        }\n      }\n    }\n  }\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "pre",
+          "code": "// vite.config.js - manualChunks for predictable caching\nimport { defineConfig } from 'vite';\n\nexport default defineConfig({\n  build: {\n    rollupOptions: {\n      output: {\n        manualChunks: {\n          'vendor-react': ['react', 'react-dom'],\n          'vendor-utils': ['lodash', 'axios'],\n          'vendor-ui': ['antd', '@ant-design/icons']\n        }\n      }\n    }\n  }\n});",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Long-Term Caching with Content-Hash Filenames"
+        },
+        {
+          "type": "p",
+          "html": "Content-hash filenames (e.g., <code>main.a1b2c3.js</code>) ensure that unchanged chunks keep the same URL, so browsers reuse cached versions. This is critical: a single deploy that changes <code>main.js</code> to <code>main.js</code> invalidates the entire cache. With hashes, only the changed chunk gets a new URL. The key metric: aim for <strong>90%+ cache hit rate</strong> on vendor chunks. A common pitfall is using <code>chunkhash</code> (webpack) or <code>hash</code> (Vite) incorrectly—Vite uses content hash by default; webpack needs <code>[contenthash]</code> in output filenames. Also, avoid mixing hash types: use <code>[contenthash:8]</code> for long-term caching, not <code>[hash]</code> which changes on every build."
+        },
+        {
+          "type": "pre",
+          "code": "// webpack.config.js - contenthash for cache busting\nmodule.exports = {\n  output: {\n    filename: '[name].[contenthash:8].js',\n    chunkFilename: '[name].[contenthash:8].chunk.js'\n  }\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use aggressive chunk splitting",
+          "body": "If your app has fewer than 10 routes and total bundle size is under 200kB, splitting into 10+ chunks adds HTTP overhead and complexity without benefit. For small apps, a single bundle with code-splitting only for heavy third-party libraries (e.g., charting) is better. Measure: if your total JS is <100kB, don't split at all—the 16ms parsing time is negligible. Only split when you see route-level bundles exceeding 50kB or when vendor code is >30% of total."
+        },
+        {
+          "type": "h3",
+          "text": "Module Federation for Micro-Frontends"
+        },
+        {
+          "type": "p",
+          "html": "Module Federation (webpack 5) allows independent teams to deploy separate bundles that share dependencies at runtime. This solves the 'one monolith deploy' problem but introduces new performance costs: shared dependencies must be negotiated (version conflicts), and each micro-frontend adds a network request. The trade-off: you gain deployment independence but lose some caching efficiency. For example, if two micro-frontends share React 18, you can configure a shared singleton—but if one team upgrades to React 19, the other must either upgrade or use a separate copy, doubling the React bundle. Staff engineers enforce a shared dependency policy (e.g., 'all teams must use React 18.x until a coordinated upgrade') and use <code>eager: true</code> for critical shared modules to avoid async loading delays."
+        },
+        {
+          "type": "pre",
+          "code": "// webpack.config.js - Module Federation with shared singleton\nnew ModuleFederationPlugin({\n  name: 'host',\n  remotes: {\n    app1: 'app1@http://localhost:3001/remoteEntry.js',\n    app2: 'app2@http://localhost:3002/remoteEntry.js'\n  },\n  shared: {\n    react: { singleton: true, requiredVersion: '^18.0.0', eager: true },\n    'react-dom': { singleton: true, requiredVersion: '^18.0.0', eager: true }\n  }\n})",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Persistent / Incremental Build Caching"
+        },
+        {
+          "type": "p",
+          "html": "Incremental caching reduces rebuild times from minutes to seconds. webpack 5's <code>cache.type: 'filesystem'</code> stores intermediate build artifacts, cutting subsequent builds by 60-80%. Vite uses esbuild's cache by default (sub-second rebuilds). The catch: cache invalidation is tricky—if you change a shared module, all dependent chunks must be rebuilt. A staff engineer configures cache with <code>buildDependencies</code> (webpack) to invalidate when config changes, and monitors cache hit rates. For CI, use a persistent cache volume (e.g., GitHub Actions cache) to avoid cold builds on every PR. Target: <strong>cold build <30s, incremental build <5s</strong> for a medium app."
+        },
+        {
+          "type": "pre",
+          "code": "// webpack.config.js - filesystem cache with build dependencies\nmodule.exports = {\n  cache: {\n    type: 'filesystem',\n    buildDependencies: {\n      config: [__filename]\n    },\n    cacheDirectory: path.resolve(__dirname, '.webpack-cache'),\n    maxAge: 604800000 // 7 days\n  }\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Minification: Terser vs esbuild vs SWC"
+        },
+        {
+          "type": "p",
+          "html": "Minification reduces bundle size but at a time cost. <strong>Terser</strong> (webpack default) produces the smallest output (5-10% smaller than esbuild) but is slow: 2-5s for a 500kB bundle. <strong>esbuild</strong> minifies 10-20x faster but outputs slightly larger bundles (e.g., 180kB vs 165kB). <strong>SWC</strong> is similar to esbuild in speed but integrates better with webpack via <code>swc-loader</code>. The trade-off: for production builds, use Terser if bundle size is critical (e.g., LCP budget <2.5s and JS is the bottleneck). For dev builds or CI where speed matters, use esbuild. A staff engineer measures: 'Our vendor chunk was 300kB. Terser reduced it to 270kB (10% savings) but added 4s to build time. Since our LCP was already 1.8s, we switched to esbuild minification and saved 3s per build.'"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Minifier",
+            "Speed (500kB bundle)",
+            "Output Size Reduction",
+            "Best For"
+          ],
+          "rows": [
+            [
+              "Terser",
+              "2-5s",
+              "10-15%",
+              "Production builds where size is critical"
+            ],
+            [
+              "esbuild",
+              "0.1-0.3s",
+              "5-10%",
+              "Dev builds, CI, fast iterations"
+            ],
+            [
+              "SWC",
+              "0.2-0.5s",
+              "5-10%",
+              "Webpack projects needing speed"
+            ]
+          ]
+        },
+        {
+          "type": "quiz",
+          "question": "Your team's React app has a 400kB vendor chunk (React, Redux, lodash) and a 200kB app chunk. LCP is 3.2s, and the bottleneck is JS parsing (150ms on a mid-range device). You have two options: (A) Split the vendor chunk into two 200kB chunks to reduce parse time, or (B) Use Terser to minify the vendor chunk to 340kB. Which approach is better, and why?",
+          "options": [
+            "Option A: Splitting reduces parse time because smaller chunks parse faster, and HTTP/2 multiplexing handles multiple requests efficiently.",
+            "Option B: Minification reduces total bytes, which improves network time more than parsing, and avoids extra HTTP requests.",
+            "Neither: The real fix is to tree-shake unused lodash imports and code-split routes, which could reduce total JS by 50%.",
+            "Both: Do both splitting and minification, since they target different bottlenecks."
+          ],
+          "answer": 2,
+          "explanation": "The best answer is to tree-shake and code-split first. A 400kB vendor chunk suggests unused imports (e.g., importing entire lodash instead of specific functions). Tree-shaking could reduce it to 200kB, which is a 50% reduction—far more impactful than minification (15%) or splitting (which doesn't reduce total bytes). Splitting 400kB into two 200kB chunks still requires parsing 400kB total; parsing time is roughly linear with total bytes, not chunk count. Minification saves 60kB but tree-shaking could save 200kB. Always eliminate waste before optimizing the remaining code."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the primary trade-off between webpack and Vite for production builds?",
+              "back": "Vite uses Rollup for production, offering better tree-shaking and smaller output than webpack, but webpack has a richer plugin ecosystem for complex scenarios (e.g., Module Federation)."
+            },
+            {
+              "front": "What is the recommended chunk size range for HTTP/2?",
+              "back": "100-200kB per chunk. Smaller chunks increase HTTP overhead; larger chunks delay parsing. Aim for 3-6 core chunks plus route-level async chunks."
+            },
+            {
+              "front": "How does content-hash filename improve caching?",
+              "back": "It generates a unique filename based on file content. Unchanged chunks keep the same URL, so browsers reuse cached versions. Only changed chunks get new URLs, avoiding full cache invalidation."
+            },
+            {
+              "front": "When should you NOT use Module Federation?",
+              "back": "When teams cannot coordinate shared dependency versions, or when the app has fewer than 3 independent teams. The overhead of runtime sharing and version negotiation outweighs benefits for small projects."
+            },
+            {
+              "front": "What is the key metric for evaluating minifier choice?",
+              "back": "Build time vs output size. Terser is 2-5x slower but produces 5-10% smaller bundles than esbuild. Choose based on whether your bottleneck is build speed or bundle size."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "assets",
+      "num": "04 — LOADING",
+      "title": "Image & Font Optimization",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Images and fonts are the heaviest resources on the web, often accounting for 60-80% of page weight and causing <strong>Layout Shift (CLS)</strong> when dimensions aren't reserved. At scale, every 100KB of image weight adds ~1s to LCP on 3G, and font swaps can push <strong>INP > 200ms</strong> on low-end devices. This section covers the trade-offs between modern formats, responsive loading, and font strategies that keep your <strong>LCP < 2.5s</strong> and <strong>CLS < 0.1</strong>."
+        },
+        {
+          "type": "h3",
+          "text": "Modern Image Formats: AVIF, WebP, and Fallbacks"
+        },
+        {
+          "type": "p",
+          "html": "AVIF offers 50% smaller files than JPEG at equivalent quality, but decode time can be 2-3x slower on older CPUs. WebP is a safe middle ground with ~30% savings and broad support. Always serve AVIF with WebP and JPEG fallbacks using the <code>&lt;picture&gt;</code> element. Never rely on <code>&lt;img srcset&gt;</code> alone for format switching — it only handles pixel density, not codec negotiation."
+        },
+        {
+          "type": "pre",
+          "code": "<picture>\n  <source srcset=\"hero.avif\" type=\"image/avif\">\n  <source srcset=\"hero.webp\" type=\"image/webp\">\n  <img src=\"hero.jpg\" alt=\"Hero\" width=\"1200\" height=\"600\" loading=\"lazy\">\n</picture>",
+          "label": "HTML"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use AVIF",
+          "body": "Avoid AVIF for images that are critical to LCP (e.g., hero banners) on low-end devices. Decoding a 2MB AVIF can take 80ms on a Moto G4, blowing the <strong>50ms long-task threshold</strong>. Use WebP for LCP images and reserve AVIF for non-critical, large background images."
+        },
+        {
+          "type": "h3",
+          "text": "Responsive Images: srcset, sizes, and the picture element"
+        },
+        {
+          "type": "p",
+          "html": "<code>srcset</code> with <code>sizes</code> lets the browser pick the best resolution based on viewport width and device pixel ratio. The <code>sizes</code> attribute is critical — without it, the browser assumes 100vw, often downloading a desktop-sized image on mobile. Use the <code>picture</code> element for art direction (different crops) or format switching, but prefer <code>srcset</code> for simple resolution switching to reduce HTML complexity."
+        },
+        {
+          "type": "pre",
+          "code": "<img src=\"photo-800.jpg\"\n     srcset=\"photo-400.jpg 400w, photo-800.jpg 800w, photo-1200.jpg 1200w\"\n     sizes=\"(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 800px\"\n     alt=\"Photo\" width=\"800\" height=\"600\" loading=\"lazy\">",
+          "label": "HTML"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "srcset + sizes",
+              "Resolution switching",
+              "Low: one img tag",
+              "Art direction needed"
+            ],
+            [
+              "<picture>",
+              "Format switching, art direction",
+              "Medium: multiple source tags",
+              "Simple resolution only"
+            ],
+            [
+              "Client Hints (DPR, Viewport-Width)",
+              "Automatic selection",
+              "Low: HTTP header",
+              "Privacy restrictions, legacy browsers"
+            ],
+            [
+              "CDN image transformation",
+              "Dynamic resizing",
+              "Variable: per-request cost",
+              "Static assets, low traffic"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Lazy Loading: loading=\"lazy\" and IntersectionObserver"
+        },
+        {
+          "type": "p",
+          "html": "Native <code>loading=\"lazy\"</code> defers offscreen images until they're near the viewport (typically 1250px away). It's zero-cost and works in all modern browsers. For complex scenarios (e.g., loading placeholders, triggering analytics), use <code>IntersectionObserver</code> with a <strong>rootMargin of 200px</strong> to preload before the user scrolls. Never lazy-load LCP images — they must be eager to hit <strong>LCP < 2.5s</strong>."
+        },
+        {
+          "type": "pre",
+          "code": "const observer = new IntersectionObserver((entries) => {\n  entries.forEach(entry => {\n    if (entry.isIntersecting) {\n      const img = entry.target;\n      img.src = img.dataset.src;\n      img.onload = () => img.classList.add('loaded');\n      observer.unobserve(img);\n    }\n  });\n}, { rootMargin: '200px' });\n\ndocument.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always measure first",
+          "body": "A junior engineer adds lazy loading to every image. A staff engineer measures: 'Our LCP image is 1.8s on 4G — lazy loading it would push LCP to 3.2s. Instead, I'll eager-load the hero and lazy-load the 12 gallery images below the fold.' Always profile with Lighthouse and real-user monitoring (RUM) before applying optimizations."
+        },
+        {
+          "type": "h3",
+          "text": "CLS Prevention: width/height and aspect-ratio"
+        },
+        {
+          "type": "p",
+          "html": "Layout shift occurs when images load without reserved space. Always set explicit <code>width</code> and <code>height</code> on <code>&lt;img&gt;</code> tags, or use <code>aspect-ratio</code> in CSS for responsive containers. The browser calculates the aspect ratio from dimensions and reserves space before the image loads. For fluid layouts, combine <code>aspect-ratio</code> with <code>max-width: 100%</code> and <code>height: auto</code>."
+        },
+        {
+          "type": "pre",
+          "code": "/* CSS: prevents CLS for responsive images */\nimg {\n  max-width: 100%;\n  height: auto;\n  aspect-ratio: attr(width) / attr(height); /* modern browsers infer this */\n}\n\n/* Or explicitly */\n.hero-image {\n  aspect-ratio: 16 / 9;\n  width: 100%;\n  height: auto;\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "h3",
+          "text": "Font Optimization: Subsetting, font-display, and Preloading"
+        },
+        {
+          "type": "p",
+          "html": "Font files can be 200-400KB each. Subsetting removes unused glyphs (e.g., only Latin characters), reducing size by 70-90%. Use <code>font-display: swap</code> for brand-critical fonts to show fallback text immediately, but beware of <strong>FOUT (Flash of Unstyled Text)</strong>. For non-critical text, <code>font-display: optional</code> avoids layout shift entirely — the browser may skip the font download if it takes too long. Preload the primary font file (e.g., woff2) to reduce LCP font delay."
+        },
+        {
+          "type": "pre",
+          "code": "@font-face {\n  font-family: 'Inter';\n  src: url('/fonts/inter-latin.woff2') format('woff2');\n  font-display: swap; /* or optional for non-critical */\n  font-weight: 400 700;\n  unicode-range: U+0000-00FF; /* Latin subset */\n}\n\n/* Preload in HTML */\n<link rel=\"preload\" href=\"/fonts/inter-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>",
+          "label": "CSS + HTML"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Strategy",
+            "FOUT/FOIT",
+            "CLS risk",
+            "Best for"
+          ],
+          "rows": [
+            [
+              "font-display: swap",
+              "FOUT (visible fallback)",
+              "Low if fallback metrics match",
+              "Brand fonts, headings"
+            ],
+            [
+              "font-display: optional",
+              "FOIT (invisible text up to 100ms)",
+              "None if font fails",
+              "Body text, non-critical"
+            ],
+            [
+              "font-display: block",
+              "FOIT (up to 3s)",
+              "High",
+              "Avoid in production"
+            ],
+            [
+              "Variable fonts",
+              "Single file for multiple weights",
+              "Low (one download)",
+              "Sites with many font weights"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "FOUT vs FOIT and Variable Fonts"
+        },
+        {
+          "type": "p",
+          "html": "FOUT (Flash of Unstyled Text) shows fallback font immediately, then swaps — better for perceived performance. FOIT (Flash of Invisible Text) hides text for up to 3 seconds — worse for LCP and user experience. Use <code>font-display: swap</code> with <code>size-adjust</code> to match fallback metrics and reduce CLS. Variable fonts bundle multiple weights into one file (e.g., 50KB vs 200KB for 4 weights), but increase decode time. Only use them if you need 3+ weights; otherwise, individual woff2 files are faster."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "Common Mistake: Over-subsetting",
+          "body": "Subsetting to only ASCII characters breaks internationalization. If your site supports Japanese or Cyrillic, include those ranges. Always test with a full character set in staging. A subset that's too aggressive can cause missing glyphs (tofu boxes) that hurt UX more than the 50KB savings."
+        },
+        {
+          "type": "quiz",
+          "question": "Your team's e-commerce site has a hero image that is the LCP element. The image is 1.2MB in JPEG. You've converted it to WebP (800KB) and AVIF (500KB). The site's LCP is currently 3.1s on 4G. Which approach best balances performance and risk?",
+          "options": [
+            "Serve AVIF with WebP fallback, and lazy-load the hero to reduce initial weight",
+            "Serve WebP only, preload it, and set explicit width/height to prevent CLS",
+            "Serve AVIF only, since it's smallest, and use IntersectionObserver with rootMargin 200px",
+            "Keep JPEG but add responsive srcset with 3 breakpoints and lazy loading"
+          ],
+          "answer": 1,
+          "explanation": "Option 1 is correct: WebP is safe for LCP images (fast decode), preloading reduces font delay, and dimensions prevent CLS. AVIF decode time on low-end devices can add 100ms+ to LCP, making it risky for the hero. Lazy-loading the LCP element would push LCP > 3.5s. JPEG is too heavy. Always measure decode time with RUM before using AVIF for critical assets."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the primary trade-off between AVIF and WebP?",
+              "back": "AVIF is 50% smaller but 2-3x slower to decode on older CPUs. WebP is 30% smaller with fast decode. Use WebP for LCP images, AVIF for non-critical."
+            },
+            {
+              "front": "How do you prevent CLS from images without fixed dimensions?",
+              "back": "Use CSS `aspect-ratio` with `max-width: 100%` and `height: auto`, or set explicit `width` and `height` on `<img>` tags."
+            },
+            {
+              "front": "What is the difference between font-display: swap and optional?",
+              "back": "`swap` shows fallback text immediately (FOUT) and swaps when font loads. `optional` may skip the font if it takes >100ms, showing fallback permanently — zero CLS but no custom font."
+            },
+            {
+              "front": "When should you use the `<picture>` element instead of srcset?",
+              "back": "Use `<picture>` for format switching (AVIF/WebP/JPEG) or art direction (different crops). Use `srcset` for simple resolution switching."
+            },
+            {
+              "front": "What is the recommended rootMargin for IntersectionObserver lazy loading?",
+              "back": "200px (or 1250px for native `loading='lazy'`). This preloads images before they enter the viewport, reducing perceived latency."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "crp",
+      "num": "05 — LOADING",
+      "title": "Critical Rendering Path",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "The Critical Rendering Path (CRP) governs how the browser converts HTML, CSS, and JavaScript into pixels. When the CRP is blocked, the user stares at a blank white screen — directly harming <strong>LCP</strong> (target <2.5s) and <strong>INP</strong> (target <200ms). At scale, every millisecond of CRP delay costs revenue; a 100ms improvement can lift conversion by 1-2%. This section covers the techniques and trade-offs to unblock painting above-the-fold content."
+        },
+        {
+          "type": "h3",
+          "text": "Critical CSS Extraction and Inlining"
+        },
+        {
+          "type": "p",
+          "html": "Inline only the CSS required to render the above-the-fold viewport (typically <14kB compressed). Defer the full stylesheet with <code>media=\"print\" onload=\"this.media='all'\"</code>. Tools like Critical or Penthouse automate extraction. The trade-off: inlining increases HTML size and cache invalidation cost — if the critical CSS changes, the HTML must be re-served. Measure the impact on <strong>First Contentful Paint (FCP)</strong> and <strong>LCP</strong> before committing."
+        },
+        {
+          "type": "pre",
+          "code": "<style>\n  /* Critical CSS for above-the-fold content */\n  .hero { display: flex; min-height: 80vh; }\n  .cta-button { background: #007bff; color: white; }\n</style>\n<link rel=\"stylesheet\" href=\"/styles.full.css\" media=\"print\" onload=\"this.media='all'\">\n<noscript><link rel=\"stylesheet\" href=\"/styles.full.css\"></noscript>",
+          "label": "HTML"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always measure the cost of inlining",
+          "body": "A junior engineer inlines all CSS. A staff engineer measures: if the full CSS is <14kB gzipped, inlining everything may be faster than splitting. Use <strong>Lighthouse</strong> and <strong>WebPageTest</strong> to compare FCP with and without extraction. The decision depends on your CSS size, cache hit rate, and HTML delivery latency."
+        },
+        {
+          "type": "h3",
+          "text": "Render-Blocking CSS and JS"
+        },
+        {
+          "type": "p",
+          "html": "CSS is render-blocking by default — the browser pauses painting until all CSS is downloaded and parsed. JavaScript is both parser-blocking and render-blocking if placed in the <code><head></code> without <code>defer</code> or <code>async</code>. The key metric: <strong>any render-blocking resource >14kB (uncompressed) above the fold delays FCP</strong>. Eliminate render-blocking by deferring non-critical CSS and JS, or inlining critical resources."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "CSS: Use <code>media</code> queries to mark non-critical stylesheets (e.g., <code>media=\"print\"</code>).",
+            "JS: Always use <code>defer</code> for scripts that need DOM order; use <code>async</code> for independent scripts.",
+            "Audit with Lighthouse's 'Eliminate render-blocking resources' audit — target <1 render-blocking request above the fold."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Defer vs Async Script Loading"
+        },
+        {
+          "type": "pre",
+          "code": "<!-- Defer: executes after HTML parsing, preserves order -->\n<script defer src=\"app.js\"></script>\n\n<!-- Async: executes as soon as downloaded, no order guarantee -->\n<script async src=\"analytics.js\"></script>",
+          "label": "HTML"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "defer",
+              "Scripts that depend on DOM or other deferred scripts",
+              "Delays execution until after parsing",
+              "Scripts that must run before DOMContentLoaded"
+            ],
+            [
+              "async",
+              "Independent scripts (analytics, ads)",
+              "No order guarantee; can block DOMContentLoaded",
+              "Scripts with dependencies or DOM manipulation"
+            ],
+            [
+              "sync (no attr)",
+              "Legacy or critical inline scripts",
+              "Blocks parsing and painting entirely",
+              "Any script >1kB that can be deferred"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Resource Hints: Preload, Prefetch, Preconnect, DNS-Prefetch, Modulepreload"
+        },
+        {
+          "type": "p",
+          "html": "Resource hints tell the browser to fetch or connect early, reducing latency. <strong>Preload</strong> is for critical resources needed in the current page (e.g., hero image, font). <strong>Prefetch</strong> is for likely-next-page resources — use sparingly to avoid bandwidth waste. <strong>Preconnect</strong> warms up DNS+TCP+TLS for cross-origin requests (saves ~100-300ms). <strong>DNS-prefetch</strong> is lighter but only resolves DNS. <strong>Modulepreload</strong> is for ES modules — it fetches and compiles the module early. The trade-off: overusing preload can starve other resources; prefetch can waste data on mobile."
+        },
+        {
+          "type": "pre",
+          "code": "<!-- Preload critical font -->\n<link rel=\"preload\" href=\"/fonts/inter-var.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>\n\n<!-- Preconnect to analytics origin -->\n<link rel=\"preconnect\" href=\"https://analytics.example.com\">\n\n<!-- Modulepreload for ES module -->\n<link rel=\"modulepreload\" href=\"/app.js\">",
+          "label": "HTML"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "Common Mistake: Preloading everything",
+          "body": "Preloading too many resources (e.g., all images) can delay the <strong>LCP</strong> resource by competing for bandwidth. The browser has a limited number of preload slots (typically 3-6). Only preload resources that are <strong>discovered late</strong> in the HTML or are critical for above-the-fold rendering. Measure with <strong>Priority Hints</strong> and <strong>Lighthouse</strong> to validate."
+        },
+        {
+          "type": "h3",
+          "text": "Priority Hints (fetchpriority) and Above-the-Fold Prioritization"
+        },
+        {
+          "type": "p",
+          "html": "The <code>fetchpriority</code> attribute lets you hint the browser's resource priority: <code>high</code>, <code>low</code>, or <code>auto</code>. Use <code>fetchpriority=\"high\"</code> on the LCP image or critical fetch request. Use <code>fetchpriority=\"low\"</code> on below-the-fold images or non-critical scripts. The browser still makes the final decision, but this hint can improve LCP by 5-10% in practice. The trade-off: overusing <code>high</code> can cause priority inversion — the browser may deprioritize other critical resources."
+        },
+        {
+          "type": "pre",
+          "code": "<!-- LCP image: high priority -->\n<img src=\"hero.webp\" fetchpriority=\"high\" alt=\"Hero\">\n\n<!-- Below-the-fold image: low priority -->\n<img src=\"footer-bg.webp\" fetchpriority=\"low\" alt=\"Footer\" loading=\"lazy\">",
+          "label": "HTML"
+        },
+        {
+          "type": "h3",
+          "text": "Eliminating Render-Blocking Requests"
+        },
+        {
+          "type": "p",
+          "html": "The goal is to have <strong>zero render-blocking requests</strong> above the fold. Techniques: inline critical CSS (<14kB), defer all non-critical CSS, defer all JS (or async), and use <code>preload</code> for critical resources. Measure with <strong>Lighthouse</strong> — the 'Eliminate render-blocking resources' audit should show 0 requests. In practice, a single render-blocking request can delay FCP by <strong>200-500ms</strong> on 3G. The cost: inlining increases HTML size and reduces cacheability. For large CSS (>50kB), consider code-splitting by route."
+        },
+        {
+          "type": "quiz",
+          "question": "Your team has a 200kB CSS file. The above-the-fold CSS is 12kB. You inline the critical CSS and defer the rest. However, the full CSS changes weekly. What is the primary trade-off you must evaluate?",
+          "options": [
+            "Inlining increases HTML size, reducing cache hit rate for the full CSS",
+            "Deferred CSS will never load on slow networks",
+            "The browser cannot cache inlined CSS across pages",
+            "Critical CSS extraction tools are unreliable"
+          ],
+          "answer": 0,
+          "explanation": "Inlining critical CSS means the HTML payload grows by 12kB, and the full CSS is now fetched separately. If the full CSS changes weekly, the cache hit rate for the full CSS is low, but the inlined CSS is re-sent with every HTML request. The trade-off is between reducing render-blocking requests and increasing HTML size/cache invalidation. Option 2 is false (deferred CSS loads after paint), option 3 is true but secondary, option 4 is a tooling concern, not the primary trade-off."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the critical rendering path?",
+              "back": "The sequence of steps the browser takes to convert HTML, CSS, and JS into pixels. Blocking any step delays paint."
+            },
+            {
+              "front": "How does defer differ from async?",
+              "back": "defer preserves execution order and runs after HTML parsing; async runs as soon as downloaded, no order guarantee."
+            },
+            {
+              "front": "When should you use preload vs prefetch?",
+              "back": "preload for critical current-page resources; prefetch for likely-next-page resources. Overuse wastes bandwidth."
+            },
+            {
+              "front": "What is the 14kB rule for critical CSS?",
+              "back": "Inline only the CSS needed for above-the-fold content, keeping it under ~14kB compressed to fit in the first TCP packet."
+            },
+            {
+              "front": "What does fetchpriority='high' do?",
+              "back": "Hints the browser to prioritize that resource (e.g., LCP image) over others. Overuse can cause priority inversion."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "thirdparty",
+      "num": "06 — LOADING",
+      "title": "Third-Party Scripts",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Third-party scripts—analytics, tag managers, chat widgets—are the single largest source of <strong>uncontrollable</strong> performance debt at scale. A single tag manager container can inject 200+ kB of JavaScript, block the main thread for 300+ ms, and delay LCP by multiple seconds. At staff level, you don't just add <code>async</code>; you measure the real cost, apply facade patterns, and decide when to offload or eliminate entirely."
+        },
+        {
+          "type": "h3",
+          "text": "The Real Cost of Analytics and Tag Managers"
+        },
+        {
+          "type": "p",
+          "html": "Every third-party script competes for the <strong>16ms frame budget</strong> and the <strong>50ms long-task threshold</strong>. A tag manager like Google Tag Manager (GTM) loads a container script that then fetches and executes multiple tags—each one a separate network request, parse, and eval. The hidden cost: <strong>network contention</strong> (blocking critical resources) and <strong>main-thread churn</strong> (delaying INP). At scale, a single chat widget can add 1.2s to LCP on slow connections."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Measure <strong>Total Blocking Time (TBT)</strong> before and after loading third-party scripts. A 300ms increase is common.",
+            "Use <strong>Chrome DevTools > Performance > Bottom-Up</strong> to attribute long tasks to specific script origins.",
+            "Track <strong>LCP</strong> regression: a 500ms delay from a third-party script is unacceptable for <2.5s target."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always measure first, then optimize",
+          "body": "A junior says 'we should async all scripts.' A staff engineer says 'let's measure the real cost with DevTools Performance tab, then decide which scripts are critical and which can be deferred or removed.' The key is <strong>data-driven triage</strong>."
+        },
+        {
+          "type": "h3",
+          "text": "Facade Pattern: Load Heavy Embeds Only on Interaction"
+        },
+        {
+          "type": "p",
+          "html": "The facade pattern replaces a heavy third-party widget (e.g., YouTube embed, chat widget, map) with a lightweight placeholder that loads the real script only when the user interacts. This can save <strong>200-500 kB</strong> of JavaScript and improve LCP by <strong>1-2 seconds</strong>. The trade-off: the widget is not immediately interactive, which may affect user experience for power users."
+        },
+        {
+          "type": "pre",
+          "code": "// Facade for a chat widget\nclass ChatFacade {\n  constructor(containerId, widgetUrl) {\n    this.container = document.getElementById(containerId);\n    this.widgetUrl = widgetUrl;\n    this.renderPlaceholder();\n  }\n\n  renderPlaceholder() {\n    this.container.innerHTML = `\n      <div class=\"chat-placeholder\" style=\"cursor:pointer;background:#eee;padding:20px;text-align:center;\">\n        💬 Click to chat\n      </div>\n    `;\n    this.container.querySelector('.chat-placeholder').addEventListener('click', () => this.loadWidget());\n  }\n\n  loadWidget() {\n    const script = document.createElement('script');\n    script.src = this.widgetUrl;\n    script.async = true;\n    this.container.appendChild(script);\n  }\n}\n\nnew ChatFacade('chat-container', 'https://widget.example.com/chat.js');",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Async/Defer for Third-Party Scripts"
+        },
+        {
+          "type": "p",
+          "html": "Use <code>async</code> for scripts that don't depend on DOM or other scripts (e.g., analytics). Use <code>defer</code> for scripts that need DOM but not immediate execution (e.g., tag managers). <strong>Never use synchronous scripts</strong>—they block parsing and delay LCP. The trade-off: <code>async</code> scripts execute in unpredictable order, which can cause race conditions if they depend on each other."
+        },
+        {
+          "type": "pre",
+          "code": "<!-- Good: async for independent analytics -->\n<script async src=\"https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID\"></script>\n\n<!-- Better: defer for tag manager that needs DOM but not immediate -->\n<script defer src=\"https://www.googletagmanager.com/gtm.js?id=GTM-XXXX\"></script>\n\n<!-- Bad: synchronous blocks everything -->\n<script src=\"https://widget.example.com/heavy.js\"></script>",
+          "label": "HTML"
+        },
+        {
+          "type": "h3",
+          "text": "Offloading to a Web Worker (Partytown)"
+        },
+        {
+          "type": "p",
+          "html": "Partytown moves third-party scripts to a web worker, freeing the main thread for user interactions. This can reduce TBT by <strong>200-400ms</strong> and improve INP. However, it requires careful setup: scripts must be compatible with worker context (no DOM access), and Partytown uses <code>postMessage</code> for communication, adding latency. Best for analytics and tag managers; not for DOM-manipulating widgets."
+        },
+        {
+          "type": "pre",
+          "code": "// Partytown configuration example (in HTML head)\n<script>\n  window.partytown = {\n    lib: '/~partytown/',\n    forward: ['dataLayer.push'],\n  };\n</script>\n<script type=\"text/partytown\" src=\"https://www.googletagmanager.com/gtm.js?id=GTM-XXXX\"></script>",
+          "label": "HTML"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use Partytown",
+          "body": "Partytown is <strong>not a silver bullet</strong>. Avoid it for scripts that manipulate the DOM (e.g., chat widgets, A/B testing tools) because they require synchronous DOM access. Also, the <code>postMessage</code> overhead can add 10-50ms per call, which may negate benefits for high-frequency interactions. Always measure TBT and INP before and after."
+        },
+        {
+          "type": "h3",
+          "text": "Script Prioritization and Self-Hosting vs CDN"
+        },
+        {
+          "type": "p",
+          "html": "Self-hosting third-party scripts eliminates DNS lookups and reduces network latency by <strong>100-300ms</strong> on first load, but you lose CDN caching and automatic updates. Use <code>preconnect</code> and <code>dns-prefetch</code> for CDN-hosted scripts to mitigate. Prioritize critical scripts (e.g., analytics) over non-critical (e.g., social widgets) using <code>fetchpriority=\"high\"</code> or <code>async</code>."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "Self-hosting",
+              "Critical scripts (e.g., analytics, auth)",
+              "Maintenance overhead, no CDN caching",
+              "Scripts that update frequently (e.g., tag managers)"
+            ],
+            [
+              "CDN with preconnect",
+              "Non-critical scripts (e.g., fonts, widgets)",
+              "Extra DNS lookup (mitigated by preconnect)",
+              "Scripts that need low latency on first load"
+            ],
+            [
+              "Facade pattern",
+              "Heavy embeds (chat, video, maps)",
+              "Delayed interactivity",
+              "Scripts needed for initial UX (e.g., login)"
+            ],
+            [
+              "Partytown",
+              "Analytics, tag managers",
+              "Setup complexity, postMessage latency",
+              "DOM-manipulating scripts"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Measuring Third-Party Impact in DevTools"
+        },
+        {
+          "type": "p",
+          "html": "Use Chrome DevTools <strong>Performance</strong> tab to record a page load. Look for long tasks (>50ms) attributed to third-party origins in the <strong>Bottom-Up</strong> or <strong>Call Tree</strong> views. The <strong>Network</strong> tab shows blocking time and transfer size. For LCP, check the <strong>Timings</strong> panel to see if a third-party script delayed the largest element. At scale, set up <strong>Lighthouse CI</strong> to track TBT and LCP regressions per commit."
+        },
+        {
+          "type": "quiz",
+          "question": "Your team uses a tag manager that loads 15 analytics tags. The page has a 2.8s LCP (target <2.5s) and 350ms TBT. Which optimization should you prioritize first?",
+          "options": [
+            "Self-host all analytics scripts",
+            "Move tag manager to Partytown",
+            "Replace tag manager with a facade that loads only on user interaction",
+            "Add async to all tag manager scripts"
+          ],
+          "answer": 1,
+          "explanation": "Partytown offloads the tag manager to a web worker, reducing TBT by 200-400ms and potentially improving LCP. Self-hosting (option 0) adds maintenance and may not reduce TBT. A facade (option 2) would break analytics tracking because it requires interaction. Async (option 3) doesn't reduce main-thread blocking."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the facade pattern for third-party scripts?",
+              "back": "Replace heavy widget with a lightweight placeholder that loads the real script only on user interaction. Saves 200-500 kB JS and improves LCP by 1-2s."
+            },
+            {
+              "front": "When should you use Partytown vs async/defer?",
+              "back": "Partytown: analytics/tag managers that don't need DOM access. Async/defer: scripts that need DOM but not immediate execution. Avoid Partytown for DOM-manipulating widgets."
+            },
+            {
+              "front": "What metric best captures third-party script impact on interactivity?",
+              "back": "Total Blocking Time (TBT) and INP. Look for long tasks >50ms attributed to third-party origins in DevTools."
+            },
+            {
+              "front": "What is the trade-off of self-hosting third-party scripts?",
+              "back": "Reduces DNS/network latency by 100-300ms but loses CDN caching and requires manual updates. Best for critical, infrequently updated scripts."
+            },
+            {
+              "front": "How do you measure third-party script impact in DevTools?",
+              "back": "Performance tab > Bottom-Up view > filter by script origin. Network tab > blocking time. Lighthouse CI for regression tracking."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rendering",
+      "num": "07 — RUNTIME",
+      "title": "Rendering & Paint Performance",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "When your UI janks, drops frames, or stutters during interaction, you are likely exceeding the <strong>16ms frame budget</strong> (60fps) or hitting <strong>50ms long-task thresholds</strong> that degrade <strong>INP</strong> beyond <strong>200ms</strong>. At scale, even a single layout-triggering animation can cascade into <strong>0.1+ CLS</strong> or push <strong>LCP</strong> past <strong>2.5s</strong>. This section dissects the pixel pipeline, the compositor thread, and the trade-offs of every optimization so you can diagnose and fix jank with precision."
+        },
+        {
+          "type": "h3",
+          "text": "The Pixel Pipeline: Reflow vs Repaint vs Composite"
+        },
+        {
+          "type": "p",
+          "html": "Every frame goes through <strong>JavaScript → Style → Layout → Paint → Composite</strong>. <strong>Reflow</strong> (Layout) recalculates geometry and is the most expensive — it invalidates the entire subtree. <strong>Repaint</strong> (Paint) redraws pixels but skips layout. <strong>Composite</strong> only recombines existing layers on the GPU. The goal is to stay in Composite-only territory. Changing <code>width</code> or <code>top</code> triggers layout; changing <code>transform</code> or <code>opacity</code> only composites."
+        },
+        {
+          "type": "pre",
+          "code": "/* ❌ Triggers layout + paint + composite */\n.element {\n  left: 100px;\n  width: 200px;\n}\n\n/* ✅ Only composite (GPU-accelerated) */\n.element {\n  transform: translateX(100px);\n  opacity: 0.5;\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "h3",
+          "text": "Layout Thrashing & Read-Then-Write Batching (FastDOM Pattern)"
+        },
+        {
+          "type": "p",
+          "html": "Layout thrashing occurs when you interleave forced style recalculations (reading layout properties like <code>offsetHeight</code>) with writes (setting <code>style.left</code>). Each read forces a synchronous layout flush. Batch all reads first, then writes. The <strong>FastDOM</strong> pattern is a manual queue. At scale, use <code>requestAnimationFrame</code> to schedule writes after all reads are done."
+        },
+        {
+          "type": "pre",
+          "code": "// ❌ Layout thrashing: read → write → read → write\nfor (let i = 0; i < items.length; i++) {\n  const h = items[i].offsetHeight;  // forces layout\n  items[i].style.height = (h + 10) + 'px'; // invalidates layout\n}\n\n// ✅ Batched: all reads first, then writes\nconst heights = [];\nfor (let i = 0; i < items.length; i++) {\n  heights.push(items[i].offsetHeight);\n}\nfor (let i = 0; i < items.length; i++) {\n  items[i].style.height = (heights[i] + 10) + 'px';\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "The Compositor Thread & GPU-Accelerated Properties"
+        },
+        {
+          "type": "p",
+          "html": "The compositor thread runs on the GPU and handles scrolling, transforms, and opacity independently of the main thread. Only <code>transform</code> and <code>opacity</code> are guaranteed to be composited without triggering layout or paint. <code>filter</code> and <code>clip-path</code> may promote to a layer but can still repaint. Always verify in DevTools > Layers panel that your animated element is on its own compositor layer."
+        },
+        {
+          "type": "h3",
+          "text": "Animating Transform/Opacity Instead of Layout Properties"
+        },
+        {
+          "type": "p",
+          "html": "Animating <code>width</code>, <code>height</code>, <code>left</code>, <code>top</code>, <code>margin</code>, or <code>padding</code> triggers layout on every frame — impossible to stay under 16ms for complex pages. Use <code>transform: scale()</code> for size changes and <code>transform: translate()</code> for position. <code>opacity</code> is the only other property that composites without paint. This is non-negotiable for smooth 60fps animations."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best For",
+            "Cost",
+            "Avoid When"
+          ],
+          "rows": [
+            [
+              "transform/opacity animation",
+              "Position, size, visibility",
+              "Zero layout/paint; ~0.1ms composite",
+              "Need to change actual layout (e.g., reflow siblings)"
+            ],
+            [
+              "will-change: transform",
+              "Pre-promote to compositor layer",
+              "Memory: ~1-2MB per layer on mobile",
+              "More than 10 elements; causes layer explosion"
+            ],
+            [
+              "content-visibility: auto",
+              "Off-screen content in long lists",
+              "Initial layout cost; ~0.5ms per element",
+              "Above-the-fold content; can delay LCP"
+            ],
+            [
+              "CSS containment",
+              "Isolate subtrees from layout",
+              "Minimal; ~0.01ms per container",
+              "Small components with no layout impact"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Will-Change and Its Cost (Layer Explosion)"
+        },
+        {
+          "type": "p",
+          "html": "<code>will-change: transform</code> hints the browser to promote an element to its own compositor layer. Overuse creates <strong>layer explosion</strong> — hundreds of layers consuming GPU memory (1-2MB each on mobile) and increasing paint times. Use it sparingly on elements you actually animate, and remove it after the animation ends. A staff engineer measures layer count in DevTools before and after."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to Use will-change",
+          "body": "Do not apply <code>will-change</code> to every animated element. On mobile, 20+ layers can cause GPU memory pressure and actually <em>increase</em> jank. Only promote elements that are actively animating and where you've measured a benefit. For simple transitions, the browser's own heuristics are often sufficient."
+        },
+        {
+          "type": "h3",
+          "text": "Content-Visibility and CSS Containment"
+        },
+        {
+          "type": "p",
+          "html": "<code>content-visibility: auto</code> skips rendering for off-screen elements, reducing initial paint time by up to 50% for long pages. It implicitly applies <code>contain: layout style paint</code>. However, it can delay LCP if applied to above-the-fold content. Use it on list items, comments, or sections below the fold. <code>contain: layout</code> isolates a subtree so changes don't affect the rest of the page — critical for component libraries."
+        },
+        {
+          "type": "pre",
+          "code": "/* ✅ Safe for off-screen sections */\n.long-list-item {\n  content-visibility: auto;\n  contain-intrinsic-size: 200px; /* reserve space to prevent CLS */\n}\n\n/* ❌ Never on above-the-fold hero */\n.hero {\n  content-visibility: auto; /* delays LCP */\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "h3",
+          "text": "The 16ms Frame Budget"
+        },
+        {
+          "type": "p",
+          "html": "At 60fps, each frame has <strong>16.67ms</strong> to complete the entire pipeline. Budget breakdown: ~5ms for JavaScript, ~3ms for style/layout, ~5ms for paint, ~3ms for composite. If any step exceeds its slice, the frame is dropped. Use <code>performance.now()</code> and DevTools Performance panel to measure. A long task >50ms blocks the main thread and degrades INP. Aim for <strong>idle time > 50ms</strong> between interactions."
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always Measure First",
+          "body": "A junior says 'I'll add will-change to fix jank.' A staff engineer says 'Let me profile the frame budget first — if the bottleneck is layout, I'll batch reads; if it's paint, I'll promote to compositor; if it's JavaScript, I'll defer work.' Never optimize without a DevTools Performance recording. The 16ms budget is a target, not a guarantee — measure the actual cost of your change."
+        },
+        {
+          "type": "quiz",
+          "question": "You have a scrollable list of 1000 items. Each item has a hover animation that changes its background color and slightly scales it up. The page janks during scroll. What is the most effective optimization with the least risk?",
+          "options": [
+            "Add will-change: transform to every item",
+            "Replace background-color animation with opacity on a pseudo-element and use transform: scale()",
+            "Use content-visibility: auto on all items",
+            "Batch all style reads and writes in requestAnimationFrame"
+          ],
+          "answer": 1,
+          "explanation": "Background-color triggers paint on every frame. Changing to opacity (composite-only) and transform (composite-only) keeps the animation on the compositor thread. will-change on 1000 items causes layer explosion. content-visibility helps initial load but not hover jank. Batching reads/writes doesn't fix the paint cost of background-color."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the 16ms frame budget and how is it typically split?",
+              "back": "16.67ms per frame at 60fps. Typical split: JS ~5ms, Style/Layout ~3ms, Paint ~5ms, Composite ~3ms. Exceeding any slice drops the frame."
+            },
+            {
+              "front": "Which CSS properties only trigger composite (no layout or paint)?",
+              "back": "transform and opacity. All other properties (width, height, left, top, color, etc.) trigger layout or paint."
+            },
+            {
+              "front": "What is layout thrashing and how do you fix it?",
+              "back": "Interleaving reads (e.g., offsetHeight) and writes (e.g., style.left) forces synchronous layout flushes. Fix by batching all reads first, then writes."
+            },
+            {
+              "front": "What is the risk of overusing will-change?",
+              "back": "Layer explosion: each promoted layer costs ~1-2MB GPU memory. On mobile, 20+ layers can cause memory pressure and increase jank."
+            },
+            {
+              "front": "When should you NOT use content-visibility: auto?",
+              "back": "On above-the-fold content. It delays rendering and can increase LCP beyond 2.5s. Only use on off-screen sections."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "css",
+      "num": "08 — RUNTIME",
+      "title": "CSS Performance",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "At scale, CSS performance is not about micro-optimizing selectors but about managing the browser's layout, paint, and compositing pipelines within the <strong>16ms frame budget</strong>. A single expensive style recalculation can push a long task past <strong>50ms</strong>, directly harming <strong>INP</strong> and <strong>CLS</strong>. This section covers the real costs of CSS — from selector matching and runtime-in-JS to containment and layer promotion — and when each technique is worth the trade-off."
+        },
+        {
+          "type": "h3",
+          "text": "Selector Matching Cost and Complexity"
+        },
+        {
+          "type": "p",
+          "html": "Modern browsers match selectors right-to-left, so the <em>key selector</em> (the rightmost part) determines matching cost. A universal selector like <code>*</code> or a tag selector like <code>div</code> forces the browser to check every element in the subtree. Class and ID selectors are O(1) hash lookups. The real cost is not parsing but <strong>style recalculation</strong> when a class changes on a deep DOM — the browser must re-match all affected selectors. For most apps with < 10k elements, this is negligible; above that, prefer flat, class-based selectors."
+        },
+        {
+          "type": "pre",
+          "code": "/* Slow: descendant selector with tag key */\nul li a { color: blue; }\n\n/* Fast: class-based key selector */\n.nav-link { color: blue; }",
+          "label": "CSS"
+        },
+        {
+          "type": "pre",
+          "code": "// JavaScript: measuring style recalculation time\nconst start = performance.now();\nelement.classList.add('active');\nrequestAnimationFrame(() => {\n  const elapsed = performance.now() - start;\n  if (elapsed > 5) console.warn('Style recalc took', elapsed, 'ms');\n});",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always measure before optimizing selectors",
+          "body": "Junior engineers rewrite all selectors to BEM. Staff engineers profile with Performance panel first. If style recalculation is under 1ms for a 5000-element tree, selector optimization is noise. Focus on layout thrashing and paint complexity instead."
+        },
+        {
+          "type": "h3",
+          "text": "CSS-in-JS Runtime Cost vs Zero-Runtime"
+        },
+        {
+          "type": "p",
+          "html": "Runtime CSS-in-JS (e.g., styled-components) generates styles during component mount, adding <strong>0.5–2ms</strong> per component on initial render and serializing props to class names. For a page with 200 components, that's 100–400ms of JavaScript execution — easily a long task. Zero-runtime solutions (vanilla-extract, Tailwind) extract static CSS at build time, eliminating runtime overhead. Tailwind's JIT mode generates only used utilities, keeping CSS bundles under <strong>10kB</strong> gzipped for most apps. The trade-off: runtime CSS-in-JS enables dynamic theming without rebuilds; zero-runtime requires build-time token generation."
+        },
+        {
+          "type": "pre",
+          "code": "// Runtime CSS-in-JS (styled-components)\nconst Button = styled.button`\n  background: ${props => props.$primary ? 'blue' : 'gray'};\n  padding: 8px 16px;\n`;\n\n// Zero-runtime (vanilla-extract)\nimport { style } from '@vanilla-extract/css';\nexport const button = style({\n  padding: '8px 16px',\n});\n// Dynamic variants via data attributes or class composition",
+          "label": "JavaScript"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "Runtime CSS-in-JS",
+              "Highly dynamic theming, server-rendered apps with small component trees",
+              "0.5–2ms per mount, 10–50kB JS bundle overhead",
+              "Pages with >100 components or strict INP budgets (<200ms)"
+            ],
+            [
+              "Zero-runtime (vanilla-extract)",
+              "Static or token-based theming, large component libraries",
+              "Build-time only, <1kB runtime JS",
+              "Need runtime color swapping without rebuild"
+            ],
+            [
+              "Tailwind CSS",
+              "Utility-first design, rapid prototyping, small bundles",
+              "JIT scanning adds ~200ms to dev build",
+              "Custom design systems with complex component APIs"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "CSS Containment for Isolating Layout and Paint"
+        },
+        {
+          "type": "p",
+          "html": "The <code>contain</code> property tells the browser that an element's subtree is independent, enabling layout and paint isolation. <code>contain: layout</code> prevents internal layout changes from affecting outside; <code>contain: paint</code> clips overflow and skips painting outside the box; <code>contain: strict</code> applies all. This is critical for widgets, modals, or virtualized lists where a single item's style change should not trigger a full-page layout. <strong>Without containment, a class toggle on one card can recalculate layout for 10,000 siblings</strong> — easily exceeding the 16ms budget."
+        },
+        {
+          "type": "pre",
+          "code": "/* Isolate each card's layout and paint */\n.card {\n  contain: layout paint style;\n  /* or contain: strict; for full isolation */\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use containment",
+          "body": "Overusing <code>contain: strict</code> on every element can increase memory usage because the browser creates separate rendering contexts. Only apply to components that are truly independent (e.g., widgets, list items, modals). For static text, it's unnecessary overhead. Profile with Chrome DevTools 'Rendering' > 'Layer borders' to see if you're creating too many layers."
+        },
+        {
+          "type": "h3",
+          "text": "GPU Layer Promotion and Avoiding Layer Explosion"
+        },
+        {
+          "type": "p",
+          "html": "Promoting an element to its own GPU compositor layer (via <code>will-change: transform</code> or <code>translateZ(0)</code>) can reduce paint cost for animations, but each layer consumes GPU memory (~100–500kB per layer). A page with 1000 promoted layers can use <strong>50–500MB</strong> of GPU memory, causing jank on mobile. Only promote elements that animate frequently (e.g., carousel items, parallax). Use <code>will-change</code> sparingly and remove it when the animation ends. The browser's layerization heuristic is usually sufficient for static content."
+        },
+        {
+          "type": "pre",
+          "code": "/* Good: promote only the animating element */\n.carousel-item {\n  will-change: transform;\n  /* or: transform: translateZ(0); */\n}\n\n/* Bad: promote everything */\n* {\n  transform: translateZ(0);\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "h3",
+          "text": "Unused CSS Removal (PurgeCSS, Content-Aware Tailwind)"
+        },
+        {
+          "type": "p",
+          "html": "A typical Bootstrap or Tailwind build can ship <strong>200–500kB</strong> of unused CSS. PurgeCSS (used by Tailwind's JIT) scans your templates and removes unused classes, reducing bundles to <strong>5–15kB</strong> gzipped. The trade-off: dynamic class construction (e.g., <code>className={`btn-${variant}`}</code>) can break purge if not safelisted. Content-aware Tailwind (JIT) solves this by generating only used utilities at build time, but adds ~200ms to dev builds. For large codebases, this is a must — <strong>unused CSS is pure download cost with zero benefit</strong>."
+        },
+        {
+          "type": "pre",
+          "code": "// tailwind.config.js — safelist dynamic classes\nmodule.exports = {\n  safelist: [\n    { pattern: /^btn-(primary|secondary|danger)$/ },\n  ],\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Container Queries Cost vs Media Queries"
+        },
+        {
+          "type": "p",
+          "html": "Container queries (<code>@container</code>) allow components to respond to their parent's size rather than the viewport. They are slightly more expensive than media queries because the browser must track each container's size and re-evaluate queries on resize. For a page with <strong>50 containers</strong>, the cost is ~0.1–0.3ms per resize event — negligible. However, nesting container queries (a container inside another container) can cause cascading recalculations. Use container queries for reusable components (cards, sidebars) where viewport-relative sizing is wrong. For page-level layouts, media queries are cheaper and simpler."
+        },
+        {
+          "type": "pre",
+          "code": "/* Container query: component responds to its parent */\n.card-container {\n  container-type: inline-size;\n}\n\n@container (min-width: 400px) {\n  .card {\n    flex-direction: row;\n  }\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "Container queries",
+              "Reusable components, widget libraries",
+              "~0.1ms per container per resize",
+              "Nested containers or >100 containers on a page"
+            ],
+            [
+              "Media queries",
+              "Page-level layouts, responsive breakpoints",
+              "~0.01ms per query, no per-element tracking",
+              "Components that need to respond to parent size"
+            ]
+          ]
+        },
+        {
+          "type": "quiz",
+          "question": "Your team uses styled-components for a dashboard with 300 components. The INP is 350ms on mobile. Which optimization should you prioritize first?",
+          "options": [
+            "Replace all selectors with class-based selectors to reduce style recalculation",
+            "Migrate to a zero-runtime CSS solution like vanilla-extract to eliminate runtime JS overhead",
+            "Add contain: strict to every component to isolate layout",
+            "Promote all animated elements to GPU layers with will-change: transform"
+          ],
+          "answer": 1,
+          "explanation": "With 300 components, runtime CSS-in-JS adds 150–600ms of JavaScript execution — likely the main contributor to INP. Selector optimization (option 0) saves <1ms. Containment (option 2) helps layout but not JS cost. GPU promotion (option 3) can make things worse via layer explosion. Measure first, but the biggest win is removing runtime JS."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the key selector in CSS selector matching, and why does it matter?",
+              "back": "The rightmost part of a selector. Browsers match right-to-left, so a tag or universal key selector checks every element; a class or ID key selector is O(1)."
+            },
+            {
+              "front": "What is the primary performance cost of runtime CSS-in-JS?",
+              "back": "JavaScript execution time during component mount (0.5–2ms per component), which can create long tasks (>50ms) on pages with many components."
+            },
+            {
+              "front": "What does contain: layout do, and when should you use it?",
+              "back": "It isolates an element's layout from the rest of the page. Use on independent widgets or list items to prevent style changes from triggering full-page layout recalculations."
+            },
+            {
+              "front": "What is the risk of promoting too many elements to GPU layers?",
+              "back": "GPU memory explosion (100–500kB per layer), leading to jank on mobile. Only promote elements that animate frequently."
+            },
+            {
+              "front": "How does PurgeCSS reduce CSS bundle size, and what is its main trade-off?",
+              "back": "It removes unused CSS by scanning templates. Trade-off: dynamic class construction (e.g., `btn-${variant}`) requires safelisting to avoid broken styles."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lists",
+      "num": "09 — RUNTIME",
+      "title": "Large Lists & Heavy DOM",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Rendering thousands of DOM nodes synchronously blocks the main thread for hundreds of milliseconds, causing frame drops, janky scrolling, and an INP > 200ms. At staff level, you must decide <em>when</em> to virtualize, <em>how</em> to size your DOM budget, and <em>which</em> technique (windowing, pagination, infinite scroll) fits the user's mental model — not just throw a library at it."
+        },
+        {
+          "type": "h3",
+          "text": "Virtualization / Windowing: How It Works"
+        },
+        {
+          "type": "p",
+          "html": "Virtualization renders only the visible rows plus a small overscan buffer (typically 2-5 rows). The scroll container stays at the full height via a spacer element, so the browser's scrollbar behaves naturally. <code>react-window</code> and <code>TanStack Virtual</code> both use this pattern, but differ in API and flexibility: TanStack Virtual supports dynamic measurements and is framework-agnostic."
+        },
+        {
+          "type": "pre",
+          "code": "import { useVirtualizer } from '@tanstack/react-virtual';\n\nfunction VirtualList({ items }) {\n  const parentRef = useRef(null);\n  const virtualizer = useVirtualizer({\n    count: items.length,\n    getScrollElement: () => parentRef.current,\n    estimateSize: () => 50, // fixed row height\n    overscan: 5,\n  });\n\n  return (\n    <div ref={parentRef} style={{ height: '600px', overflow: 'auto' }}>\n      <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>\n        {virtualizer.getVirtualItems().map((virtualItem) => (\n          <div\n            key={virtualItem.key}\n            style={{\n              position: 'absolute',\n              top: 0,\n              left: 0,\n              width: '100%',\n              height: virtualItem.size,\n              transform: `translateY(${virtualItem.start}px)`,\n            }}\n          >\n            {items[virtualItem.index].name}\n          </div>\n        ))}\n      </div>\n    </div>\n  );\n}",
+          "label": "JavaScript (TanStack Virtual)"
+        },
+        {
+          "type": "h3",
+          "text": "Fixed vs Variable Row Heights"
+        },
+        {
+          "type": "p",
+          "html": "Fixed row heights (e.g., 50px) allow <code>O(1)</code> scroll-to-index and minimal re-measurement. Variable heights require measuring each row after render, which adds layout thrashing if not batched. TanStack Virtual's <code>measureElement</code> callback lets you measure dynamically, but each measurement triggers a re-render. <strong>Trade-off:</strong> fixed heights are faster but break with dynamic content; variable heights are flexible but cost ~1-2ms per measurement. For lists under 10,000 rows, variable is fine; above that, prefer fixed or estimate with a fallback."
+        },
+        {
+          "type": "pre",
+          "code": "// Variable height example with TanStack Virtual\nconst virtualizer = useVirtualizer({\n  count: items.length,\n  getScrollElement: () => parentRef.current,\n  estimateSize: () => 50,\n  measureElement: (el) => el.getBoundingClientRect().height,\n});",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Decision Matrix: Windowing vs Pagination vs Infinite Scroll"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "Windowing (virtualized)",
+              "Real-time scroll, 1000+ items, same view",
+              "~2-5ms per scroll frame, DOM < 100 nodes",
+              "Items need full height for print/SEO"
+            ],
+            [
+              "Pagination (page-based)",
+              "Search results, table UIs, data export",
+              "Server round-trip per page, ~200ms INP",
+              "Continuous browsing, mobile swipe"
+            ],
+            [
+              "Infinite scroll (append)",
+              "Social feeds, activity logs",
+              "DOM grows unbounded, memory leak risk",
+              "User needs to find old items quickly"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: 'Always measure first'",
+          "body": "A junior reaches for virtualization at 100 rows. A staff engineer measures: if the list takes < 50ms to render (under the long-task threshold), virtualization adds complexity without benefit. Profile with <code>performance.measure()</code> or React DevTools profiler. Only virtualize when the raw DOM render exceeds 16ms per frame or INP > 200ms."
+        },
+        {
+          "type": "h3",
+          "text": "DOM Node Count Budget"
+        },
+        {
+          "type": "p",
+          "html": "The browser's layout engine slows down non-linearly past ~1,500 DOM nodes. A virtualized list should keep visible nodes under 100 (including overscan). Each node adds ~1-2kB of memory and ~0.1ms of layout cost. For a 10,000-row list, virtualization reduces active nodes from 10,000 to ~30, cutting layout time from ~1s to ~3ms. <strong>Budget rule:</strong> keep total DOM nodes under 2,000 for smooth 60fps scrolling; virtualize anything above that."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to Virtualize",
+          "body": "Virtualization breaks <code>Ctrl+F</code> find-in-page, printing, and accessibility tree navigation because non-visible rows are not in the DOM. If your users rely on browser search or need to select all items, use pagination or a static list with <code>content-visibility: auto</code> instead. Also avoid virtualization for lists under 500 items — the overhead of scroll listeners and measurements outweighs the benefit."
+        },
+        {
+          "type": "h3",
+          "text": "content-visibility: auto for Long Static Pages"
+        },
+        {
+          "type": "p",
+          "html": "For static content (e.g., documentation, blog posts), <code>content-visibility: auto</code> defers rendering of off-screen sections until they are near the viewport. This reduces initial layout cost by skipping off-screen elements. <strong>Trade-off:</strong> it adds a 0.1 CLS risk if the deferred element's height is unknown — always set <code>contain-intrinsic-size</code> to reserve space. Use this over virtualization when the content is not scrollable via a custom container."
+        },
+        {
+          "type": "pre",
+          "code": "/* CSS for long static list */\n.long-list > li {\n  content-visibility: auto;\n  contain-intrinsic-size: 50px; /* reserve height */\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "h3",
+          "text": "Recycling DOM Nodes"
+        },
+        {
+          "type": "p",
+          "html": "Instead of creating/destroying DOM nodes on scroll, recycling reuses a fixed pool of nodes and updates their content. This avoids garbage collection pauses (which can exceed 50ms) and reduces memory churn. Libraries like <code>react-window</code> do this internally by keeping a fixed set of mounted components. In vanilla JS, implement a pool of 30-50 nodes and swap <code>innerText</code> or <code>data-index</code> on scroll. <strong>Measure:</strong> recycling reduces GC time from ~30ms to < 1ms per scroll event."
+        },
+        {
+          "type": "quiz",
+          "question": "Your team is building a real-time stock ticker that updates 10,000 rows every second. The rows have variable heights due to dynamic content. Which approach minimizes INP while maintaining accuracy?",
+          "options": [
+            "Use react-window with fixed row heights and estimate all rows at 40px",
+            "Use TanStack Virtual with measureElement and a debounced resize observer",
+            "Use pagination with 100 rows per page and a 'load more' button",
+            "Use content-visibility: auto on all rows without contain-intrinsic-size"
+          ],
+          "answer": 1,
+          "explanation": "Variable heights require measurement; TanStack Virtual's measureElement handles this. Fixed heights (option 0) would clip content. Pagination (option 2) breaks real-time updates. content-visibility (option 3) would cause CLS and still render all 10,000 nodes initially, blocking the main thread."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the primary performance bottleneck when rendering 10,000 DOM nodes?",
+              "back": "Layout and paint time exceeding the 16ms frame budget, causing jank and INP > 200ms."
+            },
+            {
+              "front": "What is the recommended DOM node budget for a virtualized list?",
+              "back": "Under 100 visible nodes (including overscan) to keep layout under 3ms."
+            },
+            {
+              "front": "When should you choose pagination over virtualization?",
+              "back": "When users need browser find-in-page, printing, or SEO; or when the list is under 500 items."
+            },
+            {
+              "front": "What CSS property defers rendering of off-screen elements?",
+              "back": "content-visibility: auto, paired with contain-intrinsic-size to prevent CLS."
+            },
+            {
+              "front": "Why does DOM node recycling reduce GC pauses?",
+              "back": "It reuses a fixed pool of nodes instead of creating/destroying them, avoiding garbage collection that can block the main thread for >50ms."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "concurrency",
+      "num": "10 — RUNTIME",
+      "title": "Main Thread & Concurrency",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Heavy computation on the main thread blocks user interaction, causing jank, frozen UI, and poor <strong>INP</strong> (Interaction to Next Paint). At scale — think real-time collaboration, image processing, or large data visualizations — a single synchronous task can degrade the experience for thousands of users. This section covers concurrency patterns that keep the main thread responsive while still doing the work."
+        },
+        {
+          "type": "h3",
+          "text": "Web Workers: When and How to Offload"
+        },
+        {
+          "type": "p",
+          "html": "Web Workers run scripts in a separate OS thread, but they have no DOM access and communicate via <code>postMessage</code>. Use them for CPU-bound tasks like parsing, compression, or image processing. The cost is serialization overhead — passing large objects (e.g., <code>ArrayBuffer</code>) is cheap; passing JSON-serialized data is not. For tasks under ~10ms, the overhead often outweighs the benefit."
+        },
+        {
+          "type": "pre",
+          "code": "// main.js\nconst worker = new Worker('worker.js');\nworker.postMessage({ data: largeArray });\nworker.onmessage = (e) => {\n  console.log('Result:', e.data);\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "pre",
+          "code": "// worker.js\nself.onmessage = (e) => {\n  const result = e.data.data.map(x => expensiveTransform(x));\n  self.postMessage(result);\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use Web Workers",
+          "body": "Avoid workers for trivial tasks like formatting a date or updating a single DOM element. The cost of spawning a worker (1–5ms) and serializing data (especially large strings) can exceed the computation time. Also, workers cannot access <code>window</code>, <code>document</code>, or <code>localStorage</code> — if your task needs those, you must restructure."
+        },
+        {
+          "type": "h3",
+          "text": "Debounce vs Throttle: Implementation and When to Use Each"
+        },
+        {
+          "type": "p",
+          "html": "Both limit execution frequency, but they solve different problems. <strong>Debounce</strong> waits for a pause — ideal for autocomplete or resize handlers. <strong>Throttle</strong> ensures a maximum rate — ideal for scroll or mousemove. The key trade-off: debounce can delay feedback indefinitely if events keep firing; throttle guarantees periodic updates but may miss the last event."
+        },
+        {
+          "type": "pre",
+          "code": "function debounce(fn, delay) {\n  let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delay);\n  };\n}\n\nfunction throttle(fn, limit) {\n  let inThrottle = false;\n  return (...args) => {\n    if (!inThrottle) {\n      fn(...args);\n      inThrottle = true;\n      setTimeout(() => inThrottle = false, limit);\n    }\n  };\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "Debounce",
+              "Autocomplete, resize, save-on-stop",
+              "Delayed response; may never fire if events keep coming",
+              "Real-time feedback (e.g., drawing, animation)"
+            ],
+            [
+              "Throttle",
+              "Scroll, mousemove, progress updates",
+              "May skip trailing events; fixed rate can feel choppy",
+              "One-shot actions (e.g., button click)"
+            ],
+            [
+              "requestAnimationFrame",
+              "Visual updates tied to paint cycle",
+              "Only fires ~60fps; not for non-visual work",
+              "Non-visual computation or background tasks"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "requestIdleCallback for Low-Priority Work"
+        },
+        {
+          "type": "p",
+          "html": "Schedules a callback during idle periods, after the browser has processed pending input and rendered. Use it for non-urgent tasks like analytics, prefetching, or log flushing. The callback receives a <code>deadline</code> object with <code>timeRemaining()</code> — aim to stay under 50ms per chunk. <strong>Note</strong>: not supported in Safari; polyfill with <code>setTimeout</code> fallback."
+        },
+        {
+          "type": "pre",
+          "code": "function processChunks(data) {\n  let index = 0;\n  function doWork(deadline) {\n    while (index < data.length && deadline.timeRemaining() > 0) {\n      // process data[index]\n      index++;\n    }\n    if (index < data.length) {\n      requestIdleCallback(doWork);\n    }\n  }\n  requestIdleCallback(doWork);\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always Measure First",
+          "body": "A junior engineer reaches for Web Workers or <code>requestIdleCallback</code> at the first sign of slowness. A staff engineer profiles with Chrome DevTools Performance panel, identifies tasks exceeding the <strong>50ms long-task threshold</strong>, and measures the actual impact on <strong>INP</strong> (target <200ms). If the task takes 30ms and runs once per page load, the optimization is premature. Only invest when the bottleneck is confirmed."
+        },
+        {
+          "type": "h3",
+          "text": "Time-Slicing Long Tasks and the 50ms Threshold"
+        },
+        {
+          "type": "p",
+          "html": "The browser considers any task >50ms a <strong>long task</strong>, which blocks the main thread and delays user input. Break long tasks into chunks using <code>setTimeout</code> or <code>scheduler.postTask</code> with <code>priority: 'user-visible'</code>. The goal: yield to the event loop every ~50ms so the browser can process pending input and paint. This directly improves <strong>INP</strong>."
+        },
+        {
+          "type": "pre",
+          "code": "function timeSlice(array, processItem, chunkSize = 50) {\n  let i = 0;\n  function nextChunk() {\n    const start = performance.now();\n    while (i < array.length && performance.now() - start < chunkSize) {\n      processItem(array[i]);\n      i++;\n    }\n    if (i < array.length) {\n      setTimeout(nextChunk, 0); // yield\n    }\n  }\n  nextChunk();\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "scheduler.postTask and Yielding to the Main Thread"
+        },
+        {
+          "type": "p",
+          "html": "The <code>scheduler.postTask</code> API (available in Chromium) allows explicit priority control: <code>'user-blocking'</code>, <code>'user-visible'</code>, or <code>'background'</code>. Use it to defer non-critical work without <code>setTimeout</code> hacks. It also supports <code>signal</code> for cancellation. For yielding, <code>scheduler.yield()</code> (proposal) will be the standard way to voluntarily yield the main thread. Currently, polyfill with <code>setTimeout</code> or <code>postMessage</code>."
+        },
+        {
+          "type": "pre",
+          "code": "// Defer low-priority analytics\nscheduler.postTask(() => sendAnalytics(), { priority: 'background' });\n\n// Yield to main thread (polyfill)\nfunction yieldToMain() {\n  return new Promise(resolve => setTimeout(resolve, 0));\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "OffscreenCanvas and SharedArrayBuffer"
+        },
+        {
+          "type": "p",
+          "html": "<strong>OffscreenCanvas</strong> moves canvas rendering off the main thread via a Web Worker — critical for heavy drawing (e.g., data viz, games). <strong>SharedArrayBuffer</strong> enables shared memory between workers without serialization, but requires <code>Cross-Origin-Opener-Policy</code> and <code>Cross-Origin-Embedder-Policy</code> headers. Use it for high-throughput data pipelines (e.g., audio processing, real-time collaboration). The security setup is non-trivial and blocks cross-origin iframes."
+        },
+        {
+          "type": "pre",
+          "code": "// main.js\nconst canvas = document.getElementById('myCanvas');\nconst offscreen = canvas.transferControlToOffscreen();\nconst worker = new Worker('canvas-worker.js');\nworker.postMessage({ canvas: offscreen }, [offscreen]);\n\n// canvas-worker.js\nself.onmessage = (e) => {\n  const canvas = e.data.canvas;\n  const ctx = canvas.getContext('2d');\n  // draw heavy frames here\n};",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "SharedArrayBuffer Security Overhead",
+          "body": "Using <code>SharedArrayBuffer</code> requires your site to be cross-origin isolated. This blocks loading cross-origin resources (e.g., CDN scripts, iframes) unless they opt in via <code>Cross-Origin-Resource-Policy</code>. For many apps, the isolation cost outweighs the performance gain. Only reach for it when you need sub-millisecond shared state between workers — otherwise, stick with <code>postMessage</code> and <code>Transferable</code> objects."
+        },
+        {
+          "type": "quiz",
+          "question": "You're optimizing a real-time collaborative text editor. Users report lag when typing, and profiling shows a 120ms task on every keystroke for syntax highlighting. Which approach should you take?",
+          "options": [
+            "Debounce the syntax highlighting to 300ms and run it synchronously.",
+            "Offload the highlighting to a Web Worker and update the DOM via postMessage.",
+            "Use requestIdleCallback to run highlighting in idle time, chunked to 50ms.",
+            "Throttle the highlighting to once per 100ms and run it synchronously."
+          ],
+          "answer": 1,
+          "explanation": "Syntax highlighting is CPU-bound and runs on every keystroke. A Web Worker offloads the computation entirely, keeping the main thread free for input. Debouncing (option 0) would delay feedback, making the editor feel sluggish. requestIdleCallback (option 2) could work but risks being preempted by higher-priority work, causing inconsistent updates. Throttling (option 3) still blocks the main thread every 100ms, which can exceed the 50ms long-task threshold."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the 50ms long-task threshold?",
+              "back": "Any task on the main thread exceeding 50ms is considered a long task, blocking user input and causing jank. Break work into chunks <50ms to stay responsive."
+            },
+            {
+              "front": "When should you use debounce vs throttle?",
+              "back": "Debounce: wait for a pause (autocomplete, resize). Throttle: ensure max rate (scroll, mousemove). Debounce can delay indefinitely; throttle may miss trailing events."
+            },
+            {
+              "front": "What is the main cost of using Web Workers?",
+              "back": "Serialization overhead for data passed via postMessage. Use Transferable objects (ArrayBuffer) to avoid copying. Workers cannot access DOM."
+            },
+            {
+              "front": "What does scheduler.postTask provide that setTimeout doesn't?",
+              "back": "Explicit priority levels (user-blocking, user-visible, background) and cancellation via AbortSignal. Better integration with browser scheduling."
+            },
+            {
+              "front": "What headers are required for SharedArrayBuffer?",
+              "back": "Cross-Origin-Opener-Policy: same-origin and Cross-Origin-Embedder-Policy: require-corp. This isolates the site and blocks cross-origin resources unless they opt in."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "react-render",
+      "num": "11 — REACT",
+      "title": "React Re-render Optimization",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "At scale, excessive React re-renders are the #1 cause of janky interactions and sluggish INP. A single unnecessary re-render of a deep component tree can blow past the <strong>16ms frame budget</strong> and create long tasks >50ms. This section covers the real trade-offs: when memoization helps, when it hurts, and how to measure before you optimize."
+        },
+        {
+          "type": "h3",
+          "text": "React.memo and When Memoization Actually Hurts"
+        },
+        {
+          "type": "p",
+          "html": "<code>React.memo</code> performs a shallow comparison of props. It helps when a component re-renders with the same props due to a parent re-render. But it <em>hurts</em> when: (1) the component is cheap to render (a simple div), because the comparison cost outweighs the render cost; (2) props are always new objects/functions, making the comparison useless; (3) the component has many children that also need memoization, creating a cascade."
+        },
+        {
+          "type": "pre",
+          "code": "// Bad: memoizing a cheap component that always gets new props\nconst ExpensiveButton = React.memo(({ onClick, label }) => {\n  return <button onClick={onClick}>{label}</button>;\n});\n\n// Parent creates new onClick every render — memoization is wasted\nfunction Parent() {\n  return <ExpensiveButton onClick={() => alert('hi')} label=\"Click\" />;\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "pre",
+          "code": "// Good: memoizing a heavy list item with stable props\nconst ListItem = React.memo(({ item, onSelect }) => {\n  return <div onClick={() => onSelect(item.id)}>{item.name}</div>;\n});\n\n// Parent passes stable onSelect via useCallback\nfunction Parent({ items }) {\n  const onSelect = useCallback((id) => { /* ... */ }, []);\n  return items.map(item => <ListItem key={item.id} item={item} onSelect={onSelect} />);\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use React.memo",
+          "body": "Do not wrap every component in React.memo. The shallow comparison itself costs ~0.01ms per prop. For a component that renders in <0.1ms, memoization is a net loss. Only memoize if the component re-renders frequently with the same props AND its render cost is >1ms (e.g., a chart, a large list, a complex form)."
+        },
+        {
+          "type": "h3",
+          "text": "useMemo / useCallback: Cost-Benefit and Referential Equality"
+        },
+        {
+          "type": "p",
+          "html": "<code>useMemo</code> and <code>useCallback</code> are not free. They add memory overhead (storing the cached value) and a dependency comparison on every render. Their primary benefit is <strong>referential equality</strong> — preventing child re-renders when passed as props to a memoized component. Use them only when: (1) the computation is expensive (>1ms); (2) the value is passed to a memoized child; (3) the value is a dependency of another hook."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "React.memo",
+              "Expensive leaf components with stable props",
+              "Shallow prop compare (~0.01ms/prop)",
+              "Cheap renders (<0.1ms), always-new props"
+            ],
+            [
+              "useMemo",
+              "Expensive computations (>1ms), referential stability",
+              "Memory for cached value, dep array compare",
+              "Trivial calculations (<0.1ms)"
+            ],
+            [
+              "useCallback",
+              "Stable function references for memoized children",
+              "Memory for cached function, dep array compare",
+              "Functions not passed to memoized children"
+            ],
+            [
+              "State colocation",
+              "Local UI state (toggles, inputs)",
+              "None (it's the default)",
+              "Global state that needs sharing"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "State Colocation and Pushing State Down"
+        },
+        {
+          "type": "p",
+          "html": "The simplest and most effective optimization: keep state as close to where it's used as possible. If only a child needs a piece of state, don't lift it to the parent. This prevents unnecessary re-renders of sibling subtrees. For example, a form input's value should live in the input component, not in a page-level store."
+        },
+        {
+          "type": "pre",
+          "code": "// Bad: state in parent causes entire list to re-render on every keystroke\nfunction Page() {\n  const [search, setSearch] = useState('');\n  return (\n    <>\n      <SearchInput value={search} onChange={setSearch} />\n      <ExpensiveList /> {/* re-renders on every keystroke! */}\n    </>\n  );\n}\n\n// Good: push state down into SearchInput\nfunction SearchInput() {\n  const [search, setSearch] = useState('');\n  return <input value={search} onChange={e => setSearch(e.target.value)} />;\n}\n\nfunction Page() {\n  return (\n    <>\n      <SearchInput />\n      <ExpensiveList /> {/* stable, no re-render */}\n    </>\n  );\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Context Splitting and Selector Patterns"
+        },
+        {
+          "type": "p",
+          "html": "React Context re-renders all consumers when the context value changes. To limit this: (1) split context into separate providers for unrelated concerns (e.g., <code>ThemeContext</code> vs <code>UserContext</code>); (2) use <code>useMemo</code> on the context value to avoid unnecessary updates; (3) for frequent updates, use a selector pattern (like <code>use-context-selector</code> or Zustand) to only re-render components that subscribe to a specific slice."
+        },
+        {
+          "type": "pre",
+          "code": "// Bad: single context with all state — any change re-renders all consumers\nconst AppContext = createContext();\nfunction AppProvider({ children }) {\n  const [user, setUser] = useState(null);\n  const [theme, setTheme] = useState('light');\n  return <AppContext.Provider value={{ user, theme }}>{children}</AppContext.Provider>;\n}\n\n// Good: split contexts\nconst UserContext = createContext();\nconst ThemeContext = createContext();\nfunction AppProvider({ children }) {\n  const [user, setUser] = useState(null);\n  const [theme, setTheme] = useState('light');\n  return (\n    <UserContext.Provider value={user}>\n      <ThemeContext.Provider value={theme}>\n        {children}\n      </ThemeContext.Provider>\n    </UserContext.Provider>\n  );\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Key Stability and Reconciliation"
+        },
+        {
+          "type": "p",
+          "html": "Stable <code>key</code> props are critical for efficient reconciliation. Using array indices as keys causes React to re-mount components when the list order changes, destroying and recreating DOM nodes. Always use a unique, stable identifier (like a database ID). For lists that are never reordered, index keys are acceptable but risky."
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always Measure First",
+          "body": "A staff engineer never optimizes without profiling. Use the React DevTools Profiler to identify actual re-render hotspots. Look for components that re-render more than expected or take >1ms to render. The 80/20 rule applies: 80% of performance gains come from fixing 20% of re-renders. Don't guess — measure with the Profiler's flamegraph and ranked timeline."
+        },
+        {
+          "type": "h3",
+          "text": "Why You Usually DON'T Need to Memoize"
+        },
+        {
+          "type": "p",
+          "html": "React is fast for most UIs. A typical component renders in <0.5ms. Memoization adds complexity and can mask design issues (like lifting state too high). Only memoize when the Profiler shows a clear bottleneck. For apps with <1000 components, premature memoization often does more harm than good. The React team recommends starting without memoization and adding it only when needed."
+        },
+        {
+          "type": "h3",
+          "text": "The React Compiler"
+        },
+        {
+          "type": "p",
+          "html": "The React Compiler (formerly React Forget) automatically memoizes components and hooks at build time. It analyzes your code and inserts <code>React.memo</code>, <code>useMemo</code>, and <code>useCallback</code> where beneficial. This eliminates manual memoization for most cases. However, it's not a silver bullet — it can't fix architectural issues like state colocation or context splitting. As of React 19, it's opt-in via Babel plugin. Expect it to reduce manual memoization by ~90%."
+        },
+        {
+          "type": "h3",
+          "text": "DevTools Profiler"
+        },
+        {
+          "type": "p",
+          "html": "The React DevTools Profiler is your primary tool. Record a session, then inspect the flamegraph: look for components that re-render without prop changes (highlighted in gray). The ranked timeline shows which components took the longest. A component taking >16ms is a red flag. Also check the 'Why did this render?' feature (via the <code>why-did-you-render</code> library) to identify unnecessary re-renders caused by unstable props."
+        },
+        {
+          "type": "quiz",
+          "question": "You profile a React app and find a <ListItem> component re-renders 200 times on a single user interaction. The component renders a simple <div> with text. What should you do?",
+          "options": [
+            "Wrap ListItem in React.memo immediately",
+            "Profile the parent to find the root cause of the re-renders",
+            "Replace the div with a <span> to reduce DOM cost",
+            "Add useCallback to all event handlers in the parent"
+          ],
+          "answer": 1,
+          "explanation": "A staff engineer first identifies why the parent re-renders 200 times. Memoizing a cheap component (<0.1ms render) is premature. The root cause might be state colocation or context issues. Always measure and fix the source, not the symptom."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the 16ms frame budget?",
+              "back": "The maximum time available for rendering a single frame at 60fps. Exceeding it causes jank. React re-renders should complete within this budget."
+            },
+            {
+              "front": "When does React.memo hurt performance?",
+              "back": "When the component is cheap to render (<0.1ms) or props are always new objects/functions, making the shallow comparison a net loss."
+            },
+            {
+              "front": "What is state colocation?",
+              "back": "Keeping state as close as possible to the component that uses it, preventing unnecessary re-renders of sibling subtrees."
+            },
+            {
+              "front": "How does context splitting improve performance?",
+              "back": "By separating unrelated state into different providers, so a change in one context only re-renders its consumers, not all consumers of a monolithic context."
+            },
+            {
+              "front": "What is the React Compiler?",
+              "back": "A build-time tool that automatically memoizes components and hooks, reducing the need for manual React.memo, useMemo, and useCallback."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "react-concurrent",
+      "num": "12 — REACT",
+      "title": "React Concurrent & Loading",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "At scale, expensive renders and data fetches can freeze the UI, pushing <strong>Interaction to Next Paint (INP)</strong> past the 200ms threshold. React's concurrent features let you mark updates as interruptible, defer non-critical work, and stream in code and data without blocking the main thread. The goal is to keep the frame budget under 16ms even during large state transitions."
+        },
+        {
+          "type": "h3",
+          "text": "Suspense for Code & Data Splitting"
+        },
+        {
+          "type": "p",
+          "html": "<code>React.lazy</code> enables code splitting at the component level, loading chunks only when rendered. Combined with <code>Suspense</code>, you can show a fallback while the chunk loads. For data, Suspense integrates with frameworks like Relay or Next.js to suspend rendering until async data is ready. This avoids waterfall loading and keeps the initial bundle lean (< 100kB for critical path)."
+        },
+        {
+          "type": "pre",
+          "code": "import React, { Suspense, lazy } from 'react';\n\nconst HeavyChart = lazy(() => import('./HeavyChart'));\n\nfunction Dashboard() {\n  return (\n    <Suspense fallback={<div>Loading chart...</div>}>\n      <HeavyChart />\n    </Suspense>\n  );\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "useTransition for Non-Urgent Updates"
+        },
+        {
+          "type": "p",
+          "html": "<code>useTransition</code> marks a state update as low priority, allowing React to interrupt it if a higher-priority update (like a user input) arrives. This prevents long tasks (>50ms) from blocking the UI. Use it for filtering large lists or navigating between views where the result can be slightly delayed."
+        },
+        {
+          "type": "pre",
+          "code": "import { useTransition, useState } from 'react';\n\nfunction SearchPage() {\n  const [query, setQuery] = useState('');\n  const [isPending, startTransition] = useTransition();\n\n  function handleChange(e) {\n    startTransition(() => {\n      setQuery(e.target.value);\n    });\n  }\n\n  return (\n    <div>\n      <input onChange={handleChange} />\n      {isPending && <Spinner />}\n      <SearchResults query={query} />\n    </div>\n  );\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "useDeferredValue for Expensive Derived UI"
+        },
+        {
+          "type": "p",
+          "html": "<code>useDeferredValue</code> lets you keep the old value on screen while a new, expensive value is computed in the background. Unlike <code>useTransition</code>, it doesn't wrap a state update—it defers the value itself. Ideal for memoized computations (e.g., filtering a 10,000-item list) where you want the input to stay responsive."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "useTransition",
+              "Marking state updates as low priority",
+              "Extra re-render for pending state",
+              "Updates that must be synchronous (e.g., form validation)"
+            ],
+            [
+              "useDeferredValue",
+              "Deferring derived values from props/state",
+              "Memory overhead for keeping old value",
+              "Simple computations (< 1ms)"
+            ],
+            [
+              "React.lazy + Suspense",
+              "Code splitting large components",
+              "Network latency for chunk load",
+              "Tiny components (< 5kB) or SSR without streaming"
+            ],
+            [
+              "startTransition",
+              "Non-urgent updates outside hooks",
+              "No built-in pending indicator",
+              "Inside event handlers that need immediate feedback"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Concurrent Rendering, Interruption, and startTransition"
+        },
+        {
+          "type": "p",
+          "html": "Concurrent rendering allows React to work on multiple versions of the UI at once. When a higher-priority update arrives, React interrupts the current render, discards partial work, and starts the new one. <code>startTransition</code> is the imperative API to wrap updates outside hooks. This reduces INP by ensuring user interactions are never blocked by a long render (>50ms)."
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always measure first",
+          "body": "Don't reach for useTransition or useDeferredValue until you've measured a long task (>50ms) or INP >200ms. Premature concurrency adds complexity and can cause visual jank if the deferred value lags too much. Profile with React DevTools or Chrome Performance panel before optimizing."
+        },
+        {
+          "type": "h3",
+          "text": "The Tearing Problem and useSyncExternalStore"
+        },
+        {
+          "type": "p",
+          "html": "Tearing occurs when concurrent renders see inconsistent external state (e.g., from Redux or Zustand). <code>useSyncExternalStore</code> ensures that React always reads a consistent snapshot, preventing visual tearing. It's required for any external store used with concurrent features. Without it, users might see half-updated UI during a transition."
+        },
+        {
+          "type": "pre",
+          "code": "import { useSyncExternalStore } from 'react';\n\nfunction subscribe(callback) {\n  window.addEventListener('online', callback);\n  return () => window.removeEventListener('online', callback);\n}\n\nfunction getSnapshot() {\n  return navigator.onLine;\n}\n\nfunction OnlineStatus() {\n  const isOnline = useSyncExternalStore(subscribe, getSnapshot);\n  return <div>{isOnline ? 'Online' : 'Offline'}</div>;\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use this optimization",
+          "body": "Don't wrap every state update in useTransition. If the update is small (< 1ms of work), the overhead of the transition mechanism (extra re-render, pending state) can actually increase latency. Also, avoid useDeferredValue for values that change rapidly (e.g., every keystroke) because the deferred value may never catch up, causing a stale UI."
+        },
+        {
+          "type": "quiz",
+          "question": "You have a search input that filters a 50,000-item list. The filter function takes 80ms. The input feels sluggish. Which approach should you take?",
+          "options": [
+            "Wrap the filter in useTransition and show a pending indicator",
+            "Use useDeferredValue on the input value and memoize the filtered list",
+            "Debounce the input by 300ms and run the filter synchronously",
+            "Move the filter to a Web Worker"
+          ],
+          "answer": 1,
+          "explanation": "useDeferredValue keeps the old list visible while computing the new one, and the input stays responsive because it doesn't block. useTransition would also work but adds a pending indicator that may flicker. Debouncing adds unnecessary delay. Web Worker is overkill for 80ms."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the main benefit of useTransition?",
+              "back": "Marks a state update as low priority so it can be interrupted by urgent updates, keeping INP under 200ms."
+            },
+            {
+              "front": "When should you use useDeferredValue instead of useTransition?",
+              "back": "When you want to defer a derived value (e.g., filtered list) without wrapping the state update itself."
+            },
+            {
+              "front": "What problem does useSyncExternalStore solve?",
+              "back": "Prevents tearing by ensuring consistent snapshots of external state during concurrent renders."
+            },
+            {
+              "front": "What is the cost of using React.lazy?",
+              "back": "Adds network latency for chunk loading; avoid for components under 5kB or in SSR without streaming."
+            },
+            {
+              "front": "What metric should you measure before using concurrent features?",
+              "back": "INP >200ms or long tasks >50ms in the Performance panel."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ssr-hydration",
+      "num": "13 — REACT",
+      "title": "SSR & Hydration Cost",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Server-side rendering (SSR) improves <strong>TTFB</strong> and <strong>FCP</strong> by sending pre-rendered HTML, but it introduces a <strong>hydration tax</strong>: the client must download, parse, and execute the JavaScript bundle to rehydrate the DOM, delaying <strong>TTI</strong> and <strong>INP</strong>. At scale, this tax can push interactivity beyond <strong>5 seconds</strong> on slow devices, eroding the initial gain. The staff-level challenge is not choosing SSR vs. CSR, but <em>how</em> to minimize the cost of making the page interactive."
+        },
+        {
+          "type": "h3",
+          "text": "The Hydration Tax: Why TTI Lags Behind FCP"
+        },
+        {
+          "type": "p",
+          "html": "Hydration is the process of attaching event listeners and re-running component logic on the client. The cost is proportional to the <strong>size of the JavaScript bundle</strong> and the <strong>number of DOM nodes</strong>. A typical Next.js page with 50 components can require <strong>200-400ms</strong> of main-thread work on a mid-range phone, blocking user input. This is the <strong>hydration tax</strong>: the browser must replay the entire component tree, even if only a button needs interactivity."
+        },
+        {
+          "type": "pre",
+          "code": "// Example: Hydration cost measured via Performance Observer\nconst observer = new PerformanceObserver((list) => {\n  for (const entry of list.getEntries()) {\n    if (entry.name === 'first-interaction') {\n      console.log('Time to interactive:', entry.startTime);\n    }\n  }\n});\nobserver.observe({ type: 'event', buffered: true });\n\n// Long task threshold: 50ms\nnew PerformanceObserver((list) => {\n  for (const entry of list.getEntries()) {\n    if (entry.duration > 50) {\n      console.warn('Long task blocking hydration:', entry.duration);\n    }\n  }\n}).observe({ type: 'longtask', buffered: true });",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Streaming SSR and Progressive Hydration"
+        },
+        {
+          "type": "p",
+          "html": "Streaming SSR sends HTML in chunks, allowing the browser to paint content before the full response arrives. <strong>Progressive hydration</strong> extends this by hydrating components in order of priority: visible, interactive elements first. This reduces the <strong>time to first interaction</strong> from the full hydration time to the time for the first chunk. However, it requires careful orchestration to avoid <strong>hydration mismatches</strong> when streaming."
+        },
+        {
+          "type": "pre",
+          "code": "// React 18: Streaming SSR with Suspense boundaries\nimport { Suspense } from 'react';\nimport { renderToPipeableStream } from 'react-dom/server';\n\nfunction App() {\n  return (\n    <html>\n      <body>\n        <Header /> {/* Hydrated immediately */}\n        <Suspense fallback={<Spinner />}>\n          <SlowComponent /> {/* Streamed and hydrated later */}\n        </Suspense>\n      </body>\n    </html>\n  );\n}\n\n// Server-side streaming\nconst { pipe } = renderToPipeableStream(<App />, {\n  onShellReady() {\n    response.setHeader('content-type', 'text/html');\n    pipe(response);\n  }\n});",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Selective Hydration and Islands Architecture"
+        },
+        {
+          "type": "p",
+          "html": "<strong>Islands architecture</strong> (used by Astro, Marko) treats interactive components as isolated 'islands' in a sea of static HTML. Only the islands are hydrated, reducing the total hydration cost to the sum of their individual bundles. <strong>Selective hydration</strong> (React 18) allows hydrating components independently based on user interaction or visibility. The trade-off: islands require explicit boundaries, increasing developer complexity and potentially fragmenting state management."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best For",
+            "Cost",
+            "Avoid When"
+          ],
+          "rows": [
+            [
+              "Full SSR + Hydration",
+              "Simple pages, small bundles (<50kB)",
+              "High TTI, blocks main thread",
+              "Complex apps with large JS bundles"
+            ],
+            [
+              "Streaming SSR + Progressive Hydration",
+              "Content-heavy pages, news sites",
+              "Moderate complexity, risk of mismatches",
+              "Real-time apps needing instant interactivity"
+            ],
+            [
+              "Islands Architecture",
+              "Marketing sites, dashboards with few interactive widgets",
+              "Lower hydration cost, but state management overhead",
+              "Highly interactive apps (e.g., Figma, Google Docs)"
+            ],
+            [
+              "React Server Components",
+              "Data-heavy pages, e-commerce product lists",
+              "Zero client JS for server components, but RSC payload size",
+              "Apps requiring client-side interactivity on every component"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "React Server Components: A Hydration-Reduction Strategy"
+        },
+        {
+          "type": "p",
+          "html": "React Server Components (RSC) run entirely on the server, sending a serialized <strong>RSC payload</strong> (not HTML) to the client. This payload is used to render the component tree without downloading any JavaScript for server components. Only <strong>client components</strong> (marked with 'use client') are hydrated. This can reduce the bundle size by <strong>40-60%</strong> for data-heavy pages, directly lowering the hydration tax. The trade-off: RSC payloads can be large (e.g., <strong>10-20kB</strong> for a product list) and require a server runtime."
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: 'Always measure the hydration cost before optimizing'",
+          "body": "A junior might immediately reach for islands or streaming. A staff engineer first instruments <strong>Long Tasks</strong> and <strong>First Input Delay (FID)</strong> to quantify the actual hydration cost. If the total hydration time is under <strong>200ms</strong> on a Moto G4, the optimization may be premature. Use <code>performance.measure</code> around the hydration root to get concrete numbers."
+        },
+        {
+          "type": "h3",
+          "text": "Partial Hydration and Resumability (Qwik)"
+        },
+        {
+          "type": "p",
+          "html": "<strong>Partial hydration</strong> (e.g., Marko) hydrates only the components that need interactivity, skipping static ones. <strong>Resumability</strong> (Qwik) takes this further: instead of replaying component logic, it serializes the application state in HTML and resumes execution on interaction. This eliminates hydration entirely, achieving <strong>near-zero JavaScript</strong> on page load. The cost: a larger initial HTML payload (state serialization) and a steeper learning curve. Qwik claims <strong>sub-50ms TTI</strong> even on slow devices, but the trade-off is compatibility with existing React ecosystems."
+        },
+        {
+          "type": "pre",
+          "code": "// Qwik: Resumable component (no hydration)\nimport { component$, useSignal } from '@builder.io/qwik';\n\nexport const Counter = component$(() => {\n  const count = useSignal(0);\n  return (\n    <button onClick$={() => count.value++}>\n      {count.value}\n    </button>\n  );\n});\n\n// The HTML includes serialized state, not JavaScript\n// <button on:click=\"q://...\">0</button>",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to Use These Optimizations",
+          "body": "Avoid islands or resumability if your app has <strong>fewer than 5 interactive components</strong> or a total bundle size under <strong>30kB</strong>. The overhead of splitting into islands (build tooling, state management) can outweigh the benefits. Similarly, don't use streaming SSR if your server response time is already under <strong>200ms</strong> — the complexity of handling streaming errors and mismatches isn't worth it."
+        },
+        {
+          "type": "h3",
+          "text": "Measuring Hydration Cost"
+        },
+        {
+          "type": "p",
+          "html": "To measure hydration cost, track <strong>Time to Interactive (TTI)</strong> and <strong>First Input Delay (FID)</strong>. Use the <strong>Long Tasks API</strong> to identify tasks over <strong>50ms</strong> that block the main thread. A common metric: <strong>hydration time = TTI - FCP</strong>. For React, use <code>ReactDOM.hydrateRoot</code> and wrap it with <code>performance.mark</code>. Aim for <strong>hydration time < 200ms</strong> on a mid-range device (Moto G4). If it exceeds <strong>500ms</strong>, consider islands or RSC."
+        },
+        {
+          "type": "quiz",
+          "question": "Your team is building a high-traffic e-commerce product listing page. The page has 50 product cards, each with a 'Add to Cart' button. Current metrics: FCP = 1.2s, TTI = 4.8s, bundle size = 180kB. Which optimization strategy should you prioritize?",
+          "options": [
+            "Implement streaming SSR with progressive hydration for all components",
+            "Switch to islands architecture, hydrating only the 'Add to Cart' buttons",
+            "Use React Server Components for the product list and keep client components for buttons",
+            "Adopt Qwik resumability to eliminate hydration entirely"
+          ],
+          "answer": 2,
+          "explanation": "RSC reduces the bundle size by moving the product list logic to the server, cutting hydration cost significantly. Islands would still require client JS for each button (50 components), and streaming SSR doesn't address the 180kB bundle. Qwik is overkill for a page with simple interactions and adds ecosystem friction. RSC provides the best balance of reduction and maintainability."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the hydration tax?",
+              "back": "The cost of re-running component logic on the client to attach event listeners, measured as the delay between FCP and TTI. Typically 200-500ms on mid-range devices."
+            },
+            {
+              "front": "How does streaming SSR improve TTI?",
+              "back": "It sends HTML in chunks, allowing the browser to paint content early. Progressive hydration then hydrates visible components first, reducing time to first interaction."
+            },
+            {
+              "front": "What is the key trade-off of islands architecture?",
+              "back": "Lower hydration cost (only interactive components hydrate) but increased developer complexity and potential state management fragmentation."
+            },
+            {
+              "front": "How do React Server Components reduce hydration?",
+              "back": "Server components run on the server and send a serialized payload (not HTML) to the client, requiring zero client JavaScript for those components. Only 'use client' components hydrate."
+            },
+            {
+              "front": "What is resumability in Qwik?",
+              "back": "Instead of hydrating, Qwik serializes application state in HTML and resumes execution on interaction. This eliminates hydration entirely, achieving sub-50ms TTI on slow devices."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "network",
+      "num": "14 — NETWORK & DATA",
+      "title": "Network & Caching",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "When requests are slow or there are too many round-trips, the bottleneck is rarely the server's processing time — it's the network. At scale, every millisecond of latency compounds across millions of users, directly impacting LCP, INP, and bounce rates. This section covers the caching and protocol strategies that eliminate redundant trips, compress payloads, and keep the critical path under 2.5s LCP even on 3G."
+        },
+        {
+          "type": "h3",
+          "text": "HTTP Caching: Cache-Control Directives"
+        },
+        {
+          "type": "p",
+          "html": "The <code>Cache-Control</code> header is your primary lever for avoiding round-trips. <code>max-age</code> sets the freshness lifetime in seconds. <code>immutable</code> tells the browser never to revalidate during that lifetime — critical for versioned assets like <code>app.abc123.js</code>. <code>stale-while-revalidate</code> allows serving stale content while fetching a fresh copy in the background, hiding latency from the user."
+        },
+        {
+          "type": "pre",
+          "code": "// Server response for a versioned JS bundle\nCache-Control: public, max-age=31536000, immutable\n\n// Server response for an API endpoint that can serve stale data\nCache-Control: public, max-age=60, stale-while-revalidate=3600",
+          "label": "HTTP Headers"
+        },
+        {
+          "type": "h3",
+          "text": "ETag and Conditional Requests"
+        },
+        {
+          "type": "p",
+          "html": "ETags enable lightweight validation: the browser sends <code>If-None-Match</code> with the stored ETag, and the server returns 304 Not Modified with an empty body. This saves bandwidth but still costs one round-trip. Use ETags for dynamic resources that change infrequently but can't have a long <code>max-age</code>. For static assets, prefer <code>immutable</code> with a content-hash filename — that eliminates the round-trip entirely."
+        },
+        {
+          "type": "pre",
+          "code": "// Request with ETag validation\nGET /api/user/profile HTTP/1.1\nIf-None-Match: \"686897696a7c876b7e\"\n\n// Response when unchanged\nHTTP/1.1 304 Not Modified\nETag: \"686897696a7c876b7e\"",
+          "label": "HTTP Request/Response"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "max-age + immutable",
+              "Versioned static assets (JS, CSS, fonts)",
+              "Low; no revalidation",
+              "Unversioned or frequently changing resources"
+            ],
+            [
+              "ETag + 304",
+              "Dynamic API responses, user-specific data",
+              "One round-trip per validation",
+              "High-frequency polling; use stale-while-revalidate instead"
+            ],
+            [
+              "stale-while-revalidate",
+              "News feeds, product listings",
+              "Background fetch; no user wait",
+              "Real-time data (chat, stock prices)"
+            ],
+            [
+              "no-cache",
+              "Always-fresh content (e.g., CSRF tokens)",
+              "Full round-trip each time",
+              "Static assets; wastes bandwidth"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Measure Before You Cache",
+          "body": "A junior engineer sets max-age to 3600 on everything. A staff engineer measures the cache hit rate, the cost of a miss (e.g., 200ms vs 50ms), and the frequency of content changes. They know that <code>immutable</code> is only safe when the URL changes on every deploy — otherwise you break updates. Always validate with Lighthouse or WebPageTest before deciding on a caching strategy."
+        },
+        {
+          "type": "h3",
+          "text": "CDN and Edge Caching"
+        },
+        {
+          "type": "p",
+          "html": "CDNs cache at the edge, reducing latency from 200ms (cross-continent) to <20ms (local PoP). Use a CDN for static assets and cacheable API responses. Set <code>s-maxage</code> for CDN-specific TTLs, and <code>stale-while-revalidate</code> at the edge to serve stale content during origin failures. For dynamic content, consider edge workers (e.g., Cloudflare Workers, Lambda@Edge) to cache personalized responses with short TTLs."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to Use CDN Caching",
+          "body": "Avoid caching authenticated or user-specific data at the edge unless you use a CDN that supports key-based cache invalidation (e.g., Varnish with Vary: Cookie). Caching a user's private dashboard for all visitors is a data leak. Also, don't cache POST responses — they are rarely idempotent. Stick to GET and HEAD."
+        },
+        {
+          "type": "h3",
+          "text": "HTTP/2 Multiplexing and Server Push Deprecation"
+        },
+        {
+          "type": "p",
+          "html": "HTTP/2 multiplexes multiple streams over a single TCP connection, eliminating head-of-line blocking. This reduces round-trips for multiple assets from N to 1. However, HTTP/2 server push was deprecated in Chrome (2022) because it often pushed resources the browser already cached, wasting bandwidth. Instead, use <code>103 Early Hints</code> or preload hints in the HTML <code><head></code>."
+        },
+        {
+          "type": "pre",
+          "code": "<!-- Use preload instead of server push -->\n<link rel=\"preload\" href=\"/styles/main.css\" as=\"style\">\n<link rel=\"preload\" href=\"/scripts/app.js\" as=\"script\">\n\n<!-- 103 Early Hints (server response before full HTML) -->\nHTTP/1.1 103 Early Hints\nLink: </styles/main.css>; rel=preload; as=style",
+          "label": "HTML / HTTP"
+        },
+        {
+          "type": "h3",
+          "text": "HTTP/3 and QUIC Benefits"
+        },
+        {
+          "type": "p",
+          "html": "HTTP/3 uses QUIC over UDP, eliminating TCP head-of-line blocking and reducing connection setup from 3 round-trips (TCP+TLS) to 1. On mobile networks with packet loss, QUIC can improve load times by 15-30% because it doesn't stall all streams when one packet is lost. Enable HTTP/3 on your CDN — most major CDNs support it. For users on HTTP/2, ensure your server supports <code>Alt-Svc</code> headers to advertise HTTP/3."
+        },
+        {
+          "type": "h3",
+          "text": "Compression: Brotli vs Gzip"
+        },
+        {
+          "type": "p",
+          "html": "Brotli compresses text assets 20-30% better than gzip at level 4-6, with similar decompression speed. Use Brotli for HTML, CSS, JS, and SVG. Gzip is still useful for legacy clients (pre-2015 browsers) and for binary formats like WOFF fonts. Set <code>Content-Encoding: br</code> and negotiate via <code>Accept-Encoding</code>. For dynamic content, use Brotli level 4-5 to balance compression speed and ratio; for static, level 11 is fine."
+        },
+        {
+          "type": "pre",
+          "code": "// Nginx configuration for Brotli\nbrotli on;\nbrotli_comp_level 6;\nbrotli_types text/html text/css application/javascript image/svg+xml;\n\n// Apache configuration\nAddOutputFilterByType BROTLI_COMPRESS text/html text/css application/javascript",
+          "label": "Server Config"
+        },
+        {
+          "type": "h3",
+          "text": "Connection Reuse and Cache Hierarchy"
+        },
+        {
+          "type": "p",
+          "html": "Connection reuse reduces DNS lookups, TCP handshakes, and TLS negotiations. Use <code>keep-alive</code> (default in HTTP/1.1) and HTTP/2 multiplexing. The cache hierarchy is: browser memory cache (<10ms) → browser disk cache (10-50ms) → service worker cache (0-100ms) → CDN edge cache (10-100ms) → origin server (100-500ms). Optimize for the fastest layer: use <code>Cache-Control: max-age=... immutable</code> to hit memory cache, and register a service worker for offline-first strategies."
+        },
+        {
+          "type": "callout",
+          "variant": "key",
+          "title": "Key Metrics for Network Optimization",
+          "body": "Target: LCP < 2.5s, INP < 200ms, CLS < 0.1. Each round-trip adds ~50ms on 4G, ~300ms on 3G. A 100kB Brotli-compressed JS file (vs 130kB gzip) saves ~30ms on 4G. Use <code>Server-Timing</code> headers to measure cache hit/miss at each layer."
+        },
+        {
+          "type": "quiz",
+          "question": "You have a versioned CSS file (style.a1b2c3.css) that changes once a month. Which caching strategy minimizes round-trips while ensuring users get updates promptly?",
+          "options": [
+            "Set max-age=86400 and ETag, revalidate every day",
+            "Set max-age=31536000, immutable, and change the filename on each deploy",
+            "Set no-cache and rely on CDN edge caching",
+            "Set max-age=0 and use stale-while-revalidate=604800"
+          ],
+          "answer": 1,
+          "explanation": "Option B uses content-hash filenames with immutable caching — the browser never revalidates, eliminating round-trips entirely. Changing the filename on deploy ensures instant updates. Option A still costs a round-trip daily. Option C wastes bandwidth. Option D serves stale content for a week, which is too long for CSS updates."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the difference between max-age and s-maxage?",
+              "back": "max-age applies to browsers and intermediate caches; s-maxage overrides max-age for shared caches (CDNs, proxies) but not browsers."
+            },
+            {
+              "front": "Why was HTTP/2 server push deprecated?",
+              "back": "It often pushed resources already in the browser cache, wasting bandwidth. Use 103 Early Hints or preload links instead."
+            },
+            {
+              "front": "When should you use Brotli over gzip?",
+              "back": "Brotli for text assets (HTML, CSS, JS, SVG) — 20-30% better compression. Gzip for legacy clients and binary formats like WOFF."
+            },
+            {
+              "front": "What is the cache hierarchy from fastest to slowest?",
+              "back": "Browser memory cache → browser disk cache → service worker cache → CDN edge cache → origin server."
+            },
+            {
+              "front": "How does HTTP/3 reduce latency compared to HTTP/2?",
+              "back": "HTTP/3 uses QUIC over UDP, eliminating TCP head-of-line blocking and reducing connection setup from 3 RTTs to 1."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "data",
+      "num": "15 — NETWORK & DATA",
+      "title": "Data Fetching Optimization",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "When your data layer over-fetches, waterfalls, or refetches needlessly, you waste bandwidth, block interactivity, and degrade Core Web Vitals. At scale, each unnecessary request adds latency and server load, pushing LCP beyond 2.5s and INP above 200ms. This section covers the patterns and trade-offs to eliminate these inefficiencies with judgement, not just tools."
+        },
+        {
+          "type": "h3",
+          "text": "Client Cache with React Query / SWR (Stale-While-Revalidate)"
+        },
+        {
+          "type": "p",
+          "html": "Both React Query and SWR implement <code>stale-while-revalidate</code>: serve cached data instantly (even if stale), then refetch in the background. This eliminates synchronous loading states and reduces perceived latency. The key trade-off is <strong>stale time</strong> — too short refetches on every mount, too long shows outdated data. Set <code>staleTime</code> based on data volatility: user profile (5-30 min), feed (30s-2min), real-time (0)."
+        },
+        {
+          "type": "pre",
+          "code": "import { useQuery } from '@tanstack/react-query';\n\nfunction Profile({ userId }) {\n  const { data, isLoading } = useQuery({\n    queryKey: ['user', userId],\n    queryFn: () => fetch(`/api/user/${userId}`).then(r => r.json()),\n    staleTime: 5 * 60 * 1000, // 5 min — user data rarely changes\n    gcTime: 30 * 60 * 1000,   // keep in cache 30 min\n  });\n  // ...\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always measure cache hit rate first",
+          "body": "A junior adds caching blindly. A staff engineer instruments cache hit/miss ratios and measures time-to-interactive before and after. If your cache hit rate is below 80%, your staleTime or query key design is wrong. Use browser DevTools or RUM to confirm."
+        },
+        {
+          "type": "h3",
+          "text": "Prefetching and Preloading Data on Intent"
+        },
+        {
+          "type": "p",
+          "html": "Prefetch data before the user navigates — on hover, focus, or intersection. This hides network latency behind user thinking time. Use <code>queryClient.prefetchQuery</code> in React Query or <code>preload</code> in Next.js. The cost: extra bandwidth if the user doesn't follow through. Only prefetch when probability > 50% (e.g., hover on a link, not on page load)."
+        },
+        {
+          "type": "pre",
+          "code": "import { useQueryClient } from '@tanstack/react-query';\n\nfunction ProductCard({ productId }) {\n  const queryClient = useQueryClient();\n\n  const prefetch = () => {\n    queryClient.prefetchQuery({\n      queryKey: ['product', productId],\n      queryFn: () => fetch(`/api/product/${productId}`).then(r => r.json()),\n      staleTime: 60 * 1000,\n    });\n  };\n\n  return (\n    <a href={`/product/${productId}`} onMouseEnter={prefetch}>\n      {productId}\n    </a>\n  );\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Request Deduplication"
+        },
+        {
+          "type": "p",
+          "html": "When multiple components mount simultaneously and request the same data, deduplication merges them into one network call. React Query and SWR do this automatically by <code>queryKey</code>. Without it, you waste bandwidth and risk race conditions. The cost: a tiny CPU overhead for key comparison (< 0.1ms per key). Always use stable, serializable keys."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to deduplicate",
+          "body": "If your API returns user-specific data (e.g., /api/orders?userId=X), deduplication across users is dangerous. Ensure query keys include all parameters that affect the response. Also, avoid deduplication for real-time streams (WebSocket) — use a different cache layer."
+        },
+        {
+          "type": "h3",
+          "text": "Eliminating Over-Fetching: GraphQL Field Selection and REST Sparse Fieldsets"
+        },
+        {
+          "type": "p",
+          "html": "Over-fetching sends more data than needed, increasing payload size and parse time. GraphQL solves this natively with field selection. For REST, implement <code>?fields=id,name,email</code> (sparse fieldsets). The trade-off: more complex API contracts and potential N+1 queries if fields require joins. Measure payload size — if you save < 1kB per request, the complexity isn't worth it."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "GraphQL field selection",
+              "Complex UIs with varying data needs",
+              "Schema maintenance, resolver complexity",
+              "Simple CRUD with fixed views"
+            ],
+            [
+              "REST sparse fieldsets",
+              "Legacy APIs, simple clients",
+              "Backend parsing overhead, caching granularity",
+              "Payloads < 2kB already"
+            ],
+            [
+              "Over-fetching (no optimization)",
+              "Prototypes, low-traffic pages",
+              "Bandwidth waste, slower parse time",
+              "Any page with > 10 requests or > 50kB total"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Cursor vs Offset Pagination"
+        },
+        {
+          "type": "p",
+          "html": "Offset pagination (<code>?page=2&limit=20</code>) is simple but breaks when items are inserted/deleted — users see duplicates or gaps. Cursor pagination (<code>?cursor=abc123&limit=20</code>) is stable and faster for large datasets because the database can use index scans. The trade-off: cursor pagination requires a unique, sortable cursor (often a timestamp or UUID) and is harder to implement for 'jump to page N' UX. For infinite scroll, always use cursor. For paginated tables with page numbers, offset is acceptable if data is static."
+        },
+        {
+          "type": "pre",
+          "code": "// Cursor-based pagination with React Query\nasync function fetchPosts({ pageParam = null }) {\n  const params = new URLSearchParams({ limit: '20' });\n  if (pageParam) params.set('cursor', pageParam);\n  const res = await fetch(`/api/posts?${params}`);\n  const data = await res.json();\n  return { posts: data.posts, nextCursor: data.next_cursor };\n}\n\nuseInfiniteQuery({\n  queryKey: ['posts'],\n  queryFn: fetchPosts,\n  initialPageParam: null,\n  getNextPageParam: (lastPage) => lastPage.nextCursor,\n});",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Optimistic Updates and Normalized Caching"
+        },
+        {
+          "type": "p",
+          "html": "Optimistic updates apply UI changes immediately before the server confirms, reducing perceived latency to < 50ms. Normalized caching (e.g., using <code>normalizr</code> or React Query's structural sharing) stores entities once and references them, preventing stale data across views. The cost: rollback logic on failure, and increased cache complexity. Only use optimistic updates for actions with high success probability (> 95%) and fast rollback (< 200ms)."
+        },
+        {
+          "type": "pre",
+          "code": "// Optimistic update with React Query\nconst mutation = useMutation({\n  mutationFn: (newTodo) => fetch('/api/todos', { method: 'POST', body: JSON.stringify(newTodo) }),\n  onMutate: async (newTodo) => {\n    await queryClient.cancelQueries({ queryKey: ['todos'] });\n    const previous = queryClient.getQueryData(['todos']);\n    queryClient.setQueryData(['todos'], (old) => [...old, { ...newTodo, id: 'temp' }]);\n    return { previous };\n  },\n  onError: (err, newTodo, context) => {\n    queryClient.setQueryData(['todos'], context.previous);\n  },\n  onSettled: () => queryClient.invalidateQueries({ queryKey: ['todos'] }),\n});",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Waterfall Elimination"
+        },
+        {
+          "type": "p",
+          "html": "Waterfalls occur when requests depend on previous responses (e.g., fetch user, then fetch their orders). Each hop adds RTT (often 50-200ms). Eliminate by: (1) parallelizing independent requests with <code>Promise.all</code>, (2) using server-side data aggregation (BFF pattern), or (3) prefetching dependent data. The goal: reduce waterfall depth to 1-2 levels. Measure with Chrome DevTools Network tab — any chain longer than 3 requests is a red flag."
+        },
+        {
+          "type": "quiz",
+          "question": "Your team is building an infinite-scroll feed. The API currently uses offset pagination. Users report seeing duplicate items after scrolling. Which approach should you recommend, and what's the primary trade-off?",
+          "options": [
+            "Switch to cursor pagination — it eliminates duplicates but makes 'jump to page N' harder.",
+            "Increase the page size to 100 — fewer requests reduce duplicates.",
+            "Add a client-side deduplication filter — cheap and solves the symptom.",
+            "Keep offset pagination but add a unique ID check — simple and backward-compatible."
+          ],
+          "answer": 0,
+          "explanation": "Cursor pagination is the correct fix because it uses a stable cursor (e.g., timestamp) that doesn't shift with inserts/deletes. The trade-off is losing easy 'jump to page N' UX. Increasing page size only reduces frequency, not root cause. Client-side dedup is a band-aid that adds complexity and can still miss duplicates."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the key trade-off when setting staleTime in React Query?",
+              "back": "Too short: unnecessary refetches on mount. Too long: stale data visible. Set based on data volatility (user profile: 5-30 min, feed: 30s-2min)."
+            },
+            {
+              "front": "When should you NOT use optimistic updates?",
+              "back": "When mutation success rate < 95% or rollback takes > 200ms. Also avoid for irreversible actions (e.g., payments) without server confirmation."
+            },
+            {
+              "front": "What metric indicates a waterfall problem?",
+              "back": "Waterfall depth > 3 requests in Chrome DevTools Network tab, or total time > 2x the slowest single request due to sequential RTTs."
+            },
+            {
+              "front": "Cursor vs offset pagination: when is offset acceptable?",
+              "back": "When data is static (e.g., historical logs) or paginated tables with page numbers. For infinite scroll with live data, always use cursor."
+            },
+            {
+              "front": "What is the cost of request deduplication?",
+              "back": "~0.1ms CPU overhead per key comparison. Negligible, but dangerous if query keys don't include user-specific parameters."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "perceived",
+      "num": "16 — PERCEIVED & MEMORY",
+      "title": "Perceived Performance",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Perceived performance is the gap between what the browser reports and what the user feels. At scale, a 200ms improvement in <strong>occupied time</strong> can increase conversion by 2-5%, even when Lighthouse scores are perfect. This section covers techniques that manipulate user perception — not just metrics — to make interactions feel instant."
+        },
+        {
+          "type": "h3",
+          "text": "Skeleton Screens vs Spinners"
+        },
+        {
+          "type": "p",
+          "html": "A spinner says 'wait, I'm loading.' A skeleton screen says 'here's the structure, content is coming.' The key difference is <strong>occupied time</strong> — the user's brain is occupied processing layout, so the wait feels shorter. Skeletons reduce perceived latency by 30-50% in controlled studies, but they increase CLS if not sized correctly. Use skeletons for content with predictable layout (e.g., list items, cards); use spinners for unpredictable or short loads (<1s)."
+        },
+        {
+          "type": "pre",
+          "code": "// React skeleton component with stable dimensions\nfunction SkeletonCard() {\n  return (\n    <div className=\"skeleton-card\" style={{ height: 120, width: '100%' }}>\n      <div className=\"skeleton-line\" style={{ width: '60%', height: 16, marginBottom: 8 }} />\n      <div className=\"skeleton-line\" style={{ width: '80%', height: 14 }} />\n    </div>\n  );\n}\n\n// CSS: animate with shimmer, no layout shift\n.skeleton-card {\n  background: #f0f0f0;\n  border-radius: 8px;\n  padding: 16px;\n  animation: shimmer 1.5s infinite;\n}\n\n@keyframes shimmer {\n  0% { opacity: 0.6; }\n  50% { opacity: 1; }\n  100% { opacity: 0.6; }\n}",
+          "label": "React + CSS"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best for",
+            "Cost",
+            "Avoid when"
+          ],
+          "rows": [
+            [
+              "Skeleton screens",
+              "Predictable layout, >1s load",
+              "CLS risk if no fixed dimensions",
+              "Dynamic content (e.g., search results)"
+            ],
+            [
+              "Spinners",
+              "Unpredictable layout, <1s load",
+              "No layout shift, but feels slower",
+              "Long loads (>3s) without progress"
+            ],
+            [
+              "Optimistic UI",
+              "Idempotent actions (like, save)",
+              "State rollback complexity",
+              "Non-idempotent or error-prone actions"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Optimistic UI for Instant Feedback"
+        },
+        {
+          "type": "p",
+          "html": "Optimistic UI updates the view <strong>before</strong> the server confirms the action. This keeps interactions under the 100ms threshold for perceived instantaneity. The trade-off: you must handle rollback on failure. Use it for idempotent actions (likes, toggles) where failure is rare. Never use it for financial transactions or destructive operations without confirmation."
+        },
+        {
+          "type": "pre",
+          "code": "// Optimistic like toggle with rollback\nasync function handleLike(postId) {\n  const previousLiked = posts[postId].liked;\n  // Optimistic update\n  setPosts(prev => ({\n    ...prev,\n    [postId]: { ...prev[postId], liked: !previousLiked, likes: prev[postId].likes + (previousLiked ? -1 : 1) }\n  }));\n  \n  try {\n    await api.likePost(postId);\n  } catch (error) {\n    // Rollback on failure\n    setPosts(prev => ({\n      ...prev,\n      [postId]: { ...prev[postId], liked: previousLiked, likes: prev[postId].likes + (previousLiked ? 1 : -1) }\n    }));\n    showError('Failed to update like');\n  }\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: 'Always measure the occupied time, not just the metric'",
+          "body": "A junior says 'we use skeletons.' A staff engineer says 'we measured that skeletons reduced perceived wait by 40% in our A/B test, but we also tracked that they increased CLS by 0.02. We accepted that trade-off because the conversion lift was 3%.' Always quantify the perception gap with real user monitoring (RUM) data."
+        },
+        {
+          "type": "h3",
+          "text": "Progressive and Streaming Loading"
+        },
+        {
+          "type": "p",
+          "html": "Streaming HTML (via frameworks like React 18's <code>renderToPipeableStream</code>) sends content as it's ready, not all at once. This improves <strong>First Paint</strong> and <strong>LCP</strong> by 30-50% for server-rendered pages. Progressive loading (e.g., lazy-loading images below the fold) reduces initial payload. The cost: more complex error handling and potential layout shifts if placeholders aren't sized."
+        },
+        {
+          "type": "pre",
+          "code": "// React 18 streaming with Suspense boundaries\nimport { Suspense } from 'react';\nimport { renderToPipeableStream } from 'react-dom/server';\n\nfunction App() {\n  return (\n    <html>\n      <body>\n        <Header />\n        <Suspense fallback={<SkeletonNav />}>\n          <SlowNav />\n        </Suspense>\n        <Suspense fallback={<SkeletonContent />}>\n          <SlowContent />\n        </Suspense>\n      </body>\n    </html>\n  );\n}\n\n// Server-side streaming\napp.get('/', (req, res) => {\n  const stream = renderToPipeableStream(<App />, {\n    onShellReady() {\n      res.setHeader('Content-Type', 'text/html');\n      stream.pipe(res);\n    }\n  });\n});",
+          "label": "React 18 Streaming"
+        },
+        {
+          "type": "h3",
+          "text": "Instant Feedback Under 100ms"
+        },
+        {
+          "type": "p",
+          "html": "The 100ms threshold is from <strong>Jakob Nielsen's research</strong>: under 100ms, users perceive the system as reacting instantly. For interactions, this means the <strong>INP (Interaction to Next Paint)</strong> must be <200ms, but the <em>visual feedback</em> (e.g., button press state) should appear within 50ms. Use <code>transition: transform 0.1s</code> for press effects, and avoid long tasks (>50ms) on the main thread during interaction."
+        },
+        {
+          "type": "pre",
+          "code": "/* Instant button press feedback under 50ms */\nbutton:active {\n  transform: scale(0.95);\n  transition: transform 0.05s; /* 50ms */\n}\n\n/* For async actions, show spinner immediately */\nbutton.loading {\n  pointer-events: none;\n  opacity: 0.7;\n}",
+          "label": "CSS"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to use optimistic UI",
+          "body": "Optimistic UI is dangerous for non-idempotent actions (e.g., charging a credit card, sending an email). If the server fails, you've shown a success state that's false. Always pair optimistic updates with a clear error state and rollback. Also avoid it when the action has side effects that are hard to reverse (e.g., deleting a user)."
+        },
+        {
+          "type": "h3",
+          "text": "The Loading Hierarchy"
+        },
+        {
+          "type": "p",
+          "html": "A loading hierarchy prioritizes what the user sees first. For a page: <strong>1. Shell (header, nav)</strong> → <strong>2. Skeleton layout</strong> → <strong>3. Above-the-fold content</strong> → <strong>4. Below-the-fold content</strong>. Each step should take <1s. The goal is to make the page feel interactive as fast as possible, even if not all data is loaded. This is the <strong>PRPL pattern</strong> (Push, Render, Pre-cache, Lazy-load)."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Shell: Render header, nav, footer immediately (static HTML or inline CSS).",
+            "Skeleton: Show placeholder shapes for content areas.",
+            "Above-the-fold: Load critical data first (e.g., hero image, main text).",
+            "Below-the-fold: Lazy-load images, comments, related content."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Perceived vs Actual Performance"
+        },
+        {
+          "type": "p",
+          "html": "Actual performance is measured by <strong>LCP, FID/INP, CLS</strong>. Perceived performance is about <strong>occupied time</strong> — the time the user's brain is busy processing visual changes. A 2s load with a skeleton feels faster than a 1.5s load with a blank screen. Use <strong>First Meaningful Paint (FMP)</strong> or <strong>Speed Index</strong> to approximate perceived speed. The gap between actual and perceived is where UX wins happen."
+        },
+        {
+          "type": "h3",
+          "text": "Predictive Prefetch on Hover/Intent"
+        },
+        {
+          "type": "p",
+          "html": "Prefetching on hover (or even on touch start) can reduce perceived latency to near-zero for navigation. Use <code><link rel=\"prefetch\"></code> or <code>fetch()</code> with <code>priority: 'low'</code> when the user hovers over a link. The cost: extra bandwidth and CPU. Only prefetch if the user is likely to click (e.g., hover >200ms). For SPAs, preload the route's JavaScript bundle."
+        },
+        {
+          "type": "pre",
+          "code": "// Predictive prefetch on hover with debounce\nlet prefetchTimer;\nfunction onLinkHover(url) {\n  clearTimeout(prefetchTimer);\n  prefetchTimer = setTimeout(() => {\n    const link = document.createElement('link');\n    link.rel = 'prefetch';\n    link.href = url;\n    document.head.appendChild(link);\n  }, 200); // Only prefetch after 200ms hover\n}\n\n// For SPA route prefetch\nfunction onLinkHover(route) {\n  import(`./pages/${route}.js`); // Webpack will prefetch the chunk\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "Common Mistake: Over-prefetching",
+          "body": "Prefetching every link on hover can waste bandwidth and CPU, especially on mobile. A 100ms hover threshold is too aggressive — use 200ms minimum. Also avoid prefetching for links that are likely to be cancelled (e.g., dropdown menus). Measure the cache hit rate: if <20% of prefetched resources are used, you're wasting resources."
+        },
+        {
+          "type": "quiz",
+          "question": "You're optimizing a social media feed. Users report it 'feels slow' when liking a post, but the API response time is 80ms. What's the most likely cause and best fix?",
+          "options": [
+            "The API is too slow; switch to WebSockets.",
+            "The UI doesn't update until the API responds; use optimistic UI.",
+            "The like button has a 300ms CSS transition; remove it.",
+            "The browser is re-rendering the entire list; use React.memo."
+          ],
+          "answer": 1,
+          "explanation": "The API is fast (80ms), but the user perceives a delay because the UI waits for the response. Optimistic UI updates the button immediately, making it feel instant. The other options address different issues: WebSockets don't help with 80ms, CSS transitions are fine if <100ms, and React.memo won't fix the perceived delay."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the 100ms threshold for perceived instantaneity?",
+              "back": "Under 100ms, users perceive the system as reacting instantly. Visual feedback (e.g., button press) should appear within 50ms."
+            },
+            {
+              "front": "What is 'occupied time' in perceived performance?",
+              "back": "The time the user's brain is busy processing visual changes (e.g., skeleton screens, animations). Occupied time feels shorter than unoccupied time (blank screen)."
+            },
+            {
+              "front": "When should you use skeleton screens vs spinners?",
+              "back": "Skeletons for predictable layout and >1s loads; spinners for unpredictable layout or <1s loads. Skeletons reduce perceived latency but risk CLS."
+            },
+            {
+              "front": "What is the trade-off of optimistic UI?",
+              "back": "Instant feedback but requires rollback on failure. Only use for idempotent actions (likes, toggles). Avoid for destructive or non-idempotent operations."
+            },
+            {
+              "front": "What is the PRPL pattern?",
+              "back": "Push (critical resources), Render (initial shell), Pre-cache (assets), Lazy-load (below-the-fold content). Prioritizes perceived speed over full load."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "memory",
+      "num": "17 — PERCEIVED & MEMORY",
+      "title": "Memory Optimization",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "In long-lived SPAs, memory growth is a silent killer. A leak that adds 1MB per hour will crash a user's tab after 8 hours of use — common in dashboards, chat apps, and editors. At scale, this degrades INP (long GC pauses >50ms) and increases OOM crashes. Staff engineers don't just fix leaks; they design systems that <em>stay flat</em> under load."
+        },
+        {
+          "type": "h3",
+          "text": "Leak Sources: The Usual Suspects"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Event listeners: <code>addEventListener</code> on removed DOM nodes without <code>removeEventListener</code>.",
+            "Timers: <code>setInterval</code> that references large objects and never clears.",
+            "Closures: Callbacks that capture entire scope chains, preventing GC of large arrays or DOM subtrees.",
+            "Detached DOM: Nodes removed from the tree but still referenced by JS (e.g., in a cache or closure).",
+            "Global caches: Unbounded <code>Map</code> or <code>Array</code> that grows with user actions."
+          ]
+        },
+        {
+          "type": "pre",
+          "code": "// Leak: event listener on detached node\nfunction setupButton() {\n  const button = document.createElement('button');\n  button.addEventListener('click', () => {\n    console.log('clicked');\n  });\n  document.body.appendChild(button);\n  // Later: button removed from DOM, but listener keeps reference -> detached DOM\n  document.body.removeChild(button);\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "pre",
+          "code": "// Fixed: use AbortController or explicit cleanup\nfunction setupButton() {\n  const button = document.createElement('button');\n  const controller = new AbortController();\n  button.addEventListener('click', () => {\n    console.log('clicked');\n  }, { signal: controller.signal });\n  document.body.appendChild(button);\n  // Cleanup\n  controller.abort();\n  document.body.removeChild(button);\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "h3",
+          "text": "Garbage Collection: Mark-and-Sweep & Generational"
+        },
+        {
+          "type": "p",
+          "html": "V8 uses a generational GC: young generation (new space, ~1-8MB) collected frequently via scavenge; old generation (old space) collected via mark-and-sweep. A full GC can pause for 100-200ms on a 100MB heap. Staff engineers monitor GC pauses via <code>performance.measureUserAgentSpecificMemory()</code> (Chrome 89+) and aim for <strong><50ms</strong> long tasks."
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Senior Signal: Always Measure First",
+          "body": "Before optimizing, run a heap snapshot in DevTools. If heap size is stable after 5 minutes of use, don't touch it. Premature memory optimization adds complexity. A staff engineer says: 'Show me the allocation timeline, then we talk.'"
+        },
+        {
+          "type": "h3",
+          "text": "WeakMap / WeakSet / WeakRef for Collectable References"
+        },
+        {
+          "type": "p",
+          "html": "Use <code>WeakMap</code> when you need to associate metadata with a DOM node or object without preventing its GC. <code>WeakRef</code> is for advanced cases like caching large objects that should be collected under memory pressure. <code>WeakSet</code> is rare but useful for marking objects without preventing collection."
+        },
+        {
+          "type": "pre",
+          "code": "// WeakMap for DOM node metadata\nconst nodeData = new WeakMap();\n\nfunction attachData(node, data) {\n  nodeData.set(node, data);\n}\n\n// When node is removed from DOM and all references gone, the WeakMap entry is GC'd automatically.\n// No manual cleanup needed.",
+          "label": "JavaScript"
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Technique",
+            "Best For",
+            "Cost",
+            "Avoid When"
+          ],
+          "rows": [
+            [
+              "WeakMap",
+              "DOM node metadata, private data",
+              "Slightly slower lookup than Map",
+              "Need to iterate keys (not possible)"
+            ],
+            [
+              "WeakSet",
+              "Marking objects without preventing GC",
+              "Minimal",
+              "Need to store primitives"
+            ],
+            [
+              "WeakRef",
+              "Large caches that can be recreated",
+              "GC may clear ref at any time",
+              "Data must always be available"
+            ],
+            [
+              "Map/Set",
+              "General purpose, iterable",
+              "Prevents GC of keys",
+              "Memory-sensitive contexts"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Heap Snapshots and Allocation Profiling"
+        },
+        {
+          "type": "p",
+          "html": "In DevTools, take a heap snapshot before and after a user action. Filter by 'detached' to find orphaned DOM nodes. Use the Allocation Profiler to record allocations over time — look for sawtooth patterns (GC cycles) that don't return to baseline. A 10MB sawtooth that grows to 15MB over 10 cycles indicates a leak."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "When NOT to Use WeakRef",
+          "body": "WeakRef is non-deterministic — the GC may clear it at any time. Never use it for critical data that must be available synchronously. Also, creating many WeakRefs can itself increase GC overhead. Stick to WeakMap for 99% of cases."
+        },
+        {
+          "type": "h3",
+          "text": "Detecting Detached DOM Nodes"
+        },
+        {
+          "type": "p",
+          "html": "A detached DOM node is one removed from the document tree but still referenced in JS. In DevTools heap snapshot, search for 'Detached' in the class filter. Common culprits: closures in event listeners, React components not cleaned up, or cached DOM fragments. Aim for <strong>zero</strong> detached nodes in a production heap snapshot."
+        },
+        {
+          "type": "h3",
+          "text": "Object Pooling and Memory in SPAs"
+        },
+        {
+          "type": "p",
+          "html": "Object pooling reuses objects to reduce GC pressure. Useful for high-frequency operations like particle systems or virtual scrolling. But pooling adds complexity and can cause stale data bugs. Only pool when allocation rate exceeds <strong>10MB/s</strong> or GC pauses exceed <strong>50ms</strong>."
+        },
+        {
+          "type": "pre",
+          "code": "// Simple object pool\nclass VectorPool {\n  constructor(size) {\n    this.pool = Array.from({ length: size }, () => ({ x: 0, y: 0 }));\n    this.index = 0;\n  }\n  acquire() {\n    if (this.index >= this.pool.length) {\n      this.pool.push({ x: 0, y: 0 });\n    }\n    return this.pool[this.index++];\n  }\n  release() {\n    this.index = 0;\n  }\n}",
+          "label": "JavaScript"
+        },
+        {
+          "type": "quiz",
+          "question": "Your SPA dashboard shows a 5MB heap growth after 1 hour of use. You take a heap snapshot and find 200 detached DOM nodes. What is the BEST first step?",
+          "options": [
+            "Implement WeakMap for all event listeners immediately",
+            "Profile which user action creates the detached nodes using allocation timeline",
+            "Add a global cache with LRU eviction to reduce memory",
+            "Switch to object pooling for all DOM elements"
+          ],
+          "answer": 1,
+          "explanation": "Always measure first. The allocation timeline will show exactly when detached nodes are created, guiding targeted fixes. Blindly adding WeakMap or pooling may not address the root cause and adds complexity."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is a detached DOM node?",
+              "back": "A DOM node removed from the document tree but still referenced by JavaScript, preventing GC."
+            },
+            {
+              "front": "When to use WeakMap vs Map?",
+              "back": "WeakMap when keys are DOM nodes or objects that should be GC'd when no other references exist. Map when you need to iterate keys or store primitives."
+            },
+            {
+              "front": "What is a generational GC?",
+              "back": "V8 divides heap into young (new space, collected frequently) and old (old space, collected less often). Most objects die young."
+            },
+            {
+              "front": "How to detect a memory leak in DevTools?",
+              "back": "Take heap snapshots before/after actions. Look for sawtooth patterns in allocation timeline that don't return to baseline. Filter for 'Detached' nodes."
+            },
+            {
+              "front": "What is the cost of object pooling?",
+              "back": "Increased code complexity, risk of stale data, and potential for bugs if objects are not properly reset. Only use when allocation rate >10MB/s or GC pauses >50ms."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

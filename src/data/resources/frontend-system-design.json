@@ -651,7 +651,7 @@
         {
           "type": "callout",
           "variant": "warn",
-          "title": "Don't optimize prematurely.",
+          "title": "Don't optimize prematurely",
           "body": "Always measure first, optimize later. Use Lighthouse, Performance tab, and React Profiler to identify real bottlenecks instead of guessing. Optimizing the wrong place wastes time and complicates the code."
         },
         {

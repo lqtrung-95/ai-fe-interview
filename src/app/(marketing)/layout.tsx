@@ -15,7 +15,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary shadow-sm">
               <BookOpen className="h-4 w-4 text-primary-foreground" />
             </span>
-            <span className="font-semibold tracking-tight">Interview Coach</span>
+            <span className="font-semibold tracking-tight">FrontEnd Coach</span>
           </Link>
           <nav className="flex items-center gap-2">
             <Link href="/resources" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
@@ -42,7 +42,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
 
       <footer className="border-t border-border/70 py-8 text-sm text-muted-foreground">
         <div className="mx-auto max-w-6xl px-6 text-center">
-          <p>© {new Date().getFullYear()} Interview Coach · Built for frontend engineers.</p>
+          <p>© {new Date().getFullYear()} FrontEnd Coach · Built for frontend engineers.</p>
         </div>
       </footer>
     </div>

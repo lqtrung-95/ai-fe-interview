@@ -1,5 +1,8 @@
 'use client';
 
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
 import type { CvData } from '@/lib/cv/cv-types';
 
 interface Props {
@@ -50,12 +53,16 @@ export function ParsedCvPreview({ cvData, parsedAt }: Props) {
         </section>
       )}
 
-      <footer className="border-t border-border/50 pt-3">
+      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-border/50 pt-3">
         <p className="text-[11px] text-muted-foreground">
           {parsedAt
             ? `Parsed ${new Date(parsedAt).toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })}`
             : 'Parsed'}
         </p>
+        <Link href="/cv-review" className={buttonVariants({ size: 'sm' })}>
+          Review my CV
+          <ArrowRight className="size-3.5" />
+        </Link>
       </footer>
     </div>
   );

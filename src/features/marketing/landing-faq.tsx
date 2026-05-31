@@ -1,6 +1,6 @@
 const FAQS = [
   {
-    question: 'Who is Interview Coach for?',
+    question: 'Who is FrontEnd Coach for?',
     answer: 'Frontend engineers preparing for junior through staff-level interviews, with a strong focus on senior-level depth.',
   },
   {

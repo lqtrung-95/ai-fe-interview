@@ -68,7 +68,10 @@ export function HandbookCallout({ variant, title, body }: Props) {
           {title}
         </div>
       )}
-      <p className="text-sm text-muted-foreground leading-relaxed pl-[1.375rem]">{body}</p>
+      {/* body may contain inline HTML from LLM generation (e.g. <code>, <strong>) — safe since
+          content comes from our own scripts, never user input */}
+      {/* eslint-disable-next-line react/no-danger */}
+      <p className="handbook-inline-html text-sm text-muted-foreground leading-relaxed pl-[1.375rem]" dangerouslySetInnerHTML={{ __html: body }} />
     </div>
   );
 }

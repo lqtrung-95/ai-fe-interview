@@ -16,6 +16,7 @@ interface Props {
     startedAt: Date;
     completedAt: Date | null;
     questions: unknown[];
+    usesCv?: boolean;
   };
 }
 
@@ -70,6 +71,12 @@ export function SessionListItem({ session }: Props) {
             }>
               {session.status.replace('_', ' ')}
             </span>
+            {session.usesCv && (
+              <span className="flex items-center gap-0.5 rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                <Sparkles className="size-2.5" />
+                CV
+              </span>
+            )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             {session.startedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}

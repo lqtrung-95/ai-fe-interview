@@ -1,0 +1,1260 @@
+{
+  "meta": {
+    "title": "React Deep Dive — Interview Handbook",
+    "description": "Master React internals, hooks, performance patterns, and modern architecture — everything asked in senior React interviews.",
+    "stats": [
+      {
+        "value": "10",
+        "label": "Core Topics"
+      },
+      {
+        "value": "10",
+        "label": "Quizzes"
+      },
+      {
+        "value": "43",
+        "label": "Flashcards"
+      },
+      {
+        "value": "31",
+        "label": "Code Examples"
+      }
+    ]
+  },
+  "nav": [
+    {
+      "id": "jsx",
+      "label": "JSX, Elements & the Virtual DOM",
+      "group": "FOUNDATION"
+    },
+    {
+      "id": "reconciliation",
+      "label": "Reconciliation & Fiber Architecture",
+      "group": "CORE"
+    },
+    {
+      "id": "hooks-core",
+      "label": "Core Hooks: useState & useReducer",
+      "group": "HOOKS"
+    },
+    {
+      "id": "hooks-side",
+      "label": "Side Effects: useEffect & useLayoutEffect",
+      "group": "HOOKS"
+    },
+    {
+      "id": "hooks-perf",
+      "label": "Performance Hooks: useMemo & useCallback",
+      "group": "HOOKS"
+    },
+    {
+      "id": "list-perf",
+      "label": "List Performance & Virtualisation",
+      "group": "PATTERNS"
+    },
+    {
+      "id": "context",
+      "label": "Context API & State Management",
+      "group": "PATTERNS"
+    },
+    {
+      "id": "custom-hooks",
+      "label": "Custom Hooks & Composition",
+      "group": "PATTERNS"
+    },
+    {
+      "id": "server-comp",
+      "label": "Server Components & Suspense",
+      "group": "ADVANCED"
+    },
+    {
+      "id": "testing",
+      "label": "Testing React Components",
+      "group": "ADVANCED"
+    }
+  ],
+  "sections": [
+    {
+      "id": "jsx",
+      "num": "01 — FOUNDATION",
+      "title": "JSX, Elements & the Virtual DOM",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "JSX is a syntax extension for JavaScript that looks like HTML but is transpiled into <code>React.createElement</code> calls. The Virtual DOM is a lightweight JavaScript representation of the real DOM that React uses to efficiently update the UI. Understanding how JSX transforms, how elements are created, and how the Virtual DOM reconciles changes is essential for writing performant React applications."
+        },
+        {
+          "type": "h3",
+          "text": "JSX Transpilation"
+        },
+        {
+          "type": "p",
+          "html": "JSX is not valid JavaScript; it must be transpiled (typically by Babel) into <code>React.createElement</code> calls. Each JSX element becomes a call to <code>React.createElement(type, props, ...children)</code>. This transformation happens at build time, not at runtime."
+        },
+        {
+          "type": "pre",
+          "code": "// JSX\nconst element = <h1 className=\"greeting\">Hello, world!</h1>;\n\n// Transpiled to\nconst element = React.createElement(\n  'h1',\n  { className: 'greeting' },\n  'Hello, world!'\n);",
+          "label": "JSX to createElement"
+        },
+        {
+          "type": "h3",
+          "text": "React.createElement and Elements"
+        },
+        {
+          "type": "p",
+          "html": "<code>React.createElement</code> returns a plain object called a React element. This object describes what should appear on the screen and includes the type, props, and children. React elements are immutable and cheap to create."
+        },
+        {
+          "type": "pre",
+          "code": "// React element object structure\nconst element = {\n  type: 'h1',\n  props: {\n    className: 'greeting',\n    children: 'Hello, world!'\n  }\n};",
+          "label": "React Element Object"
+        },
+        {
+          "type": "h3",
+          "text": "Virtual DOM Concept"
+        },
+        {
+          "type": "p",
+          "html": "The Virtual DOM is an in-memory representation of the real DOM. When state changes, React creates a new Virtual DOM tree, diffs it against the previous one (reconciliation), and calculates the minimal set of DOM operations needed. This batch update process improves performance by avoiding direct, expensive DOM manipulations."
+        },
+        {
+          "type": "callout",
+          "variant": "key",
+          "title": "Key Insight",
+          "body": "The Virtual DOM is not a copy of the real DOM—it's a lightweight abstraction. Reconciliation uses heuristics (like key props) to minimize the number of nodes that need to be recreated. Without keys, React may unnecessarily unmount and remount components, causing performance issues and lost state."
+        },
+        {
+          "type": "h3",
+          "text": "Keys and Reconciliation Hints"
+        },
+        {
+          "type": "p",
+          "html": "Keys help React identify which items in a list have changed, been added, or removed. They should be stable, unique, and predictable (e.g., a database ID). Using array indices as keys can lead to bugs when items are reordered or filtered."
+        },
+        {
+          "type": "pre",
+          "code": "// Good: stable unique key\nconst todoItems = todos.map(todo =>\n  <li key={todo.id}>{todo.text}</li>\n);\n\n// Avoid: index as key (can cause issues)\nconst todoItems = todos.map((todo, index) =>\n  <li key={index}>{todo.text}</li>\n);",
+          "label": "Keys in Lists"
+        },
+        {
+          "type": "h3",
+          "text": "Fragments and Portals"
+        },
+        {
+          "type": "p",
+          "html": "Fragments (<code>React.Fragment</code> or <code>&lt;&gt;&lt;/&gt;</code>) let you group multiple elements without adding extra nodes to the DOM. Portals (<code>ReactDOM.createPortal</code>) render children into a different DOM subtree, useful for modals, tooltips, and overlays."
+        },
+        {
+          "type": "pre",
+          "code": "// Fragment: no extra wrapper div\nfunction List() {\n  return (\n    <>\n      <li>Item 1</li>\n      <li>Item 2</li>\n    </>\n  );\n}\n\n// Portal: render into a different DOM node\nimport { createPortal } from 'react-dom';\n\nfunction Modal({ children }) {\n  return createPortal(\n    <div className=\"modal\">{children}</div>,\n    document.getElementById('modal-root')\n  );\n}",
+          "label": "Fragments and Portals"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary purpose of the `key` prop in React lists?",
+          "options": [
+            "To style list items uniquely",
+            "To help React identify which items changed, added, or removed",
+            "To improve the performance of the Virtual DOM by skipping diffing",
+            "To enable event delegation on list items"
+          ],
+          "answer": 1,
+          "explanation": "Keys give React a stable identity for each element, allowing the reconciliation algorithm to efficiently update only the changed items rather than re-rendering the entire list."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What does JSX transpile to?",
+              "back": "JSX transpiles to React.createElement(type, props, ...children) calls."
+            },
+            {
+              "front": "What is the Virtual DOM?",
+              "back": "A lightweight JavaScript representation of the real DOM used by React to batch and optimize updates."
+            },
+            {
+              "front": "Why should you avoid using array index as a key?",
+              "back": "Index keys can cause bugs when items are reordered, filtered, or have unstable identities, leading to unnecessary re-renders or lost state."
+            },
+            {
+              "front": "What problem do React Fragments solve?",
+              "back": "Fragments allow grouping multiple elements without adding an extra wrapper node to the DOM."
+            },
+            {
+              "front": "When would you use a Portal?",
+              "back": "Portals are used to render children into a different DOM subtree, such as modals, tooltips, or dropdowns that need to escape overflow or z-index constraints."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reconciliation",
+      "num": "02 — CORE",
+      "title": "Reconciliation & Fiber Architecture",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "h3",
+          "text": "🌳 React Reconciliation Decision Tree"
+        },
+        {
+          "type": "p",
+          "html": "How React decides what to update, mount, or unmount. New Virtual DOM Tree is compared to previous tree at same position."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Condition",
+            "Action",
+            "Effect"
+          ],
+          "rows": [
+            [
+              "Element type changed (e.g., <div> → <span>)",
+              "Unmount + Remount",
+              "State LOST · child tree destroyed · effects cleaned up"
+            ],
+            [
+              "Same type, props unchanged",
+              "Skip update",
+              "Reuse existing instance, no re-render needed"
+            ],
+            [
+              "Same type, props changed",
+              "Update props",
+              "Same instance, state preserved, effects may re-run"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "⚠ Killer Trap: Child Component Inside Parent",
+          "body": "Defining a child component INSIDE a parent creates new function ref every render → React sees different 'type' → unmount+remount each time → state resets!"
+        },
+        {
+          "type": "pre",
+          "code": "function Parent() {\n  // ❌ BAD: Child gets fresh identity each render\n  const Child = () => <div>...</div>;\n  return <Child />;\n}",
+          "label": "Bad Practice"
+        },
+        {
+          "type": "callout",
+          "variant": "tip",
+          "title": "💡 The Key Prop",
+          "body": "Helps React track elements in lists. Use stable IDs (not array index!) to avoid unnecessary remounts."
+        },
+        {
+          "type": "quiz",
+          "question": "What happens when React detects a type change from <div> to <span> at the same position?",
+          "options": [
+            "React updates the props only",
+            "React unmounts the old component and remounts a new one",
+            "React reuses the same instance and skips update",
+            "React throws an error"
+          ],
+          "answer": 1,
+          "explanation": "When element type changes, React destroys the old subtree (state lost, effects cleaned up) and mounts a new one from scratch."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What does React do when element type changes during reconciliation?",
+              "back": "Unmounts the old component and remounts a new one. State is lost, child tree destroyed, effects cleaned up."
+            },
+            {
+              "front": "What happens if props change but element type stays the same?",
+              "back": "React updates the props on the same instance. State is preserved, effects may re-run."
+            },
+            {
+              "front": "Why is defining a component inside another component problematic?",
+              "back": "It creates a new function reference every render, causing React to see a different 'type' and unmount/remount each time, resetting state."
+            },
+            {
+              "front": "What is the purpose of the key prop in lists?",
+              "back": "It helps React track elements in lists. Stable IDs (not array index) avoid unnecessary remounts and preserve state."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hooks-core",
+      "num": "03 — CORE HOOKS",
+      "title": "Core Hooks: useState & useReducer",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "React's core hooks, <code>useState</code> and <code>useReducer</code>, are the primary tools for managing component state. <code>useState</code> is ideal for simple, independent state values, while <code>useReducer</code> shines when state logic involves multiple sub-values or complex transitions. Understanding their internals—like state batching and functional updates—is crucial for writing efficient, bug-free React code. This section covers how they work under the hood, when to choose one over the other, and patterns like Immer for immutable updates."
+        },
+        {
+          "type": "h3",
+          "text": "useState Internals & State Batching"
+        },
+        {
+          "type": "p",
+          "html": "Each <code>useState</code> call creates a state variable and a setter function. React internally stores state in a linked list of hooks per component. When you call the setter, React schedules a re-render. In React 18+, state updates are automatically batched—even inside promises, timeouts, or native event handlers—meaning multiple setter calls in the same synchronous block trigger only one re-render. This improves performance and prevents intermediate renders."
+        },
+        {
+          "type": "pre",
+          "code": "import { useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  const handleClick = () => {\n    // React 18+ batches these into one re-render\n    setCount(count + 1);\n    setCount(count + 1);\n    // count will be 1, not 2, because both use the same stale value\n  };\n\n  return <button onClick={handleClick}>{count}</button>;\n}",
+          "label": "State batching example"
+        },
+        {
+          "type": "h3",
+          "text": "Functional Updates"
+        },
+        {
+          "type": "p",
+          "html": "To safely update state based on the previous value, use the functional form of the setter: <code>setCount(prev => prev + 1)</code>. This ensures each update uses the latest state, even when multiple updates are batched or queued. It's essential for counters, toggles, and any logic where the new state depends on the old state."
+        },
+        {
+          "type": "pre",
+          "code": "// Correct: functional update\nsetCount(prev => prev + 1);\nsetCount(prev => prev + 1);\n// count will be 2\n\n// Wrong: direct value (stale closure)\nsetCount(count + 1);\nsetCount(count + 1);\n// count will be 1",
+          "label": "Functional vs direct updates"
+        },
+        {
+          "type": "callout",
+          "variant": "key",
+          "title": "Key Insight: Functional Updates Prevent Stale Closures",
+          "body": "Always use functional updates when the new state depends on the previous state. This avoids bugs from stale closures, especially in event handlers or effects that capture a snapshot of state."
+        },
+        {
+          "type": "h3",
+          "text": "useReducer vs useState Decision Tree"
+        },
+        {
+          "type": "p",
+          "html": "Choose <code>useReducer</code> when: state logic is complex (multiple sub-values), the next state depends on the previous one in intricate ways, or you want to centralize state transitions (like a reducer in Redux). Stick with <code>useState</code> for simple, independent values. A good rule of thumb: if you find yourself calling multiple <code>useState</code> setters in sequence or writing complex <code>setState</code> logic, consider <code>useReducer</code>."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Criteria",
+            "useState",
+            "useReducer"
+          ],
+          "rows": [
+            [
+              "State complexity",
+              "Simple, independent values",
+              "Complex objects or multiple sub-values"
+            ],
+            [
+              "Update logic",
+              "Direct or functional updates",
+              "Dispatching actions with a reducer"
+            ],
+            [
+              "Number of state variables",
+              "Few (1-3)",
+              "Many or nested"
+            ],
+            [
+              "Testability",
+              "Harder to test",
+              "Reducer is a pure function, easy to test"
+            ],
+            [
+              "Performance",
+              "Good for small state",
+              "Better for large state with many updates"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Dispatching Actions & Immer Pattern"
+        },
+        {
+          "type": "p",
+          "html": "With <code>useReducer</code>, you dispatch action objects to a reducer function that returns the new state. For complex state shapes, the Immer library simplifies immutable updates by allowing you to write mutable-looking code. Use <code>produce</code> from Immer inside your reducer to create the next state without manual spreading."
+        },
+        {
+          "type": "pre",
+          "code": "import { useReducer } from 'react';\nimport { produce } from 'immer';\n\nconst initialState = { todos: [], count: 0 };\n\nfunction reducer(state, action) {\n  switch (action.type) {\n    case 'ADD_TODO':\n      return produce(state, draft => {\n        draft.todos.push({ id: Date.now(), text: action.payload });\n        draft.count++;\n      });\n    case 'REMOVE_TODO':\n      return produce(state, draft => {\n        draft.todos = draft.todos.filter(t => t.id !== action.payload);\n        draft.count--;\n      });\n    default:\n      return state;\n  }\n}\n\nfunction TodoApp() {\n  const [state, dispatch] = useReducer(reducer, initialState);\n  return (\n    <div>\n      <p>Count: {state.count}</p>\n      <button onClick={() => dispatch({ type: 'ADD_TODO', payload: 'New Task' })}>\n        Add Todo\n      </button>\n    </div>\n  );\n}",
+          "label": "useReducer with Immer pattern"
+        },
+        {
+          "type": "quiz",
+          "question": "What happens when you call setCount(count + 1) twice in the same synchronous event handler without functional updates?",
+          "options": [
+            "count increases by 2",
+            "count increases by 1",
+            "count stays the same",
+            "React throws an error"
+          ],
+          "answer": 1,
+          "explanation": "Both calls use the same stale value of count (from the current render), so the second call overwrites the first. The final state is count + 1, not count + 2. Use functional updates to increment correctly."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is state batching in React 18+?",
+              "back": "React groups multiple state updates within the same synchronous block (e.g., event handler, timeout, promise) into a single re-render for performance."
+            },
+            {
+              "front": "When should you use useReducer instead of useState?",
+              "back": "When state logic is complex (multiple sub-values), the next state depends on the previous in intricate ways, or you want to centralize state transitions with a reducer."
+            },
+            {
+              "front": "How does the Immer pattern help with useReducer?",
+              "back": "Immer's produce function lets you write mutable-looking code inside the reducer, automatically creating immutable state updates without manual spreading."
+            },
+            {
+              "front": "Why are functional updates important in useState?",
+              "back": "They ensure the setter uses the latest state value, preventing stale closures and bugs when multiple updates are batched or queued."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hooks-side",
+      "num": "04 — CORE HOOKS",
+      "title": "Side Effects: useEffect & useLayoutEffect",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Side effects are operations that reach outside the functional component's scope, such as data fetching, subscriptions, timers, or direct DOM manipulation. React's <code>useEffect</code> and <code>useLayoutEffect</code> hooks provide a declarative way to handle these effects, ensuring they synchronize with the component's lifecycle. Mastering these hooks is crucial for building robust, performant React applications."
+        },
+        {
+          "type": "h3",
+          "text": "Dependency Array Rules"
+        },
+        {
+          "type": "p",
+          "html": "The dependency array controls when an effect runs. If omitted, the effect runs after every render. If empty (<code>[]</code>), it runs only once after the initial mount. If populated with variables, the effect re-runs only when those values change. All reactive values (props, state, and derived values) used inside the effect must be listed in the dependency array to avoid stale closures and ensure correctness."
+        },
+        {
+          "type": "pre",
+          "code": "import { useEffect, useState } from 'react';\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    document.title = `Count: ${count}`;\n  }, [count]); // Re-runs when 'count' changes\n\n  return <button onClick={() => setCount(c => c + 1)}>Increment</button>;\n}",
+          "label": "Dependency Array Example"
+        },
+        {
+          "type": "h3",
+          "text": "Cleanup Functions"
+        },
+        {
+          "type": "p",
+          "html": "A cleanup function is returned from the effect callback and runs before the component unmounts or before re-running the effect. It is essential for canceling subscriptions, clearing timers, or aborting fetch requests to prevent memory leaks and unwanted side effects."
+        },
+        {
+          "type": "pre",
+          "code": "import { useEffect } from 'react';\n\nfunction Timer() {\n  useEffect(() => {\n    const interval = setInterval(() => {\n      console.log('Tick');\n    }, 1000);\n\n    return () => clearInterval(interval); // Cleanup on unmount\n  }, []);\n\n  return <div>Timer running</div>;\n}",
+          "label": "Cleanup Function Example"
+        },
+        {
+          "type": "h3",
+          "text": "useEffect Timing vs useLayoutEffect"
+        },
+        {
+          "type": "p",
+          "html": "<code>useEffect</code> runs asynchronously after the browser has painted the screen, making it ideal for non-blocking operations like data fetching or logging. <code>useLayoutEffect</code> runs synchronously after DOM mutations but before the browser paints, allowing you to read layout and synchronously re-render without visual flicker. Use <code>useLayoutEffect</code> sparingly for DOM measurements or imperative animations."
+        },
+        {
+          "type": "pre",
+          "code": "import { useEffect, useLayoutEffect, useRef } from 'react';\n\nfunction Measure() {\n  const ref = useRef(null);\n\n  useLayoutEffect(() => {\n    console.log(ref.current.getBoundingClientRect()); // Runs before paint\n  }, []);\n\n  return <div ref={ref}>Measured</div>;\n}",
+          "label": "useLayoutEffect Example"
+        },
+        {
+          "type": "h3",
+          "text": "Fetching in Effects & AbortController"
+        },
+        {
+          "type": "p",
+          "html": "Data fetching inside <code>useEffect</code> is common but requires careful handling of race conditions and cleanup. Using <code>AbortController</code> allows you to cancel an in-flight request when the component unmounts or dependencies change, preventing state updates on unmounted components."
+        },
+        {
+          "type": "pre",
+          "code": "import { useEffect, useState } from 'react';\n\nfunction User({ userId }) {\n  const [user, setUser] = useState(null);\n\n  useEffect(() => {\n    const controller = new AbortController();\n    const signal = controller.signal;\n\n    fetch(`/api/users/${userId}`, { signal })\n      .then(res => res.json())\n      .then(data => setUser(data))\n      .catch(err => {\n        if (err.name !== 'AbortError') console.error(err);\n      });\n\n    return () => controller.abort(); // Cancel request on cleanup\n  }, [userId]);\n\n  return <div>{user ? user.name : 'Loading...'}</div>;\n}",
+          "label": "Fetching with AbortController"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "Be prepared to explain the difference between <code>useEffect</code> and <code>useLayoutEffect</code> with a concrete example, such as measuring DOM elements. Also, demonstrate how to handle race conditions in async effects using a cleanup flag or <code>AbortController</code>."
+        },
+        {
+          "type": "quiz",
+          "question": "What happens if you omit the dependency array in useEffect?",
+          "options": [
+            "The effect runs only once after the initial render.",
+            "The effect runs after every render.",
+            "The effect never runs.",
+            "The effect runs only when the component unmounts."
+          ],
+          "answer": 1,
+          "explanation": "Omitting the dependency array causes the effect to run after every render, which can lead to performance issues or infinite loops if the effect updates state."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the purpose of the dependency array in useEffect?",
+              "back": "It tells React when to re-run the effect: only when the listed values change. An empty array runs once on mount; omitting it runs after every render."
+            },
+            {
+              "front": "When does the cleanup function in useEffect run?",
+              "back": "It runs before the component unmounts and before re-running the effect on subsequent renders, allowing you to cancel subscriptions or timers."
+            },
+            {
+              "front": "What is the main difference between useEffect and useLayoutEffect?",
+              "back": "useEffect runs after the browser paints (asynchronous), while useLayoutEffect runs before paint (synchronous), making it suitable for DOM measurements."
+            },
+            {
+              "front": "How can you cancel a fetch request in useEffect?",
+              "back": "Use AbortController: create a controller, pass its signal to fetch, and call controller.abort() in the cleanup function."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hooks-perf",
+      "num": "05 — CORE HOOKS",
+      "title": "Performance Hooks: useMemo & useCallback",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Performance hooks <code>useMemo</code> and <code>useCallback</code> are powerful tools for optimizing React applications, but they come with their own costs. Understanding when and how to use them—and more importantly, when <em>not</em> to—is crucial for writing efficient, maintainable code. This section covers the trade-offs of memoization, referential equality, and common pitfalls."
+        },
+        {
+          "type": "h3",
+          "text": "Memoization Cost vs Benefit"
+        },
+        {
+          "type": "p",
+          "html": "Memoization stores the result of an expensive computation and returns the cached result when the same inputs occur again. However, it introduces overhead: memory for caching and the comparison of dependencies. The benefit only outweighs the cost when the computation is genuinely expensive (e.g., complex data transformations, filtering large arrays) and the dependencies change infrequently. For trivial calculations, the comparison cost can exceed the computation cost."
+        },
+        {
+          "type": "pre",
+          "code": "// Expensive computation: worth memoizing\nconst sortedList = useMemo(() => {\n  return largeArray.sort((a, b) => b.value - a.value);\n}, [largeArray]);\n\n// Trivial computation: NOT worth memoizing\nconst sum = useMemo(() => a + b, [a, b]); // Overhead > benefit",
+          "label": "useMemo Example"
+        },
+        {
+          "type": "h3",
+          "text": "Referential Equality and When NOT to Memoize"
+        },
+        {
+          "type": "p",
+          "html": "React uses referential equality (<code>===</code>) to compare props and dependencies. Every time a component renders, new object/function references are created, potentially causing unnecessary re-renders in child components wrapped with <code>React.memo</code>. However, memoization is not free. Avoid it when: the computation is cheap, dependencies change on every render (making the cache useless), or the component is simple and re-renders are not a bottleneck. Premature optimization can make code harder to read without tangible benefits."
+        },
+        {
+          "type": "h3",
+          "text": "useCallback for Stable References"
+        },
+        {
+          "type": "p",
+          "html": "<code>useCallback</code> returns a memoized function reference that only changes when its dependencies change. This is essential when passing callbacks to child components wrapped with <code>React.memo</code> or when using them in dependency arrays of other hooks. Without it, a new function is created on every render, breaking referential equality and causing unnecessary re-renders or effect re-runs."
+        },
+        {
+          "type": "pre",
+          "code": "const handleClick = useCallback(() => {\n  setCount(prev => prev + 1);\n}, []); // Stable reference, never changes\n\n// Without useCallback, this creates a new function each render\nconst handleClickBad = () => {\n  setCount(prev => prev + 1);\n};",
+          "label": "useCallback Example"
+        },
+        {
+          "type": "h3",
+          "text": "React.memo and Memo + Callback Anti-Patterns"
+        },
+        {
+          "type": "p",
+          "html": "<code>React.memo</code> prevents re-renders of a component if its props haven't changed (by shallow comparison). However, combining it with inline functions or objects without <code>useCallback</code>/<code>useMemo</code> defeats its purpose because new references are created each render. A common anti-pattern is wrapping a component in <code>React.memo</code> but passing an inline callback—the memoization becomes useless. Always pair <code>React.memo</code> with stable references for the props that are functions or objects."
+        },
+        {
+          "type": "pre",
+          "code": "// Anti-pattern: memoized component but inline callback\nconst Child = React.memo(({ onClick }) => {\n  return <button onClick={onClick}>Click</button>;\n});\n\nfunction Parent() {\n  return <Child onClick={() => console.log('clicked')} />; // New function each render, memo useless\n}\n\n// Correct: use useCallback\nfunction ParentFixed() {\n  const handleClick = useCallback(() => console.log('clicked'), []);\n  return <Child onClick={handleClick} />;\n}",
+          "label": "React.memo Anti-Pattern"
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "Interviewers often ask: 'When would you use useCallback vs useMemo?' The key distinction: useCallback returns a memoized <em>function</em> (for referential stability), while useMemo returns a memoized <em>value</em> (for expensive computations). Both depend on dependency arrays. Also, be ready to discuss that premature memoization can harm performance due to memory overhead and dependency comparison costs."
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a valid reason to use useMemo?",
+          "options": [
+            "To memoize a simple arithmetic operation like a + b",
+            "To prevent a child component from re-rendering when its props haven't changed",
+            "To cache the result of an expensive computation that depends on frequently changing values",
+            "To cache the result of an expensive computation that depends on infrequently changing values"
+          ],
+          "answer": 3,
+          "explanation": "useMemo is beneficial when the computation is expensive and dependencies change infrequently. If dependencies change often, the cache is invalidated frequently, and the overhead of comparison may outweigh the benefit. Simple operations are not worth memoizing, and preventing re-renders is the job of React.memo, not useMemo."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the primary purpose of useCallback?",
+              "back": "To return a memoized function reference that only changes when its dependencies change, ensuring referential equality across renders."
+            },
+            {
+              "front": "When should you NOT use useMemo?",
+              "back": "When the computation is cheap, dependencies change on every render, or the component is simple and re-renders are not a bottleneck. Premature optimization can add overhead without benefit."
+            },
+            {
+              "front": "What is the anti-pattern with React.memo and callbacks?",
+              "back": "Wrapping a component in React.memo but passing an inline function as a prop. Since inline functions create new references each render, the memoization becomes ineffective."
+            },
+            {
+              "front": "What does referential equality mean in React?",
+              "back": "React uses strict equality (===) to compare props and dependencies. Two objects or functions are considered equal only if they reference the same memory location, not if they have the same content."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "list-perf",
+      "num": "06 — PATTERNS",
+      "title": "List Performance & Virtualisation",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "h3",
+          "text": "⚡ List Performance Optimization Stack (10K rows)"
+        },
+        {
+          "type": "p",
+          "html": "When rendering large lists (10K+ rows), performance degrades quickly. Apply these optimizations <strong>in order</strong>, measuring impact between each step."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Step",
+            "Technique",
+            "Impact"
+          ],
+          "rows": [
+            [
+              "1",
+              "Virtualization (react-window, TanStack Virtual)",
+              "Biggest win — render only visible rows"
+            ],
+            [
+              "2",
+              "Pagination / Infinite Scroll (50-100 rows, IntersectionObserver)",
+              "Great UX — load more on demand"
+            ],
+            [
+              "3",
+              "React.memo + Stable Refs (wrap Row component, stable props)",
+              "Incremental — avoid re-renders"
+            ],
+            [
+              "4",
+              "useMemo for Sort/Filter (avoid recompute on parent re-render)",
+              "Incremental — memoize expensive ops"
+            ],
+            [
+              "5",
+              "Stable Keys (unique IDs, never array index)",
+              "Correctness — prevent broken state"
+            ],
+            [
+              "6",
+              "CSS Containment (contain: layout style paint)",
+              "Browser opt — reduce per-row work"
+            ],
+            [
+              "7",
+              "Defer Updates (useDeferredValue, startTransition)",
+              "Advanced — keep input responsive"
+            ],
+            [
+              "8",
+              "Web Worker (heavy sort/filter offloaded)",
+              "Last resort — non-blocking UI"
+            ]
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "key",
+          "title": "Interview Tip",
+          "body": "Always start with virtualization — it's the single biggest performance gain. Then layer on memoization and stable keys. Only reach for Web Workers if you're doing heavy computation."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the single biggest performance win for rendering 10K rows?",
+              "back": "Virtualization — render only the visible rows using libraries like react-window or TanStack Virtual."
+            },
+            {
+              "front": "Why should you never use array index as a key for dynamic lists?",
+              "back": "Array indices are unstable when items are added, removed, or reordered. This causes incorrect state, broken animations, and unnecessary re-renders."
+            },
+            {
+              "front": "What does CSS containment (contain: layout style paint) do for list performance?",
+              "back": "It tells the browser to isolate each row's layout, style, and paint calculations, reducing the work needed when a single row changes."
+            },
+            {
+              "front": "How do useDeferredValue and startTransition help with large lists?",
+              "back": "They allow you to defer non-urgent updates (like filtering a 10K list) so the UI stays responsive to user input like typing."
+            }
+          ]
+        },
+        {
+          "type": "quiz",
+          "question": "You have a list of 10,000 items that users can filter by typing into a search box. Which optimization should you apply FIRST?",
+          "options": [
+            "Use a Web Worker for filtering",
+            "Virtualize the list with react-window",
+            "Wrap each row in React.memo",
+            "Use CSS containment on each row"
+          ],
+          "answer": 1,
+          "explanation": "Virtualization is the biggest win — it reduces the DOM to only visible rows. Without it, even with memoization or Web Workers, the browser still has to manage thousands of DOM nodes."
+        }
+      ]
+    },
+    {
+      "id": "context",
+      "num": "07 — PATTERNS",
+      "title": "Context API & State Management",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "The Context API is React's built-in solution for sharing state across components without manually passing props through every level of the tree. While it's a powerful tool, understanding when and how to use it—and when to reach for external libraries like Zustand or Redux—is critical for building performant, maintainable React applications. This section covers the core concepts, common pitfalls, and advanced patterns for effective state management with Context."
+        },
+        {
+          "type": "h3",
+          "text": "Context vs Prop Drilling"
+        },
+        {
+          "type": "p",
+          "html": "Prop drilling occurs when you pass data through multiple intermediate components that don't need the data themselves, just to reach a deeply nested child. Context eliminates this by providing a way to broadcast data to any component in the tree. However, Context should not be used for every piece of state—it's best for truly global or widely shared data like themes, user authentication, or locale preferences. Overusing Context can lead to unnecessary re-renders and complexity."
+        },
+        {
+          "type": "pre",
+          "code": "// Prop drilling example (avoid)\nfunction App() {\n  const user = { name: 'Alice' };\n  return <Parent user={user} />;\n}\nfunction Parent({ user }) {\n  return <Child user={user} />;\n}\nfunction Child({ user }) {\n  return <p>{user.name}</p>;\n}\n\n// Context API example (preferred)\nconst UserContext = React.createContext();\nfunction App() {\n  const user = { name: 'Alice' };\n  return (\n    <UserContext.Provider value={user}>\n      <Parent />\n    </UserContext.Provider>\n  );\n}\nfunction Parent() {\n  return <Child />;\n}\nfunction Child() {\n  const user = useContext(UserContext);\n  return <p>{user.name}</p>;\n}",
+          "label": "Prop drilling vs Context"
+        },
+        {
+          "type": "h3",
+          "text": "Re-render Scope of Context"
+        },
+        {
+          "type": "p",
+          "html": "When the value passed to a Context Provider changes, <strong>all</strong> components that consume that context will re-render, even if they only use a part of the value. This is a common performance issue. To mitigate this, you can split contexts, use memoization, or restructure your components to minimize the number of consumers."
+        },
+        {
+          "type": "callout",
+          "variant": "warn",
+          "title": "Re-render Pitfall",
+          "body": "Every time the context value changes (e.g., a new object reference), all consumers re-render. This can cause performance problems in large trees. Always memoize the context value with <code>useMemo</code> to avoid unnecessary re-renders when the underlying data hasn't changed."
+        },
+        {
+          "type": "h3",
+          "text": "Splitting Contexts"
+        },
+        {
+          "type": "p",
+          "html": "Instead of one large context for all global state, split it into smaller, logically separate contexts. For example, separate contexts for user data, UI theme, and notifications. This ensures that a change in one context (e.g., theme) doesn't trigger re-renders in components that only consume user data."
+        },
+        {
+          "type": "pre",
+          "code": "// Instead of one big context:\n// const AppContext = React.createContext();\n\n// Split into multiple contexts:\nconst UserContext = React.createContext();\nconst ThemeContext = React.createContext();\n\nfunction App() {\n  const [user, setUser] = useState(null);\n  const [theme, setTheme] = useState('light');\n  return (\n    <UserContext.Provider value={user}>\n      <ThemeContext.Provider value={theme}>\n        <MainContent />\n      </ThemeContext.Provider>\n    </UserContext.Provider>\n  );\n}",
+          "label": "Splitting contexts"
+        },
+        {
+          "type": "h3",
+          "text": "Context + useReducer Pattern"
+        },
+        {
+          "type": "p",
+          "html": "Combining Context with <code>useReducer</code> provides a predictable state management pattern similar to Redux but without the external dependency. The reducer handles state transitions, and the context provides both state and dispatch to the component tree. This is ideal for medium-complexity state that needs to be shared across multiple components."
+        },
+        {
+          "type": "pre",
+          "code": "const TodoContext = React.createContext();\n\nfunction todoReducer(state, action) {\n  switch (action.type) {\n    case 'ADD_TODO':\n      return [...state, { id: Date.now(), text: action.payload }];\n    case 'REMOVE_TODO':\n      return state.filter(todo => todo.id !== action.payload);\n    default:\n      return state;\n  }\n}\n\nfunction TodoProvider({ children }) {\n  const [todos, dispatch] = useReducer(todoReducer, []);\n  return (\n    <TodoContext.Provider value={{ todos, dispatch }}>\n      {children}\n    </TodoContext.Provider>\n  );\n}\n\n// Usage in a component:\nfunction TodoList() {\n  const { todos, dispatch } = useContext(TodoContext);\n  return (\n    <ul>\n      {todos.map(todo => (\n        <li key={todo.id}>\n          {todo.text}\n          <button onClick={() => dispatch({ type: 'REMOVE_TODO', payload: todo.id })}>X</button>\n        </li>\n      ))}\n    </ul>\n  );\n}",
+          "label": "Context + useReducer"
+        },
+        {
+          "type": "h3",
+          "text": "When to Use Zustand/Redux Instead"
+        },
+        {
+          "type": "p",
+          "html": "While Context + useReducer works for many cases, external libraries like Zustand or Redux offer advantages for complex state: better performance (via subscriptions instead of re-rendering all consumers), middleware support, devtools, and a more structured approach. Use them when you have deeply nested updates, frequent state changes, or need to share state across unrelated parts of the app. Zustand is simpler and more lightweight; Redux is more feature-rich and opinionated."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Feature",
+            "Context + useReducer",
+            "Zustand",
+            "Redux"
+          ],
+          "rows": [
+            [
+              "Boilerplate",
+              "Low",
+              "Low",
+              "High"
+            ],
+            [
+              "Performance",
+              "Can cause re-renders",
+              "Selective subscriptions",
+              "Selective subscriptions"
+            ],
+            [
+              "Middleware",
+              "Manual",
+              "Built-in",
+              "Rich ecosystem"
+            ],
+            [
+              "DevTools",
+              "Limited",
+              "Supported",
+              "Excellent"
+            ],
+            [
+              "Best for",
+              "Small to medium apps",
+              "Medium to large apps",
+              "Large, complex apps"
+            ]
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Selector Pattern"
+        },
+        {
+          "type": "p",
+          "html": "To avoid unnecessary re-renders when using Context, implement a selector pattern. Instead of consuming the entire context value, create custom hooks that return only the specific slice of state a component needs. This can be combined with <code>useMemo</code> or libraries like <code>use-context-selector</code> to further optimize."
+        },
+        {
+          "type": "pre",
+          "code": "// Custom hook with selector\nfunction useUser() {\n  const { user } = useContext(UserContext);\n  return user;\n}\n\nfunction useTheme() {\n  const { theme } = useContext(ThemeContext);\n  return theme;\n}\n\n// Component only re-renders when 'user' changes\nfunction UserProfile() {\n  const user = useUser();\n  return <p>{user.name}</p>;\n}\n\n// Component only re-renders when 'theme' changes\nfunction ThemeSwitcher() {\n  const theme = useTheme();\n  return <div className={theme}>...</div>;\n}",
+          "label": "Selector pattern with custom hooks"
+        },
+        {
+          "type": "quiz",
+          "question": "What is the main performance concern when using a single large Context Provider for all global state?",
+          "options": [
+            "It increases bundle size significantly",
+            "All consumers re-render when any part of the context value changes",
+            "It makes code harder to read",
+            "It prevents the use of useReducer"
+          ],
+          "answer": 1,
+          "explanation": "When the context value changes (even a small part), every component that consumes that context will re-render. This can cause performance issues in large component trees. Splitting contexts or using selector patterns helps mitigate this."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is prop drilling?",
+              "back": "Prop drilling is the process of passing props through multiple intermediate components that don't need the data themselves, just to reach a deeply nested child component."
+            },
+            {
+              "front": "How does Context API solve prop drilling?",
+              "back": "Context API allows you to provide data at a high level in the component tree and consume it directly in any descendant component without manually passing props through every level."
+            },
+            {
+              "front": "What is the re-render scope of a Context Provider?",
+              "back": "When the value of a Context Provider changes, all components that consume that context will re-render, regardless of whether they use the changed part of the value."
+            },
+            {
+              "front": "What is the Context + useReducer pattern?",
+              "back": "It combines React's Context API with the useReducer hook to manage complex state. The reducer handles state transitions, and the context provides both state and dispatch to the component tree, offering a predictable state management pattern similar to Redux."
+            },
+            {
+              "front": "When should you use Zustand or Redux instead of Context?",
+              "back": "Use Zustand or Redux when you have deeply nested updates, frequent state changes, need selective subscriptions for performance, require middleware or devtools, or are building a large, complex application where Context's re-render behavior becomes a bottleneck."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "custom-hooks",
+      "num": "08 — PATTERNS",
+      "title": "Custom Hooks & Composition",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Custom hooks are the cornerstone of reusable stateful logic in React. They allow you to extract component logic into functions that can be shared across your application. Mastering custom hooks and understanding composition patterns is essential for writing clean, maintainable, and testable React code. This section covers the rules of hooks, how to extract logic, common custom hooks like <code>useDebounce</code>, <code>useFetch</code>, and <code>useLocalStorage</code>, and how to test them effectively."
+        },
+        {
+          "type": "h3",
+          "text": "Rules of Hooks"
+        },
+        {
+          "type": "p",
+          "html": "React enforces two fundamental rules for hooks to ensure consistent behavior and avoid bugs. First, only call hooks at the top level of your component or custom hook—never inside loops, conditions, or nested functions. Second, only call hooks from React function components or custom hooks, not from regular JavaScript functions. Violating these rules can lead to unpredictable state and rendering issues."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Call hooks at the top level of your component or custom hook.",
+            "Call hooks only from React function components or custom hooks.",
+            "Do not call hooks inside conditions, loops, or nested functions.",
+            "Use the ESLint plugin <code>eslint-plugin-react-hooks</code> to enforce these rules automatically."
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "Extracting Stateful Logic"
+        },
+        {
+          "type": "p",
+          "html": "When you find the same stateful logic repeated across multiple components, it's time to extract it into a custom hook. For example, if several components need to track a window's width, you can create a <code>useWindowWidth</code> hook. This promotes DRY (Don't Repeat Yourself) principles and makes your code more modular and testable."
+        },
+        {
+          "type": "pre",
+          "code": "import { useState, useEffect } from 'react';\n\nfunction useWindowWidth() {\n  const [width, setWidth] = useState(window.innerWidth);\n\n  useEffect(() => {\n    const handleResize = () => setWidth(window.innerWidth);\n    window.addEventListener('resize', handleResize);\n    return () => window.removeEventListener('resize', handleResize);\n  }, []);\n\n  return width;\n}\n\n// Usage in a component\nfunction MyComponent() {\n  const width = useWindowWidth();\n  return <p>Window width: {width}px</p>;\n}",
+          "label": "Example: Extracting useWindowWidth"
+        },
+        {
+          "type": "h3",
+          "text": "Common Custom Hooks: useDebounce, useFetch, useLocalStorage"
+        },
+        {
+          "type": "p",
+          "html": "These three hooks are frequently used in real-world applications. <code>useDebounce</code> delays updating a value until after a specified delay, useful for search inputs. <code>useFetch</code> encapsulates data fetching logic with loading and error states. <code>useLocalStorage</code> syncs state with the browser's localStorage, persisting data across sessions."
+        },
+        {
+          "type": "pre",
+          "code": "// useDebounce\nimport { useState, useEffect } from 'react';\n\nfunction useDebounce(value, delay) {\n  const [debouncedValue, setDebouncedValue] = useState(value);\n\n  useEffect(() => {\n    const handler = setTimeout(() => {\n      setDebouncedValue(value);\n    }, delay);\n\n    return () => clearTimeout(handler);\n  }, [value, delay]);\n\n  return debouncedValue;\n}\n\n// useFetch\nimport { useState, useEffect } from 'react';\n\nfunction useFetch(url) {\n  const [data, setData] = useState(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState(null);\n\n  useEffect(() => {\n    const fetchData = async () => {\n      try {\n        const response = await fetch(url);\n        if (!response.ok) throw new Error('Network response was not ok');\n        const result = await response.json();\n        setData(result);\n      } catch (err) {\n        setError(err);\n      } finally {\n        setLoading(false);\n      }\n    };\n    fetchData();\n  }, [url]);\n\n  return { data, loading, error };\n}\n\n// useLocalStorage\nimport { useState } from 'react';\n\nfunction useLocalStorage(key, initialValue) {\n  const [storedValue, setStoredValue] = useState(() => {\n    try {\n      const item = window.localStorage.getItem(key);\n      return item ? JSON.parse(item) : initialValue;\n    } catch (error) {\n      console.error(error);\n      return initialValue;\n    }\n  });\n\n  const setValue = (value) => {\n    try {\n      const valueToStore = value instanceof Function ? value(storedValue) : value;\n      setStoredValue(valueToStore);\n      window.localStorage.setItem(key, JSON.stringify(valueToStore));\n    } catch (error) {\n      console.error(error);\n    }\n  };\n\n  return [storedValue, setValue];\n}",
+          "label": "Example: useDebounce, useFetch, useLocalStorage"
+        },
+        {
+          "type": "callout",
+          "variant": "key",
+          "title": "Key Insight",
+          "body": "Custom hooks are not just for reusing logic—they also enable composition. You can combine multiple hooks inside a single custom hook to create more complex behaviors. For example, a <code>useSearch</code> hook could internally use both <code>useDebounce</code> and <code>useFetch</code> to debounce a search query and fetch results."
+        },
+        {
+          "type": "h3",
+          "text": "Testing Custom Hooks"
+        },
+        {
+          "type": "p",
+          "html": "Testing custom hooks is crucial to ensure they work correctly in isolation. The recommended approach is to use the <code>@testing-library/react-hooks</code> library, which provides a <code>renderHook</code> function. This allows you to test hooks without needing a full component wrapper. You can verify initial values, state updates, and side effects."
+        },
+        {
+          "type": "pre",
+          "code": "import { renderHook, act } from '@testing-library/react-hooks';\nimport useLocalStorage from './useLocalStorage';\n\nbeforeEach(() => {\n  localStorage.clear();\n});\n\ntest('should return initial value and update localStorage', () => {\n  const { result } = renderHook(() => useLocalStorage('key', 'initial'));\n\n  expect(result.current[0]).toBe('initial');\n\n  act(() => {\n    result.current[1]('new value');\n  });\n\n  expect(result.current[0]).toBe('new value');\n  expect(localStorage.getItem('key')).toBe('\"new value\"');\n});",
+          "label": "Example: Testing useLocalStorage"
+        },
+        {
+          "type": "quiz",
+          "question": "Which of the following is a valid reason to create a custom hook?",
+          "options": [
+            "To reuse JSX markup across components",
+            "To extract and share stateful logic between components",
+            "To replace Redux for global state management",
+            "To improve the performance of a single component"
+          ],
+          "answer": 1,
+          "explanation": "Custom hooks are designed to extract and share stateful logic (like side effects, state, or context) between components. They are not for reusing JSX (that's what components are for) and are not a direct replacement for state management libraries like Redux."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What are the two main rules of hooks?",
+              "back": "1. Only call hooks at the top level of your component or custom hook. 2. Only call hooks from React function components or custom hooks."
+            },
+            {
+              "front": "What is the purpose of the useDebounce hook?",
+              "back": "It delays updating a value until after a specified delay, commonly used to limit the rate of API calls from search inputs."
+            },
+            {
+              "front": "How do you test a custom hook in isolation?",
+              "back": "Use the renderHook function from @testing-library/react-hooks to test the hook's behavior without a component wrapper."
+            },
+            {
+              "front": "What does the useLocalStorage hook typically return?",
+              "back": "It returns an array with the current stored value and a setter function that updates both the state and localStorage."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "server-comp",
+      "num": "10 — ADVANCED",
+      "title": "Server Components & Suspense",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Server Components and Suspense represent a paradigm shift in React, enabling efficient server-side rendering and seamless async data handling. Understanding the boundary between React Server Components (RSC) and React Client Components (RCC) is crucial for building performant applications. This section covers key concepts, practical code examples, and common pitfalls to avoid during migration."
+        },
+        {
+          "type": "h3",
+          "text": "RSC vs RCC Boundary"
+        },
+        {
+          "type": "p",
+          "html": "The boundary between Server and Client Components is defined by the <code>'use client'</code> directive. Server Components run exclusively on the server, reducing bundle size by excluding client-side JavaScript. Client Components run in the browser and can use hooks, event handlers, and browser APIs. A key rule: Server Components cannot import Client Components directly; they must pass data as props."
+        },
+        {
+          "type": "pre",
+          "code": "// Server Component (no 'use client')\nimport ClientButton from './ClientButton';\n\nexport default function ServerComponent() {\n  const data = fetchDataFromDB(); // runs on server\n  return (\n    <div>\n      <h1>Server Rendered</h1>\n      <ClientButton label=\"Click me\" />\n    </div>\n  );\n}\n\n// Client Component\n'use client';\n\nexport default function ClientButton({ label }) {\n  const [count, setCount] = useState(0);\n  return <button onClick={() => setCount(c => c + 1)}>{label} ({count})</button>;\n}",
+          "label": "RSC vs RCC boundary example"
+        },
+        {
+          "type": "h3",
+          "text": "Server-Side Data Fetching"
+        },
+        {
+          "type": "p",
+          "html": "Server Components can directly fetch data using async/await, eliminating the need for <code>useEffect</code> or external state management for initial data. This reduces client-side JavaScript and improves performance. Data fetching happens during server rendering, and the result is sent as serialized props to the client."
+        },
+        {
+          "type": "pre",
+          "code": "// Server Component with async data fetching\nexport default async function UserProfile({ userId }) {\n  const user = await fetch(`https://api.example.com/users/${userId}`).then(res => res.json());\n  \n  return (\n    <div>\n      <h2>{user.name}</h2>\n      <p>Email: {user.email}</p>\n    </div>\n  );\n}",
+          "label": "Server-side data fetching"
+        },
+        {
+          "type": "h3",
+          "text": "Suspense for Async Operations"
+        },
+        {
+          "type": "p",
+          "html": "Suspense allows components to 'wait' for asynchronous operations (like data fetching or code splitting) before rendering. It works with Server Components and the <code>use()</code> hook to provide a declarative loading state. Suspense boundaries can be nested for granular control."
+        },
+        {
+          "type": "pre",
+          "code": "import { Suspense } from 'react';\nimport UserProfile from './UserProfile';\n\nexport default function Dashboard() {\n  return (\n    <div>\n      <h1>Dashboard</h1>\n      <Suspense fallback={<div>Loading user...</div>}>\n        <UserProfile userId={123} />\n      </Suspense>\n    </div>\n  );\n}",
+          "label": "Suspense with async component"
+        },
+        {
+          "type": "h3",
+          "text": "Streaming and the use() Hook"
+        },
+        {
+          "type": "p",
+          "html": "Streaming enables progressive rendering by sending HTML chunks as they become available. The <code>use()</code> hook (experimental in React 18, stable in React 19) allows reading a promise directly within a component, integrating with Suspense for seamless async handling. It simplifies data fetching by removing the need for <code>useEffect</code> or custom hooks."
+        },
+        {
+          "type": "pre",
+          "code": "import { use, Suspense } from 'react';\n\nfunction fetchUser(id) {\n  return fetch(`https://api.example.com/users/${id}`).then(res => res.json());\n}\n\nfunction UserDetails({ userPromise }) {\n  const user = use(userPromise); // suspends until resolved\n  return <p>{user.name}</p>;\n}\n\nexport default function App() {\n  const userPromise = fetchUser(1);\n  return (\n    <Suspense fallback={<div>Loading...</div>}>\n      <UserDetails userPromise={userPromise} />\n    </Suspense>\n  );\n}",
+          "label": "use() hook with Suspense"
+        },
+        {
+          "type": "h3",
+          "text": "Common Migration Mistakes"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "Forgetting 'use client' directive: Using hooks or event handlers in a Server Component without the directive causes errors.",
+            "Mixing server and client logic: Trying to use browser APIs (like localStorage) in Server Components without proper boundaries.",
+            "Overusing Client Components: Moving entire pages to client-side, negating the benefits of server rendering.",
+            "Ignoring serialization: Passing non-serializable data (like functions or class instances) from Server to Client Components.",
+            "Not handling streaming correctly: Assuming all data is available immediately, leading to hydration mismatches."
+          ]
+        },
+        {
+          "type": "callout",
+          "variant": "interview",
+          "title": "Interview Tip",
+          "body": "Be ready to explain how Server Components reduce bundle size and improve performance. A common question: 'How do you decide when to use a Server Component vs a Client Component?' Answer: Use Server Components for static data and logic that doesn't need interactivity; use Client Components for interactive UI with hooks, event handlers, or browser APIs."
+        },
+        {
+          "type": "quiz",
+          "question": "What is the primary purpose of the 'use client' directive in React Server Components?",
+          "options": [
+            "To enable server-side rendering for a component",
+            "To mark a component as a Client Component that runs in the browser",
+            "To import server-side modules",
+            "To use the use() hook"
+          ],
+          "answer": 1,
+          "explanation": "The 'use client' directive tells React that the component should be treated as a Client Component, meaning it runs in the browser and can use hooks, event handlers, and browser APIs. Server Components do not have this directive."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the difference between React Server Components (RSC) and Client Components (RCC)?",
+              "back": "RSC run on the server, reducing client-side JavaScript, and cannot use hooks or browser APIs. RCC run in the browser, can use hooks and event handlers, and are marked with 'use client'."
+            },
+            {
+              "front": "How does Suspense work with async data fetching?",
+              "back": "Suspense allows components to 'suspend' rendering while waiting for an async operation (like data fetching) to complete. It shows a fallback UI until the data is ready."
+            },
+            {
+              "front": "What is the use() hook and how does it relate to Suspense?",
+              "back": "The use() hook reads a promise directly within a component, suspending rendering until the promise resolves. It integrates with Suspense boundaries to provide a declarative loading state."
+            },
+            {
+              "front": "What is a common mistake when migrating to Server Components?",
+              "back": "Forgetting to add 'use client' to components that use hooks or event handlers, causing errors because Server Components cannot use client-side features."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "testing",
+      "num": "09 — ADVANCED",
+      "title": "Testing React Components",
+      "intro": "",
+      "blocks": [
+        {
+          "type": "p",
+          "html": "Testing React components effectively requires a shift in mindset from testing implementation details to testing user-facing behavior. The React Testing Library (RTL) embodies this philosophy, encouraging tests that resemble how users interact with your components. This section covers core RTL concepts, query methods, event simulation, mocking strategies, async patterns, and common pitfalls like snapshot testing."
+        },
+        {
+          "type": "h3",
+          "text": "RTL Philosophy: Test Behavior, Not Implementation"
+        },
+        {
+          "type": "p",
+          "html": "RTL's guiding principle is to write tests that simulate real user interactions and verify outcomes, rather than testing internal state, lifecycle methods, or component internals. This makes tests more resilient to refactoring and provides confidence that the component works as expected from the user's perspective. For example, instead of checking if a state variable changed, you assert that a button becomes disabled or a success message appears."
+        },
+        {
+          "type": "pre",
+          "code": "// ❌ Testing implementation (fragile)\nconst { container } = render(<Counter />);\nexpect(container.querySelector('span').textContent).toBe('0');\n\n// ✅ Testing behavior (robust)\nconst { getByRole } = render(<Counter />);\nexpect(getByRole('status')).toHaveTextContent('0');",
+          "label": "Behavior vs Implementation"
+        },
+        {
+          "type": "h3",
+          "text": "getBy vs queryBy vs findBy"
+        },
+        {
+          "type": "p",
+          "html": "RTL provides three families of query methods, each with different behavior for element existence and timing. <code>getBy*</code> throws an error if the element is not found, making it ideal for elements that should exist immediately. <code>queryBy*</code> returns null instead of throwing, useful for asserting absence. <code>findBy*</code> returns a promise that resolves when the element appears (after async updates), perfect for testing loading states or delayed renders."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Method",
+            "Returns",
+            "Throws if not found",
+            "Use case"
+          ],
+          "rows": [
+            [
+              "getBy*",
+              "element",
+              "Yes",
+              "Element must exist synchronously"
+            ],
+            [
+              "queryBy*",
+              "element or null",
+              "No",
+              "Assert element is absent"
+            ],
+            [
+              "findBy*",
+              "Promise<element>",
+              "Yes (after timeout)",
+              "Element appears after async update"
+            ]
+          ]
+        },
+        {
+          "type": "pre",
+          "code": "// getBy - element must exist\nconst button = screen.getByRole('button', { name: /submit/i });\n\n// queryBy - element may not exist\nconst error = screen.queryByText(/error/i);\nexpect(error).toBeNull();\n\n// findBy - wait for async appearance\nconst success = await screen.findByText(/success/i);",
+          "label": "Query Method Examples"
+        },
+        {
+          "type": "h3",
+          "text": "userEvent vs fireEvent"
+        },
+        {
+          "type": "p",
+          "html": "While <code>fireEvent</code> dispatches a single DOM event, <code>userEvent</code> from <code>@testing-library/user-event</code> simulates full user interactions (e.g., typing, clicking, focusing). <code>userEvent</code> is preferred because it triggers multiple events in the correct order (like <code>focus</code>, <code>keyDown</code>, <code>keyUp</code>, <code>change</code> for typing), making tests more realistic and catching edge cases <code>fireEvent</code> might miss."
+        },
+        {
+          "type": "pre",
+          "code": "// fireEvent - low-level, single event\nfireEvent.change(input, { target: { value: 'hello' } });\n\n// userEvent - realistic interaction sequence\nawait userEvent.type(input, 'hello'); // triggers focus, keydown, keyup, change, etc.",
+          "label": "userEvent vs fireEvent"
+        },
+        {
+          "type": "callout",
+          "variant": "key",
+          "title": "Key Insight",
+          "body": "Always prefer <code>userEvent</code> over <code>fireEvent</code> for simulating user interactions. It's more realistic and helps catch bugs that only appear with full event sequences. Install it with <code>npm install --save-dev @testing-library/user-event</code>."
+        },
+        {
+          "type": "h3",
+          "text": "Mocking Hooks and Context"
+        },
+        {
+          "type": "p",
+          "html": "To test components that rely on custom hooks or React Context, you can mock the hook's return value or wrap the component in a test provider. For hooks, use <code>jest.mock</code> to replace the hook module. For context, create a wrapper component that provides a controlled value. This isolates the component under test and allows you to verify behavior for different states."
+        },
+        {
+          "type": "pre",
+          "code": "// Mocking a custom hook\njest.mock('../hooks/useAuth', () => ({\n  useAuth: () => ({ user: { name: 'Alice' }, isAdmin: true })\n}));\n\n// Testing with context wrapper\nconst renderWithTheme = (ui, { theme = 'light' } = {}) => {\n  return render(<ThemeContext.Provider value={theme}>{ui}</ThemeContext.Provider>);\n};\n\nit('shows admin panel for admin users', () => {\n  renderWithTheme(<AdminPanel />);\n  expect(screen.getByText(/admin settings/i)).toBeInTheDocument();\n});",
+          "label": "Mocking Hooks and Context"
+        },
+        {
+          "type": "h3",
+          "text": "Async Testing and Snapshot Pitfalls"
+        },
+        {
+          "type": "p",
+          "html": "Async testing often involves waiting for elements to appear after data fetching or state updates. Use <code>waitFor</code> or <code>findBy*</code> to handle these cases. Snapshot tests can be useful for detecting unintended UI changes, but they have pitfalls: large snapshots are hard to review, they break on trivial changes (like whitespace), and they can give a false sense of coverage. Prefer targeted assertions over snapshots for critical logic."
+        },
+        {
+          "type": "pre",
+          "code": "// Async test with waitFor\nimport { waitFor } from '@testing-library/react';\n\nit('loads and displays data', async () => {\n  render(<DataFetcher />);\n  await waitFor(() => {\n    expect(screen.getByText(/loaded data/i)).toBeInTheDocument();\n  });\n});\n\n// Snapshot pitfall: fragile and hard to review\nit('matches snapshot', () => {\n  const { container } = render(<MyComponent />);\n  expect(container).toMatchSnapshot(); // Breaks on any HTML change\n});",
+          "label": "Async Testing and Snapshot Pitfalls"
+        },
+        {
+          "type": "quiz",
+          "question": "Which query method should you use to assert that an error message does NOT appear after a form submission (assuming the message might appear asynchronously)?",
+          "options": [
+            "getByText",
+            "queryByText",
+            "findByText",
+            "waitFor + getByText"
+          ],
+          "answer": 1,
+          "explanation": "queryByText returns null if the element is not found, making it ideal for asserting absence. getByText would throw an error, and findByText would wait for the element to appear (which would fail if it never appears)."
+        },
+        {
+          "type": "flashcards",
+          "items": [
+            {
+              "front": "What is the core philosophy of React Testing Library?",
+              "back": "Test behavior, not implementation. Write tests that simulate user interactions and verify outcomes, rather than testing internal state or lifecycle methods."
+            },
+            {
+              "front": "When should you use findBy* instead of getBy*?",
+              "back": "When the element appears asynchronously (e.g., after data fetching or state updates). findBy* returns a promise that resolves when the element is found."
+            },
+            {
+              "front": "What is the main advantage of userEvent over fireEvent?",
+              "back": "userEvent simulates full, realistic user interactions (e.g., typing triggers focus, keydown, keyup, change) rather than dispatching a single event, catching more edge cases."
+            },
+            {
+              "front": "How do you test a component that depends on React Context?",
+              "back": "Wrap the component in a test provider that supplies a controlled value, often using a custom render function like renderWithTheme."
+            },
+            {
+              "front": "What is a major pitfall of snapshot tests?",
+              "back": "They are fragile and break on trivial changes (whitespace, class order), making them hard to review and giving a false sense of coverage. Prefer targeted assertions."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

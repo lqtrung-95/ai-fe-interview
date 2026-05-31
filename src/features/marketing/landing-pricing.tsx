@@ -4,7 +4,7 @@ import { buttonVariants } from '@/components/ui/button';
 
 const FREE_FEATURES = [
   '1 practice session / day',
-  'All 251 questions in the bank',
+  '250+ questions in the bank and growing',
   'AI feedback on every answer',
   'Basic score breakdown',
 ];

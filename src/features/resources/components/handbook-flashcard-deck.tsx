@@ -85,9 +85,8 @@ export function HandbookFlashcardDeck({ items }: Props) {
                   className="absolute inset-0 rounded-xl border border-border/60 bg-card p-4 flex flex-col justify-between gap-2"
                   style={{ backfaceVisibility: 'hidden' }}
                 >
-                  <p className="text-sm font-semibold text-foreground leading-snug line-clamp-4 flex-1">
-                    {item.front}
-                  </p>
+                  {/* eslint-disable-next-line react/no-danger */}
+                  <p className="text-sm font-semibold text-foreground leading-snug line-clamp-4 flex-1" dangerouslySetInnerHTML={{ __html: item.front }} />
                   <span className="text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest">
                     Click to reveal →
                   </span>
@@ -101,9 +100,8 @@ export function HandbookFlashcardDeck({ items }: Props) {
                     transform: 'rotateY(180deg)',
                   }}
                 >
-                  <p className="text-sm text-foreground leading-relaxed line-clamp-5">
-                    {item.back}
-                  </p>
+                  {/* eslint-disable-next-line react/no-danger */}
+                  <p className="text-sm text-foreground leading-relaxed line-clamp-5" dangerouslySetInnerHTML={{ __html: item.back }} />
                 </div>
               </div>
             </button>

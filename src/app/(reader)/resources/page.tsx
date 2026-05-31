@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BookOpen, ChevronRight, Hash, HelpCircle } from 'lucide-react';
+import { BookOpen, ChevronRight, Hash, HelpCircle, Code2, Atom, Gauge } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Resources',
@@ -21,6 +21,42 @@ const RESOURCES = [
     tags: ['Architecture', 'Performance', 'Case Studies'],
   },
   {
+    href: '/resources/javascript-core',
+    label: 'Handbook',
+    title: 'JavaScript Core',
+    description:
+      'Types & coercion, closures, prototypes, the event loop, promises, ES6+, design patterns, and memory management — everything JS interviewers test.',
+    stats: [
+      { icon: Code2, value: '10 sections' },
+      { icon: HelpCircle, value: '10 quizzes' },
+    ],
+    tags: ['Closures', 'Event Loop', 'Async/Await', 'ES6+'],
+  },
+  {
+    href: '/resources/react-deep-dive',
+    label: 'Handbook',
+    title: 'React Deep Dive',
+    description:
+      'JSX internals, Fiber reconciliation, all major hooks, performance patterns, Context, custom hooks, Server Components, and testing.',
+    stats: [
+      { icon: Atom, value: '10 sections' },
+      { icon: HelpCircle, value: '10 quizzes' },
+    ],
+    tags: ['Hooks', 'Reconciliation', 'Performance', 'RSC'],
+  },
+  {
+    href: '/resources/optimization-deep-dive',
+    label: 'Handbook',
+    title: 'Optimization Deep Dive',
+    description:
+      'Staff-level performance, organized by use case — measurement, bundle size, rendering, React internals, network, memory. Every technique with its trade-offs and when NOT to use it.',
+    stats: [
+      { icon: Gauge, value: '17 use cases' },
+      { icon: HelpCircle, value: '17 quizzes' },
+    ],
+    tags: ['Core Web Vitals', 'Rendering', 'Caching', 'Trade-offs'],
+  },
+  {
     href: '/resources/glossary',
     label: 'Glossary',
     title: 'Frontend Glossary',
@@ -36,7 +72,7 @@ const RESOURCES = [
 
 export default function ResourcesIndexPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12 space-y-10">
+    <div className="mx-auto max-w-4xl px-6 py-12 space-y-10">
       {/* Header */}
       <div className="space-y-3">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
@@ -49,7 +85,7 @@ export default function ResourcesIndexPage() {
       </div>
 
       {/* Cards */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
         {RESOURCES.map(r => (
           <Link
             key={r.href}

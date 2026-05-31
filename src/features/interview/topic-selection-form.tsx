@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { createSession } from './server/create-session-action';
 import { SESSION_DIFFICULTIES, SESSION_MODES, type CreateSessionInput } from './session-config-schema';
+import { UpgradeWallDialog } from '@/features/subscription/upgrade-wall-dialog';
 
 const CUSTOM_SENTINEL = -1; // sentinel value to indicate "custom" mode
 
@@ -46,6 +47,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
   const [customMinutes, setCustomMinutes] = useState('');  // raw input for custom mode
   const [usesCv, setUsesCv] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUpgradeWall, setShowUpgradeWall] = useState(false);
 
   const isCustom = timerSeconds === CUSTOM_SENTINEL;
   // Resolved seconds to pass to the session (custom input converted from minutes)
@@ -66,7 +68,11 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
     startTransition(async () => {
       const result = await createSession(payload);
       if (!result.ok) {
-        setError(result.message);
+        if (result.code === 'daily_limit_reached') {
+          setShowUpgradeWall(true);
+        } else {
+          setError(result.message);
+        }
         return;
       }
       // Redirect with ?timer= so the session page can initialise the countdown
@@ -78,6 +84,8 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
   }
 
   return (
+    <>
+    <UpgradeWallDialog open={showUpgradeWall} onClose={() => setShowUpgradeWall(false)} />
     <div className="space-y-8">
       {/* Mode */}
       <section className="space-y-3">
@@ -221,6 +229,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
         </Button>
       </div>
     </div>
+    </>
   );
 }
 

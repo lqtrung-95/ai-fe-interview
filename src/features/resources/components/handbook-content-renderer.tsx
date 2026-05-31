@@ -66,7 +66,9 @@ export function HandbookContentRenderer({ blocks }: Props) {
                   <li key={j} className="flex gap-2.5 text-sm text-muted-foreground leading-relaxed">
                     {/* Solid dot bullet aligned with first line */}
                     <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50" />
-                    <span>{item}</span>
+                    {/* items may contain inline HTML from LLM generation — safe (script-generated) */}
+                    {/* eslint-disable-next-line react/no-danger */}
+                    <span className="handbook-inline-html" dangerouslySetInnerHTML={{ __html: item }} />
                   </li>
                 ))}
               </ul>
@@ -80,7 +82,8 @@ export function HandbookContentRenderer({ blocks }: Props) {
                     <span className="shrink-0 mt-0.5 min-w-[1.25rem] text-right font-mono text-[11px] text-primary/60 font-semibold">
                       {j + 1}.
                     </span>
-                    <span>{item}</span>
+                    {/* eslint-disable-next-line react/no-danger */}
+                    <span className="handbook-inline-html" dangerouslySetInnerHTML={{ __html: item }} />
                   </li>
                 ))}
               </ol>

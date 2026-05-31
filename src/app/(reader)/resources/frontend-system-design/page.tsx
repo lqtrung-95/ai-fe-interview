@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { FileText } from 'lucide-react';
 import type { HandbookData } from '@/data/resources/handbook-types';
 import { HandbookSidebar } from '@/features/resources/components/handbook-sidebar';
 import { HandbookContentRenderer } from '@/features/resources/components/handbook-content-renderer';
@@ -46,8 +48,17 @@ export default function FrontendSystemDesignPage() {
             style={{ background: 'var(--color-primary)' }}
           />
 
+          {/* Cheatsheet link — top-right of hero */}
+          <Link
+            href="/resources/frontend-system-design/cheatsheet"
+            className="absolute right-6 lg:right-12 top-10 inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/50 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Cheatsheet
+          </Link>
+
           <p className="relative text-[11px] font-semibold uppercase tracking-[0.18em] text-primary mb-3">
-            Frontend System Design
+            Interview Handbook
           </p>
           <h1 className="relative text-2xl lg:text-3xl font-bold tracking-tight max-w-3xl">
             {data.meta.title}

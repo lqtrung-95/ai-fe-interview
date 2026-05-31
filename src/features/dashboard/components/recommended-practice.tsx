@@ -55,13 +55,11 @@ export function RecommendedPractice({ recommendations }: Props) {
 
             <Link
               href={`/practice/new?topic=${encodeURIComponent(primary.topic)}&difficulty=${primary.difficulty}`}
-              className="flex w-full items-center justify-between gap-3 rounded-lg bg-primary px-3.5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              className="group inline-flex w-fit items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/15"
             >
-              <span className="flex items-center gap-2">
-                <Zap className="size-4" />
-                Start recommended drill
-              </span>
-              <ArrowRight className="size-4" />
+              <Zap className="size-3.5" />
+              Start focused drill
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
 

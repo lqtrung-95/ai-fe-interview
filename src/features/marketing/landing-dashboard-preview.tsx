@@ -106,8 +106,8 @@ function RecommendationsPreview() {
         <p className="text-[9px] font-bold uppercase tracking-wider text-primary">Next technical drill</p>
         <h4 className="mt-2 text-xs font-bold leading-5">Profile React commit cost before memoizing</h4>
         <p className="mt-1 text-[10px] leading-4 text-muted-foreground">Use React Profiler and INP traces to isolate render work, handler cost, and layout thrash before choosing a fix.</p>
-        <div className="mt-2.5 flex items-center justify-between rounded-md bg-primary px-2.5 py-2 text-[10px] font-semibold text-primary-foreground">
-          <span className="flex items-center gap-1.5"><Zap className="size-3" /> Start focused drill</span><ArrowRight className="size-3" />
+        <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2.5 py-2 text-[10px] font-semibold text-primary">
+          <Zap className="size-3" /> Start focused drill <ArrowRight className="size-3" />
         </div>
       </div>
       <p className="mb-1.5 mt-3 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Queue next</p>

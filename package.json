@@ -21,7 +21,10 @@
     "extract-glossary": "tsx scripts/extract-glossary.ts",
     "patch-diagram-groups": "tsx scripts/patch-diagram-group-boxes.ts",
     "fix-bad-quiz-questions": "tsx scripts/find-bad-quiz-questions.ts",
-    "db:clear-activity": "tsx scripts/db-clear-activity-data.ts"
+    "db:clear-activity": "tsx scripts/db-clear-activity-data.ts",
+    "generate-js-handbook": "tsx scripts/generate-js-core-handbook.ts",
+    "generate-react-handbook": "tsx scripts/generate-react-handbook.ts",
+    "generate-optimization-handbook": "tsx scripts/generate-optimization-handbook.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.79",
@@ -29,6 +32,7 @@
     "@ai-sdk/groq": "^3.0.39",
     "@ai-sdk/openai": "^3.0.65",
     "@base-ui/react": "^1.5.0",
+    "@polar-sh/nextjs": "^0.9.6",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@supabase/ssr": "^0.10.3",

@@ -21,6 +21,8 @@ loadEnv({ path: '.env', quiet: true });
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   datasource: {
-    url: env('DATABASE_URL'),
+    // DIRECT_URL is the non-pooled Supabase connection (port 5432) required for
+    // migrate/db push. Falls back to DATABASE_URL when DIRECT_URL is not set.
+    url: env('DIRECT_URL') || env('DATABASE_URL'),
   },
 });
