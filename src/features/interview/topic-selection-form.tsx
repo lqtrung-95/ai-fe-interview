@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { createSession } from './server/create-session-action';
 import { SESSION_DIFFICULTIES, SESSION_MODES, type CreateSessionInput } from './session-config-schema';
 
+const CUSTOM_SENTINEL = -1; // sentinel value to indicate "custom" mode
+
 type Mode = (typeof SESSION_MODES)[number]['value'];
 type Difficulty = (typeof SESSION_DIFFICULTIES)[number]['value'];
 
@@ -23,13 +25,13 @@ const GROUPS = [
   ['Interview Skills', ['Testing', 'Behavioral']],
 ] as const;
 
-/** Timer options: 0 = no limit, otherwise seconds per question */
+/** Timer preset options: 0 = no limit, CUSTOM_SENTINEL = custom input */
 const TIMER_OPTIONS = [
-  { value: 0, label: 'No limit' },
-  { value: 60, label: '1 min' },
-  { value: 120, label: '2 min' },
-  { value: 180, label: '3 min' },
-  { value: 300, label: '5 min' },
+  { value: 0,               label: 'No limit' },
+  { value: 180,             label: '3 min' },
+  { value: 300,             label: '5 min' },
+  { value: 600,             label: '10 min' },
+  { value: CUSTOM_SENTINEL, label: 'Custom' },
 ] as const;
 
 export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts }: Props) {
@@ -37,8 +39,15 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
   const [topics, setTopics] = useState<string[]>(defaultTopics.length ? defaultTopics : ['JavaScript']);
   const [difficulty, setDifficulty] = useState<Difficulty>(defaultDifficulty);
   const [mode, setMode] = useState<Mode>('standard');
-  const [timerSeconds, setTimerSeconds] = useState(0);
+  const [timerSeconds, setTimerSeconds] = useState(0); // 0=no limit, CUSTOM_SENTINEL=custom
+  const [customMinutes, setCustomMinutes] = useState('');  // raw input for custom mode
   const [error, setError] = useState<string | null>(null);
+
+  const isCustom = timerSeconds === CUSTOM_SENTINEL;
+  // Resolved seconds to pass to the session (custom input converted from minutes)
+  const resolvedSeconds = isCustom
+    ? Math.max(0, Math.round(parseFloat(customMinutes || '0') * 60))
+    : timerSeconds;
   const [pending, startTransition] = useTransition();
 
   function toggleTopic(topic: string) {
@@ -57,8 +66,8 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
         return;
       }
       // Redirect with ?timer= so the session page can initialise the countdown
-      const url = timerSeconds > 0
-        ? `/practice/${result.sessionId}?timer=${timerSeconds}`
+      const url = resolvedSeconds > 0
+        ? `/practice/${result.sessionId}?timer=${resolvedSeconds}`
         : `/practice/${result.sessionId}`;
       router.push(url);
     });
@@ -107,7 +116,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
       {/* Timer */}
       <section className="space-y-3">
         <SectionLabel icon={<Timer className="h-3.5 w-3.5" />}>Time per question</SectionLabel>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {TIMER_OPTIONS.map((opt) => (
             <button
               key={opt.value}
@@ -123,6 +132,23 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
               {opt.label}
             </button>
           ))}
+
+          {/* Custom duration input — revealed when "Custom" is selected */}
+          {isCustom && (
+            <div className="flex items-center gap-1.5 rounded-lg border border-primary/40 bg-card px-3 py-1.5">
+              <input
+                type="number"
+                min={1}
+                max={60}
+                placeholder="e.g. 7"
+                value={customMinutes}
+                onChange={(e) => setCustomMinutes(e.target.value)}
+                className="w-14 bg-transparent text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                autoFocus
+              />
+              <span className="text-sm text-muted-foreground">min</span>
+            </div>
+          )}
         </div>
       </section>
 

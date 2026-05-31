@@ -32,7 +32,19 @@ export function ReaderHeader({ user }: Props) {
   const pathname = usePathname();
 
   const isDark = resolvedTheme === 'dark';
-  const handbookActive = pathname === '/resources' || pathname.startsWith('/resources/');
+  const resourcesActive = pathname === '/resources' || pathname.startsWith('/resources/');
+
+  // Derive breadcrumb label + href from the current path
+  const resourceLabel = pathname.startsWith('/resources/glossary')
+    ? 'Glossary'
+    : pathname.startsWith('/resources/frontend-system-design')
+      ? 'Handbook'
+      : 'Resources';
+  const resourceHref = pathname.startsWith('/resources/glossary')
+    ? '/resources/glossary'
+    : pathname.startsWith('/resources/frontend-system-design')
+      ? '/resources/frontend-system-design'
+      : '/resources';
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/90 px-5 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
@@ -60,16 +72,16 @@ export function ReaderHeader({ user }: Props) {
           </Link>
         )}
         <Link
-          href="/resources/frontend-system-design"
+          href={resourceHref}
           className={
             'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 ' +
-            (handbookActive
+            (resourcesActive
               ? 'bg-primary/12 text-primary'
               : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground')
           }
         >
           <Library className="h-3.5 w-3.5 shrink-0" />
-          Handbook
+          {resourceLabel}
         </Link>
       </div>
 

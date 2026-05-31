@@ -878,7 +878,7 @@
         },
         {
           "type": "quiz",
-          "question": "A",
+          "question": "A list of blog posts is fetched from the API and needs caching, auto-refetch when stale, and request deduplication. Which state type and tool should you use?",
           "options": [
             "Local",
             "Store",

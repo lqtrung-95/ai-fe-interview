@@ -22,13 +22,13 @@ export function AppHeader({ userName, userEmail, userImage }: Props) {
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/90 px-5 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-      {/* Left — Handbook link (no "App" breadcrumb — we're already in the app) */}
+      {/* Left — Resources entry (links to the index, user picks handbook or glossary from there) */}
       <Link
-        href="/resources/frontend-system-design"
+        href="/resources"
         className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted/60 hover:text-foreground"
       >
         <Library className="h-3.5 w-3.5 shrink-0" />
-        Handbook
+        Resources
       </Link>
 
       {/* Right — user controls */}

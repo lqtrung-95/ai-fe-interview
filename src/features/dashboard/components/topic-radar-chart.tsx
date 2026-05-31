@@ -38,8 +38,9 @@ export function TopicRadarChart({ data }: Props) {
           <PolarRadiusAxis
             domain={[0, 5]}
             angle={90}
-            tick={{ fontSize: 10, fill: CHART.axis }}
             tickCount={6}
+            tick={false}
+            axisLine={false}
           />
           <Tooltip
             formatter={(value, _name, entry) => {

@@ -52,14 +52,14 @@ export default async function SessionPage({
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      {/* Session metadata header — question counter lives in InterviewMainPanel (live) */}
+      <header className="mb-6 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
             {session.mode.replace('_', ' ')} · {session.difficulty}
           </span>
           <span>{session.topics.join(' + ')}</span>
         </div>
-        <p className="text-xs text-muted-foreground">Question {completed + 1} of {target}</p>
       </header>
       <InterviewShell
         sessionId={session.id}

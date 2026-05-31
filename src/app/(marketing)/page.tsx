@@ -1,6 +1,7 @@
 import { LandingHero } from '@/features/marketing/landing-hero';
 import { LandingStatsStrip } from '@/features/marketing/landing-stats-strip';
 import { LandingProductWalkthrough } from '@/features/marketing/landing-product-walkthrough';
+import { LandingDashboardPreview } from '@/features/marketing/landing-dashboard-preview';
 import { LandingBeforeAfter } from '@/features/marketing/landing-before-after';
 import { LandingCategories } from '@/features/marketing/landing-categories';
 import { LandingPricing } from '@/features/marketing/landing-pricing';
@@ -28,6 +29,7 @@ export default async function LandingPage() {
       <div className="border-y border-border/50 bg-card/30">
         <LandingProductWalkthrough />
       </div>
+      <LandingDashboardPreview />
       <LandingBeforeAfter />
       <div className="border-y border-border/50 bg-card/30">
         <LandingCategories />

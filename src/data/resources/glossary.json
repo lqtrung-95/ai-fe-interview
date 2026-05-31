@@ -1,0 +1,837 @@
+{
+  "entries": [
+    {
+      "term": "a11y",
+      "abbr": "Accessibility",
+      "definition": "The practice of making web applications usable by people with disabilities. It involves semantic HTML, ARIA attributes, keyboard navigation, and screen reader support.",
+      "category": "Accessibility",
+      "handbookId": "requirements"
+    },
+    {
+      "term": "AbortController",
+      "definition": "A browser API that allows aborting asynchronous operations like fetch requests. It is used to handle race conditions in autocomplete components by canceling previous requests when new input arrives.",
+      "category": "Browser",
+      "handbookId": "components"
+    },
+    {
+      "term": "Accessibility",
+      "abbr": "a11y",
+      "definition": "The practice of designing and developing web applications usable by people with disabilities, including those using screen readers, keyboards, or assistive technologies. It involves semantic HTML, ARIA attributes, and keyboard navigation support.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "ARIA",
+      "abbr": "ARIA",
+      "definition": "Accessible Rich Internet Applications — a set of attributes that enhance HTML semantics for assistive technologies. The first rule is 'No ARIA is better than bad ARIA'; prefer semantic HTML elements like `<button>` over `<div>` with ARIA roles.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "ARIA roles",
+      "abbr": "ARIA",
+      "definition": "Accessible Rich Internet Applications attributes that define the role of an element for assistive technologies. For autocomplete, role='combobox' and aria-activedescendant are essential for accessibility.",
+      "category": "Accessibility",
+      "handbookId": "components"
+    },
+    {
+      "term": "Cache-Control: no-cache",
+      "definition": "An HTTP caching directive that means the response can be stored by the browser but must be revalidated with the server (using ETag) before each use. It is often confused with 'no-store', which actually prevents any caching; no-cache still allows caching with conditional requests.",
+      "category": "Networking",
+      "handbookId": "httpcache"
+    },
+    {
+      "term": "Call Stack",
+      "definition": "A data structure that tracks the execution context of function calls in JavaScript. When a function is called, it is pushed onto the stack; when it returns, it is popped. The event loop only processes new tasks when the call stack is empty.",
+      "category": "JavaScript",
+      "handbookId": "eventloop"
+    },
+    {
+      "term": "Client State",
+      "definition": "Data that exists only on the client side and is not persisted on a server, such as UI toggle states, form input values, or modal visibility. Client state is synchronous and typically managed with local state (useState) or a lightweight store, not a global state manager.",
+      "category": "State Management",
+      "handbookId": "state"
+    },
+    {
+      "term": "Client-Side Rendering",
+      "abbr": "CSR",
+      "definition": "A rendering pattern where the browser loads a minimal HTML shell and uses JavaScript to generate the full page content. It is suitable for authenticated pages that don't need SEO indexing but can result in slower initial load times.",
+      "category": "Rendering",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "Code Splitting",
+      "definition": "A technique that breaks an application into smaller chunks that can be loaded on demand rather than all at once. This reduces initial load time and improves performance by only sending the necessary JavaScript for the current view.",
+      "category": "Performance",
+      "handbookId": "performance"
+    },
+    {
+      "term": "Codemods",
+      "definition": "Automated code transformation scripts that help migrate codebases when a library introduces breaking changes. They reduce manual effort and maintain trust with library consumers.",
+      "category": "Build & Tooling",
+      "handbookId": "designsystem"
+    },
+    {
+      "term": "Composition over configuration",
+      "definition": "A design philosophy that favors composing smaller, reusable components over configuring a single large component with many props. It leads to more flexible and maintainable APIs.",
+      "category": "Architecture",
+      "handbookId": "components"
+    },
+    {
+      "term": "Compositor Thread",
+      "definition": "A separate thread in the browser responsible for compositing layers into the final image, independent of the main thread. Animating properties like transform and opacity runs on the compositor thread, avoiding reflow and repaint, and enabling smooth 60fps animations.",
+      "category": "Rendering",
+      "handbookId": "browser"
+    },
+    {
+      "term": "Compound Components pattern",
+      "definition": "A React design pattern where multiple components work together as a single unit, sharing implicit state via Context. It allows flexible composition without exploding props, as seen in libraries like React Select.",
+      "category": "Architecture",
+      "handbookId": "components"
+    },
+    {
+      "term": "Container/Presentational pattern",
+      "definition": "A React design pattern that separates logic (container) from UI (presentational) components. Containers manage state and data fetching, while presentational components focus solely on rendering, improving reusability and testability.",
+      "category": "Architecture",
+      "handbookId": "architecture"
+    },
+    {
+      "term": "Content Hash",
+      "definition": "A unique hash generated from a file's content, used in asset filenames to enable long-term caching. When the file changes, the hash changes, forcing the browser to download the new version while old versions remain cached for users on older tabs.",
+      "category": "Build & Tooling",
+      "handbookId": "build"
+    },
+    {
+      "term": "Content hash caching",
+      "definition": "A caching strategy where filenames include a hash of their content (e.g., app.a3f9.js), allowing immutable caching for long periods (e.g., one year). When content changes, the filename changes, so users always get the latest version while cached old files remain valid.",
+      "category": "Performance",
+      "handbookId": "httpcache"
+    },
+    {
+      "term": "content-visibility",
+      "definition": "A CSS property that allows the browser to skip rendering of off-screen elements, improving initial page load performance. When set to 'auto', the browser defers layout and paint for elements outside the viewport until they are scrolled into view.",
+      "category": "Rendering",
+      "handbookId": "browser"
+    },
+    {
+      "term": "Contract Testing",
+      "definition": "A testing approach that verifies the frontend and backend agree on API response formats. The frontend declares expected shapes, and the backend confirms it provides them, catching breaking changes before production deployment.",
+      "category": "Testing",
+      "handbookId": "advtesting"
+    },
+    {
+      "term": "Controlled vs Uncontrolled",
+      "definition": "A React pattern where controlled components manage state via props (value + onChange), while uncontrolled components manage state internally via refs. Good component APIs support both patterns.",
+      "category": "State Management",
+      "handbookId": "components"
+    },
+    {
+      "term": "Core Web Vitals",
+      "definition": "A set of three metrics defined by Google to measure user experience: Largest Contentful Paint (LCP), First Input Delay (FID), and Cumulative Layout Shift (CLS). These metrics are used to evaluate and optimize web performance.",
+      "category": "Performance",
+      "handbookId": "performance"
+    },
+    {
+      "term": "Critical Rendering Path",
+      "definition": "The sequence of steps the browser takes to convert HTML, CSS, and JavaScript into pixels on the screen. It includes parsing HTML to build the DOM, parsing CSS to build the CSSOM, creating the render tree, layout, paint, and compositing. Optimizing this path is key to fast page loads.",
+      "category": "Rendering",
+      "handbookId": "browser"
+    },
+    {
+      "term": "Cross-Origin Resource Sharing",
+      "abbr": "CORS",
+      "definition": "A browser security mechanism that blocks JavaScript from reading responses from a different origin unless the server explicitly allows it via HTTP headers. CORS errors must be fixed on the server side by adding appropriate headers like Access-Control-Allow-Origin.",
+      "category": "Security",
+      "handbookId": "httpcache"
+    },
+    {
+      "term": "Cross-Site Request Forgery",
+      "abbr": "CSRF",
+      "definition": "An attack that tricks a user into performing unwanted actions on a web application where they are authenticated. Frontend developers must implement protections like anti-CSRF tokens or SameSite cookies to prevent unauthorized requests.",
+      "category": "Security",
+      "handbookId": "security"
+    },
+    {
+      "term": "Cross-Site Scripting",
+      "abbr": "XSS",
+      "definition": "A security vulnerability where attackers inject malicious scripts into web pages viewed by other users. React mitigates this by automatically escaping values in JSX, but developers must sanitize any content used with dangerouslySetInnerHTML using libraries like DOMPurify.",
+      "category": "Security",
+      "handbookId": "security"
+    },
+    {
+      "term": "Cumulative Layout Shift",
+      "abbr": "CLS",
+      "definition": "A Core Web Vital metric that measures visual stability by quantifying unexpected layout shifts. Setting explicit width and height on images is the most common way to prevent CLS.",
+      "category": "Performance",
+      "handbookId": "performance"
+    },
+    {
+      "term": "Cursor-based pagination",
+      "definition": "A pagination strategy that uses a unique cursor (e.g., an ID or timestamp) to mark the position in a dataset, rather than offset numbers. It is preferred for social media feeds because it avoids duplicate or missed items when new content is inserted at the top during scrolling.",
+      "category": "Architecture",
+      "handbookId": "network"
+    },
+    {
+      "term": "Debounce",
+      "definition": "A technique that delays the execution of a function until after a specified period of inactivity. In autocomplete, it prevents excessive API calls by waiting until the user stops typing.",
+      "category": "JavaScript",
+      "handbookId": "components"
+    },
+    {
+      "term": "Design Tokens",
+      "definition": "The atomic values of a design system, such as colors, typography, spacing, and shadows. They serve as the single source of truth for theming and ensure visual consistency across components.",
+      "category": "Architecture",
+      "handbookId": "designsystem"
+    },
+    {
+      "term": "Detached DOM Node",
+      "definition": "A DOM element that has been removed from the document tree but is still referenced by JavaScript, preventing garbage collection. This is a common cause of memory leaks in frontend applications, often due to event listeners or closures holding references to removed elements.",
+      "category": "Performance",
+      "handbookId": "jsengine"
+    },
+    {
+      "term": "DOMPurify",
+      "definition": "A DOM-only, fast, and tolerant XSS sanitizer library that cleans HTML content before inserting it into the DOM. It is essential when using dangerouslySetInnerHTML in React to prevent cross-site scripting attacks by removing malicious code.",
+      "category": "Security",
+      "handbookId": "security"
+    },
+    {
+      "term": "End-to-End Test",
+      "abbr": "E2E",
+      "definition": "A test that simulates real user flows across the entire application stack, including frontend, backend, and database. It provides high confidence but is slow and prone to flakiness, so it should be used sparingly in the testing pyramid.",
+      "category": "Testing",
+      "handbookId": "testing"
+    },
+    {
+      "term": "esbuild",
+      "definition": "An extremely fast JavaScript bundler written in Go, used by Vite for development transformations. It is designed for raw speed and is often used in build pipelines for its performance.",
+      "category": "Build & Tooling",
+      "handbookId": "bundler"
+    },
+    {
+      "term": "ETag",
+      "definition": "An HTTP response header that provides a unique identifier for a specific version of a resource. It is used with conditional requests (If-None-Match) to efficiently revalidate cached content, returning 304 Not Modified if the resource hasn't changed.",
+      "category": "Networking",
+      "handbookId": "httpcache"
+    },
+    {
+      "term": "Event Loop",
+      "definition": "The mechanism that enables JavaScript's single-threaded model to handle asynchronous operations. It continuously checks the call stack and, when empty, processes tasks from the macrotask queue (e.g., setTimeout) and microtask queue (e.g., Promise.then), allowing non-blocking I/O and concurrency.",
+      "category": "JavaScript",
+      "handbookId": "eventloop"
+    },
+    {
+      "term": "Exponential backoff",
+      "definition": "A retry strategy where the wait time between attempts increases exponentially (e.g., 1s, 2s, 4s) to avoid overwhelming the server during transient failures. It is often combined with a maximum retry limit and jitter to improve resilience.",
+      "category": "Networking",
+      "handbookId": "network"
+    },
+    {
+      "term": "Fake Timer",
+      "definition": "A testing utility that replaces real timers (e.g., `setTimeout`, `setInterval`) with controllable simulated time. Used to test debounce, throttle, or animation logic deterministically without waiting for real time to pass.",
+      "category": "Testing",
+      "handbookId": "advtesting"
+    },
+    {
+      "term": "Feature Flags",
+      "definition": "A technique that decouples deployment from release by allowing code to be deployed to production but disabled behind a flag. This enables gradual rollouts, A/B testing, and immediate rollback without redeployment.",
+      "category": "Build & Tooling",
+      "handbookId": "build"
+    },
+    {
+      "term": "fetchpriority",
+      "definition": "A browser API attribute that allows developers to hint at the relative priority of a resource, such as an image. Setting fetchpriority='high' on LCP images ensures they are loaded with higher priority than other resources.",
+      "category": "Browser",
+      "handbookId": "assets"
+    },
+    {
+      "term": "Flaky Test",
+      "definition": "A test that intermittently passes or fails due to timing issues, network delays, or environment dependencies rather than actual code bugs. Common in E2E tests, mitigated by waiting for conditions (e.g., `await expect(...).toBeVisible()`) instead of fixed sleeps.",
+      "category": "Testing",
+      "handbookId": "testing"
+    },
+    {
+      "term": "Flux",
+      "definition": "An architectural pattern for state management that enforces unidirectional data flow: actions are dispatched to a store, which updates the state and notifies views. This pattern, popularized by Redux, makes state changes predictable and debuggable by ensuring every change goes through action → reducer.",
+      "category": "Architecture",
+      "handbookId": "state"
+    },
+    {
+      "term": "Generational Garbage Collection",
+      "definition": "A garbage collection strategy that divides heap memory into generations: young (newly allocated objects) and old (long-lived objects). V8 collects the young generation frequently with a fast scavenge algorithm, while the old generation is collected less often with a mark-and-sweep algorithm, reducing pause times.",
+      "category": "JavaScript",
+      "handbookId": "jsengine"
+    },
+    {
+      "term": "Graceful degradation",
+      "definition": "A design principle where a system continues to function at a reduced level rather than failing completely when components are unavailable. In frontend, this means serving stale cache or displaying user-friendly error messages instead of a white screen when the API fails.",
+      "category": "Architecture",
+      "handbookId": "network"
+    },
+    {
+      "term": "GraphQL",
+      "abbr": "GraphQL",
+      "definition": "A query language for APIs that allows clients to request exactly the data they need from a single endpoint, specifying the response structure. It reduces over-fetching and under-fetching issues common in REST by giving clients control over the data shape.",
+      "category": "Architecture",
+      "handbookId": "network"
+    },
+    {
+      "term": "Heap Snapshot",
+      "definition": "A debugging tool in browser DevTools that captures the state of the JavaScript heap at a given moment. It allows developers to inspect object allocations, find retained memory, and identify memory leaks by comparing snapshots over time.",
+      "category": "Performance",
+      "handbookId": "jsengine"
+    },
+    {
+      "term": "Hidden Class",
+      "definition": "An internal data structure in V8 that tracks the 'shape' of an object, i.e., the set and order of its properties. Objects with the same hidden class share property access optimizations; changing the shape (e.g., adding properties out of order) forces the engine to create a new hidden class, slowing down property access.",
+      "category": "JavaScript",
+      "handbookId": "jsengine"
+    },
+    {
+      "term": "Host & Remote",
+      "definition": "In Module Federation, the host is the application that consumes remote modules, while the remote is the application that exposes modules. This pattern allows dynamic code sharing across independently deployed apps.",
+      "category": "Architecture",
+      "handbookId": "modfed"
+    },
+    {
+      "term": "Hot Module Replacement",
+      "abbr": "HMR",
+      "definition": "A development feature that updates modules in the browser without a full page reload, preserving application state. Vite achieves near-instant HMR by leveraging native ES modules.",
+      "category": "Build & Tooling",
+      "handbookId": "bundler"
+    },
+    {
+      "term": "HTTP/2 multiplexing",
+      "definition": "A feature of HTTP/2 that allows multiple concurrent requests and responses to be sent over a single TCP connection, eliminating head-of-line blocking. This reduces the need for bundling all JavaScript into one file, as multiple small files can be transferred efficiently without performance penalty.",
+      "category": "Networking",
+      "handbookId": "protocol"
+    },
+    {
+      "term": "Hydration",
+      "definition": "The process of attaching JavaScript event handlers to server-generated HTML, converting a static page into an interactive one. It can be heavy and delay Time to Interactive (TTI), leading to techniques like progressive hydration and islands architecture.",
+      "category": "Rendering",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "i18n",
+      "abbr": "Internationalization",
+      "definition": "The process of designing software to support multiple languages and locales. It includes handling translations, date formats, and RTL (right-to-left) text direction.",
+      "category": "Architecture",
+      "handbookId": "requirements"
+    },
+    {
+      "term": "ICU MessageFormat",
+      "abbr": "ICU",
+      "definition": "A standard syntax for handling pluralization, gender, and complex message patterns in internationalization. It allows expressions like `{count, plural, one {# item} other {# items}}` to correctly format messages across languages.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Idempotency key",
+      "definition": "A unique identifier sent with POST requests to ensure that retrying the same request does not create duplicate resources on the server. It allows safe retries by letting the server recognize and ignore repeated submissions.",
+      "category": "Networking",
+      "handbookId": "network"
+    },
+    {
+      "term": "Iframe",
+      "definition": "An HTML element that embeds another document within the current page. It provides strong isolation for micro-frontends but limits UX integration and performance.",
+      "category": "Browser",
+      "handbookId": "modfed"
+    },
+    {
+      "term": "Incremental Static Regeneration",
+      "abbr": "ISR",
+      "definition": "A rendering pattern that combines static generation with server-side updates, allowing pages to be regenerated in the background after deployment. It provides the benefits of static content with the flexibility of dynamic updates.",
+      "category": "Rendering",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "Inline Caching",
+      "definition": "An optimization technique used by V8 where the engine caches the result of a property lookup based on the hidden class of the object. If the same hidden class is encountered repeatedly, subsequent lookups skip the full lookup process, making property access extremely fast.",
+      "category": "JavaScript",
+      "handbookId": "jsengine"
+    },
+    {
+      "term": "Integration Test",
+      "definition": "A test that verifies interactions between multiple components or modules, such as a component with its child components and API calls. It balances speed and confidence, catching bugs that unit tests miss while being faster than E2E tests.",
+      "category": "Testing",
+      "handbookId": "testing"
+    },
+    {
+      "term": "Internationalization",
+      "abbr": "i18n",
+      "definition": "The process of designing software to support multiple languages and cultural conventions without code changes. It includes string externalization, pluralization, date/number formatting via the Intl API, and RTL layout support.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Intl API",
+      "definition": "A built-in JavaScript API for locale-sensitive formatting of dates, numbers, currencies, and collation. It avoids manual formatting logic and ensures consistency across different locales without external libraries.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Islands Architecture",
+      "definition": "A rendering pattern where most of the page is static HTML, with only a few interactive 'islands' requiring JavaScript. This reduces the amount of JavaScript needed and improves performance, as seen in frameworks like Astro and Qwik.",
+      "category": "Architecture",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "JIT Compilation",
+      "abbr": "JIT",
+      "definition": "Just-In-Time compilation is a technique where JavaScript source code is compiled to machine code at runtime, rather than ahead of time. V8 uses a pipeline that starts with an interpreter and then compiles hot functions to optimized machine code, balancing startup speed and execution performance.",
+      "category": "JavaScript",
+      "handbookId": "jsengine"
+    },
+    {
+      "term": "Keyboard Navigation",
+      "definition": "The ability to interact with all UI elements using only the keyboard, typically via Tab, Enter, and arrow keys. Essential for users with motor disabilities and a core requirement of web accessibility standards.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Largest Contentful Paint",
+      "abbr": "LCP",
+      "definition": "A Core Web Vital metric that measures the time it takes for the largest visible content element to render. Optimizing images and avoiding lazy-loading above-the-fold content are key strategies to improve LCP.",
+      "category": "Performance",
+      "handbookId": "performance"
+    },
+    {
+      "term": "Layered architecture",
+      "definition": "A client architecture where data flows unidirectionally from Server → Network → Store → View Model → View, while events flow in reverse. Each layer has a clear responsibility and can be tested independently.",
+      "category": "Architecture",
+      "handbookId": "architecture"
+    },
+    {
+      "term": "Layout Thrashing",
+      "definition": "A performance problem caused by repeatedly reading layout properties (e.g., offsetTop, getBoundingClientRect) immediately after writing to the DOM, forcing the browser to perform synchronous reflows. It is avoided by batching reads together before writes or using requestAnimationFrame.",
+      "category": "Performance",
+      "handbookId": "browser"
+    },
+    {
+      "term": "Lazy Loading",
+      "definition": "A strategy that delays the loading of non-essential resources until they are needed, such as images below the fold or components not immediately visible. This reduces initial page load time and saves bandwidth.",
+      "category": "Performance",
+      "handbookId": "performance"
+    },
+    {
+      "term": "Lazy-load Language Packs",
+      "definition": "A technique to load only the current locale's translation data on demand, reducing initial bundle size. It improves performance for internationalized applications by deferring unused language resources.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "LCP",
+      "abbr": "Largest Contentful Paint",
+      "definition": "A Core Web Vital metric that measures the time it takes for the largest visible content element to render. A target of < 2.5 seconds is considered good for user experience.",
+      "category": "Performance",
+      "handbookId": "requirements"
+    },
+    {
+      "term": "List Virtualization",
+      "definition": "A technique for handling long lists by only rendering items within the viewport plus a small buffer, reusing DOM elements when scrolling. This prevents performance issues from rendering thousands of rows at once.",
+      "category": "Performance",
+      "handbookId": "performance"
+    },
+    {
+      "term": "Logical CSS Properties",
+      "definition": "CSS properties that refer to the writing direction (e.g., `margin-inline-start`, `padding-block-end`) rather than physical directions (e.g., `margin-left`). They automatically adapt to RTL layouts without additional overrides.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Macrotask",
+      "definition": "A task that is scheduled to run after the current execution context, such as setTimeout, setInterval, I/O events, or UI rendering events. The event loop picks one macrotask per iteration, then processes all pending microtasks before moving to the next macrotask.",
+      "category": "JavaScript",
+      "handbookId": "eventloop"
+    },
+    {
+      "term": "Memory Leak",
+      "definition": "A condition where allocated memory is no longer needed but is not released, causing the application's memory usage to grow over time. Common frontend causes include unremoved event listeners, uncleared timers, closures holding large references, and detached DOM nodes still referenced by JavaScript.",
+      "category": "Performance",
+      "handbookId": "jsengine"
+    },
+    {
+      "term": "Micro-frontends",
+      "definition": "An architectural pattern where a large frontend application is split into smaller, independently deployable parts owned by separate teams. It solves organizational scaling issues but adds complexity in build processes, shared dependencies, and performance.",
+      "category": "Architecture",
+      "handbookId": "architecture"
+    },
+    {
+      "term": "Microtask",
+      "definition": "A task that is executed after the currently executing script and before the next macrotask, typically created by Promises, MutationObserver, or queueMicrotask. The event loop clears the entire microtask queue after each macrotask, making Promise.then run before setTimeout even with 0ms delay.",
+      "category": "JavaScript",
+      "handbookId": "eventloop"
+    },
+    {
+      "term": "Mock",
+      "definition": "A test double that replaces a real dependency (e.g., network, time) with a controlled simulation to isolate the unit under test. Over-mocking can create false confidence; best practice is to mock only at system boundaries like network or storage.",
+      "category": "Testing",
+      "handbookId": "advtesting"
+    },
+    {
+      "term": "Mock Service Worker",
+      "abbr": "MSW",
+      "definition": "A library that intercepts network requests at the service worker level, allowing tests to use real `fetch` calls without modifying application code. It provides consistent mocks across testing and development environments, reducing test-knowledge of implementation details.",
+      "category": "Testing",
+      "handbookId": "advtesting"
+    },
+    {
+      "term": "Modular monolith",
+      "definition": "A single application with well-defined module boundaries that could be split into micro-frontends later if needed. It is preferred over micro-frontends for most teams due to lower complexity.",
+      "category": "Architecture",
+      "handbookId": "scale"
+    },
+    {
+      "term": "Module Federation",
+      "definition": "A Webpack 5 feature that allows multiple independently built applications to share code and render each other at runtime. It enables micro-frontends by letting a host app consume remote modules from other builds.",
+      "category": "Build & Tooling",
+      "handbookId": "modfed"
+    },
+    {
+      "term": "Monorepo",
+      "definition": "A development strategy where multiple projects share a single repository, enabling code reuse, unified tooling, and atomic commits. It contrasts with polyrepo where each project has its own repository.",
+      "category": "Build & Tooling",
+      "handbookId": "scale"
+    },
+    {
+      "term": "MVP",
+      "abbr": "Minimum Viable Product",
+      "definition": "The smallest set of features that delivers value to users and allows for early feedback. In system design interviews, clarifying MVP vs nice-to-have features is critical for scoping.",
+      "category": "Architecture",
+      "handbookId": "requirements"
+    },
+    {
+      "term": "Optimistic UI",
+      "definition": "A pattern where the user interface updates immediately in response to an action (e.g., liking a post) before the server confirms, then rolls back if an error occurs. It provides instant feedback and improves perceived performance despite network latency.",
+      "category": "Rendering",
+      "handbookId": "realtime"
+    },
+    {
+      "term": "p95 latency",
+      "definition": "The 95th percentile latency, meaning 95% of requests are faster than this value. It is more meaningful than average latency because it reveals the experience of the slowest users, which is critical for identifying performance issues that affect real customers.",
+      "category": "Performance",
+      "handbookId": "tracing"
+    },
+    {
+      "term": "Performance budget",
+      "definition": "A set of predefined limits on metrics like page load time, bundle size, or number of requests that a team agrees not to exceed. It acts as a guardrail to prevent performance degradation over time and is enforced during development and CI/CD.",
+      "category": "Performance",
+      "handbookId": "monitoring"
+    },
+    {
+      "term": "Polling",
+      "definition": "A technique where the client repeatedly sends requests to the server at fixed intervals to check for new data. It is simple to implement but inefficient for real-time updates, making it suitable only for non-urgent or low-frequency scenarios.",
+      "category": "Networking",
+      "handbookId": "realtime"
+    },
+    {
+      "term": "Polyrepo",
+      "definition": "A development approach where each project or team maintains its own separate repository. It provides team autonomy but can lead to code duplication and integration challenges compared to monorepos.",
+      "category": "Build & Tooling",
+      "handbookId": "scale"
+    },
+    {
+      "term": "preconnect",
+      "definition": "An HTML link relation that instructs the browser to initiate early connections (DNS, TCP, TLS) to a specified origin before the actual resource request. It is used for critical third-party domains like CDNs or APIs to shave off hundreds of milliseconds of latency.",
+      "category": "Performance",
+      "handbookId": "protocol"
+    },
+    {
+      "term": "Progressive Web App",
+      "abbr": "PWA",
+      "definition": "A web application that uses modern browser capabilities to provide an app-like experience, including offline support, push notifications, and the ability to be installed on the user's device. Requires HTTPS, a Web App Manifest, and a Service Worker.",
+      "category": "Architecture",
+      "handbookId": "pwa"
+    },
+    {
+      "term": "Race condition",
+      "definition": "A situation where the outcome depends on the timing of asynchronous operations. In autocomplete, it occurs when a slow response arrives after a faster one, causing stale data to be displayed.",
+      "category": "JavaScript",
+      "handbookId": "components"
+    },
+    {
+      "term": "RADIO framework",
+      "abbr": "RADIO",
+      "definition": "A mnemonic for frontend system design interviews that guides candidates through Requirements, Architecture, Design, Implementation, and Optimization. It ensures systematic thinking and helps avoid missing critical steps during the design process.",
+      "category": "Architecture",
+      "handbookId": "intro"
+    },
+    {
+      "term": "React Query",
+      "definition": "A library for managing server state in React applications, providing hooks for fetching, caching, synchronizing, and updating asynchronous data. It handles caching, deduplication, background refetching, and stale data management, reducing the need to write custom loading/error logic.",
+      "category": "State Management",
+      "handbookId": "state"
+    },
+    {
+      "term": "React Server Components",
+      "abbr": "RSC",
+      "definition": "A React feature where components run on the server and no JavaScript is sent to the client for that part. This reduces bundle size and improves performance by moving data fetching and rendering to the server.",
+      "category": "Rendering",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "Real User Monitoring",
+      "abbr": "RUM",
+      "definition": "A method of collecting performance data from actual users in production, capturing real device and network conditions. Unlike lab data from tools like Lighthouse, RUM reflects real-world variability and is used by Google for SEO rankings via the Chrome User Experience Report (CrUX).",
+      "category": "Performance",
+      "handbookId": "monitoring"
+    },
+    {
+      "term": "Redux",
+      "definition": "A predictable state container for JavaScript apps based on the Flux pattern. It uses a single global store, pure reducers to update state, and actions to describe changes, making debugging easier with time-travel debugging and clear change history.",
+      "category": "State Management",
+      "handbookId": "state"
+    },
+    {
+      "term": "Reflow",
+      "definition": "The process of recalculating the positions and sizes of elements in the document when the DOM or CSS changes. Reflow is expensive because it affects the entire layout tree; it is triggered by actions like changing element dimensions, adding/removing DOM nodes, or reading layout properties like offsetTop.",
+      "category": "Rendering",
+      "handbookId": "browser"
+    },
+    {
+      "term": "Render props",
+      "definition": "A React pattern where a component accepts a function as a prop to control what is rendered. It provides flexibility for customization without adding many props.",
+      "category": "Architecture",
+      "handbookId": "components"
+    },
+    {
+      "term": "Repaint",
+      "definition": "The process of redrawing pixels on the screen when visual changes do not affect layout, such as changing background color or visibility. Repaint is less expensive than reflow but still impacts performance; it is triggered by changes to properties like color, background, or box-shadow.",
+      "category": "Rendering",
+      "handbookId": "browser"
+    },
+    {
+      "term": "requestAnimationFrame",
+      "abbr": "rAF",
+      "definition": "A browser API that schedules a function to run before the next repaint, allowing smooth animations and efficient DOM updates. It is used to batch visual changes and avoid layout thrashing, as the callback runs just before the browser performs layout and paint.",
+      "category": "Browser",
+      "handbookId": "browser"
+    },
+    {
+      "term": "requestIdleCallback",
+      "abbr": "rIC",
+      "definition": "A browser API that schedules a function to run when the main thread is idle, allowing non-urgent tasks to be performed without impacting critical rendering. It is useful for yielding the thread during heavy computations to prevent UI freezing.",
+      "category": "Browser",
+      "handbookId": "eventloop"
+    },
+    {
+      "term": "Responsive Images",
+      "definition": "A technique that serves different image sizes based on the user's device and screen resolution using the srcset and sizes attributes. This ensures images are displayed at the appropriate size without loading unnecessarily large files on smaller screens.",
+      "category": "Performance",
+      "handbookId": "assets"
+    },
+    {
+      "term": "REST",
+      "abbr": "REST",
+      "definition": "Representational State Transfer is an architectural style for APIs that uses standard HTTP methods (GET, POST, PUT, DELETE) to interact with resources identified by unique URLs. It can lead to over-fetching or under-fetching because the server returns the entire resource representation regardless of client needs.",
+      "category": "Architecture",
+      "handbookId": "network"
+    },
+    {
+      "term": "Right-to-Left",
+      "abbr": "RTL",
+      "definition": "A text direction used by languages like Arabic and Hebrew. Supporting RTL requires using logical CSS properties (e.g., `margin-inline-start`) instead of physical ones (e.g., `margin-left`) to automatically mirror layouts.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Screen Reader",
+      "definition": "Assistive technology that reads on-screen content aloud for visually impaired users. Proper semantic HTML and ARIA attributes ensure screen readers can navigate and interpret web content correctly.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Semantic HTML",
+      "definition": "Using HTML elements according to their intended meaning (e.g., `<nav>`, `<button>`, `<h1>`) rather than generic `<div>` or `<span>`. It provides built-in accessibility features like focus management and keyboard interaction without extra ARIA.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Semantic Versioning",
+      "abbr": "SemVer",
+      "definition": "A versioning scheme (MAJOR.MINOR.PATCH) used for component libraries to communicate breaking changes. Changing a required prop constitutes a major version, while adding features is a minor version.",
+      "category": "Build & Tooling",
+      "handbookId": "designsystem"
+    },
+    {
+      "term": "Server State",
+      "definition": "Data that is fetched from and synchronized with a remote server, such as API responses. Unlike client state, server state is asynchronous, can become stale, and requires refetching, caching, and deduplication, which is best handled by libraries like React Query or SWR rather than a global store.",
+      "category": "State Management",
+      "handbookId": "state"
+    },
+    {
+      "term": "Server-Sent Events",
+      "abbr": "SSE",
+      "definition": "A technology that enables servers to push real-time updates to clients over a single HTTP connection, using a simple text-based protocol. It is lightweight, supports auto-reconnection, and is ideal for unidirectional data flows like notifications or stock tickers.",
+      "category": "Networking",
+      "handbookId": "realtime"
+    },
+    {
+      "term": "Server-Side Rendering",
+      "abbr": "SSR",
+      "definition": "A rendering pattern where HTML is generated on the server for each request and sent to the client. This improves SEO and initial load performance but can increase server cost and complexity compared to client-side rendering.",
+      "category": "Rendering",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "Service Worker",
+      "definition": "A background proxy between the app and the network that enables offline functionality, instant loading on subsequent visits, and push notifications. It is the foundation of Progressive Web Apps (PWAs).",
+      "category": "Browser",
+      "handbookId": "pwa"
+    },
+    {
+      "term": "Single Responsibility Principle",
+      "abbr": "SRP",
+      "definition": "A design principle stating that each component should have one clear responsibility. It improves reusability, testability, and maintainability by avoiding components that do too many things.",
+      "category": "Architecture",
+      "handbookId": "components"
+    },
+    {
+      "term": "Source map",
+      "definition": "A file that maps minified or transpiled code back to the original source code, enabling readable stack traces in error monitoring tools. For production, source maps should be uploaded privately (e.g., to Sentry) and not deployed publicly to avoid exposing source code.",
+      "category": "Build & Tooling",
+      "handbookId": "monitoring"
+    },
+    {
+      "term": "Spy",
+      "definition": "A test double that records information about how a function was called (e.g., arguments, call count) without replacing its real implementation. Useful for verifying side effects or interactions without fully mocking the dependency.",
+      "category": "Testing",
+      "handbookId": "advtesting"
+    },
+    {
+      "term": "Stale-while-revalidate",
+      "definition": "A caching strategy that immediately returns stale data to the UI for smoothness while fetching fresh data in the background. This is the core pattern behind libraries like SWR and React Query.",
+      "category": "Architecture",
+      "handbookId": "caching"
+    },
+    {
+      "term": "Starvation",
+      "definition": "A condition where the event loop cannot reach the rendering step because microtasks continuously create new microtasks, preventing the browser from updating the UI. This can cause the page to freeze, and it is avoided by using setTimeout or requestIdleCallback to yield the thread.",
+      "category": "JavaScript",
+      "handbookId": "eventloop"
+    },
+    {
+      "term": "Static Site Generation",
+      "abbr": "SSG",
+      "definition": "A rendering pattern where HTML is generated at build time and served as static files. This provides excellent performance and SEO but is not suitable for content that changes frequently or is user-specific.",
+      "category": "Rendering",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "Storybook",
+      "definition": "A tool for developing, documenting, and testing UI components in isolation from the application. Each 'story' serves as documentation, a development playground, and input for visual regression tests, promoting maintainability and collaboration in design systems.",
+      "category": "Testing",
+      "handbookId": "storybook"
+    },
+    {
+      "term": "Streaming SSR",
+      "definition": "A technique where the server sends HTML in chunks, allowing the browser to render progressively instead of waiting for the entire page. This improves perceived performance and reduces Time to First Byte (TTFB).",
+      "category": "Rendering",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "String Externalization",
+      "definition": "The practice of moving all user-facing strings out of code into separate translation files or key-value stores. It enables localization without modifying application logic and is a fundamental step in internationalization.",
+      "category": "Accessibility",
+      "handbookId": "a11y"
+    },
+    {
+      "term": "Stub",
+      "definition": "A test double that provides predefined responses to calls made during the test, without verifying how many times or in what order they are called. It is simpler than a mock and used to replace dependencies that return data.",
+      "category": "Testing",
+      "handbookId": "advtesting"
+    },
+    {
+      "term": "SWR",
+      "definition": "A React Hooks library for data fetching that stands for 'stale-while-revalidate'. It returns cached (stale) data first, then revalidates with the server, ensuring a fast initial render while keeping data up-to-date. It handles caching, deduplication, and automatic refetching.",
+      "category": "State Management",
+      "handbookId": "state"
+    },
+    {
+      "term": "Testing Library",
+      "definition": "A testing utility that encourages testing components by user-visible attributes like role, label, and text rather than implementation details. It reduces test brittleness and ensures tests catch real user-facing bugs during refactoring.",
+      "category": "Testing",
+      "handbookId": "testing"
+    },
+    {
+      "term": "Testing Pyramid",
+      "definition": "A model that categorizes tests into layers (unit, integration, e2e) based on scope and speed. It guides teams to write many fast, isolated unit tests, fewer integration tests, and even fewer slow end-to-end tests to maximize confidence with minimal maintenance cost.",
+      "category": "Testing",
+      "handbookId": "testing"
+    },
+    {
+      "term": "Testing Trophy",
+      "definition": "A variant of the testing pyramid that emphasizes integration tests over unit tests, reflecting how users interact with the app. It suggests focusing on tests that exercise components together, catching real user-facing bugs while still being fast and reliable.",
+      "category": "Testing",
+      "handbookId": "testing"
+    },
+    {
+      "term": "Time to Interactive",
+      "abbr": "TTI",
+      "definition": "A performance metric that measures how long it takes for a page to become fully interactive, including event handlers being attached. Heavy hydration processes can delay TTI.",
+      "category": "Performance",
+      "handbookId": "rendering"
+    },
+    {
+      "term": "TLS handshake",
+      "definition": "The process of establishing a secure encrypted connection between client and server using Transport Layer Security. It involves multiple round trips (certificate exchange, key agreement) which can make HTTPS feel slow on first visit, but subsequent connections benefit from session resumption.",
+      "category": "Networking",
+      "handbookId": "protocol"
+    },
+    {
+      "term": "Trace ID",
+      "definition": "A unique identifier initialized by the frontend and propagated to backend services via headers (e.g., traceparent per W3C Trace Context) to link all parts of a distributed request. It enables end-to-end tracing, helping debug latency issues across the entire system.",
+      "category": "Architecture",
+      "handbookId": "tracing"
+    },
+    {
+      "term": "Tree-shaking",
+      "definition": "A dead code elimination technique used by bundlers to remove unused exports from JavaScript modules. This reduces bundle size by only including the code that is actually imported and used.",
+      "category": "Build & Tooling",
+      "handbookId": "bundler"
+    },
+    {
+      "term": "Unit Test",
+      "definition": "A test that isolates and verifies a single function, component, or module in isolation from its dependencies. It is fast and reliable but may miss integration bugs; best used for pure logic or utility functions.",
+      "category": "Testing",
+      "handbookId": "testing"
+    },
+    {
+      "term": "Virtualization",
+      "definition": "A rendering technique that only renders items visible in the viewport, improving performance for long lists. It is commonly used in autocomplete dropdowns with many options.",
+      "category": "Performance",
+      "handbookId": "components"
+    },
+    {
+      "term": "Visual Regression Test",
+      "definition": "An automated test that compares screenshots of components before and after changes to detect unintended visual differences. Often integrated with Storybook to catch styling or layout regressions without manual review.",
+      "category": "Testing",
+      "handbookId": "storybook"
+    },
+    {
+      "term": "Vite",
+      "definition": "A modern build tool that uses native ES modules during development for near-instant server startup and Hot Module Replacement (HMR). For production, it bundles using Rollup for optimization. It is known for excellent developer experience.",
+      "category": "Build & Tooling",
+      "handbookId": "bundler"
+    },
+    {
+      "term": "Web App Manifest",
+      "definition": "A JSON file that provides metadata about a web application, including its name, icons, and theme colors. It is required for a PWA to be installable on a user's device.",
+      "category": "Browser",
+      "handbookId": "pwa"
+    },
+    {
+      "term": "Web Components",
+      "definition": "A set of browser APIs (Custom Elements, Shadow DOM, HTML Templates) that allow creating reusable, encapsulated HTML elements. They are framework-agnostic and can be used as an alternative to Module Federation.",
+      "category": "Browser",
+      "handbookId": "modfed"
+    },
+    {
+      "term": "WebSocket",
+      "definition": "A protocol that provides full-duplex communication channels over a single TCP connection, enabling real-time bidirectional data exchange. It is suitable for high-frequency interactions like chat or collaborative editing, but requires managing reconnection and heartbeat logic.",
+      "category": "Networking",
+      "handbookId": "realtime"
+    }
+  ]
+}

@@ -18,8 +18,8 @@ export default async function MarketingLayout({ children }: { children: React.Re
             <span className="font-semibold tracking-tight">Interview Coach</span>
           </Link>
           <nav className="flex items-center gap-2">
-            <Link href="/resources/frontend-system-design" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-              Handbook
+            <Link href="/resources" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+              Resources
             </Link>
             <Link href="/demo" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
               Demo

@@ -58,7 +58,7 @@ export function StudyDiagram({ svgHtml }: Props) {
         - [&_svg]:h-auto lets height scale proportionally
       */}
       <div
-        className="w-full overflow-x-auto overflow-y-auto max-h-[520px] [&_svg]:max-w-full [&_svg]:h-auto"
+        className="w-full overflow-x-auto overflow-y-auto max-h-[520px] flex justify-center [&_svg]:max-w-full [&_svg]:h-auto"
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: sizeSvg(svgHtml) }}
       />

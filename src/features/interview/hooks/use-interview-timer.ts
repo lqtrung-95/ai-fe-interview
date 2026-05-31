@@ -1,37 +1,64 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useInterviewStore } from '../interview-store';
 
 /**
  * Drives the per-question countdown timer.
  *
- * - Ticks every second while phase === 'answering' and timerActive === true.
- * - When timeLeft reaches 1, auto-submits via the provided callback before
- *   decrementing (so the answer is submitted at t=0, not before).
- * - Cleanup on unmount or when dependencies change prevents stale intervals.
+ * Design decisions that prevent the common bugs:
+ *
+ * 1. `submitAnswer` and `onExpiredEmpty` are stored in refs — their identity
+ *    changing (e.g. on every keystroke) does NOT restart the interval.
+ *
+ * 2. `timeLeft` is read directly from the store inside the interval callback
+ *    rather than being a reactive dep — this means typing in the textarea
+ *    (which triggers re-renders) does NOT clear/restart the interval.
+ *
+ * 3. The interval only re-registers when `phase` or `timerActive` change —
+ *    meaningful state transitions, not incidental re-renders.
+ *
+ * 4. When time expires with an empty draft `onExpiredEmpty` is called instead
+ *    of silently bailing, so the session always progresses.
  */
-export function useInterviewTimer(submitAnswer: () => Promise<void>) {
+export function useInterviewTimer(
+  submitAnswer: () => Promise<void>,
+  onExpiredEmpty: () => void,
+) {
   const phase = useInterviewStore((s) => s.phase);
   const timerActive = useInterviewStore((s) => s.timerActive);
-  const timeLeft = useInterviewStore((s) => s.timeLeft);
-  const tickTimer = useInterviewStore((s) => s.tickTimer);
+
+  // Stable refs — interval callback always sees the latest version
+  // without making them reactive deps that would restart the interval.
+  const submitRef = useRef(submitAnswer);
+  const onExpiredEmptyRef = useRef(onExpiredEmpty);
+  useEffect(() => { submitRef.current = submitAnswer; });
+  useEffect(() => { onExpiredEmptyRef.current = onExpiredEmpty; });
 
   useEffect(() => {
-    if (phase !== 'answering' || !timerActive || timeLeft <= 0) return;
+    if (phase !== 'answering' || !timerActive) return;
 
     const id = setInterval(() => {
+      // Read directly from store — avoids stale closure without adding timeLeft
+      // to the dep array (which would restart the interval every second).
+      const { timeLeft, draft, tickTimer, stopTimer } = useInterviewStore.getState();
+
       if (timeLeft <= 1) {
         clearInterval(id);
-        // Tick to 0:00 first so the display reaches zero regardless of whether
-        // submitAnswer does anything (e.g. empty draft guard).
-        tickTimer();
-        void submitAnswer();
+        tickTimer(); // tick to 0:00 so the display reaches zero
+        stopTimer();
+        if (draft.trim()) {
+          void submitRef.current();       // normal submit
+        } else {
+          onExpiredEmptyRef.current();    // force-submit empty (AI handles timeout)
+        }
       } else {
         tickTimer();
       }
     }, 1000);
 
     return () => clearInterval(id);
-  }, [phase, timerActive, timeLeft, tickTimer, submitAnswer]);
+  // Only restart on meaningful transitions, NOT on every timeLeft decrement
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, timerActive]);
 }

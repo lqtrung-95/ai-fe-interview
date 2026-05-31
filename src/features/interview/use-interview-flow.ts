@@ -59,15 +59,20 @@ export function useInterviewFlow(args: Args) {
     }
   }
 
-  async function submitAnswer() {
+  async function submitAnswer(force = false) {
     const { current, draft } = state;
-    if (!current || !draft.trim()) return;
+    // Normal submit: requires non-empty draft.
+    // force=true (timer expiry): submits even with empty draft so the AI can
+    // acknowledge the timeout and show what a good answer looks like.
+    if (!current) return;
+    if (!force && !draft.trim()) return;
+    state.stopTimer(); // stop ring during follow-up / feedback phases
     state.setError(null);
     state.setPhase('submitting');
     try {
       const answerId = await submitAnswerMutation.mutateAsync({
         questionId: current.questionId,
-        answer: draft,
+        answer: draft, // may be empty string on timeout — backend handles it
       });
       state.setAnswerId(answerId);
       await loadFollowUp(answerId);
@@ -75,6 +80,11 @@ export function useInterviewFlow(args: Args) {
       recordError(e, 'Failed to submit answer');
       state.setPhase('error');
     }
+  }
+
+  /** Called by the timer when it reaches 0 with an empty draft. */
+  function submitOnTimerExpiry() {
+    void submitAnswer(true);
   }
 
   async function loadFollowUp(answerId: string) {
@@ -143,8 +153,10 @@ export function useInterviewFlow(args: Args) {
     }
   }
 
-  // Drive per-question countdown; auto-submits when time runs out.
-  useInterviewTimer(submitAnswer);
+  // Drive per-question countdown.
+  // Both paths call submitAnswer — force=true allows the empty-draft case
+  // so the AI can acknowledge the timeout and show a model answer.
+  useInterviewTimer(submitAnswer, submitOnTimerExpiry);
 
   return {
     state,

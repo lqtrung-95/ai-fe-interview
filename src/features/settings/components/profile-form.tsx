@@ -156,7 +156,7 @@ export function ProfileForm({ userId, initialName, initialAvatarUrl, email }: Pr
           className="max-w-sm"
         />
         <p className="text-xs text-muted-foreground">
-          Shown in the sidebar and on your dashboard.
+          Shown in the app header and on your dashboard.
         </p>
       </div>
 

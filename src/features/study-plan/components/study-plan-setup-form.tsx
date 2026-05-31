@@ -76,7 +76,7 @@ export function StudyPlanSetupForm({ defaultTopics = [], defaultLevel = 'mid', d
           {LEVELS.map((l) => (
             <label key={l.value} className="group cursor-pointer">
               <input type="radio" name="level" value={l.value} defaultChecked={defaultLevel === l.value} className="sr-only peer" />
-              <span className="flex flex-col rounded-lg border p-3 transition-colors cursor-pointer
+              <span className="flex min-h-20 flex-col rounded-lg border p-3 transition-colors cursor-pointer
                 border-border bg-card
                 peer-checked:border-primary peer-checked:bg-primary/8
                 hover:border-foreground/30">
@@ -95,7 +95,7 @@ export function StudyPlanSetupForm({ defaultTopics = [], defaultLevel = 'mid', d
           {PREP_WINDOWS.map((w) => (
             <label key={w.weeks} className="group cursor-pointer">
               <input type="radio" name="prepWeeks" value={w.weeks} defaultChecked={defaultPrepWeeks === w.weeks} className="sr-only peer" />
-              <span className="flex flex-col rounded-lg border p-3 transition-colors cursor-pointer
+              <span className="flex min-h-20 flex-col rounded-lg border p-3 transition-colors cursor-pointer
                 border-border bg-card
                 peer-checked:border-primary peer-checked:bg-primary/8
                 hover:border-foreground/30">
