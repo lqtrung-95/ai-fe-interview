@@ -2533,7 +2533,36 @@
       "blocks": [
         {
           "type": "h3",
-          "text": "R — Requirements (clarify requirements)"
+          "text": "R — Requirements"
+        },
+        {
+          "type": "cards",
+          "items": [
+            {
+              "icon": "⚙️",
+              "title": "Functional",
+              "body": "Send/receive text messages in real-time, view conversation list, show delivery/read receipts (sent → delivered → read), typing indicators, media attachments (images/files), message history with infinite scroll upward."
+            },
+            {
+              "icon": "📐",
+              "title": "Non-Functional",
+              "body": "Message latency < 500ms (P99), 99.9% delivery guarantee, supports 10k concurrent users, smooth scroll through thousands of messages, works on 3G networks."
+            },
+            {
+              "icon": "📱",
+              "title": "Constraints",
+              "body": "Mobile-first (iOS/Android web), messages must queue offline and send on reconnect, support one-to-one and group chats up to 256 members."
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Key clarification questions:** One-to-one only or group chat? Max group size?",
+            "File/image attachments or text only? File size limit?",
+            "Push notifications when app is backgrounded?",
+            "End-to-end encryption required?"
+          ]
         },
         {
           "type": "h3",
@@ -2545,17 +2574,30 @@
           "caption": "Client architecture of chat"
         },
         {
+          "type": "p",
+          "html": "Key design decision: <strong>WebSocket</strong> (not SSE) because chat is <em>bidirectional</em> — the user both sends and receives over the same persistent connection. The <strong>Local Queue</strong> stores outgoing messages while offline, draining them in order when the WebSocket reconnects."
+        },
+        {
           "type": "h3",
           "text": "D — Data Model"
         },
         {
           "type": "pre",
-          "code": "// Normalized state: O(1) lookup, avoids duplication.\n{\n  messages: {\n    byId: { \"m1\": { id, text, senderId, status, sentAt } },\n    byConversation: { \"c1\": [\"m1\", \"m2\"] }\n  },\n  conversations: { byId: { \"c1\": { id, participants, lastMessageId } } },\n  // status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed'\n}",
-          "label": "JS"
+          "code": "interface Message {\n  id: string;              // server ID (replaces tempId after ack)\n  tempId?: string;         // client-generated, used for optimistic send\n  conversationId: string;\n  senderId: string;\n  text: string;\n  attachments: Attachment[];\n  status: 'sending' | 'sent' | 'delivered' | 'read' | 'failed';\n  sentAt: string;          // ISO 8601\n}\n\n// Normalized state: O(1) lookup, easy status updates\ninterface ChatState {\n  messages: {\n    byId: Record<string, Message>;\n    byConversation: Record<string, string[]>;  // conversationId → messageIds\n  };\n  conversations: { byId: Record<string, Conversation> };\n  ui: {\n    typingUsers: Record<string, string[]>;     // conversationId → userIds\n    localQueue: Message[];                     // pending offline messages\n  };\n}",
+          "label": "TypeScript — Normalized state"
         },
         {
           "type": "h3",
-          "text": "I — Interface / Optimizations"
+          "text": "I — Interface (API & WebSocket Events)"
+        },
+        {
+          "type": "pre",
+          "code": "// REST: initial data load\nGET  /conversations\n  → [{ id, participants, lastMessage, unreadCount }]\n\nGET  /conversations/:id/messages?before=<cursor>&limit=30\n  → { messages: Message[], prevCursor: string | null }\n\nPOST /media/upload-url\n  → { uploadUrl: string; attachmentId: string }\n\n// WebSocket JSON frames\n// Client → Server\n{ type: 'message', conversationId, tempId, text, attachmentIds }\n{ type: 'read',    conversationId, upToMessageId }\n{ type: 'typing',  conversationId, isTyping: true }\n\n// Server → Client\n{ type: 'message',  message: Message }          // new incoming message\n{ type: 'ack',      tempId, serverId, status }   // delivery confirmation\n{ type: 'typing',   conversationId, userId, isTyping }\n{ type: 'read',     conversationId, userId, upToMessageId }",
+          "label": "API contract"
+        },
+        {
+          "type": "h3",
+          "text": "O — Optimizations"
         },
         {
           "type": "cards",
@@ -2563,36 +2605,44 @@
             {
               "icon": "⚡",
               "title": "Optimistic send",
-              "body": "Display the message immediately with a \"sending\" status and a temporary ID. When the server acknowledges, replace it with the real ID. On error, mark it as failed and allow retry."
+              "body": "Display message immediately with 'sending' status and tempId. On server ack, swap tempId → serverId. On error, mark 'failed' and show a retry button."
             },
             {
               "icon": "📜",
               "title": "Virtual list",
-              "body": "Only render messages within the viewport. Load more on reverse scroll (infinite scroll upward), maintain scroll position."
+              "body": "Only render messages within the viewport. Load more on reverse scroll (infinite scroll upward). Maintain scroll anchor when prepending history — CSS overflow-anchor or manual scrollTop adjustment."
             },
             {
               "icon": "🔌",
               "title": "Reconnect & Sync",
-              "body": "WebSocket drops → exponential backoff. On reconnection, sync missed messages using the last timestamp/cursor."
+              "body": "WebSocket drops → exponential backoff (1s → 2s → 4s). On reconnection, fetch missed messages using the last known cursor, then drain the local queue in order."
             },
             {
               "icon": "⌨️",
-              "title": "Typing & presence",
-              "body": "Debounce typing events; send \"typing\" status at most every few seconds. Presence via periodic heartbeat."
+              "title": "Typing & Presence",
+              "body": "Debounce typing events; emit at most once every 3s. Clear typing indicator after 5s of silence. Presence via heartbeat ping every 30s."
             }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**A11y**: `role=\"log\"` + `aria-live=\"polite\"` on message list — screen readers announce new messages without interrupting the user.",
+            "**Security**: sanitize message content before rendering (prevent XSS via DOMPurify), validate file types server-side, use `Content-Security-Policy` headers.",
+            "**Message ordering**: always sort by server timestamp on display — client clocks drift, so client timestamps are only for optimistic ordering."
           ]
         },
         {
           "type": "callout",
           "variant": "key",
           "title": "Ensure no data loss",
-          "body": "Each message has a client-generated ID (idempotency key). When resending due to network loss, the same ID is used, and the server handles deduplication. Combine a local queue with IndexedDB so that messages composed offline are sent when connectivity is restored."
+          "body": "Each message has a client-generated idempotency key (tempId). When resending due to network loss, the same ID is used — the server deduplicates. Combine a local queue with IndexedDB so messages composed offline are sent when connectivity is restored."
         },
         {
           "type": "callout",
           "variant": "interview",
-          "title": "O — Evaluation Criteria",
-          "body": "The interviewer wants to hear your considerations: WebSocket vs SSE (chat requires two-way communication → WebSocket), how to handle incoming messages while scrolling through history, and resolving message order conflicts (sort by server timestamp)."
+          "title": "What the interviewer is listening for",
+          "body": "WebSocket vs SSE justification (chat needs two-way → WebSocket), how new messages are handled while the user is scrolled up through history (don't auto-scroll — show a 'scroll to bottom' badge), and how message order conflicts are resolved (always sort by server timestamp)."
         },
         {
           "type": "quiz",
@@ -2616,7 +2666,40 @@
       "blocks": [
         {
           "type": "h3",
-          "text": "Key points to address correctly."
+          "text": "R — Requirements"
+        },
+        {
+          "type": "cards",
+          "items": [
+            {
+              "icon": "⚙️",
+              "title": "Functional",
+              "body": "Show dropdown suggestions as user types, navigate suggestions with keyboard (↑↓ Enter Esc), select suggestion to fill input, support async remote data source, show loading/empty states."
+            },
+            {
+              "icon": "📐",
+              "title": "Non-Functional",
+              "body": "Perceived response < 100ms for cached queries, < 300ms for fresh API requests. No stale/wrong results shown (race-condition-free). Accessible to keyboard and screen reader users."
+            },
+            {
+              "icon": "📱",
+              "title": "Constraints",
+              "body": "Works with mobile virtual keyboards, generic API (supports any data type via props), must be composable — caller provides data-fetching logic."
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Key clarification questions:** Local static list or remote API? (changes architecture significantly)",
+            "Maximum number of suggestions shown at once? (affects virtualization need)",
+            "Should partial matches highlight the matching substring?",
+            "Multi-select or single-select?"
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "A — Architecture & Data Flow"
         },
         {
           "type": "diagram",
@@ -2625,24 +2708,46 @@
         },
         {
           "type": "h3",
-          "text": "Handling race conditions"
+          "text": "D — Data Model"
         },
         {
           "type": "pre",
-          "code": "useEffect(() => {\n  const controller = new AbortController();\n  fetch(`/search?q=` + query, { signal: controller.signal })\n    .then(r => r.json())\n    .then(setResults)\n    .catch(e => { if (e.name !== 'AbortError') handle(e); });\n  // cleanup: cancel the old request when the query changes or on unmount\n  return () => controller.abort();\n}, [query]);",
-          "label": "JS"
+          "code": "interface AutocompleteState {\n  query: string;\n  results: Suggestion[];\n  selectedIndex: number;          // -1 = none, 0..n = highlighted item\n  isOpen: boolean;\n  isLoading: boolean;\n  error: string | null;\n  cache: Map<string, Suggestion[]>; // query → results, cleared on unmount\n}\n\ninterface Suggestion {\n  id: string;\n  label: string;                  // displayed text\n  metadata?: Record<string, unknown>; // caller-defined extra data\n}",
+          "label": "TypeScript — state shape"
+        },
+        {
+          "type": "h3",
+          "text": "I — Interface (Props API)"
+        },
+        {
+          "type": "pre",
+          "code": "interface AutocompleteProps<T extends Suggestion> {\n  // Data source — caller owns the fetching logic\n  fetchSuggestions: (query: string) => Promise<T[]>;\n\n  // Display customization\n  renderOption?: (item: T, isHighlighted: boolean) => ReactNode;\n  getOptionLabel: (item: T) => string;\n\n  // Behavior tuning\n  debounceMs?: number;    // default 300\n  minChars?: number;      // default 1 — no fetch until N chars typed\n  maxResults?: number;    // default 10\n\n  // Controlled mode\n  value?: T | null;\n  onChange?: (item: T | null) => void;\n\n  // Slots\n  placeholder?: string;\n  emptyMessage?: string;\n  loadingMessage?: string;\n}\n\n// Server endpoint\nGET /search?q={query}&limit=10\n  → { suggestions: [{ id, label, ...metadata }] }",
+          "label": "Props API + server contract"
+        },
+        {
+          "type": "h3",
+          "text": "O — Key Optimizations"
+        },
+        {
+          "type": "h3",
+          "text": "Handling Race Conditions"
+        },
+        {
+          "type": "pre",
+          "code": "useEffect(() => {\n  if (query.length < minChars) return;\n\n  // Check cache first\n  if (cache.has(query)) {\n    setResults(cache.get(query)!);\n    return;\n  }\n\n  const controller = new AbortController();\n  setIsLoading(true);\n\n  fetchSuggestions(query, { signal: controller.signal })\n    .then(results => {\n      cache.set(query, results);   // store in session cache\n      setResults(results);\n    })\n    .catch(e => { if (e.name !== 'AbortError') setError(e.message); })\n    .finally(() => setIsLoading(false));\n\n  // Cancel the in-flight request when query changes or unmount\n  return () => controller.abort();\n}, [query]);",
+          "label": "Race condition + cache"
         },
         {
           "type": "callout",
           "variant": "key",
-          "title": "Accessibility — don't forget.",
-          "body": "Use the combobox pattern: `aria-expanded`, `aria-activedescendant` pointing to the currently selected item, navigation with ↑↓, Enter to select, Esc to close. This is a point many candidates overlook, but interviewers pay close attention to."
+          "title": "Accessibility — the point many candidates miss",
+          "body": "Use the ARIA combobox pattern: `role=\"combobox\"` on the input with `aria-expanded`, `aria-autocomplete=\"list\"`, `aria-controls` pointing to the listbox. Set `aria-activedescendant` to the ID of the highlighted option. Keyboard: ↑↓ to navigate, Enter to select, Esc to close and restore original value, Tab to close."
         },
         {
           "type": "callout",
           "variant": "tip",
           "title": "Query caching",
-          "body": "Cache results by query (Map). When the user deletes and retypes the same word, return immediately from cache — no API call. Combine with debounce to significantly reduce the number of requests."
+          "body": "Cache results by query in a Map. When the user deletes and retypes the same word, return immediately from cache — no API call. Combine with 300ms debounce to reduce requests by ~80%. For very long lists (100+ suggestions), add virtualization to the dropdown."
         },
         {
           "type": "quiz",
@@ -2669,8 +2774,37 @@
           "text": "R — Requirements"
         },
         {
+          "type": "cards",
+          "items": [
+            {
+              "icon": "⚙️",
+              "title": "Functional",
+              "body": "Browse photos in a responsive masonry/justified grid, infinite scroll to load more, click photo to open fullscreen lightbox with prev/next navigation, search/filter by date or album."
+            },
+            {
+              "icon": "📐",
+              "title": "Non-Functional",
+              "body": "Above-the-fold images visible in < 1s, smooth 60fps scroll with 10,000+ photos, no CLS when images load, lightbox opens in < 200ms."
+            },
+            {
+              "icon": "📱",
+              "title": "Constraints",
+              "body": "Various image aspect ratios (portrait, landscape, square), mobile-first with pinch-to-zoom in lightbox, bandwidth-conscious (serve thumbnails; full res only on demand)."
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Key clarification questions:** Fixed grid (equal tiles) or justified layout (variable width, consistent row height)?",
+            "User's own photos only or shared albums?",
+            "Upload feature required or read-only gallery?",
+            "Max photos per gallery? (affects pagination strategy)"
+          ]
+        },
+        {
           "type": "h3",
-          "text": "A — Key Techniques"
+          "text": "A — Architecture & Key Techniques"
         },
         {
           "type": "diagram",
@@ -2678,35 +2812,71 @@
           "caption": "Virtualized grid: only render images within the viewport."
         },
         {
+          "type": "p",
+          "html": "Key design decisions: Server must return <code>width</code> and <code>height</code> for each photo so the browser can reserve the correct space before the image loads — essential for a CLS-free justified layout. Virtual DOM recycling keeps memory flat regardless of gallery size."
+        },
+        {
           "type": "cards",
           "items": [
             {
               "icon": "🖼️",
-              "title": "Responsive thumbnail",
-              "body": "The server generates multiple sizes; srcset ensures each device loads the correct resolution. The lightbox only loads the full version."
+              "title": "Responsive thumbnails",
+              "body": "Server generates multiple sizes (200px, 400px, 800px). srcset + sizes attributes ensure each device loads the correct resolution. Full-res loaded only on lightbox open."
             },
             {
               "icon": "⏳",
-              "title": "Lazy + placeholder",
-              "body": "Display average color or blur-up (LQIP) while loading → creates a fast feel and prevents layout shifts."
+              "title": "LQIP blur-up",
+              "body": "Display average color or blur-up placeholder while loading → creates a fast feel and prevents layout shifts. Server returns blurDataUrl alongside each photo."
             },
             {
               "icon": "♻️",
-              "title": "Reuse DOM node",
-              "body": "When scrolling, reuse virtual nodes that have left the screen instead of creating new ones → reduces GC pressure."
+              "title": "DOM node recycling",
+              "body": "When scrolling, reuse virtual nodes that have left the screen instead of creating new ones → reduces GC pressure and keeps memory stable."
             },
             {
               "icon": "🔍",
               "title": "Lightbox preload",
-              "body": "When opening an image, preload the previous/next image to enable smooth transitions without waiting."
+              "body": "When opening an image, preload the adjacent prev/next images to enable smooth navigation without latency."
             }
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "D — Data Model"
+        },
+        {
+          "type": "pre",
+          "code": "interface Photo {\n  id: string;\n  url: string;           // full-resolution URL (lazy-loaded in lightbox)\n  thumbnailUrl: string;  // 400px thumbnail URL\n  blurDataUrl: string;   // tiny base64 LQIP placeholder\n  width: number;         // original pixel width — required for layout calc\n  height: number;        // original pixel height\n  takenAt: string;       // ISO 8601\n  alt: string;\n}\n\ninterface GalleryState {\n  photos: {\n    byId: Record<string, Photo>;\n    displayOrder: string[];     // ordered photo IDs\n    nextCursor: string | null;\n  };\n  layout: PhotoLayout[];       // pre-calculated positions (top, left, w, h)\n  lightbox: {\n    isOpen: boolean;\n    currentId: string | null;\n    isTransitioning: boolean;\n  };\n}",
+          "label": "TypeScript — state shape"
+        },
+        {
+          "type": "h3",
+          "text": "I — Interface (API)"
+        },
+        {
+          "type": "pre",
+          "code": "// Paginated photo list\nGET /photos?cursor=<c>&limit=30&albumId=<id>\n  → {\n      photos: [{ id, thumbnailUrl, blurDataUrl, width, height, takenAt, alt }],\n      nextCursor: string | null\n    }\n\n// Full-res on demand (only fetched when lightbox opens)\nGET /photos/:id\n  → { ...Photo, url: string }   // includes full-resolution URL\n\n// Upload (if required)\nPOST /photos/upload-url\n  → { uploadUrl: string; photoId: string }\n// Client PUTs binary directly to CDN via uploadUrl",
+          "label": "API contract"
+        },
+        {
+          "type": "h3",
+          "text": "O — Optimizations"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Justified layout math**: server returns width/height per photo. Client runs a layout algorithm (e.g., Google's bin-packing) to compute row heights and positions. Cache layout to avoid recalculation on every scroll.",
+            "**Scroll anchor on load more**: when fetching older photos above, record `scrollTop` before appending and restore it after to prevent the viewport jumping.",
+            "**IntersectionObserver** on bottom sentinel → fetch next batch when within 300px of fold.",
+            "**Lightbox keyboard a11y**: trap focus inside lightbox (`Tab`/`Shift+Tab`), `ArrowLeft`/`ArrowRight` navigate, `Escape` closes, `role=\"dialog\"` + `aria-label`.",
+            "**Pinch-to-zoom**: use native CSS `touch-action: manipulation` + a library like `react-zoom-pan-pinch` for mobile lightbox."
           ]
         },
         {
           "type": "callout",
           "variant": "interview",
-          "title": "O — Points the interviewer pays attention to",
-          "body": "How to calculate grid layout when images have different aspect ratios (justified layout like Google Photos requires knowing dimensions in advance — server returns width/height), and how to maintain scroll position when loading more images above."
+          "title": "What the interviewer pays attention to",
+          "body": "How to calculate justified grid layout when images have different aspect ratios (server must return dimensions), how to maintain scroll position when loading more images, and what happens when a user opens a lightbox for a photo not yet loaded at full-res (show blur-up, load in background, fade in)."
         },
         {
           "type": "quiz",
@@ -2733,8 +2903,37 @@
           "text": "R — Requirements"
         },
         {
+          "type": "cards",
+          "items": [
+            {
+              "icon": "⚙️",
+              "title": "Functional",
+              "body": "Display millions of rows with 50+ columns, sort by any column, multi-column filter, inline cell editing, sticky first column + header row, column resize/reorder, row selection, CSV export."
+            },
+            {
+              "icon": "📐",
+              "title": "Non-Functional",
+              "body": "< 16ms frame budget during scroll (60fps), < 500ms for sort/filter operations, support 1M rows × 50 columns without browser freeze, optimistic inline edits."
+            },
+            {
+              "icon": "📱",
+              "title": "Constraints",
+              "body": "Desktop-first (financial users), rows may have variable height (text wrap), must not load all data into memory, real-time updates from other users editing."
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Key clarification questions:** Fixed or variable row height? (variable height dramatically increases virtualization complexity)",
+            "Real-time collaborative editing or single-user?",
+            "How many columns max? Are columns user-configurable?",
+            "Export format requirements? (CSV, Excel, PDF)"
+          ]
+        },
+        {
           "type": "h3",
-          "text": "A — Bidirectional Virtualization"
+          "text": "A — Architecture"
         },
         {
           "type": "diagram",
@@ -2742,25 +2941,52 @@
           "caption": "Only render cells within the visible area (both rows & columns)."
         },
         {
+          "type": "p",
+          "html": "Key design decision: virtualize <em>both</em> rows and columns — a table with 50 columns and 1M rows could generate 50M DOM nodes without virtualization. The render window is typically ~20 rows × visible columns, with a small buffer. Libraries like <code>@tanstack/virtual</code> or <code>ag-grid</code> handle this well."
+        },
+        {
           "type": "h3",
-          "text": "D — Server-side for sort/filter"
+          "text": "D — Data Model"
         },
         {
           "type": "pre",
-          "code": "# Do not load all 1 million rows. Use server-side sort/filter/paginate; the client only requests a \"window\" of data.\nGET /rows?sort=price:desc&filter=active&offset=4000&limit=100\n\n# Or cursor-based for continuously changing data.\nGET /rows?after=cursor_abc&limit=100",
-          "label": "HTTP"
+          "code": "interface Column {\n  id: string;\n  label: string;\n  type: 'text' | 'number' | 'date' | 'select';\n  width: number;         // pixel width — resizable\n  pinned?: 'left';       // sticky column\n}\n\ninterface Row {\n  id: string;\n  cells: Record<string, CellValue>; // columnId → value\n  _version: number;                 // optimistic concurrency\n}\n\ninterface TableState {\n  columns: Column[];\n  rows: { byId: Record<string, Row>; order: string[] };\n  sort: { columnId: string; direction: 'asc' | 'desc' } | null;\n  filters: Record<string, FilterValue>;\n  cursor: string | null;   // for server-side pagination\n  editingCell: { rowId: string; columnId: string } | null;\n}",
+          "label": "TypeScript — state shape"
+        },
+        {
+          "type": "h3",
+          "text": "I — Interface (API)"
+        },
+        {
+          "type": "pre",
+          "code": "// Never load all rows — server handles sort/filter/paginate\nGET /rows\n  ?sort=price:desc\n  &filter={\"status\":\"active\",\"price\":{\"gte\":100}}\n  &cursor=<c>\n  &limit=100\n  → { rows: Row[], totalCount: number, nextCursor: string | null }\n\n// Inline cell edit — optimistic with version check\nPATCH /rows/:id\n  body: { cells: { [columnId]: newValue }, _version: number }\n  → { row: Row }           // 409 Conflict if version mismatch\n\n// Real-time updates (SSE or WebSocket)\nGET /rows/changes  (EventSource)\n  ← data: { type: 'update', rowId, cells, _version }",
+          "label": "API contract"
+        },
+        {
+          "type": "h3",
+          "text": "O — Optimizations"
         },
         {
           "type": "callout",
           "variant": "key",
           "title": "Why use sort/filter on the server side?",
-          "body": "Sorting 1 million rows on the client will block the main thread. The server (with database indexing) handles this quickly and only returns the page of data the client needs. The client should only sort/filter locally when the dataset is small and fully loaded."
+          "body": "Sorting 1 million rows on the client will block the main thread. The server (with indexed database queries) handles this in milliseconds and only returns the page of data the client needs. Client-side sort/filter is only appropriate when the entire dataset is already loaded (< ~5,000 rows)."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Optimistic cell edit**: update cell in local state immediately, send PATCH in background, rollback on 409 conflict (another user edited same row).",
+            "**Debounce column resize**: update column width in local state on every mouse move, but only persist to server on `mouseup`.",
+            "**Web Worker for large exports**: CSV generation for 100k rows blocks the main thread. Offload to a Web Worker or stream the download from the server.",
+            "**Row selection**: track selected row IDs in a Set, not booleans on each row — avoids re-rendering unselected rows on selection change.",
+            "**A11y**: use `role=\"grid\"`, `role=\"row\"`, `role=\"gridcell\"`, arrow key navigation between cells, announce sort direction changes with `aria-sort`."
+          ]
         },
         {
           "type": "callout",
           "variant": "warn",
-          "title": "**Trap: dynamic height**",
-          "body": "If each row has a different height (text wrap), virtualization becomes more difficult — you need to measure and cache actual heights, or use estimation with adjustment techniques. Fixed row height is much simpler."
+          "title": "Trap: dynamic row height",
+          "body": "If each row has different height (text wrap), virtualization becomes much harder — you need to measure and cache actual heights after render, or use estimation with adjustment. Fixed row height is dramatically simpler. Confirm with requirements."
         },
         {
           "type": "quiz",
@@ -2787,13 +3013,68 @@
           "text": "R — Requirements"
         },
         {
+          "type": "cards",
+          "items": [
+            {
+              "icon": "⚙️",
+              "title": "Functional",
+              "body": "Play/pause/seek, volume + mute, playback speed (0.5×–2×), quality selection (auto + manual), fullscreen, captions/subtitles, chapter markers, watch progress saved server-side."
+            },
+            {
+              "icon": "📐",
+              "title": "Non-Functional",
+              "body": "Playback starts within 2s, no rebuffering on stable 4G+, quality auto-adapts to bandwidth, supports 4K/1080p/720p/480p, works on iOS Safari (HLS native) and desktop (DASH via MSE)."
+            },
+            {
+              "icon": "📱",
+              "title": "Constraints",
+              "body": "Must work on iOS Safari (which requires HLS, not DASH), custom player UI (native controls are not brandable), no autoplay with audio (browser policy + a11y)."
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Key clarification questions:** Live stream or VOD (Video on Demand)?",
+            "DRM (Digital Rights Management) required?",
+            "Captions mandatory (legal requirement in some regions)?",
+            "Picture-in-picture support required?"
+          ]
+        },
+        {
           "type": "h3",
-          "text": "A — Adaptive Bitrate Streaming (ABR)"
+          "text": "A — Architecture"
         },
         {
           "type": "diagram",
           "svg": "<svg viewBox=\"0 0 700 220\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Space Grotesk, sans-serif\">\n      <defs><marker id=\"arvid\" markerWidth=\"9\" markerHeight=\"9\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L6,3 L0,6 Z\" fill=\"#0d7d72\"></path></marker></defs>\n      <text x=\"100\" y=\"24\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"10\" font-weight=\"600\">In the same video, multiple levels.</text>\n      <rect x=\"30\" y=\"36\" width=\"140\" height=\"24\" rx=\"4\" fill=\"#eceae3\" stroke=\"#be185d\"></rect><text x=\"100\" y=\"52\" text-anchor=\"middle\" fill=\"#be185d\" font-size=\"9\">1080p · chunk 2-10s</text>\n      <rect x=\"30\" y=\"66\" width=\"140\" height=\"24\" rx=\"4\" fill=\"#eceae3\" stroke=\"#b45309\"></rect><text x=\"100\" y=\"82\" text-anchor=\"middle\" fill=\"#b45309\" font-size=\"9\">720p · chunk</text>\n      <rect x=\"30\" y=\"96\" width=\"140\" height=\"24\" rx=\"4\" fill=\"#eceae3\" stroke=\"#15803d\"></rect><text x=\"100\" y=\"112\" text-anchor=\"middle\" fill=\"#15803d\" font-size=\"9\">480p · chunk</text>\n\n      <rect x=\"290\" y=\"56\" width=\"150\" height=\"60\" rx=\"9\" fill=\"#eceae3\" stroke=\"#0d7d72\" stroke-width=\"2\"></rect>\n      <text x=\"365\" y=\"80\" text-anchor=\"middle\" fill=\"#0d7d72\" font-size=\"11\" font-weight=\"600\">ABR Player</text>\n      <text x=\"365\" y=\"98\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"8.5\">bandwidth measurement + buffer</text>\n\n      <rect x=\"540\" y=\"56\" width=\"130\" height=\"60\" rx=\"9\" fill=\"#eceae3\" stroke=\"#4f46e5\"></rect>\n      <text x=\"605\" y=\"80\" text-anchor=\"middle\" fill=\"#4f46e5\" font-size=\"11\" font-weight=\"600\">Select level</text>\n      <text x=\"605\" y=\"98\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"8.5\">Fast network → high, slow network → low</text>\n\n      <line x1=\"170\" y1=\"80\" x2=\"286\" y2=\"86\" stroke=\"#0d7d72\" stroke-width=\"1.4\" marker-end=\"url(#arvid)\"></line>\n      <line x1=\"440\" y1=\"86\" x2=\"536\" y2=\"86\" stroke=\"#0d7d72\" stroke-width=\"1.4\" marker-end=\"url(#arvid)\"></line>\n      <text x=\"350\" y=\"160\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"10.5\">The manifest (.m3u8 / .mpd) lists the available levels and chunks. The player loads the next chunk at the appropriate level. <tspan fill=\"#0d7d72\" font-weight=\"600\">in real time</tspan>.</text>\n      <text x=\"350\" y=\"180\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"10.5\">Network drops mid-stream → subsequent chunks load at a lower quality, no need to pause the video.</text>\n    </svg>",
           "caption": "The video is divided into chunks of multiple qualities, and the player selects based on network conditions."
+        },
+        {
+          "type": "p",
+          "html": "Key design decision: use an established ABR library (<code>hls.js</code> for HLS, <code>dash.js</code> for DASH) rather than implementing ABR from scratch. The player UI is a custom React layer on top of a native <code>&lt;video&gt;</code> element — native controls are hidden, custom ones overlay it."
+        },
+        {
+          "type": "h3",
+          "text": "D — Data Model"
+        },
+        {
+          "type": "pre",
+          "code": "interface PlayerState {\n  // Playback\n  isPlaying: boolean;\n  currentTime: number;        // seconds\n  duration: number;\n  buffered: [number, number][]; // array of [start, end] buffered ranges\n\n  // Quality\n  quality: 'auto' | '1080p' | '720p' | '480p' | '360p';\n  currentBandwidth: number;   // estimated kbps\n\n  // Controls\n  volume: number;             // 0..1\n  isMuted: boolean;\n  playbackRate: number;       // 0.5 | 1 | 1.25 | 1.5 | 2\n  isFullscreen: boolean;\n\n  // Captions\n  captionsEnabled: boolean;\n  activeCaptionTrack: string | null; // e.g. 'en', 'fr'\n\n  // Persistence\n  savedPosition: number;      // loaded from server on init\n}",
+          "label": "TypeScript — player state"
+        },
+        {
+          "type": "h3",
+          "text": "I — Interface (API)"
+        },
+        {
+          "type": "pre",
+          "code": "// Video metadata + stream manifest\nGET /videos/:id\n  → { id, title, duration, thumbnailUrl,\n      manifestUrl: string,   // .m3u8 (HLS) or .mpd (DASH)\n      captions: [{ lang, label, url }],\n      chapters: [{ startTime, title }] }\n\n// Player saves progress every 15s (or on pause/unload)\nPOST /videos/:id/progress\n  body: { position: number }  // seconds\n  → 204 No Content\n\n// Captions fetched on demand\nGET <captionUrl>  → WebVTT file\n\n// HLS manifest from CDN\nGET <manifestUrl>  → m3u8 playlist\nGET <chunkUrl>     → .ts segment (fetched by hls.js internally)",
+          "label": "API contract"
+        },
+        {
+          "type": "h3",
+          "text": "O — Optimizations"
         },
         {
           "type": "h3",
@@ -2828,13 +3109,23 @@
           "type": "callout",
           "variant": "key",
           "title": "The core trade-off of ABR",
-          "body": "High quality vs. rebuffering risk. ABR algorithm balances: prioritizes no interruptions (rebuffering severely harms user experience) over always delivering maximum quality. Starting low for fast playback is the standard strategy."
+          "body": "High quality vs. rebuffering risk. ABR always prioritizes uninterrupted playback over maximum quality — a single rebuffer stall kills user experience more than watching at 480p. Starting at low quality and ramping up is the standard strategy."
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Preload next segment**: buffer several chunks ahead of playhead to absorb bandwidth spikes. Tune buffer goal (e.g., 15s) for VOD; use smaller buffer for live streams to reduce latency.",
+            "**Thumbnail scrubbing**: pre-generate a sprite sheet of thumbnails at 1-per-second intervals. When user hovers the scrubber, show the sprite at that timestamp without seeking.",
+            "**Save position on unload**: use `visibilitychange` + `pagehide` events (not `beforeunload` — unreliable on mobile) to POST progress to server.",
+            "**Reduced motion**: respect `prefers-reduced-motion` — disable animated transitions in controls.",
+            "**Performance**: hide custom controls overlay during playback (opacity:0, pointer-events:none) — a transparent overlay intercepts events but adds no paint cost."
+          ]
         },
         {
           "type": "callout",
           "variant": "interview",
-          "title": "A11y for player",
-          "body": "Controls must be keyboard accessible (Space for play/pause, ←→ for seek), include ARIA labels, support captions, and must not autoplay with sound (to avoid annoyance and a11y violations)."
+          "title": "A11y for player — the full checklist",
+          "body": "Space = play/pause, ←/→ = seek ±5s, ↑/↓ = volume, F = fullscreen, C = toggle captions. All controls need `aria-label` (e.g., aria-label=\"Play\"). Progress bar = `role=\"slider\"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax`. Never autoplay with audio — browser policy blocks it and it violates WCAG 1.4.2."
         },
         {
           "type": "quiz",
@@ -2861,6 +3152,39 @@
           "text": "R — Requirements"
         },
         {
+          "type": "cards",
+          "items": [
+            {
+              "icon": "⚙️",
+              "title": "Functional",
+              "body": "Real-time collaborative text editing, see other users' cursors and selections, rich text formatting (bold, italic, headings, lists), comments/suggestions, version history with restore, offline editing (changes sync on reconnect)."
+            },
+            {
+              "icon": "📐",
+              "title": "Non-Functional",
+              "body": "Local keystrokes feel instantaneous (< 50ms), changes from other users appear within 500ms, convergence guaranteed — all users see the same document after edits settle, no data loss on network drop."
+            },
+            {
+              "icon": "📱",
+              "title": "Constraints",
+              "body": "Support 50+ concurrent editors on the same document, works offline and syncs on reconnect, document must be stored persistently (not just in memory), must handle browser crashes gracefully."
+            }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Key clarification questions:** Rich text (Google Docs) or plain text/code (like Replit)?",
+            "Max concurrent editors per document?",
+            "Is offline editing required? (fundamentally changes the architecture)",
+            "Comment threads and suggestions, or just live editing?"
+          ]
+        },
+        {
+          "type": "h3",
+          "text": "A — Architecture & Core Challenge"
+        },
+        {
           "type": "h3",
           "text": "Core issue: concurrent editing"
         },
@@ -2868,6 +3192,28 @@
           "type": "diagram",
           "svg": "<svg viewBox=\"0 0 700 200\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Space Grotesk, sans-serif\">\n      <defs><marker id=\"arco2\" markerWidth=\"9\" markerHeight=\"9\" refX=\"6\" refY=\"3\" orient=\"auto\"><path d=\"M0,0 L6,3 L0,6 Z\" fill=\"#0d7d72\"></path></marker></defs>\n      <rect x=\"30\" y=\"30\" width=\"150\" height=\"50\" rx=\"9\" fill=\"#eceae3\" stroke=\"#b45309\"></rect>\n      <text x=\"105\" y=\"52\" text-anchor=\"middle\" fill=\"#b45309\" font-size=\"11\" font-weight=\"600\">User A</text>\n      <text x=\"105\" y=\"68\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"9\">Insert \"X\" at position 5.</text>\n\n      <rect x=\"30\" y=\"120\" width=\"150\" height=\"50\" rx=\"9\" fill=\"#eceae3\" stroke=\"#4f46e5\"></rect>\n      <text x=\"105\" y=\"142\" text-anchor=\"middle\" fill=\"#4f46e5\" font-size=\"11\" font-weight=\"600\">User B</text>\n      <text x=\"105\" y=\"158\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"9\">Delete the character at position 3.</text>\n\n      <rect x=\"290\" y=\"75\" width=\"160\" height=\"50\" rx=\"10\" fill=\"#eceae3\" stroke=\"#0d7d72\" stroke-width=\"2\"></rect>\n      <text x=\"370\" y=\"97\" text-anchor=\"middle\" fill=\"#0d7d72\" font-size=\"11\" font-weight=\"600\">OT / CRDT</text>\n      <text x=\"370\" y=\"113\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"8.5\">transform/merge operations</text>\n\n      <rect x=\"540\" y=\"75\" width=\"130\" height=\"50\" rx=\"9\" fill=\"#eceae3\" stroke=\"#15803d\"></rect>\n      <text x=\"605\" y=\"97\" text-anchor=\"middle\" fill=\"#15803d\" font-size=\"11\" font-weight=\"600\">Convergence</text>\n      <text x=\"605\" y=\"113\" text-anchor=\"middle\" fill=\"#8a8a82\" font-size=\"8.5\">Everyone = same result</text>\n\n      <line x1=\"180\" y1=\"55\" x2=\"286\" y2=\"88\" stroke=\"#0d7d72\" stroke-width=\"1.4\" marker-end=\"url(#arco2)\"></line>\n      <line x1=\"180\" y1=\"145\" x2=\"286\" y2=\"112\" stroke=\"#0d7d72\" stroke-width=\"1.4\" marker-end=\"url(#arco2)\"></line>\n      <line x1=\"450\" y1=\"100\" x2=\"536\" y2=\"100\" stroke=\"#0d7d72\" stroke-width=\"1.4\" marker-end=\"url(#arco2)\"></line>\n    </svg>",
           "caption": "Two people editing simultaneously — how to avoid overwriting?"
+        },
+        {
+          "type": "p",
+          "html": "Key design decision: use an established CRDT library (<code>Yjs</code> with <code>y-websocket</code> provider) rather than implementing OT/CRDT from scratch. Yjs handles conflict resolution, offline sync, and presence out of the box. Custom OT implementations are notoriously difficult to get correct."
+        },
+        {
+          "type": "h3",
+          "text": "D — Data Model"
+        },
+        {
+          "type": "pre",
+          "code": "// Using Yjs CRDT\nimport * as Y from 'yjs';\n\nconst ydoc = new Y.Doc();\nconst ytext = ydoc.getText('content');  // shared text with CRDT semantics\n\n// Client state\ninterface CollabState {\n  syncStatus: 'synced' | 'pending' | 'offline';\n  localVersion: number;\n  collaborators: {\n    [userId: string]: {\n      name: string;\n      color: string;         // unique color per user\n      cursor: number | null; // character offset in document\n      selection: { from: number; to: number } | null;\n    };\n  };\n  comments: Comment[];\n  pendingOps: Y.UpdateType[]; // buffered while offline\n}\n\n// Version history snapshot\ninterface Snapshot {\n  id: string;\n  createdAt: string;\n  createdBy: string;\n  description: string;\n  stateVector: Uint8Array;   // Yjs state vector for this point in time\n}",
+          "label": "TypeScript — Yjs-based state"
+        },
+        {
+          "type": "h3",
+          "text": "I — Interface (WebSocket Protocol)"
+        },
+        {
+          "type": "pre",
+          "code": "// WebSocket (y-websocket protocol)\n// Initial sync\nClient → Server: { type: 'sync-step-1', stateVector: Uint8Array }\nServer → Client: { type: 'sync-step-2', update: Uint8Array }  // missing ops\n\n// Incremental updates\nClient → Server: { type: 'update', update: Uint8Array }        // local edit\nServer → Client: { type: 'update', update: Uint8Array }        // remote edit\n\n// Presence (cursor/selection — ephemeral, not persisted)\nClient → Server: { type: 'awareness', state: { cursor, selection, user } }\nServer → Client: { type: 'awareness', changes: { [clientId]: state } }\n\n// REST: document management\nGET  /docs/:id          → { id, title, createdAt, collaborators }\nGET  /docs/:id/history  → { snapshots: Snapshot[] }\nPOST /docs/:id/snapshot → create a named checkpoint\nGET  /docs/:id/snapshot/:snapshotId → { content: Uint8Array }",
+          "label": "WebSocket + REST API"
         },
         {
           "type": "h3",
@@ -2932,13 +3278,28 @@
           "type": "callout",
           "variant": "key",
           "title": "Why not use \"last write wins\"?",
-          "body": "The simplest approach — last writer wins — will lose the other person's text. OT/CRDT ensures both concurrent operations are preserved and all clients converge to the same state. This is the difference between a \"toy\" and a real product."
+          "body": "The simplest approach — last writer wins — overwrites the other person's text. OT/CRDT ensures both concurrent operations are preserved and all clients converge to the same state. This is the difference between a \"toy\" and a real product."
+        },
+        {
+          "type": "h3",
+          "text": "O — Optimizations"
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Local-first rendering**: apply keystrokes to local Yjs document immediately (no round-trip) → zero typing lag. Sync to server in background.",
+            "**Presence throttling**: send cursor position updates at most 50ms intervals (throttle) — presence is ephemeral and lossy delivery is acceptable.",
+            "**Offline buffer**: store pending Yjs updates in IndexedDB. On reconnect, replay in order — Yjs merges them correctly with server state.",
+            "**Large document performance**: use a ProseMirror or CodeMirror editor that supports incremental rendering — never re-render the entire document on each change.",
+            "**A11y**: announce collaborator joins/leaves via `aria-live=\"polite\"`, expose cursor positions in a non-obtrusive way, ensure the editor remains keyboard-navigable.",
+            "**Security**: validate all operations server-side (reject ops from users without write permission), use CRDT for conflict resolution but authorize each op independently."
+          ]
         },
         {
           "type": "callout",
           "variant": "interview",
-          "title": "O — How to make an impression",
-          "body": "State that this is a \"convergence in distributed systems\" problem, compare OT vs CRDT with clear trade-offs, and mention local-first + offline. No need for transform algorithm code — understanding the principles and trade-offs is sufficient for the FE round."
+          "title": "How to make an impression in the O part",
+          "body": "State that this is a 'convergence in distributed systems' problem. Compare OT vs CRDT with clear trade-offs. Mention local-first + offline editing. Bring up presence throttling and the ephemeral vs. persistent data split. No need to code transform algorithms — understanding the principles and trade-offs is sufficient for the FE round."
         },
         {
           "type": "quiz",
@@ -2968,15 +3329,30 @@
           "type": "cards",
           "items": [
             {
-              "icon": "•",
+              "icon": "⚙️",
               "title": "Functional",
-              "body": "View feed (infinite scroll), create posts, like/comment, display images/videos, update when new posts appear."
+              "body": "View personalized feed (infinite scroll), create posts (text + images/video), like/comment/share, see new-posts notification pill, real-time update when new content arrives."
             },
             {
-              "icon": "•",
-              "title": "Non-functional",
-              "body": "Fast loading on mobile + 3G, smooth scrolling, supports a11y, and can handle intermittent network connectivity."
+              "icon": "📐",
+              "title": "Non-Functional",
+              "body": "LCP < 2.5s on mobile 3G, 60fps smooth scroll, WCAG AA accessibility, works on intermittent connectivity, supports 1M+ posts in history."
+            },
+            {
+              "icon": "📱",
+              "title": "Constraints",
+              "body": "60%+ mobile users (Android Chrome 90+, Safari 14+), post-login only so SEO is not a concern, internationalized UI (LTR + RTL languages)."
             }
+          ]
+        },
+        {
+          "type": "ul",
+          "items": [
+            "**Key clarification questions:** Personalized algorithmic feed or strictly chronological?",
+            "Who can post — all users or verified accounts only?",
+            "Video support? (affects CDN strategy and player complexity)",
+            "Real-time updates required, or eventual consistency (5s poll) acceptable?",
+            "Offline read access required?"
           ]
         },
         {
@@ -2989,39 +3365,64 @@
           "caption": "News Feed Architecture"
         },
         {
+          "type": "p",
+          "html": "Key design decisions: <strong>FeedContainer</strong> is ‘smart’ (owns all data fetching + pagination state); <strong>PostCard</strong> is ‘dumb’ (pure rendering from props) — trivially testable and reusable. <strong>VirtualizedList</strong> is critical: without it, 1,000+ posts render all DOM nodes at once and lag on mobile. Rendering pattern: <strong>CSR + React Query</strong> — feed is post-login and personalized, so SSR adds server cost with no SEO benefit."
+        },
+        {
           "type": "h3",
           "text": "D — Data Model"
         },
         {
           "type": "pre",
-          "code": "// Normalize to avoid duplication & simplify updates.\n{\n  posts: {\n    byId: { \"p1\": { id, authorId, text, mediaUrl, likeCount, likedByMe } },\n    feedOrder: [\"p1\", \"p2\", \"p3\"],   // Display order\n    nextCursor: \"cursor_abc\"            // cho pagination\n  },\n  users: { byId: { \"u1\": { id, name, avatar } } }\n}",
-          "label": "Normalized state"
+          "code": "interface Post {\n  id: string;\n  authorId: string;\n  text: string;\n  mediaUrls: string[];       // CDN URLs for images/video thumbnails\n  likeCount: number;\n  commentCount: number;\n  likedByMe: boolean;\n  createdAt: string;         // ISO 8601\n}\n\n// Normalized client state — avoids duplication across feed + profile views\ninterface FeedState {\n  posts: {\n    byId: Record<string, Post>;\n    feedOrder: string[];           // ordered post IDs\n    nextCursor: string | null;\n  };\n  users: { byId: Record<string, User> };\n  ui: {\n    composerDraft: string;\n    newPostCount: number;          // from SSE — drives the \"N new posts\" pill\n  };\n}",
+          "label": "TypeScript — Normalized state"
+        },
+        {
+          "type": "callout",
+          "variant": "tip",
+          "title": "Why normalize?",
+          "body": "Without normalization, updating a user’s name requires patching every post that references them. With normalization, a single users.byId[userId].name update propagates everywhere automatically — critical for large feeds where the same user may appear in hundreds of posts."
         },
         {
           "type": "h3",
-          "text": "I — Interface / API"
+          "text": "I — Interface (API)"
         },
         {
           "type": "pre",
-          "code": "GET  /feed?cursor=<c>&limit=10   → { posts, nextCursor }\nPOST /posts        { text, media }  → { post }\nPOST /posts/:id/like                → { likeCount, likedByMe }\nGET  /feed/updates  (SSE)           → pushes \"There are N new posts.\"",
+          "code": "// REST endpoints\nGET  /feed?cursor=<c>&limit=10\n  → { posts: Post[], users: User[], nextCursor: string | null }\n\nPOST /posts\n  body: { text: string; mediaIds?: string[] }\n  → { post: Post }\n\nPOST   /posts/:id/like    → { likeCount: number; likedByMe: true }\nDELETE /posts/:id/like    → { likeCount: number; likedByMe: false }\n\n// Two-step media upload — keeps API server lean\nPOST /media/upload-url\n  → { uploadUrl: string; mediaId: string }  // pre-signed S3 URL\n// Client PUTs binary directly to CDN via uploadUrl\n\n// Server-Sent Events for real-time new post count\nGET  /feed/updates  (EventSource)\n  ← data: { type: ‘new_posts’, count: 3 }   // drives the \"3 new posts\" pill",
           "label": "API contract"
         },
         {
+          "type": "pre",
+          "code": "// PostCard — dumb component, no internal async state\ninterface PostCardProps {\n  post: Post;\n  author: User;\n  onLike: (postId: string) => void;\n  onComment: (postId: string) => void;\n  onShare: (postId: string) => void;\n}\n\n// FeedContainer — smart component, owns data fetching\nconst { data, fetchNextPage } = useInfiniteQuery({\n  queryKey: [‘feed’],\n  queryFn: ({ pageParam }) => fetchFeed({ cursor: pageParam }),\n  staleTime: 30_000,   // 30s before background refetch\n});",
+          "label": "Component API"
+        },
+        {
           "type": "h3",
-          "text": "O — Optimizations (score points!)"
+          "text": "O — Optimizations"
         },
         {
           "type": "ul",
           "items": [
-            "Smooth scrolling: virtualization keeps the DOM lightweight even with an infinite feed.",
-            "Load more: IntersectionObserver on the last sentinel in the list → fetch the next page.",
-            "Image: lazy-load, use srcset/responsive, and blur placeholder to avoid CLS.",
-            "Instant interaction: optimistic UI for likes/comments, rollback on error.",
-            "New post: SSE signals \"new post\" → show pill, do not auto-insert to avoid layout shift.",
-            "Offline/error: display old cache + skeleton, retry with backoff.",
-            "Code splitting: separate PostComposer and media viewer from the main bundle.",
-            "A11y: aria-live for new posts, keyboard navigation for actions."
+            "**Virtualization**: windowing with `react-virtuoso` — DOM stays at ~10–15 nodes regardless of feed length.",
+            "**IntersectionObserver** on sentinel element → auto-triggers next page fetch.",
+            "**Images**: LQIP blur-up placeholder + `srcset` for responsive sizes + explicit `width`/`height` → zero CLS.",
+            "**Optimistic UI**: like/comment update immediately, rollback on API error.",
+            "**New posts pill**: SSE pushes count → show pill, never auto-insert (would shift user’s reading position).",
+            "**Resilience**: stale cache shown offline, exponential backoff retry on reconnect.",
+            "**Code splitting**: PostComposer and media viewer lazily loaded — excluded from critical path bundle.",
+            "**A11y**: `aria-live=\"polite\"` region for new-post count, `role=\"article\"` on PostCard, keyboard-focusable like/comment buttons."
           ]
+        },
+        {
+          "type": "pre",
+          "code": "// Optimistic like — instant feedback, rollback on error\nfunction handleLike(postId: string) {\n  const prevData = queryClient.getQueryData([‘post’, postId]);\n\n  queryClient.setQueryData([‘post’, postId], (old: Post) => ({\n    ...old,\n    likedByMe: !old.likedByMe,\n    likeCount: old.likedByMe ? old.likeCount - 1 : old.likeCount + 1,\n  }));\n\n  likeMutation.mutate(postId, {\n    onError: () => queryClient.setQueryData([‘post’, postId], prevData), // rollback\n  });\n}",
+          "label": "Optimistic UI — React Query"
+        },
+        {
+          "type": "pre",
+          "code": "// CLS-free image with LQIP blur-up placeholder\n// Server returns blurDataUrl: a tiny ~20×20 base64-encoded image\n<img\n  src={post.blurDataUrl}      // renders immediately — reserves space\n  data-src={post.imageUrl}    // swapped in by IntersectionObserver\n  width={post.imageWidth}\n  height={post.imageHeight}   // correct aspect ratio → zero CLS\n  loading=\"lazy\"\n  style={{\n    filter: isLoaded ? ‘none’ : ‘blur(10px)’,\n    transition: ‘filter 0.3s ease’,\n  }}\n  alt={post.imageAlt}\n/>",
+          "label": "CLS-free images"
         },
         {
           "type": "callout",

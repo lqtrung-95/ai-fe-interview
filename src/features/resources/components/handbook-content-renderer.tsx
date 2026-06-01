@@ -16,6 +16,13 @@ interface Props {
   blocks: ContentBlock[];
 }
 
+/** Converts inline markdown (`**bold**`, `` `code` ``) to HTML for list items. */
+function mdToHtml(text: string): string {
+  return text
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
 const PILL_CLS: Record<PillVariant, string> = {
   good: 'text-emerald-700 dark:text-emerald-400 border-emerald-500/30 bg-emerald-500/8',
   bad: 'text-red-600 dark:text-red-400 border-red-500/30 bg-red-500/8',
@@ -66,9 +73,9 @@ export function HandbookContentRenderer({ blocks }: Props) {
                   <li key={j} className="flex gap-2.5 text-sm text-muted-foreground leading-relaxed">
                     {/* Solid dot bullet aligned with first line */}
                     <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50" />
-                    {/* items may contain inline HTML from LLM generation — safe (script-generated) */}
+                    {/* items may contain inline HTML or markdown — safe (script-generated) */}
                     {/* eslint-disable-next-line react/no-danger */}
-                    <span className="handbook-inline-html" dangerouslySetInnerHTML={{ __html: item }} />
+                    <span className="handbook-inline-html" dangerouslySetInnerHTML={{ __html: mdToHtml(item) }} />
                   </li>
                 ))}
               </ul>
@@ -83,7 +90,7 @@ export function HandbookContentRenderer({ blocks }: Props) {
                       {j + 1}.
                     </span>
                     {/* eslint-disable-next-line react/no-danger */}
-                    <span className="handbook-inline-html" dangerouslySetInnerHTML={{ __html: item }} />
+                    <span className="handbook-inline-html" dangerouslySetInnerHTML={{ __html: mdToHtml(item) }} />
                   </li>
                 ))}
               </ol>
