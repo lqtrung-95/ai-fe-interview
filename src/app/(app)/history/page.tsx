@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Clock3, Plus } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { requireUser } from '@/lib/auth/session';
@@ -16,6 +17,8 @@ export default async function HistoryPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const user = await requireUser();
+  if (!user.isPro) redirect('/upgrade');
+
   const raw = await searchParams;
   const filters = parseHistoryFilters(raw);
   const sessions = await listSessions(user.id, filters);

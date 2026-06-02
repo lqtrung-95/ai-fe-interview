@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { RateLimitBanner } from '@/components/common/rate-limit-banner';
 import { InterviewEmptyState } from './interview-empty-state';
+import { FeedbackLoadingState } from './feedback-loading-state';
 import { InterviewMainPanel } from './interview-main-panel';
 import { useInterviewFlow } from './use-interview-flow';
 import type { ActiveQuestion } from './question-stream-types';
@@ -82,10 +83,7 @@ export function InterviewShell({
     return (
       <>
         {banner}
-        <InterviewEmptyState
-          title="Generating feedback..."
-          detail="Scoring your answer and preparing a stronger version."
-        />
+        <FeedbackLoadingState />
       </>
     );
   }

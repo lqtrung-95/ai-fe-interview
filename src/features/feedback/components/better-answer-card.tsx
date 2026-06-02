@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { mdToHtml } from '@/lib/utils';
 
 interface Props {
   answer: string;
@@ -42,7 +43,14 @@ export function BetterAnswerCard({ answer }: Props) {
           )}
         </Button>
       </div>
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">{answer}</p>
+      {/* Split on blank lines into paragraphs; render each with inline markdown */}
+      <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+        {answer.split(/\n\n+/).map((para, i) => (
+          // LLM-generated content — never user input, so dangerouslySetInnerHTML is safe
+          // eslint-disable-next-line react/no-danger
+          <p key={i} dangerouslySetInnerHTML={{ __html: mdToHtml(para.trim()) }} />
+        ))}
+      </div>
     </section>
   );
 }

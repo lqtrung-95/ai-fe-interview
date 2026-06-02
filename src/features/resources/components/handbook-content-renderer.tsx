@@ -4,7 +4,7 @@
  * and rendered lazily within the server-rendered tree.
  */
 
-import { cn } from '@/lib/utils';
+import { cn, mdToHtml } from '@/lib/utils';
 import type { ContentBlock, PillVariant } from '@/data/resources/handbook-types';
 import { HandbookCallout } from './handbook-callout';
 import { HandbookDiagram } from './handbook-diagram';
@@ -14,13 +14,6 @@ import { HandbookFlashcardDeck } from './handbook-flashcard-deck';
 
 interface Props {
   blocks: ContentBlock[];
-}
-
-/** Converts inline markdown (`**bold**`, `` `code` ``) to HTML for list items. */
-function mdToHtml(text: string): string {
-  return text
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 }
 
 const PILL_CLS: Record<PillVariant, string> = {

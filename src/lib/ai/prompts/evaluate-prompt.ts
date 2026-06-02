@@ -25,7 +25,8 @@ export function buildEvaluatePrompt(input: EvaluateInput): {
     '  whatWentWell: string[], whatWasMissing: string[], technicalCorrections: string[], improvementSuggestions: string[],',
     '  betterAnswer: string (interview-ready, concise), seniorLevelAddition: string (optional), recommendedNextPractice: string[] }',
     '',
-    'Keep arrays focused — max 6 items each. Better answer should be concise (2-4 short paragraphs).',
+    'Keep arrays focused — max 6 items each. Better answer should be concise (2-4 short paragraphs separated by \\n\\n).',
+    'In list item strings, wrap technical terms and key concepts in **double asterisks** (e.g. **virtual DOM**, **O(n)**). Use `backticks` for inline code, APIs, or method names.',
   ].join('\n');
 
   const followBlock = input.followUpAnswer

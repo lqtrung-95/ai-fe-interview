@@ -113,7 +113,7 @@
     "id": "behavioral-rapid-learning",
     "topic": "Behavioral",
     "subtopic": "Learning under pressure",
-    "difficulty": "mid",
+    "difficulty": "junior",
     "type": "behavioral",
     "question": "Tell me about a time you had to ramp up on an unfamiliar technology or codebase quickly to ship something. How did you approach it?",
     "expectedPoints": [

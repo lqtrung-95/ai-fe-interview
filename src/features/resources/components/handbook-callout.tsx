@@ -4,7 +4,7 @@
  */
 
 import { Lightbulb, AlertTriangle, Zap, MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, mdToHtml } from '@/lib/utils';
 import type { CalloutVariant } from '@/data/resources/handbook-types';
 
 interface Props {
@@ -68,10 +68,9 @@ export function HandbookCallout({ variant, title, body }: Props) {
           {title}
         </div>
       )}
-      {/* body may contain inline HTML from LLM generation (e.g. <code>, <strong>) — safe since
-          content comes from our own scripts, never user input */}
+      {/* body uses markdown code spans — mdToHtml converts `<tag>` to <code> to prevent raw HTML injection */}
       {/* eslint-disable-next-line react/no-danger */}
-      <p className="handbook-inline-html text-sm text-muted-foreground leading-relaxed pl-[1.375rem]" dangerouslySetInnerHTML={{ __html: body }} />
+      <div className="handbook-inline-html text-sm text-muted-foreground leading-relaxed pl-[1.375rem]" dangerouslySetInnerHTML={{ __html: mdToHtml(body) }} />
     </div>
   );
 }

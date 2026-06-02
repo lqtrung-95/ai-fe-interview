@@ -1,3 +1,4 @@
+import { mdToHtml } from '@/lib/utils';
 import { BetterAnswerCard } from './better-answer-card';
 import { DimensionScoreRow } from './dimension-score-row';
 import type { FeedbackPayload } from '../feedback-types';
@@ -51,9 +52,14 @@ function FeedbackList({ title, items }: { title: string; items?: string[] }) {
   return (
     <section className="space-y-2">
       <h3 className="text-sm font-semibold">{title}</h3>
-      <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+      <ul className="space-y-1.5 pl-1 text-sm text-muted-foreground">
         {items.map((item, index) => (
-          <li key={`${title}-${index}`}>{item}</li>
+          <li key={`${title}-${index}`} className="flex items-start gap-2.5">
+            <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50" />
+            {/* LLM-generated content — never user input, so dangerouslySetInnerHTML is safe */}
+            {/* eslint-disable-next-line react/no-danger */}
+            <span dangerouslySetInnerHTML={{ __html: mdToHtml(item) }} />
+          </li>
         ))}
       </ul>
     </section>

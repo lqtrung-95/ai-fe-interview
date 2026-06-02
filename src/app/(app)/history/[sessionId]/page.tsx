@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { buttonVariants } from '@/components/ui/button';
 import { requireUser } from '@/lib/auth/session';
 import { getSessionDetail } from '@/features/history/server/history-service';
@@ -13,6 +13,8 @@ export default async function HistoryDetailPage({
   params: Promise<{ sessionId: string }>;
 }) {
   const user = await requireUser();
+  if (!user.isPro) redirect('/upgrade');
+
   const { sessionId } = await params;
   const session = await getSessionDetail(sessionId, user.id);
   if (!session) notFound();

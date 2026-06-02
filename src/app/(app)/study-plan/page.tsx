@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth/session';
 import { getUserStudyPlan } from '@/features/study-plan/server/study-plan-service';
 import { StudyPlanSetupForm } from '@/features/study-plan/components/study-plan-setup-form';
@@ -14,6 +15,8 @@ interface PageProps {
 
 export default async function StudyPlanPage({ searchParams }: PageProps) {
   const [user, sp] = await Promise.all([requireUser(), searchParams]);
+  if (!user.isPro) redirect('/upgrade');
+
   const plan = await getUserStudyPlan(user.id);
 
   const isEdit = sp.edit === '1' && plan !== null;

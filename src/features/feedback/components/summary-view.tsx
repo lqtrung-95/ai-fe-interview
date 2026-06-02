@@ -1,3 +1,5 @@
+import { mdToHtml } from '@/lib/utils';
+
 interface SummaryData {
   overallScore: number;
   strongAreas: string[];
@@ -72,8 +74,10 @@ function SummaryList({ title, items, variant }: { title: string; items: string[]
         <ul className="mt-3 space-y-2">
           {items.map((item, index) => (
             <li key={`${title}-${index}`} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-              <span className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${s.dot}`} />
-              {item}
+              <span className={`mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full ${s.dot}`} />
+              {/* LLM-generated content — dangerouslySetInnerHTML is safe here */}
+              {/* eslint-disable-next-line react/no-danger */}
+              <span dangerouslySetInnerHTML={{ __html: mdToHtml(item) }} />
             </li>
           ))}
         </ul>

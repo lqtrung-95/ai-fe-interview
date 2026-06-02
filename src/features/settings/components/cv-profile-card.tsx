@@ -5,6 +5,7 @@ import { Upload, FileText, Trash2, CheckCircle2, AlertCircle } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ParsedCvPreview } from './parsed-cv-preview';
+import { CvProcessingState } from './cv-processing-state';
 import type { CvData } from '@/lib/cv/cv-types';
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 }
 
 type Tab = 'upload' | 'paste';
-type Status = 'idle' | 'uploading' | 'parsing' | 'success' | 'error';
+type Status = 'idle' | 'uploading' | 'parsing' | 'deleting' | 'success' | 'error';
 
 export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
   const [tab, setTab] = useState<Tab>('upload');
@@ -25,7 +26,7 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const hasCv = !!cvData;
-  const busy = status === 'uploading' || status === 'parsing';
+  const busy = status === 'uploading' || status === 'parsing' || status === 'deleting';
 
   async function handleFileUpload(file: File) {
     setStatus('uploading');
@@ -67,7 +68,7 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
   }
 
   async function handleDelete() {
-    setStatus('uploading');
+    setStatus('deleting');
     setErrorMsg('');
     try {
       const res = await fetch('/api/cv/delete', { method: 'DELETE' });
@@ -101,12 +102,14 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
             className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
             <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-            Remove CV
+            {status === 'deleting' ? 'Removing…' : 'Remove CV'}
           </Button>
         )}
       </div>
 
-      {hasCv && cvData ? (
+      {busy ? (
+        <CvProcessingState status={status} />
+      ) : hasCv && cvData ? (
         <ParsedCvPreview cvData={cvData} parsedAt={parsedAt} />
       ) : (
         <>
@@ -135,12 +138,11 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
                   'flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed',
                   'border-border/60 bg-muted/20 p-8 cursor-pointer transition-colors',
                   'hover:border-primary/40 hover:bg-primary/[0.03]',
-                  busy && 'pointer-events-none opacity-50',
                 )}
               >
                 <Upload className="h-7 w-7 text-muted-foreground/50" />
                 <span className="text-sm font-medium text-foreground">
-                  {busy ? (status === 'uploading' ? 'Uploading…' : 'Parsing…') : 'Click to upload'}
+                  Click to upload
                 </span>
                 <span className="text-xs text-muted-foreground">PDF or plain text · max 10 MB</span>
                 <input
@@ -148,7 +150,6 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
                   type="file"
                   accept=".pdf,.txt,application/pdf,text/plain"
                   className="sr-only"
-                  disabled={busy}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) handleFileUpload(file);
