@@ -24,7 +24,10 @@
     "db:clear-activity": "tsx scripts/db-clear-activity-data.ts",
     "generate-js-handbook": "tsx scripts/generate-js-core-handbook.ts",
     "generate-react-handbook": "tsx scripts/generate-react-handbook.ts",
-    "generate-optimization-handbook": "tsx scripts/generate-optimization-handbook.ts"
+    "generate-optimization-handbook": "tsx scripts/generate-optimization-handbook.ts",
+    "enrich:system-design": "tsx scripts/enrich-system-design-explanations.ts",
+    "generate:questions": "tsx scripts/generate-new-questions.ts",
+    "generate:diagrams-new": "tsx scripts/generate-diagrams-for-new-questions.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.79",
