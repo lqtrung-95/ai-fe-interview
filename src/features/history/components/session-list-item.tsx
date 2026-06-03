@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { ArrowRight, BookOpenCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowRight, BookOpenCheck, Briefcase, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { deleteSessionAction } from '../server/delete-session-action';
 
@@ -17,6 +17,7 @@ interface Props {
     completedAt: Date | null;
     questions: unknown[];
     usesCv?: boolean;
+    label?: string | null;
   };
 }
 
@@ -75,6 +76,12 @@ export function SessionListItem({ session }: Props) {
               <span className="flex items-center gap-0.5 rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
                 <Sparkles className="size-2.5" />
                 CV
+              </span>
+            )}
+            {session.label && (
+              <span className="flex items-center gap-0.5 rounded-md border border-border/60 bg-muted/40 px-2 py-0.5 text-[10px] font-semibold text-foreground/70">
+                <Briefcase className="size-2.5" />
+                {session.label}
               </span>
             )}
           </div>

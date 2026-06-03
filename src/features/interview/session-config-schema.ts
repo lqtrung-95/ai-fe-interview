@@ -19,6 +19,8 @@ export const createSessionSchema = z.object({
   topics: z.array(z.enum(ONBOARDING_TOPICS)).min(1, 'Pick at least one topic'),
   /** When true, question generation is grounded in the user's parsed CV data. */
   usesCv: z.boolean().optional().default(false),
+  /** Pro only — cuid of a saved TargetJob to tailor questions to a specific JD. */
+  targetJobId: z.string().cuid().optional(),
 });
 
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;

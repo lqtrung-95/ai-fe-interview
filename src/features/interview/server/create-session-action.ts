@@ -25,6 +25,23 @@ export async function createSession(input: CreateSessionInput): Promise<CreateRe
     return { ok: false, message: 'daily_limit_reached', code: 'daily_limit_reached' };
   }
 
+  // Resolve target job label for Pro users
+  let label: string | undefined;
+  let targetJobId: string | undefined;
+  if (parsed.data.targetJobId) {
+    if (!user.isPro) {
+      return { ok: false, message: 'Pro required for job targeting', code: 'not_pro' };
+    }
+    const job = await prisma.targetJob.findFirst({
+      where: { id: parsed.data.targetJobId, userId: user.id },
+      select: { label: true },
+    });
+    if (job) {
+      label = job.label;
+      targetJobId = parsed.data.targetJobId;
+    }
+  }
+
   const session = await prisma.interviewSession.create({
     data: {
       userId: user.id,
@@ -32,6 +49,8 @@ export async function createSession(input: CreateSessionInput): Promise<CreateRe
       difficulty: parsed.data.difficulty,
       topics: parsed.data.topics,
       usesCv: parsed.data.usesCv ?? false,
+      label,
+      targetJobId,
     },
     select: { id: true },
   });

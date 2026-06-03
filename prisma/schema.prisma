@@ -41,6 +41,7 @@ model User {
   sessions    InterviewSession[]
   studyPlan   StudyPlan?
   redemptions PromoRedemption[]
+  targetJobs  TargetJob[]
 }
 
 // ============================================================================
@@ -88,6 +89,10 @@ model InterviewSession {
   status       SessionStatus @default(in_progress)
   overallScore Float?
   usesCv       Boolean       @default(false) // true when session was started with CV-grounded mode
+  // Job targeting (Pro) — label copied from TargetJob.label at session creation
+  label        String?
+  targetJobId  String?
+  targetJob    TargetJob?    @relation(fields: [targetJobId], references: [id], onDelete: SetNull)
   startedAt    DateTime      @default(now())
   completedAt  DateTime?
 
@@ -95,6 +100,24 @@ model InterviewSession {
   summary   SessionSummary?
 
   @@index([userId, startedAt])
+}
+
+// ============================================================================
+// Job targeting (Pro) — saved JD profiles for tailored question generation
+// ============================================================================
+
+model TargetJob {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String   // user-set name: "Stripe Senior FE"
+  rawJd     String   @db.Text
+  jdContext Json?    // extracted: { role, company?, level?, domain, requiredStack[], signals[] }
+  createdAt DateTime @default(now())
+
+  sessions  InterviewSession[]
+
+  @@index([userId])
 }
 
 model InterviewQuestion {

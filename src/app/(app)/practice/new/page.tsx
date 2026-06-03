@@ -4,6 +4,7 @@ import { TopicSelectionForm } from '@/features/interview/topic-selection-form';
 import { ONBOARDING_TOPICS } from '@/features/onboarding/schema';
 import type { Level } from '@prisma/client';
 
+
 export const metadata = { title: 'Start a session' };
 
 const VALID_DIFFICULTIES: ReadonlyArray<string> = ['junior', 'mid', 'senior'];
@@ -43,6 +44,14 @@ export default async function NewSessionPage({
   const defaultTopics = requestedTopic ? [requestedTopic] : user.preferredTopics;
   const defaultDifficulty: SessionDifficulty = toSessionDifficulty(requestedDifficulty ?? user.level);
 
+  const targetJobs = user.isPro
+    ? await prisma.targetJob.findMany({
+        where: { userId: user.id },
+        select: { id: true, label: true },
+        orderBy: { createdAt: 'desc' },
+      })
+    : [];
+
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
       <header className="mb-8">
@@ -57,6 +66,7 @@ export default async function NewSessionPage({
         defaultDifficulty={defaultDifficulty}
         topicCounts={topicCounts}
         hasCv={!!user.cvData}
+        targetJobs={targetJobs}
       />
     </div>
   );

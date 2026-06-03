@@ -6,6 +6,7 @@ const FREE_FEATURES = [
   '1 practice session / day',
   '250+ questions in the bank and growing',
   'AI feedback on every answer',
+  'Voice answer input',
   'Basic score breakdown',
 ];
 
@@ -13,7 +14,7 @@ const PRO_FEATURES = [
   'Unlimited practice sessions',
   'Full session history & replays',
   'Spaced repetition study plan',
-  'Voice answer input',
+  'Job-targeted question generation',
   'Per-dimension weak-area coaching',
   'Priority AI responses',
 ];

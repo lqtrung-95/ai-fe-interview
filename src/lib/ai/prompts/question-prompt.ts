@@ -11,6 +11,10 @@ export function buildQuestionPrompt(input: QuestionInput): {
     ? '\n- When candidate background is provided, tailor the question to probe their specific companies, projects, or technologies. Prefer "Walk me through how you…" or "At [company] you worked on…" framing.'
     : '';
 
+  const jdInstruction = input.jdContext
+    ? '\n- When a target job context is provided, probe the technologies and domain in that JD. Prefer scenario framing tied to the company\'s domain (e.g. high-scale payments, marketplace, SaaS).'
+    : '';
+
   const system = [
     'You are a realistic technical interviewer for a frontend engineering role.',
     'Generate ONE interview question that matches the user level and topic.',
@@ -19,7 +23,7 @@ export function buildQuestionPrompt(input: QuestionInput): {
     '- Concise, no preamble.',
     '- For senior level, lean into trade-offs, architecture, debugging, scalability.',
     '- Do NOT include the answer.',
-    `- Output strict JSON: { "question": string, "type": "conceptual"|"debugging"|"system_design"|"behavioral"|"tradeoff", "expectedPoints": string[] (3-6 short rubric items) }.${cvInstruction}`,
+    `- Output strict JSON: { "question": string, "type": "conceptual"|"debugging"|"system_design"|"behavioral"|"tradeoff", "expectedPoints": string[] (3-6 short rubric items) }.${cvInstruction}${jdInstruction}`,
   ].join('\n');
 
   const avoid =
@@ -38,11 +42,9 @@ export function buildQuestionPrompt(input: QuestionInput): {
       ].join('\n')
     : '';
 
-  // CV context block — injected when session.usesCv is true.
-  // NOT logged anywhere; only lives in the LLM prompt for this request.
-  const cvBlock = input.cvContext
-    ? `\n\n${input.cvContext}`
-    : '';
+  // Context blocks — NOT logged anywhere; only live in the LLM prompt for this request.
+  const cvBlock = input.cvContext ? `\n\n${input.cvContext}` : '';
+  const jdBlock = input.jdContext ? `\n\nTarget job context:\n${input.jdContext}` : '';
 
   const user = [
     `Topic: ${input.topic}`,
@@ -50,10 +52,12 @@ export function buildQuestionPrompt(input: QuestionInput): {
     `Difficulty: ${input.difficulty}`,
     `User level: ${input.level}`,
     `Session mode: ${input.sessionMode}`,
-    input.targetRole ? `Target role: ${input.targetRole}` : null,
-    input.targetCompanyType ? `Company type: ${input.targetCompanyType}` : null,
+    // JD context supersedes generic targetRole/targetCompanyType when present
+    !input.jdContext && input.targetRole ? `Target role: ${input.targetRole}` : null,
+    !input.jdContext && input.targetCompanyType ? `Company type: ${input.targetCompanyType}` : null,
     avoid,
     cvBlock,
+    jdBlock,
     seedBlock,
   ]
     .filter(Boolean)

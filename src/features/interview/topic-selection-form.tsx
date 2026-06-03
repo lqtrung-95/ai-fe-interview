@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Timer, Sparkles } from 'lucide-react';
+import { Briefcase, Check, Timer, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { createSession } from './server/create-session-action';
@@ -20,6 +21,8 @@ interface Props {
   topicCounts: Record<string, number>;
   /** Whether the user has a parsed CV — shows the "Based on my CV" toggle when true. */
   hasCv?: boolean;
+  /** Pro users' saved job targets — shows the target job selector when non-empty. */
+  targetJobs?: { id: string; label: string }[];
 }
 
 const GROUPS = [
@@ -38,7 +41,7 @@ const TIMER_OPTIONS = [
   { value: CUSTOM_SENTINEL, label: 'Custom' },
 ] as const;
 
-export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts, hasCv = false }: Props) {
+export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts, hasCv = false, targetJobs = [] }: Props) {
   const router = useRouter();
   const [topics, setTopics] = useState<string[]>(defaultTopics.length ? defaultTopics : ['JavaScript']);
   const [difficulty, setDifficulty] = useState<Difficulty>(defaultDifficulty);
@@ -46,6 +49,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
   const [timerSeconds, setTimerSeconds] = useState(0); // 0=no limit, CUSTOM_SENTINEL=custom
   const [customMinutes, setCustomMinutes] = useState('');  // raw input for custom mode
   const [usesCv, setUsesCv] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showUpgradeWall, setShowUpgradeWall] = useState(false);
 
@@ -64,7 +68,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
 
   function handleStart() {
     setError(null);
-    const payload = { mode, difficulty, topics, usesCv } as CreateSessionInput;
+    const payload = { mode, difficulty, topics, usesCv, targetJobId: selectedJobId ?? undefined } as CreateSessionInput;
     startTransition(async () => {
       const result = await createSession(payload);
       if (!result.ok) {
@@ -193,6 +197,65 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
               </span>
             </span>
           </button>
+        </section>
+      )}
+
+      {/* Target job selector — shown only when the user has saved job targets */}
+      {targetJobs.length > 0 && (
+        <section className="space-y-3">
+          <SectionLabel icon={<Briefcase className="h-3.5 w-3.5" />}>Target job</SectionLabel>
+          <div className="space-y-2">
+            {/* "None" option */}
+            <button
+              type="button"
+              onClick={() => setSelectedJobId(null)}
+              className={cn(
+                'flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all',
+                selectedJobId === null
+                  ? 'border-primary/50 bg-primary/5'
+                  : 'border-border/40 bg-background/60 hover:border-primary/30',
+              )}
+            >
+              <span className={cn(
+                'flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors',
+                selectedJobId === null ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background',
+              )}>
+                {selectedJobId === null && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">General practice</span>
+            </button>
+
+            {targetJobs.map((job) => (
+              <button
+                key={job.id}
+                type="button"
+                onClick={() => setSelectedJobId(job.id)}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all',
+                  selectedJobId === job.id
+                    ? 'border-primary/50 bg-primary/5'
+                    : 'border-border/40 bg-background/60 hover:border-primary/30',
+                )}
+              >
+                <span className={cn(
+                  'flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors',
+                  selectedJobId === job.id ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background',
+                )}>
+                  {selectedJobId === job.id && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+                </span>
+                <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                <span className="text-sm font-medium">{job.label}</span>
+              </button>
+            ))}
+
+            <p className="text-xs text-muted-foreground">
+              Manage targets in{' '}
+              <Link href="/settings" className="underline underline-offset-2 hover:text-foreground">
+                Settings
+              </Link>
+              .
+            </p>
+          </div>
         </section>
       )}
 

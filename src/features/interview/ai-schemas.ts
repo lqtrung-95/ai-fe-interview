@@ -40,6 +40,9 @@ export const questionInputSchema = z.object({
   // Formatted CV context injected when the session uses CV-grounded mode.
   // Max 1 200 chars — built by buildCvContext(). NOT stored in AICall logs.
   cvContext: z.string().max(1200).optional(),
+  // Formatted JD context injected when session targets a specific job (Pro).
+  // Max 600 chars — built by formatJdContext(). NOT stored in AICall logs.
+  jdContext: z.string().max(600).optional(),
 });
 export type QuestionInput = z.infer<typeof questionInputSchema>;
 
@@ -127,13 +130,31 @@ export const summaryOutputSchema = z.object({
 });
 export type SummaryOutput = z.infer<typeof summaryOutputSchema>;
 
+// ----- extract_jd — one-time extraction when saving a TargetJob (Pro) -----
+
+export const extractJdInputSchema = z.object({
+  rawJd: z.string().max(8000),
+});
+export type ExtractJdInput = z.infer<typeof extractJdInputSchema>;
+
+export const extractJdOutputSchema = z.object({
+  role: z.string(),
+  company: z.string().optional(),
+  level: z.string().optional(),
+  domain: z.string(),
+  requiredStack: z.array(z.string()).max(10),
+  signals: z.array(z.string()).max(6),
+});
+export type ExtractJdOutput = z.infer<typeof extractJdOutputSchema>;
+
 // ----- Union task type for orchestrator -----
 
 export type AITask =
   | { type: 'generate_question'; input: QuestionInput }
   | { type: 'generate_followup'; input: FollowupInput }
   | { type: 'evaluate_answer'; input: EvaluateInput }
-  | { type: 'generate_summary'; input: SummaryInput };
+  | { type: 'generate_summary'; input: SummaryInput }
+  | { type: 'extract_jd'; input: ExtractJdInput };
 
 export type AITaskResult<T extends AITask> = T extends { type: 'generate_question' }
   ? QuestionOutput
@@ -143,4 +164,6 @@ export type AITaskResult<T extends AITask> = T extends { type: 'generate_questio
   ? EvaluateOutput
   : T extends { type: 'generate_summary' }
   ? SummaryOutput
+  : T extends { type: 'extract_jd' }
+  ? ExtractJdOutput
   : never;

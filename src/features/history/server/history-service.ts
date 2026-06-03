@@ -24,7 +24,17 @@ export async function listSessions(userId: string, filters: HistoryFilters = {})
     where,
     orderBy: { startedAt: 'desc' },
     take: 100,
-    include: {
+    select: {
+      id: true,
+      mode: true,
+      topics: true,
+      difficulty: true,
+      status: true,
+      overallScore: true,
+      usesCv: true,
+      label: true,
+      startedAt: true,
+      completedAt: true,
       summary: true,
       questions: { select: { id: true, answer: { select: { id: true } } } },
     },

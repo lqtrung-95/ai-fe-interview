@@ -50,6 +50,7 @@ function tierForTask(task: AITask['type']): Tier {
   switch (task) {
     case 'generate_question':
     case 'generate_followup':
+    case 'extract_jd': // one-time extraction; cheap model is sufficient
       return 'cheap';
     case 'evaluate_answer':
     case 'generate_summary':

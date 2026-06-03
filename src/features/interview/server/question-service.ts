@@ -2,6 +2,8 @@ import 'server-only';
 import { prisma } from '@/lib/db/client';
 import { runAITask } from '@/lib/ai/orchestrator';
 import { buildCvContext } from '@/lib/cv/cv-context-builder';
+import { formatJdContext } from '@/features/target-jobs/target-job-types';
+import type { JdContext } from '@/features/target-jobs/target-job-types';
 import type { CvData } from '@/lib/cv/cv-types';
 import type { QuestionInput } from '../ai-schemas';
 import type { InterviewQuestion, InterviewSession, User } from '@prisma/client';
@@ -55,6 +57,19 @@ export async function nextQuestion(args: NextQuestionArgs): Promise<InterviewQue
     cvContext = ctx ?? undefined;
   }
 
+  // Build JD context when the session targets a specific job (Pro).
+  // jdContext is NOT stored in AICall logs (privacy).
+  let jdContext: string | undefined;
+  if (args.session.targetJobId) {
+    const job = await prisma.targetJob.findUnique({
+      where: { id: args.session.targetJobId },
+      select: { jdContext: true },
+    });
+    if (job?.jdContext) {
+      jdContext = formatJdContext(job.jdContext as unknown as JdContext);
+    }
+  }
+
   const input: QuestionInput = {
     topic,
     difficulty: args.session.difficulty,
@@ -65,6 +80,7 @@ export async function nextQuestion(args: NextQuestionArgs): Promise<InterviewQue
     avoidQuestions: previous.map((p) => p.question),
     seed: seedQuestion ?? undefined,
     cvContext,
+    jdContext,
   };
 
   const ai = await runAITask(

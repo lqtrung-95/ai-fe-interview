@@ -12,6 +12,8 @@ import {
   evaluateOutputSchema,
   summaryInputSchema,
   summaryOutputSchema,
+  extractJdInputSchema,
+  extractJdOutputSchema,
 } from '@/features/interview/ai-schemas';
 import { routeModel } from './model-router';
 import { recordAICall } from './cost-meter';
@@ -19,6 +21,7 @@ import { buildQuestionPrompt } from './prompts/question-prompt';
 import { buildFollowupPrompt } from './prompts/followup-prompt';
 import { buildEvaluatePrompt } from './prompts/evaluate-prompt';
 import { buildSummaryPrompt } from './prompts/summary-prompt';
+import { buildJdExtractPrompt } from './prompts/jd-extract-prompt';
 
 interface RunOptions {
   userId?: string;
@@ -132,6 +135,9 @@ function validateInput(task: AITask): void {
     case 'generate_summary':
       summaryInputSchema.parse(task.input);
       return;
+    case 'extract_jd':
+      extractJdInputSchema.parse(task.input);
+      return;
   }
 }
 
@@ -145,6 +151,8 @@ function outputSchemaFor(task: AITask) {
       return evaluateOutputSchema;
     case 'generate_summary':
       return summaryOutputSchema;
+    case 'extract_jd':
+      return extractJdOutputSchema;
   }
 }
 
@@ -158,6 +166,8 @@ function buildPrompt(task: AITask): { system: string; user: string } {
       return buildEvaluatePrompt(task.input);
     case 'generate_summary':
       return buildSummaryPrompt(task.input);
+    case 'extract_jd':
+      return buildJdExtractPrompt(task.input);
   }
 }
 
@@ -171,6 +181,8 @@ function temperatureFor(type: AITask['type']): number {
       return 0.2;
     case 'generate_summary':
       return 0.3;
+    case 'extract_jd':
+      return 0.1;
   }
 }
 
@@ -184,6 +196,8 @@ function maxTokensFor(type: AITask['type']): number {
       return 2000;
     case 'generate_summary':
       return 800;
+    case 'extract_jd':
+      return 300;
   }
 }
 
