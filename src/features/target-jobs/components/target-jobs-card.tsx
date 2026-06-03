@@ -83,7 +83,7 @@ export function TargetJobsCard({ isPro, initialJobs }: Props) {
                   className="flex items-center gap-3 rounded-lg border border-border/60 bg-background/60 px-4 py-3"
                 >
                   <Briefcase className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="flex-1 text-sm font-medium">{job.label}</span>
+                  <span className="flex-1 truncate text-sm font-medium">{job.label}</span>
                   <button
                     type="button"
                     onClick={() => handleDelete(job.id)}

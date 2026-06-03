@@ -44,7 +44,7 @@ export function TargetJobAddForm({ onSaved, onCancel }: Props) {
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder='e.g. "Stripe Senior FE"'
-          maxLength={60}
+          maxLength={100}
           disabled={busy}
           className="w-full rounded-md border border-border/70 bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30 disabled:opacity-50"
         />

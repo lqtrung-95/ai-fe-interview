@@ -4,7 +4,7 @@ import { requireUser } from '@/lib/auth/session';
 import { listTargetJobs, createTargetJob, deleteTargetJob } from '@/features/target-jobs/server/target-job-service';
 
 const createSchema = z.object({
-  label: z.string().min(1).max(60).trim(),
+  label: z.string().min(1).max(100).trim(),
   rawJd: z.string().min(50).max(20000).trim(),
 });
 
