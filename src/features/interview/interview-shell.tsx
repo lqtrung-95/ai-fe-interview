@@ -49,7 +49,11 @@ export function InterviewShell({
         {banner}
         <InterviewEmptyState
           title="Ready when you are."
-          cta={<Button onClick={flow.loadNextQuestion}>Start interview</Button>}
+          cta={
+            <Button className="h-10 w-full px-5 text-sm sm:w-auto" onClick={flow.loadNextQuestion}>
+              Start interview
+            </Button>
+          }
         />
       </>
     );
@@ -122,25 +126,25 @@ export function InterviewShell({
     <>
       {banner}
       <InterviewMainPanel
-      current={state.current}
-      completed={state.completed}
-      questionTarget={questionTarget}
-      draft={state.draft}
-      followUp={state.followUp}
-      followUpDraft={state.followUpDraft}
-      feedback={state.feedback}
-      isFollowUp={state.phase === 'followup'}
-      isFeedback={state.phase === 'feedback'}
-      isSubmitting={state.phase === 'submitting'}
-      error={state.error}
-      onDraftChange={state.setDraft}
-      onFollowUpDraftChange={state.setFollowUpDraft}
-      onSubmitAnswer={flow.submitAnswer}
-      onSubmitFollowUp={flow.submitFollowUp}
-      onSkipFollowUp={flow.skipFollowUp}
-      onRetryFeedback={flow.retryFeedback}
-      onContinue={flow.finishQuestion}
-      onEndSession={flow.endEarly}
+        current={state.current}
+        completed={state.completed}
+        questionTarget={questionTarget}
+        draft={state.draft}
+        followUp={state.followUp}
+        followUpDraft={state.followUpDraft}
+        feedback={state.feedback}
+        isFollowUp={state.phase === 'followup'}
+        isFeedback={state.phase === 'feedback'}
+        isSubmitting={state.phase === 'submitting'}
+        error={state.error}
+        onDraftChange={state.setDraft}
+        onFollowUpDraftChange={state.setFollowUpDraft}
+        onSubmitAnswer={flow.submitAnswer}
+        onSubmitFollowUp={flow.submitFollowUp}
+        onSkipFollowUp={flow.skipFollowUp}
+        onRetryFeedback={flow.retryFeedback}
+        onContinue={flow.finishQuestion}
+        onEndSession={flow.endEarly}
       />
     </>
   );

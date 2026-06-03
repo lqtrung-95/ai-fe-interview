@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { BriefcaseBusiness, Layers3, SlidersHorizontal } from 'lucide-react';
 import { requireUser } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
 import { InterviewShell } from '@/features/interview/interview-shell';
@@ -10,6 +11,10 @@ const QUESTION_TARGETS = {
   standard: 5,
   deep_coaching: 5,
 } as const;
+
+function formatSessionMode(mode: string) {
+  return mode.replace('_', ' ');
+}
 
 export default async function SessionPage({
   params,
@@ -51,19 +56,45 @@ export default async function SessionPage({
   const target = QUESTION_TARGETS[session.mode];
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       {/* Session metadata header — question counter lives in InterviewMainPanel (live) */}
-      <header className="mb-6 flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
-            {session.mode.replace('_', ' ')} · {session.difficulty}
-          </span>
-          <span>{session.topics.join(' + ')}</span>
+      <header className="border-b border-border/50 pb-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 max-w-3xl space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+              <span className="inline-flex h-8 items-center gap-2 rounded-lg bg-primary/12 px-3 font-semibold text-primary">
+                <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
+                {formatSessionMode(session.mode)}
+              </span>
+              <span className="inline-flex h-8 items-center rounded-lg border border-border/70 px-3 text-muted-foreground">
+                {session.difficulty}
+              </span>
+              <span className="inline-flex h-8 items-center rounded-lg border border-border/70 px-3 text-muted-foreground">
+                {target} questions
+              </span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-medium uppercase text-muted-foreground">
+                <Layers3 className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                Focus areas
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {session.topics.map((topic) => (
+                  <span
+                    key={topic}
+                    className="inline-flex min-h-8 items-center rounded-lg border border-border/70 bg-card/55 px-3 py-1 text-sm font-medium leading-5 text-muted-foreground"
+                  >
+                    {topic}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
           {session.label && (
-            <span className="flex items-center gap-1 rounded-full border border-border/60 bg-card px-3 py-1 font-medium text-foreground">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-              {session.label}
-            </span>
+            <div className="flex min-w-0 items-start gap-3 rounded-lg border border-border/70 bg-card/70 px-4 py-3 text-sm font-medium text-foreground shadow-sm lg:max-w-md">
+              <BriefcaseBusiness className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+              <span className="min-w-0 leading-5">{session.label}</span>
+            </div>
           )}
         </div>
       </header>
