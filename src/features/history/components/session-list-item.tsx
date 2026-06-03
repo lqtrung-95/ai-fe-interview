@@ -114,10 +114,12 @@ export function SessionListItem({ session }: Props) {
             <span className="ml-1 text-xs font-medium text-muted-foreground">/ 5</span>
           </p>
         </div>
-        <div className="hidden items-center gap-1 text-xs font-semibold text-primary md:flex">
-          {isInProgress ? 'Resume' : 'Review'}
-          <ArrowRight className="size-4" />
-        </div>
+        {!isInProgress && (
+          <div className="hidden items-center gap-1 text-xs font-semibold text-primary md:flex">
+            Review
+            <ArrowRight className="size-4" />
+          </div>
+        )}
       </Link>
 
       {isInProgress && (
