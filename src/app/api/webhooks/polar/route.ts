@@ -39,7 +39,7 @@ export const POST = Webhooks({
       const sub = (payload as { data: { id: string } }).data;
       await prisma.user.updateMany({
         where: { polarSubscriptionId: sub.id },
-        data: { isPro: false },
+        data: { isPro: false, proExpiresAt: null },
       });
     }
 

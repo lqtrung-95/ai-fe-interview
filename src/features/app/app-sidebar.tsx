@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Clock, Database, LayoutDashboard, Settings, Zap } from 'lucide-react';
+import { BookOpen, Clock, Database, LayoutDashboard, Settings, Zap, Crown } from 'lucide-react';
 import { BrandLogo } from '@/components/common/brand-logo';
 
 const NAV = [
@@ -14,11 +14,17 @@ const NAV = [
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
-interface Props {
-  isPro?: boolean;
+function formatDate(iso: string): string {
+  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(iso));
 }
 
-export function AppSidebar({ isPro = false }: Props) {
+interface Props {
+  isPro?: boolean;
+  proExpiresAt?: string | null;
+  proSince?: string | null;
+}
+
+export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null }: Props) {
   const pathname = usePathname();
 
   return (
@@ -78,9 +84,23 @@ export function AppSidebar({ isPro = false }: Props) {
       {/* Bottom gradient accent line */}
       <div className="h-px w-full shrink-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
-      {/* Upgrade CTA for free users */}
-      {!isPro && (
-        <div className="shrink-0 px-3 py-3">
+      {/* Pro badge or upgrade CTA */}
+      <div className="shrink-0 px-3 py-3">
+        {isPro ? (
+          <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/8 px-3 py-2">
+            <Crown className="h-3 w-3 shrink-0 text-amber-500" />
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-amber-500">Pro</p>
+              <p className="text-[10px] text-sidebar-foreground/45 truncate">
+                {proExpiresAt
+                  ? `Expires ${formatDate(proExpiresAt)}`
+                  : proSince
+                    ? `Since ${formatDate(proSince)}`
+                    : 'Active'}
+              </p>
+            </div>
+          </div>
+        ) : (
           <Link
             href="/upgrade"
             className="flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/8 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/12 transition-colors"
@@ -88,8 +108,8 @@ export function AppSidebar({ isPro = false }: Props) {
             <Zap className="h-3 w-3 shrink-0" />
             Upgrade to Pro
           </Link>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="shrink-0 px-4 py-3">
         <p className="text-[10px] text-sidebar-foreground/25">Frontend Coach v1.0</p>

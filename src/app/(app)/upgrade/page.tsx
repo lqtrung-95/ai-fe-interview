@@ -1,7 +1,6 @@
-import { redirect } from 'next/navigation';
 import { Check, Zap } from 'lucide-react';
-import { getCurrentUser } from '@/lib/auth/session';
 import { buttonVariants } from '@/components/ui/button';
+import { RedeemCodeForm } from '@/features/subscription/redeem-code-form';
 
 const PRO_FEATURES = [
   'Unlimited practice sessions',
@@ -15,10 +14,7 @@ const PRO_FEATURES = [
 export const metadata = { title: 'Upgrade to Pro' };
 
 export default async function UpgradePage() {
-  const user = await getCurrentUser();
-  if (!user) redirect('/sign-in?next=/upgrade');
-  if (user.isPro) redirect('/dashboard');
-
+  // Auth enforced by the (app) layout — no need for explicit getCurrentUser() here.
   const monthlyId = process.env.NEXT_PUBLIC_POLAR_MONTHLY_PRODUCT_ID;
   const lifetimeId = process.env.NEXT_PUBLIC_POLAR_LIFETIME_PRODUCT_ID;
 
@@ -81,6 +77,8 @@ export default async function UpgradePage() {
       <p className="mt-5 text-center text-xs text-muted-foreground">
         Secure checkout via Polar. No hidden fees.
       </p>
+
+      <RedeemCodeForm />
     </div>
   );
 }

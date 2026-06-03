@@ -29,15 +29,49 @@ model User {
   cvData            Json?    // Parsed CvData (roles, skills, projects) — see src/lib/cv/cv-types.ts
   cvParsedAt        DateTime? // Timestamp of last successful LLM parse
   // Subscription
-  isPro             Boolean   @default(false)
-  polarCustomerId   String?   @unique
-  polarSubscriptionId String? @unique
-  proSince          DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  isPro               Boolean   @default(false)
+  polarCustomerId     String?   @unique
+  polarSubscriptionId String?   @unique
+  proSince            DateTime?
+  // proExpiresAt is set only for promo-granted access; null = permanent (Polar subscriber)
+  proExpiresAt        DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  sessions  InterviewSession[]
-  studyPlan StudyPlan?
+  sessions    InterviewSession[]
+  studyPlan   StudyPlan?
+  redemptions PromoRedemption[]
+}
+
+// ============================================================================
+// Promo codes — admin-issued codes that grant timed Pro access
+// ============================================================================
+
+model PromoCode {
+  id           String    @id @default(cuid())
+  code         String    @unique  // e.g. "LAUNCH7", "BETA30" — stored UPPERCASE
+  durationDays Int                // days of Pro access granted on redemption
+  // maxUses = 0 means unlimited
+  maxUses      Int       @default(0)
+  usedCount    Int       @default(0)
+  expiresAt    DateTime?           // null = code itself never expires
+  note         String?             // admin memo
+  createdAt    DateTime  @default(now())
+
+  redemptions PromoRedemption[]
+}
+
+model PromoRedemption {
+  id           String    @id @default(cuid())
+  promoCodeId  String
+  userId       String
+  grantedAt    DateTime  @default(now())
+  proExpiresAt DateTime             // grantedAt + durationDays
+
+  promoCode PromoCode @relation(fields: [promoCodeId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([promoCodeId, userId])  // one redemption per code per user
 }
 
 // ============================================================================

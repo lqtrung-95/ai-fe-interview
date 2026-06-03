@@ -21,7 +21,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen bg-background">
-      <AppSidebar isPro={user.isPro} />
+      <AppSidebar
+        isPro={user.isPro}
+        proExpiresAt={user.proExpiresAt?.toISOString() ?? null}
+        proSince={user.proSince?.toISOString() ?? null}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader userName={user.name} userEmail={user.email} userImage={user.image} />
         <main className="min-w-0 flex-1">{children}</main>
