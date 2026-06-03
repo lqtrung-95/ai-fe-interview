@@ -105,7 +105,7 @@ async function main() {
           detailedExplanation: r.detailedExplanation ?? null,
           diagramSvg: r.diagramSvg ?? null,
           diagramMermaid: r.diagramMermaid ?? null,
-          quiz: r.quiz != null ? JSON.stringify(r.quiz) : null,
+          quiz: r.quiz != null ? (typeof r.quiz === 'string' ? r.quiz : JSON.stringify(r.quiz)) : null,
         },
         create: {
           id: r.id,
@@ -123,7 +123,7 @@ async function main() {
           detailedExplanation: r.detailedExplanation ?? null,
           diagramSvg: r.diagramSvg ?? null,
           diagramMermaid: r.diagramMermaid ?? null,
-          quiz: r.quiz != null ? JSON.stringify(r.quiz) : null,
+          quiz: r.quiz != null ? (typeof r.quiz === 'string' ? r.quiz : JSON.stringify(r.quiz)) : null,
         },
       });
       total++;
