@@ -87,17 +87,24 @@ export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null
       {/* Pro badge or upgrade CTA */}
       <div className="shrink-0 px-3 py-3">
         {isPro ? (
-          <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/8 px-3 py-2">
-            <Crown className="h-3 w-3 shrink-0 text-amber-500" />
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-amber-500">Pro</p>
-              <p className="text-[10px] text-sidebar-foreground/45 truncate">
-                {proExpiresAt
-                  ? `Expires ${formatDate(proExpiresAt)}`
-                  : proSince
-                    ? `Since ${formatDate(proSince)}`
-                    : 'Active'}
-              </p>
+          <div className="rounded-lg border border-sidebar-border bg-sidebar-accent/35 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber-500/12 text-amber-500">
+                <Crown className="h-3.5 w-3.5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold text-sidebar-foreground">Pro</p>
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" aria-label="Active" />
+                </div>
+                <p className="mt-0.5 truncate text-[10px] text-sidebar-foreground/45">
+                  {proExpiresAt
+                    ? `Expires ${formatDate(proExpiresAt)}`
+                    : proSince
+                      ? `Since ${formatDate(proSince)}`
+                      : 'Active plan'}
+                </p>
+              </div>
             </div>
           </div>
         ) : (
