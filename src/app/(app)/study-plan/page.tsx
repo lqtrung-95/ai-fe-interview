@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth/session';
+import { prisma } from '@/lib/db/client';
 import { getUserStudyPlan } from '@/features/study-plan/server/study-plan-service';
 import { StudyPlanSetupForm } from '@/features/study-plan/components/study-plan-setup-form';
 import { StudyPlanProgressHeader } from '@/features/study-plan/components/study-plan-progress-header';
@@ -17,7 +18,14 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
   const [user, sp] = await Promise.all([requireUser(), searchParams]);
   if (!user.isPro) redirect('/upgrade');
 
-  const plan = await getUserStudyPlan(user.id);
+  const [plan, targetJobs] = await Promise.all([
+    getUserStudyPlan(user.id),
+    prisma.targetJob.findMany({
+      where: { userId: user.id },
+      select: { id: true, label: true },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ]);
 
   const isEdit = sp.edit === '1' && plan !== null;
 
@@ -48,6 +56,7 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
           defaultLevel={plan?.level ?? 'mid'}
           defaultPrepWeeks={plan?.prepWeeks ?? 4}
           isEdit={isEdit}
+          targetJobs={targetJobs}
         />
       </div>
     );
