@@ -7,6 +7,19 @@ import type { User as DbUser } from '@prisma/client';
 
 export const USER_CACHE_TAG = (userId: string) => `user-${userId}`;
 
+// unstable_cache serializes to JSON, so DateTime fields come back as strings.
+// This restores them to proper Date objects that Prisma consumers expect.
+function rehydrateDates(user: DbUser): DbUser {
+  return {
+    ...user,
+    cvParsedAt: user.cvParsedAt ? new Date(user.cvParsedAt) : null,
+    proSince: user.proSince ? new Date(user.proSince) : null,
+    proExpiresAt: user.proExpiresAt ? new Date(user.proExpiresAt) : null,
+    createdAt: new Date(user.createdAt),
+    updatedAt: new Date(user.updatedAt),
+  };
+}
+
 // Module-level cached DB lookup — arguments are included in the cache key automatically.
 // Invalidated via revalidateTag(USER_CACHE_TAG(userId)) after any user mutation.
 const getDbUser = unstable_cache(
@@ -38,12 +51,13 @@ export const getCurrentUser = cache(async (): Promise<DbUser | null> => {
   if (!authUser) return null;
 
   const { id, email, user_metadata } = authUser;
-  return getDbUser(
+  const cached = await getDbUser(
     id,
     email ?? '',
     ((user_metadata?.full_name as string | undefined) ?? (user_metadata?.name as string | undefined)) ?? null,
     (user_metadata?.avatar_url as string | undefined) ?? null,
   );
+  return cached ? rehydrateDates(cached) : null;
 });
 
 /**
