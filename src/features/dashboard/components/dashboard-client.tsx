@@ -6,6 +6,7 @@ import { Lock } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { DashboardPageSkeleton } from '@/components/ui/dashboard-page-skeleton';
 import { useDashboardQuery } from '../hooks/use-dashboard-query';
+import { InterviewCountdownBanner } from './interview-countdown-banner';
 import { OverviewCards } from './overview-cards';
 import { ScoreTrendChart } from './score-trend-chart';
 import { TopicRadarChart } from './topic-radar-chart';
@@ -15,11 +16,16 @@ import { DashboardEmptyState } from './dashboard-empty-state';
 
 function DashboardContent() {
   const { data } = useDashboardQuery();
-  const { overview, trend, topics, weakAreas, recommendations, isPro, userName } = data;
+  const { overview, trend, topics, weakAreas, recommendations, isPro, userName, targetInterviewDate } = data;
   const hasAnyData = overview.totalSessions > 0 || overview.totalQuestionsAnswered > 0;
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">
+      {targetInterviewDate && (
+        <div className="mb-6">
+          <InterviewCountdownBanner targetInterviewDate={targetInterviewDate} />
+        </div>
+      )}
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">

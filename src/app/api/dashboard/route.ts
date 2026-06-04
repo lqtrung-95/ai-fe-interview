@@ -29,6 +29,7 @@ export async function GET() {
     recommendations,
     isPro: user.isPro,
     userName: user.name,
+    targetInterviewDate: user.targetInterviewDate?.toISOString() ?? null,
   };
 
   return NextResponse.json(data);

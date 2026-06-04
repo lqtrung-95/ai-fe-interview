@@ -22,7 +22,7 @@ export default async function HistoryPage({
   const raw = await searchParams;
   const filters = parseHistoryFilters(raw);
   const sessions = await listSessions(user.id, filters);
-  const hasActiveFilters = Boolean(filters.topic || filters.minScore || filters.from || filters.to);
+  const hasActiveFilters = Boolean(filters.topic || filters.minScore || filters.from || filters.to || filters.search);
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-10">

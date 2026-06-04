@@ -57,4 +57,5 @@ export interface DashboardData {
   recommendations: RecommendedTopic[];
   isPro: boolean;
   userName: string | null;
+  targetInterviewDate: string | null; // ISO string
 }

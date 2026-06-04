@@ -28,6 +28,8 @@ model User {
   cvFileUrl         String?  // Supabase Storage path: cvs/{userId}/resume.pdf (never a public URL)
   cvData            Json?    // Parsed CvData (roles, skills, projects) — see src/lib/cv/cv-types.ts
   cvParsedAt        DateTime? // Timestamp of last successful LLM parse
+  // Interview preparation target date — optional countdown shown on dashboard
+  targetInterviewDate DateTime?
   // Subscription
   isPro               Boolean   @default(false)
   polarCustomerId     String?   @unique

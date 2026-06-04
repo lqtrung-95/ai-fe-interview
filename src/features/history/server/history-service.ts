@@ -19,6 +19,20 @@ export async function listSessions(userId: string, filters: HistoryFilters = {})
     if (filters.to) startedAt.lte = new Date(`${filters.to}T23:59:59Z`);
     where.startedAt = startedAt;
   }
+  if (filters.search) {
+    const term = filters.search;
+    where.OR = [
+      // Match session label (user-given name, e.g. job target label)
+      { label: { contains: term, mode: 'insensitive' } },
+      // Match topic names (case-insensitive contains within the array entries)
+      { topics: { has: term } },
+      // Partial match on topic by checking each entry via OR-expanded list
+      ...['JavaScript', 'React', 'Frontend System Design', 'Web Performance',
+          'Browser & Web APIs', 'Testing', 'Behavioral'].flatMap((t) =>
+        t.toLowerCase().includes(term.toLowerCase()) ? [{ topics: { has: t } }] : []
+      ),
+    ];
+  }
 
   return prisma.interviewSession.findMany({
     where,

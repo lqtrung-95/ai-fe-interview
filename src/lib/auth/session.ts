@@ -15,6 +15,7 @@ function rehydrateDates(user: DbUser): DbUser {
     cvParsedAt: user.cvParsedAt ? new Date(user.cvParsedAt) : null,
     proSince: user.proSince ? new Date(user.proSince) : null,
     proExpiresAt: user.proExpiresAt ? new Date(user.proExpiresAt) : null,
+    targetInterviewDate: user.targetInterviewDate ? new Date(user.targetInterviewDate) : null,
     createdAt: new Date(user.createdAt),
     updatedAt: new Date(user.updatedAt),
   };

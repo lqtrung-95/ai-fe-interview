@@ -22,6 +22,7 @@ export const historyFiltersSchema = z.object({
     emptyToUndefined,
     z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD').optional()
   ),
+  search: z.preprocess(emptyToUndefined, z.string().max(100).optional()),
 });
 
 export type HistoryFilters = z.infer<typeof historyFiltersSchema>;
@@ -32,6 +33,7 @@ export function parseHistoryFilters(raw: Record<string, string | string[] | unde
     minScore: pick(raw.minScore),
     from: pick(raw.from),
     to: pick(raw.to),
+    search: pick(raw.search),
   });
   return parsed.success ? parsed.data : {};
 }

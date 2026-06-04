@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { extractText } from 'unpdf';
-import { requireUser } from '@/lib/auth/session';
+import { requireUser, USER_CACHE_TAG } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
 import { uploadCvFile } from '@/lib/cv/cv-storage';
 import { parseCvText } from '@/lib/cv/cv-parser';
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
       ...(storagePath ? { cvFileUrl: storagePath } : {}),
     },
   });
+  revalidateTag(USER_CACHE_TAG(user.id), 'default');
 
   return NextResponse.json({ ok: true, cvData });
 }

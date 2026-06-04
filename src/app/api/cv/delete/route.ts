@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
+import { revalidateTag } from 'next/cache';
 import { Prisma } from '@prisma/client';
-import { requireUser } from '@/lib/auth/session';
+import { requireUser, USER_CACHE_TAG } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
 import { deleteCvFile } from '@/lib/cv/cv-storage';
 
@@ -35,6 +36,7 @@ export async function DELETE() {
     // Prisma requires Prisma.DbNull (not plain null) for nullable JSON columns
     data: { cvData: Prisma.DbNull, cvFileUrl: null, cvParsedAt: null },
   });
+  revalidateTag(USER_CACHE_TAG(user.id), 'default');
 
   return NextResponse.json({ ok: true });
 }

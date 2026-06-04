@@ -2,11 +2,29 @@ import 'server-only';
 import { prisma } from '@/lib/db/client';
 import { streamAITask } from '@/lib/ai/orchestrator';
 import { buildCvContext } from '@/lib/cv/cv-context-builder';
+import { formatJdContext, type JdContext } from '@/features/target-jobs/target-job-types';
 import type { CvData } from '@/lib/cv/cv-types';
-import { questionOutputSchema, type QuestionInput } from '../ai-schemas';
+import { questionOutputSchema, type QuestionInput, difficultyEnum } from '../ai-schemas';
 import type { InterviewSession, User } from '@prisma/client';
 
 const SEED_PROBABILITY = 0.7;
+
+type Difficulty = 'junior' | 'mid' | 'senior';
+const DIFFICULTY_ORDER: Difficulty[] = ['junior', 'mid', 'senior'];
+
+/**
+ * Adapts difficulty based on rolling session score.
+ * Score ≥ 4.2 → bump up one tier; score ≤ 2.0 → drop one tier.
+ * Stays within the session's base difficulty ±1 tier.
+ */
+function adaptDifficulty(base: Difficulty, scores: number[]): Difficulty {
+  if (scores.length < 2) return base; // wait until 2 answers before adapting
+  const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+  const baseIdx = DIFFICULTY_ORDER.indexOf(base);
+  if (avg >= 4.2 && baseIdx < DIFFICULTY_ORDER.length - 1) return DIFFICULTY_ORDER[baseIdx + 1];
+  if (avg <= 2.0 && baseIdx > 0) return DIFFICULTY_ORDER[baseIdx - 1];
+  return base;
+}
 
 interface Args {
   user: User;
@@ -25,28 +43,48 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
   const previous = await prisma.interviewQuestion.findMany({
     where: { sessionId: args.session.id },
     orderBy: { order: 'asc' },
-    select: { question: true, topic: true },
+    select: {
+      question: true,
+      topic: true,
+      answer: { select: { feedback: { select: { overallScore: true } } } },
+    },
   });
   const topic = pickTopic(args.session.topics, previous.map((p) => p.topic));
+
+  // Adaptive difficulty: adjust based on rolling average of answered scores so far.
+  const answeredScores = previous
+    .map((q) => q.answer?.feedback?.overallScore)
+    .filter((s): s is number => s !== undefined);
+  const baseDifficulty = difficultyEnum.parse(args.session.difficulty);
+  const difficulty = adaptDifficulty(baseDifficulty, answeredScores);
+
   const seedQuestion =
     Math.random() < SEED_PROBABILITY
-      ? await pickSeedQuestion({
-          topic,
-          difficulty: args.session.difficulty,
-          sessionId: args.session.id,
-        })
+      ? await pickSeedQuestion({ topic, difficulty, sessionId: args.session.id })
       : null;
-  // Build CV context when this session was started with the "personalise with my CV" toggle.
-  // cvContext is NOT stored in AICall logs — only lives in the LLM prompt for this request.
+
+  // CV context — NOT stored in AICall logs; only lives in the LLM prompt for this request.
   let cvContext: string | undefined;
   if (args.session.usesCv && args.user.cvData) {
     const ctx = buildCvContext(args.user.cvData as CvData);
     cvContext = ctx ?? undefined;
   }
 
+  // Job context — NOT stored in AICall logs; only lives in the LLM prompt for this request.
+  let jdContext: string | undefined;
+  if (args.session.targetJobId) {
+    const job = await prisma.targetJob.findFirst({
+      where: { id: args.session.targetJobId },
+      select: { jdContext: true },
+    });
+    if (job?.jdContext) {
+      jdContext = formatJdContext(job.jdContext as unknown as JdContext);
+    }
+  }
+
   const input: QuestionInput = {
     topic,
-    difficulty: args.session.difficulty,
+    difficulty,
     level: args.user.level,
     sessionMode: args.session.mode,
     targetRole: args.user.targetRole,
@@ -54,6 +92,7 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
     avoidQuestions: previous.map((p) => p.question),
     seed: seedQuestion ?? undefined,
     cvContext,
+    jdContext,
   };
 
   const result = streamAITask(
@@ -75,7 +114,7 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
           data: {
             sessionId: args.session.id,
             topic,
-            difficulty: args.session.difficulty,
+            difficulty, // adapted difficulty, not necessarily the session base
             type: ai.type,
             question: ai.question,
             expectedPoints: ai.expectedPoints,

@@ -4,6 +4,7 @@ import { ProfileForm } from '@/features/settings/components/profile-form';
 import { InterviewPreferencesCard } from '@/features/settings/components/interview-preferences-card';
 import { CvProfileCard } from '@/features/settings/components/cv-profile-card';
 import { TargetJobsCard } from '@/features/target-jobs/components/target-jobs-card';
+import { InterviewDateCard } from '@/features/settings/components/interview-date-card';
 import type { CvData } from '@/lib/cv/cv-types';
 
 export const metadata = { title: 'Settings' };
@@ -56,6 +57,10 @@ export default async function SettingsPage() {
       <TargetJobsCard
         isPro={user.isPro}
         initialJobs={targetJobs}
+      />
+
+      <InterviewDateCard
+        initialDate={user.targetInterviewDate?.toISOString() ?? null}
       />
     </div>
   );

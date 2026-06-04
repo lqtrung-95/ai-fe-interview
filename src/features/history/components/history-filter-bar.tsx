@@ -1,8 +1,8 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTransition } from 'react';
-import { SlidersHorizontal, X } from 'lucide-react';
+import { useTransition, useRef } from 'react';
+import { SlidersHorizontal, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { ONBOARDING_TOPICS } from '@/features/onboarding/schema';
@@ -20,7 +20,9 @@ export function HistoryFilterBar() {
   const minScore = params.get('minScore') ?? '';
   const from = params.get('from') ?? '';
   const to = params.get('to') ?? '';
-  const hasAny = topic || minScore || from || to;
+  const search = params.get('search') ?? '';
+  const hasAny = topic || minScore || from || to || search;
+  const searchRef = useRef<HTMLInputElement>(null);
 
   function update(key: string, value: string) {
     const next = new URLSearchParams(params.toString());
@@ -41,7 +43,24 @@ export function HistoryFilterBar() {
         <SlidersHorizontal className="size-4 text-primary" />
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filter sessions</p>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_auto]">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_auto]">
+        <FilterField label="Search">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              ref={searchRef}
+              type="text"
+              placeholder="Topic or label…"
+              defaultValue={search}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') update('search', (e.target as HTMLInputElement).value);
+              }}
+              onBlur={(e) => update('search', e.target.value)}
+              className={`${controlClass} pl-8`}
+            />
+          </div>
+        </FilterField>
+
         <FilterField label="Topic">
           <select value={topic} onChange={(e) => update('topic', e.target.value)} className={controlClass}>
             {TOPICS.map((t) => (
