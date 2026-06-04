@@ -8,10 +8,75 @@ interface Props {
   answer: string;
 }
 
-const HIGHLIGHT_PATTERN =
-  /(React Profiler|Performance panel|commit durations|wasted renders|INP|long-task trace|long tasks|React render time|JavaScript execution|layout thrash|main-thread blocking|third-party script|startTransition|useDeferredValue|useCallback|ref-based handlers|virtualization|splitting state|high-frequency updates|React\.memo|useMemo|Memoization|measurement|measured|measure|classify|targeted fix|verify)/gi;
-const HIGHLIGHT_TEST_PATTERN =
-  /^(React Profiler|Performance panel|commit durations|wasted renders|INP|long-task trace|long tasks|React render time|JavaScript execution|layout thrash|main-thread blocking|third-party script|startTransition|useDeferredValue|useCallback|ref-based handlers|virtualization|splitting state|high-frequency updates|React\.memo|useMemo|Memoization|measurement|measured|measure|classify|targeted fix|verify)$/i;
+// Terms to auto-highlight in older answers that predate the backtick-prompt change.
+// New answers use backticks which are handled above; this is the fallback.
+const HIGHLIGHT_TERMS = [
+  // React hooks & APIs
+  'useState','useEffect','useReducer','useContext','useRef','useCallback','useMemo',
+  'useLayoutEffect','useInsertionEffect','useId','useTransition','useDeferredValue',
+  'useSyncExternalStore','useImperativeHandle','useDebugValue','useSuspenseQuery',
+  'React\\.memo','React\\.lazy','React\\.createContext','React\\.forwardRef',
+  'startTransition','createContext','forwardRef','Suspense','ErrorBoundary',
+  // React concepts
+  'React Server Components','Client Components','Server Components','RSC',
+  'virtual DOM','reconciliation','hydration','concurrent mode','concurrent rendering',
+  'fiber','key prop','render phase','commit phase','batching','Strict Mode',
+  // State management
+  'Zustand','Redux','Recoil','Jotai','Context API','useStore','useSelector',
+  // Data fetching
+  'React Query','TanStack Query','SWR','useSuspenseQuery','useQuery','useMutation',
+  'useInfiniteQuery','staleTime','gcTime','invalidateQueries','prefetchQuery',
+  // Performance
+  'INP','LCP','CLS','FCP','TTFB','TBT','TTI','Core Web Vitals','Lighthouse',
+  'React Profiler','Performance panel','commit durations','wasted renders',
+  'React render time','JavaScript execution','layout thrash','main-thread blocking',
+  'third-party script','long-task trace','long tasks','long task',
+  'code splitting','lazy loading','tree shaking','bundle splitting',
+  'requestAnimationFrame','requestIdleCallback','web vitals',
+  'virtualization','windowing','react-window','react-virtual',
+  'memoization','Memoization',
+  // GraphQL / Apollo
+  'Apollo Client','Apollo Server','ApolloProvider','InMemoryCache',
+  'useSubscription','WebSocketLink','connectionParams','RetryLink',
+  'pollInterval','fetchPolicy','cache-first','network-only','no-cache',
+  'gql','GraphQL','subscriptions','mutations','queries',
+  // Browser APIs
+  'IntersectionObserver','MutationObserver','ResizeObserver','PerformanceObserver',
+  'Service Worker','Web Worker','SharedArrayBuffer','BroadcastChannel',
+  'IndexedDB','localStorage','sessionStorage','Cache API',
+  'WebSocket','WebRTC','EventSource','Server-Sent Events',
+  'requestAnimationFrame','CustomEvent','addEventListener','AbortController',
+  // JavaScript
+  'Promise','async/await','event loop','microtask','macrotask',
+  'closure','prototype chain','prototype','hoisting','temporal dead zone',
+  'WeakMap','WeakSet','WeakRef','FinalizationRegistry','Symbol','Proxy','Reflect',
+  'generator','iterator','for\\.\\.\\.of','destructuring','optional chaining',
+  'nullish coalescing','dynamic import','import\\.meta',
+  // CSS / Styling
+  'CSS variables','custom properties','CSS-in-JS','Tailwind','CSS Modules',
+  'flexbox','CSS Grid','media queries','container queries','cascade layers',
+  'specificity','transform','will-change','content-visibility',
+  // Next.js
+  'App Router','Pages Router','getServerSideProps','getStaticProps',
+  'getStaticPaths','Server Actions','Route Handlers','Middleware',
+  'next/dynamic','next/image','next/link','ISR','SSR','SSG','PPR',
+  'unstable_cache','revalidateTag','revalidatePath',
+  // Testing
+  'react-testing-library','@testing-library','userEvent','fireEvent',
+  'jest','vitest','Playwright','Cypress','MSW','mock service worker',
+  'unit test','integration test','end-to-end','snapshot test',
+  // Build tools
+  'webpack','Vite','Rollup','esbuild','Turbopack','SWC','Babel',
+  'tree-shaking','dead code elimination','code splitting',
+  // General patterns
+  'higher-order component','HOC','render prop','compound component',
+  'controlled component','uncontrolled component',
+  'optimistic update','pessimistic update',
+  'debounce','throttle','rate limiting',
+].join('|');
+
+const HIGHLIGHT_PATTERN = new RegExp(`(${HIGHLIGHT_TERMS})`, 'gi');
+const HIGHLIGHT_TEST_PATTERN = new RegExp(`^(${HIGHLIGHT_TERMS})$`, 'i');
 
 export function BetterAnswerCard({ answer }: Props) {
   const [copied, setCopied] = useState(false);
