@@ -47,3 +47,14 @@ export interface TopicWeakArea {
   /** The most recently flagged "what was missing" from AI feedback for this topic. */
   specificGap: string | null;
 }
+
+/** Shape returned by GET /api/dashboard and consumed by useDashboardQuery. */
+export interface DashboardData {
+  overview: OverviewMetrics;
+  trend: ScoreTrendPoint[];
+  topics: TopicBreakdownEntry[];
+  weakAreas: TopicWeakArea[];
+  recommendations: RecommendedTopic[];
+  isPro: boolean;
+  userName: string | null;
+}
