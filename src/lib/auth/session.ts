@@ -7,37 +7,37 @@ import type { User as DbUser } from '@prisma/client';
 
 export const USER_CACHE_TAG = (userId: string) => `user-${userId}`;
 
-// Cached DB lookup keyed by userId — avoids a DB round-trip on every navigation.
+// Module-level cached DB lookup — arguments are included in the cache key automatically.
 // Invalidated via revalidateTag(USER_CACHE_TAG(userId)) after any user mutation.
-const getDbUser = (userId: string, email: string, name: string | null, image: string | null) =>
-  unstable_cache(
-    () =>
-      prisma.user.upsert({
-        where: { id: userId },
-        update: {},
-        create: { id: userId, email, name, image },
-      }),
-    [USER_CACHE_TAG(userId)],
-    { revalidate: 30, tags: [USER_CACHE_TAG(userId)] },
-  )();
+const getDbUser = unstable_cache(
+  async (userId: string, email: string, name: string | null, image: string | null) => {
+    return prisma.user.upsert({
+      where: { id: userId },
+      update: {},
+      create: { id: userId, email, name, image },
+    });
+  },
+  ['user-db-lookup'],
+  { revalidate: 30 },
+);
 
 /**
  * Returns the Prisma `User` for the currently signed-in Supabase auth user.
- * Uses getSession() (cookie read, no network call) since proxy.ts already
- * validates and refreshes the session on every request via getUser().
+ * Idempotently provisions a User row on first authenticated request — covers
+ * the race where the webhook hasn't fired yet (architecture §8 fallback).
+ * getUser() validates the token with Supabase Auth (secure); the DB lookup is
+ * cached per-user for 30s to avoid a round-trip on every navigation.
  * Cached per-request via React's cache().
  */
 export const getCurrentUser = cache(async (): Promise<DbUser | null> => {
   const supabase = await createSupabaseServerClient();
-  // proxy.ts (middleware) calls getUser() on every request — session is already
-  // validated and refreshed before this runs. getSession() reads from the cookie.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
 
-  if (!session) return null;
+  if (!authUser) return null;
 
-  const { id, email, user_metadata } = session.user;
+  const { id, email, user_metadata } = authUser;
   return getDbUser(
     id,
     email ?? '',
