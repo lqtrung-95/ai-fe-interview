@@ -27,6 +27,7 @@ export function buildEvaluatePrompt(input: EvaluateInput): {
     '',
     'Keep arrays focused — max 6 items each. Better answer should be concise (2-4 short paragraphs separated by \\n\\n).',
     'In list item strings, wrap technical terms and key concepts in **double asterisks** (e.g. **virtual DOM**, **O(n)**). Use `backticks` for inline code, APIs, or method names.',
+    'In betterAnswer, wrap every significant technical term, API name, method, or concept in `backticks` (e.g. `React Server Components`, `useTransition`, `Suspense`, `INP`). This powers syntax highlighting in the UI.',
   ].join('\n');
 
   const followBlock = input.followUpAnswer
