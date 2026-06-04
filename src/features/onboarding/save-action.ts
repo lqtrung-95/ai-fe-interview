@@ -1,7 +1,8 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { requireUser } from '@/lib/auth/session';
+import { revalidateTag } from 'next/cache';
+import { requireUser, USER_CACHE_TAG } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
 import { onboardingSchema, type OnboardingInput } from './schema';
 
@@ -30,5 +31,6 @@ export async function saveOnboarding(
     },
   });
 
+  revalidateTag(USER_CACHE_TAG(user.id), 'default');
   redirect(redirectTo);
 }

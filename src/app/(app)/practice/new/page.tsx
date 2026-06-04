@@ -1,9 +1,9 @@
+import { unstable_cache } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
 import { TopicSelectionForm } from '@/features/interview/topic-selection-form';
 import { ONBOARDING_TOPICS } from '@/features/onboarding/schema';
 import type { Level } from '@prisma/client';
-
 
 export const metadata = { title: 'Start a session' };
 
@@ -14,6 +14,18 @@ function toSessionDifficulty(level: Level): SessionDifficulty {
   return level === 'staff' ? 'senior' : level;
 }
 
+// Seed question counts rarely change — cache for 1 hour.
+const getSeedTopicCounts = unstable_cache(
+  async () => {
+    const grouped = await prisma.seedQuestion.groupBy({ by: ['topic'], _count: { topic: true } });
+    const counts: Record<string, number> = {};
+    for (const row of grouped) counts[row.topic] = row._count.topic;
+    return counts;
+  },
+  ['seed-topic-counts'],
+  { revalidate: 3600 },
+);
+
 export default async function NewSessionPage({
   // Next.js 16: searchParams is async.
   searchParams,
@@ -23,34 +35,27 @@ export default async function NewSessionPage({
   const user = await requireUser();
   const params = await searchParams;
 
-  // Per-topic seed availability so users see what's in the bank.
-  const grouped = await prisma.seedQuestion.groupBy({
-    by: ['topic'],
-    _count: { topic: true },
-  });
-  const topicCounts: Record<string, number> = {};
-  for (const row of grouped) {
-    topicCounts[row.topic] = row._count.topic;
-  }
+  const [topicCounts, targetJobs] = await Promise.all([
+    getSeedTopicCounts(),
+    user.isPro
+      ? prisma.targetJob.findMany({
+          where: { userId: user.id },
+          select: { id: true, label: true },
+          orderBy: { createdAt: 'desc' },
+        })
+      : Promise.resolve([]),
+  ]);
 
   // Honor ?topic=X and ?difficulty=Y from recommendation cards, when valid.
-  const requestedTopic = params.topic && (ONBOARDING_TOPICS as readonly string[]).includes(params.topic)
-    ? params.topic
-    : null;
-  const requestedDifficulty = params.difficulty && VALID_DIFFICULTIES.includes(params.difficulty)
-    ? (params.difficulty as SessionDifficulty)
-    : null;
+  const requestedTopic =
+    params.topic && (ONBOARDING_TOPICS as readonly string[]).includes(params.topic) ? params.topic : null;
+  const requestedDifficulty =
+    params.difficulty && VALID_DIFFICULTIES.includes(params.difficulty)
+      ? (params.difficulty as SessionDifficulty)
+      : null;
 
   const defaultTopics = requestedTopic ? [requestedTopic] : user.preferredTopics;
   const defaultDifficulty: SessionDifficulty = toSessionDifficulty(requestedDifficulty ?? user.level);
-
-  const targetJobs = user.isPro
-    ? await prisma.targetJob.findMany({
-        where: { userId: user.id },
-        select: { id: true, label: true },
-        orderBy: { createdAt: 'desc' },
-      })
-    : [];
 
   return (
     <div className="mx-auto max-w-5xl px-6 py-8">

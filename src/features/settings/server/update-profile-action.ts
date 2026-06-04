@@ -1,6 +1,7 @@
 'use server';
 
-import { requireUser } from '@/lib/auth/session';
+import { revalidateTag } from 'next/cache';
+import { requireUser, USER_CACHE_TAG } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
 
 interface UpdateProfileInput {
@@ -29,4 +30,6 @@ export async function updateProfileAction(input: UpdateProfileInput): Promise<vo
       ...(input.avatarUrl !== undefined ? { image: input.avatarUrl } : {}),
     },
   });
+
+  revalidateTag(USER_CACHE_TAG(user.id), 'default');
 }
