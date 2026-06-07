@@ -1,498 +1,548 @@
-# System Architecture — AI Interview Coach
+# System Architecture — Frontend Coach
 
-**Status:** Draft v1
-**Last updated:** 2026-05-27
-**Owner:** trungle030195@gmail.com
-
-Reference: [PRD.md](../PRD.md)
+**Status:** v2 (current)
+**Last updated:** 2026-06-08
 
 ---
 
-## 1. Goals
+## 1. Overview
 
-1. Realistic AI-led mock interviews with structured, rubric-grounded feedback.
-2. Streaming UX — never a blank loading wall while AI thinks.
-3. Cost-aware — model tiering + telemetry from day 1.
-4. Voice-ready boundaries even though MVP is text-only.
-5. Single deploy unit on Vercel, single Postgres (Supabase) for MVP.
+Frontend Coach is a Next.js 16 App Router application that helps developers prepare for frontend engineering interviews through three complementary practice modes:
 
-Non-goals (MVP): mobile app, video, payments, live coding sandbox, peer matching.
+1. **AI Mock Interviews** — adaptive question generation, follow-up probing, and rubric-grounded scoring
+2. **Question Bank + Study Plan** — browsable curated questions with spaced-repetition scheduling
+3. **Coding Challenges** — Monaco editor + sandboxed JS execution + AI code review
+
+The entire app deploys as a single Vercel unit backed by Supabase Postgres.
 
 ---
 
 ## 2. Tech Stack
 
-| Layer | Choice | Justification |
+| Layer | Technology | Notes |
 |---|---|---|
-| Framework | Next.js 16 (App Router) + React 19.2 | RSC streaming, SSE built-in, Turbopack default, single deploy. Note: `proxy.ts` replaces `proxy.ts`; `cookies()`/`headers()`/`params`/`searchParams` are all async. |
-| Language | TypeScript (strict) | AI JSON contracts require schema enforcement |
-| Styling | Tailwind v4 + shadcn/ui | "Calm/focused" design principle (PRD §12.1) |
-| Server cache | TanStack Query v5 | Streaming-aware, optimistic mutations |
-| Client state | Zustand | Lightweight interview-flow state machine |
-| ORM | Prisma | Type-safe queries, migrations |
-| DB | Supabase Postgres | Bundles auth + storage; pgvector available for post-MVP |
-| Auth | Supabase Auth (`@supabase/ssr`) | Email magic link + Google OAuth; guest mode via anon key |
-| AI SDK | Vercel AI SDK v5 | Provider-agnostic streaming + `generateObject` (Zod-validated) |
-| LLM | OpenAI + Anthropic (router) | Tier by cost: cheap for question gen, premium for evaluation |
-| Validation | Zod | Shared schema across API + AI structured output |
-| Charts | Recharts | Dashboard radar + trend lines |
-| Rate limit | Upstash Redis | Edge-friendly, serverless free tier |
-| Analytics | PostHog | PRD §20 events, funnels, session replay |
-| Hosting | Vercel | Streaming, edge middleware, hobby tier |
+| Framework | Next.js 16 (App Router) | RSC streaming, SSE built-in, Turbopack |
+| Language | TypeScript (strict) | Zod schemas shared between API and AI contracts |
+| Styling | Tailwind v4 + shadcn/ui | CSS variables for light/dark theming |
+| AI SDK | Vercel AI SDK v6 | `generateObject` (Zod-validated) + `streamText` |
+| LLM Providers | OpenAI, Anthropic, Groq, DeepSeek | Tier-routed via env vars |
+| ORM | Prisma 7 | Supabase Postgres with pg adapter |
+| Auth | Supabase Auth (`@supabase/ssr`) | Email + Google OAuth; SSR-safe cookie session |
+| Rate Limiting | Upstash Redis | Per-user sliding window |
+| Payments | Polar | Subscription webhooks |
+| Server Cache | TanStack Query v5 | Client-side query cache + optimistic updates |
+| Code Execution | Node.js `vm` module | Sandboxed JS harness for coding challenges |
+| Code Editor | Monaco (`@monaco-editor/react`) | Lazy-loaded, SSR-disabled |
+| Syntax Highlight | highlight.js + js-beautify | Challenge descriptions and test case rendering |
+| Hosting | Vercel | Streaming responses, edge middleware |
 
 ---
 
 ## 3. High-Level Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                          Browser (Next.js App Router)             │
-│  RSC + Client Components · shadcn · TanStack Query · Zustand     │
-└────────────────────────────┬─────────────────────────────────────┘
-                             │ HTTPS / SSE streaming
-                             ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                  Next.js Edge + Node Runtimes                     │
-│                                                                   │
-│  Route Handlers  ─►  Supabase Auth middleware  ─►  Rate Limit    │
-│         │                                                         │
-│         ▼                                                         │
-│  Application Services (server-only)                               │
-│   SessionService · QuestionService · FeedbackService              │
-│   SummaryService · ProgressService · RecommendationService        │
-│         │                                                         │
-│  ┌──────┴──────────┐   ┌──────────────────────┐   ┌────────────┐ │
-│  │ Persistence     │   │ AI Orchestration     │   │ Analytics  │ │
-│  │ Prisma ─► Supa  │   │ Prompts · Validate   │   │ PostHog    │ │
-│  └─────────────────┘   │ Retry · Model router │   └────────────┘ │
-│                        │ Cost telemetry       │                  │
-│                        └──────┬───────────────┘                  │
-└───────────────────────────────┼──────────────────────────────────┘
-                                ▼
-                       OpenAI / Anthropic
-                       (Realtime API post-MVP)
+```mermaid
+graph TB
+    subgraph Client["Browser"]
+        UI["React / RSC\nshadcn · TanStack Query"]
+        Monaco["Monaco Editor\n(lazy, SSR=false)"]
+    end
+
+    subgraph Vercel["Vercel (Node.js Runtime)"]
+        MW["Auth Middleware\nSupabase SSR"]
+        RSC["Server Components\n(data fetching)"]
+        API["Route Handlers\n/api/**"]
+        Orch["AI Orchestrator\nmodel-router · cost-meter"]
+        VM["JS Sandbox\nNode vm module"]
+    end
+
+    subgraph External["External Services"]
+        Supabase["Supabase\nPostgres + Auth + Storage"]
+        LLM["LLM Providers\nOpenAI · Anthropic\nGroq · DeepSeek"]
+        Upstash["Upstash Redis\nRate limiting"]
+        Polar["Polar\nSubscriptions"]
+    end
+
+    UI -- "HTTPS / SSE" --> MW
+    MW --> RSC
+    MW --> API
+    API --> Orch
+    API --> VM
+    Orch --> LLM
+    RSC --> Supabase
+    API --> Supabase
+    API --> Upstash
+    Polar -- "Webhook POST" --> API
+    Supabase -- "Auth webhook" --> API
 ```
 
 ---
 
-## 4. Folder Structure
+## 4. Application Routing
+
+```mermaid
+graph LR
+    subgraph Marketing["(marketing) — public"]
+        Landing["/ — Landing page"]
+        SignIn["/sign-in"]
+        Demo["/demo"]
+    end
+
+    subgraph AuthGate["Auth Gate — layout.tsx"]
+        Check{"getCurrentUser()"}
+        OBCheck{"targetRole set?"}
+    end
+
+    subgraph App["(app) — auth + onboarding gated"]
+        Dashboard["/dashboard"]
+        Practice["/practice/new\n/practice/[sessionId]\n/practice/[sessionId]/complete"]
+        QB["/question-bank\n/question-bank/[id]"]
+        Coding["/coding-challenges\n/coding-challenges/[id]"]
+        StudyPlan["/study-plan"]
+        History["/history\n/history/[sessionId]"]
+        CV["/cv-review"]
+        Settings["/settings"]
+        Upgrade["/upgrade"]
+        Onboarding["/onboarding"]
+    end
+
+    Landing --> Check
+    SignIn --> Check
+    Check -- "null" --> SignIn
+    Check -- "user" --> OBCheck
+    OBCheck -- "no targetRole" --> Onboarding
+    OBCheck -- "onboarded" --> Dashboard
+    OBCheck -- "onboarded" --> Practice
+    OBCheck -- "onboarded" --> QB
+    OBCheck -- "onboarded" --> Coding
+    OBCheck -- "onboarded" --> StudyPlan
+    OBCheck -- "onboarded" --> History
+    OBCheck -- "onboarded" --> CV
+    OBCheck -- "onboarded" --> Settings
+    OBCheck -- "onboarded" --> Upgrade
+```
+
+---
+
+## 5. Data Model
+
+```mermaid
+erDiagram
+    User {
+        string id PK
+        string email
+        string name
+        boolean isPro
+        string polarCustomerId
+        json cvData
+        datetime targetInterviewDate
+    }
+
+    InterviewSession {
+        string id PK
+        string userId FK
+        string mode
+        string[] topics
+        string difficulty
+        string status
+        float overallScore
+    }
+
+    InterviewQuestion {
+        string id PK
+        string sessionId FK
+        string questionText
+        string type
+        string difficulty
+    }
+
+    UserAnswer {
+        string id PK
+        string questionId FK
+        string text
+    }
+
+    AnswerFeedback {
+        string id PK
+        string answerId FK
+        float overallScore
+        json scores
+        string betterAnswer
+    }
+
+    CodingChallenge {
+        string id PK
+        string title
+        string difficulty
+        string topic
+        string starterCode
+        json testCases
+        string[] hints
+        string solution
+    }
+
+    CodingSubmission {
+        string id PK
+        string userId FK
+        string challengeId FK
+        string code
+        string status
+        json testResults
+        int passedCount
+        int totalCount
+        string aiReview
+    }
+
+    StudyPlan {
+        string id PK
+        string userId FK
+        string[] topics
+        string level
+        int prepWeeks
+    }
+
+    StudyPlanProgress {
+        string id PK
+        string planId FK
+        string seedQuestionId
+        int repetitions
+        float easeFactor
+        datetime nextReviewAt
+    }
+
+    AICall {
+        string id PK
+        string userId FK
+        string task
+        string model
+        int promptTokens
+        int completionTokens
+        decimal costUsd
+    }
+
+    User ||--o{ InterviewSession : "has"
+    InterviewSession ||--o{ InterviewQuestion : "contains"
+    InterviewQuestion ||--o| UserAnswer : "answered by"
+    UserAnswer ||--o| AnswerFeedback : "evaluated as"
+    User ||--o{ CodingSubmission : "submits"
+    CodingChallenge ||--o{ CodingSubmission : "receives"
+    User ||--o| StudyPlan : "has"
+    StudyPlan ||--o{ StudyPlanProgress : "tracks"
+    User ||--o{ AICall : "triggers"
+```
+
+---
+
+## 6. AI Orchestration Layer
+
+Every LLM call routes through a single orchestrator in `src/lib/ai/orchestrator.ts`. Route handlers stay thin — they authenticate, validate, then delegate.
+
+```mermaid
+flowchart TD
+    RH["Route Handler\nauth · rate-limit · zod"]
+    Orch["runAITask / streamCodeReview\norchestrator.ts"]
+    MR["routeModel()\nmodel-router.ts"]
+    Prompt["buildPrompt()\nprompts/*.ts"]
+    AISDK["Vercel AI SDK\ngenerateObject / streamText"]
+    Validate["Zod schema\nvalidation"]
+    Retry["Retry max 2\non schema error"]
+    CM["recordAICall()\ncost-meter.ts"]
+    DB["Prisma → Supabase"]
+
+    RH --> Orch
+    Orch --> MR
+    Orch --> Prompt
+    MR -- "provider + model" --> AISDK
+    Prompt -- "system + user" --> AISDK
+    AISDK --> Validate
+    Validate -- "fail" --> Retry
+    Retry --> AISDK
+    Validate -- "pass" --> CM
+    CM --> DB
+    Orch -- "result" --> RH
+```
+
+### Model Tiering
+
+| Tier | Tasks | Typical Model |
+|---|---|---|
+| `cheap` | `generate_question`, `generate_followup`, `extract_jd` | DeepSeek Chat / Haiku |
+| `smart` | `evaluate_answer`, `generate_summary`, `review_code` | DeepSeek Chat / Sonnet |
+
+Provider selected via env vars `LLM_SMART_PROVIDER` / `LLM_CHEAP_PROVIDER`, falling back to `LLM_PROVIDER`, then `deepseek`.
+
+### AI Task Registry
+
+| Task | Input | Output | Tier |
+|---|---|---|---|
+| `generate_question` | topic, difficulty, CV/JD context | question + expectedPoints | cheap |
+| `generate_followup` | question + answer | follow-up question | cheap |
+| `evaluate_answer` | question + answer + rubric | 6-dimension scores + feedback | smart |
+| `generate_summary` | all answers in session | overall score + action items | smart |
+| `extract_jd` | raw job description | role, stack, signals | cheap |
+| `review_code` | challenge + user code | streamed markdown (no schema) | smart |
+
+---
+
+## 7. Interview Session Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant RSC as Server Component
+    participant API as Route Handler
+    participant Orch as Orchestrator
+    participant LLM as LLM Provider
+    participant DB as Supabase
+
+    U->>RSC: /practice/new (topic + difficulty)
+    RSC->>API: POST /api/sessions
+    API->>DB: INSERT InterviewSession
+    API-->>U: sessionId
+
+    loop Per question (max 5)
+        U->>API: POST /api/sessions/[id]/questions/generate (SSE)
+        API->>Orch: generate_question
+        Orch->>LLM: streamText cheap tier
+        LLM-->>Orch: QuestionOutput
+        API->>DB: INSERT InterviewQuestion
+        API-->>U: SSE question text
+
+        U->>API: POST /api/answers
+        API->>DB: INSERT UserAnswer
+        API-->>U: answerId
+
+        U->>API: POST /api/answers/[id]/feedback/generate (SSE)
+        API->>Orch: evaluate_answer
+        Orch->>LLM: generateObject smart tier
+        LLM-->>Orch: EvaluateOutput
+        API->>DB: INSERT AnswerFeedback
+        API-->>U: SSE streamed feedback
+    end
+
+    U->>API: POST /api/sessions/[id]/complete
+    API->>Orch: generate_summary
+    Orch->>LLM: generateObject smart tier
+    API->>DB: INSERT SessionSummary
+    API-->>U: summary + scores
+```
+
+---
+
+## 8. Coding Challenges Feature
+
+### Component Tree
+
+```mermaid
+graph TB
+    ListPage["/coding-challenges\nserver component"]
+    WorkspacePage["/coding-challenges/[id]\nserver component"]
+
+    ListPage --> CLC["ChallengeListClient\nfilter by difficulty / topic"]
+    CLC --> CC["ChallengeCard ×N\nstatus icon: solved / attempted / unsolved"]
+
+    WorkspacePage --> CW["ChallengeWorkspace\nclient — owns all state"]
+    CW --> CD["ChallengeDescription\nmarkdown + hljs code blocks\nhints + solution viewer"]
+    CW --> CEP["CodeEditorPanel\nMonaco (lazy, SSR=false)\nReset + Submit buttons"]
+    CW --> TRP["TestResultsPanel\nper-test pass/fail\nhidden test summary"]
+    CW --> AIR["AiCodeReviewPanel\nPro only — streamed markdown"]
+
+    CD --> HP["HintsPanel\nprogressive reveal"]
+    CD --> SV["SolutionViewer\nfetch on demand"]
+```
+
+### Code Execution Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant CW as ChallengeWorkspace
+    participant API as /submit route
+    participant Harness as test-harness-builder
+    participant VM as Node.js vm
+    participant DB as Supabase
+
+    U->>CW: clicks Run & Submit
+    CW->>API: POST { code }
+    API->>API: requireUser() + guardGeneralLimit()
+    API->>DB: fetch CodingChallenge (testCases incl. hidden expected)
+    API->>Harness: buildTestHarness(userCode, testCases)
+    Note over Harness: async IIFE so Promise-returning solutions work
+    Harness-->>API: harness string
+    API->>VM: vm.runInNewContext(harness, safeGlobals, timeout)
+    Note over VM: No require / process / fetch / fs
+    VM-->>API: Promise awaited with wall-clock deadline
+    API->>API: parseAndValidateResults(stdout, testCases)
+    Note over API: strips actual/error from hidden test results
+    API->>DB: INSERT CodingSubmission
+    API-->>CW: status · testResults · passedCount
+```
+
+### Security Boundaries
+
+| Concern | Mechanism |
+|---|---|
+| Authentication | `requireUser()` — 401 if no valid session |
+| Rate limiting | `guardGeneralLimit()` — Upstash sliding window per user |
+| Code sandbox | `vm.runInNewContext` — no `require`, `process`, `fetch`, `fs` globals |
+| Execution timeout | `vm` `timeout` option (sync) + `Promise.race` wall-clock (async) |
+| Hidden test data | `solution` and hidden `expected` values never sent to client |
+| AI review gate | Pro-only + `status === 'passed'` submissions only |
+| AI review cache | Persisted to `CodingSubmission.aiReview` — no repeat LLM calls |
+
+---
+
+## 9. Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant MW as Next.js Middleware
+    participant Supa as Supabase Auth
+    participant DB as Prisma
+
+    B->>MW: any request
+    MW->>Supa: auth.getUser() from cookie
+    alt No valid session
+        Supa-->>MW: null
+        MW-->>B: redirect /sign-in
+    else Valid session
+        Supa-->>MW: authUser { id, email }
+        MW->>DB: upsert User row (first-visit provisioning)
+        DB-->>MW: DbUser
+        MW-->>B: serve page
+    end
+
+    Note over MW,DB: getCurrentUser() is memoized via React cache()<br/>— single DB hit per server request tree
+```
+
+---
+
+## 10. Subscription & Billing
+
+```mermaid
+flowchart LR
+    U["User"] -->|"Upgrade click"| CO["POST /api/checkout\ncreate Polar checkout"]
+    CO -->|"redirect"| Polar["Polar Checkout"]
+    Polar -->|"payment complete"| WH["POST /api/webhooks/polar\nverify signature"]
+    WH -->|"subscription.created"| DB["prisma.user.update\nisPro=true · proSince"]
+    WH -->|"subscription.canceled"| DB2["prisma.user.update\nisPro=false"]
+
+    Promo["Promo code"] -->|"POST /api/checkout/redeem"| RD["INSERT PromoRedemption\nisPro=true · proExpiresAt"]
+```
+
+---
+
+## 11. Feature Dependency Map
+
+```mermaid
+graph LR
+    Auth["Supabase Auth"] --> All["All features"]
+
+    All --> Interview["AI Mock Interviews\ngenerate → answer → evaluate → summary"]
+    All --> QB["Question Bank\ncurated questions + bookmarks"]
+    All --> SP["Study Plan\nSM-2 spaced repetition"]
+    All --> CC["Coding Challenges\nMonaco + vm sandbox + AI review"]
+    All --> CV["CV Review\nupload → parse → AI feedback"]
+    All --> Dashboard["Dashboard\nreadiness · trend · weak areas · coding stats"]
+
+    Interview --> Dashboard
+    QB --> SP
+    CC --> Dashboard
+    CV --> Interview
+
+    subgraph Pro["Pro features only"]
+        WeakAreas["Weak Area Coaching"]
+        JobTarget["Job Targeting"]
+        AIReview["AI Code Review"]
+        CVGround["CV-grounded questions"]
+    end
+
+    Dashboard --- WeakAreas
+    Interview --- JobTarget
+    CC --- AIReview
+    Interview --- CVGround
+```
+
+---
+
+## 12. Folder Structure
 
 ```
 src/
-  app/
-    (marketing)/page.tsx              # landing
-    (app)/                            # auth-gated layout
-      onboarding/page.tsx
-      practice/
-        new/page.tsx                  # topic selection
-        [sessionId]/page.tsx          # interview screen
-      dashboard/page.tsx
-      history/
-        page.tsx
-        [sessionId]/page.tsx
-      settings/page.tsx
-    api/
-      sessions/                       # PRD §14 REST endpoints
-        route.ts                      # POST create
-        [id]/
-          route.ts                    # GET, DELETE
-          questions/generate/route.ts # SSE
-          complete/route.ts
-      answers/
-        route.ts                      # POST submit
-        [id]/feedback/generate/route.ts  # SSE
-      webhooks/supabase/route.ts      # user lifecycle
-  features/                           # vertical slices, <200 LoC files
-    interview/
-      server/                         # 'server-only' services
-      hooks/                          # useInterviewSession, useStreamedFeedback
-      components/
-      store.ts                        # Zustand state machine
-      schemas.ts                      # Zod (API + AI)
-      types.ts
-    feedback/
-    dashboard/
-    onboarding/
-    auth/
-  lib/
-    ai/
-      client.ts                       # AI SDK provider config
-      orchestrator.ts                 # retry · validate · fallback
-      model-router.ts                 # cheap vs deep model tiering
-      cost-meter.ts                   # token accounting → AICall table
-      prompts/                        # one file per PRD §9 prompt
-        question.ts
-        followup.ts
-        evaluate.ts
-        summary.ts
-    db/
-      client.ts                       # Prisma singleton
-      seed.ts                         # question bank seeder
-    auth/
-      supabase-server.ts              # createServerClient
-      supabase-client.ts              # createBrowserClient
-      session.ts                      # getCurrentUser
-    rate-limit/
-      upstash.ts
-    analytics/
-      posthog-server.ts
-      posthog-client.ts
-    utils/
-  components/ui/                      # shadcn primitives
-prisma/
-  schema.prisma
-  migrations/
-  seed/
-    questions/                        # JSON seed files by topic
+├── app/
+│   ├── (marketing)/              # public: landing, sign-in, demo
+│   ├── (app)/                    # auth + onboarding gated
+│   │   ├── layout.tsx            # sidebar + header + auth/onboarding guard
+│   │   ├── dashboard/
+│   │   ├── practice/             # [new] session setup; [sessionId] interview
+│   │   ├── coding-challenges/    # list + [id] workspace
+│   │   ├── question-bank/
+│   │   ├── study-plan/
+│   │   ├── history/
+│   │   ├── cv-review/
+│   │   └── settings/ upgrade/
+│   └── api/
+│       ├── sessions/             # interview session CRUD + question SSE
+│       ├── answers/              # submit + feedback SSE
+│       ├── coding-challenges/    # list · single · submit · solution · ai-review
+│       ├── dashboard/            # aggregated stats
+│       ├── study-plan/           # SM-2 progress tracking
+│       ├── cv/                   # upload · parse · review
+│       ├── checkout/             # Polar billing
+│       └── webhooks/             # Polar + Supabase auth lifecycle
+│
+├── features/                     # vertical slices, max ~200 LoC per file
+│   ├── interview/                # session UI, hooks, Zustand store, AI schemas
+│   ├── feedback/                 # feedback card, streaming hook
+│   ├── coding-challenges/        # workspace, editor, test results, hints, solution
+│   ├── dashboard/                # charts, stats, recommendations, coding stat card
+│   ├── study/                    # question card, filter bar, prose renderer
+│   ├── study-plan/               # plan management
+│   ├── cv-review/                # CV upload + review card
+│   ├── settings/                 # profile, preferences
+│   ├── subscription/             # promo code, upgrade prompts
+│   └── app/                      # sidebar nav, app header
+│
+├── lib/                          # shared, feature-agnostic utilities
+│   ├── ai/
+│   │   ├── orchestrator.ts       # runAITask · streamCodeReview
+│   │   ├── model-router.ts       # cheap vs smart tiering
+│   │   ├── cost-meter.ts         # AICall telemetry
+│   │   └── prompts/              # one file per AI task
+│   ├── coding-challenges/
+│   │   ├── local-js-executor.ts  # vm sandbox with async await support
+│   │   ├── test-harness-builder.ts # async IIFE test harness
+│   │   ├── submission-validator.ts # stdout parse + hidden strip
+│   │   └── challenge-projection.ts # safe public shape (no solution)
+│   ├── auth/
+│   │   ├── session.ts            # getCurrentUser · requireUser
+│   │   └── supabase-*.ts         # SSR/browser Supabase clients
+│   ├── db/client.ts              # Prisma singleton with pg adapter
+│   ├── rate-limit/               # Upstash guard helpers
+│   └── subscription/             # isPro checks
+│
+├── components/ui/                # shadcn primitives
+└── prisma/
+    ├── schema.prisma             # 15 models
+    └── seeds/
+        ├── seed.ts               # SeedQuestion seeder (JSON → DB)
+        └── coding-challenges-seed.ts  # 30 JS challenges with hints
 ```
 
-Rule: features import from `lib/*`. Never `lib/*` from features.
+**Import rule:** `features/*` may import from `lib/*` and `components/*`. `lib/*` must never import from `features/*`.
 
 ---
 
-## 5. AI Orchestration Layer
+## 13. Key Design Decisions
 
-Architectural backbone. Every AI call routes through one orchestrator.
-
-```ts
-// lib/ai/orchestrator.ts
-export type AITask =
-  | { type: 'generate_question'; input: QuestionInput }
-  | { type: 'generate_followup'; input: FollowupInput }
-  | { type: 'evaluate_answer';   input: EvaluateInput }
-  | { type: 'generate_summary';  input: SummaryInput };
-
-export interface Orchestrator {
-  run<T extends AITask>(task: T): Promise<TaskResult<T>>;
-  stream<T extends AITask>(task: T): AsyncIterable<Chunk<T>>;
-}
-```
-
-### Responsibilities
-
-| # | Concern | Implementation |
-|---|---|---|
-| 1 | Prompt registry | One file per `lib/ai/prompts/*`. Versioned. Pure functions returning string. |
-| 2 | Structured output | Vercel AI SDK `generateObject` + Zod schema per task. Invalid JSON → retry. |
-| 3 | Retry + fallback | 1 retry on schema fail; then fallback message persisted as `feedbackGenerationFailed`. |
-| 4 | Model tiering | `model-router.ts`: cheap (Haiku 4.5) for question gen, premium (Sonnet 4.6) for evaluation. |
-| 5 | Cost telemetry | Every call writes to `AICall` table: model, prompt+completion tokens, USD cost. |
-| 6 | Save-before-call | Caller persists `UserAnswer` row before invoking `evaluate_answer`. Orchestrator never owns DB writes. |
-| 7 | Streaming | `stream()` returns SSE-compatible chunks; route handler pipes to client. |
-| 8 | Sanitization | Strip prompt-injection patterns from user input. Cap input length per task. |
-
-### Why one orchestrator
-
-- One place to swap providers (OpenAI ↔ Anthropic).
-- One place to add metrics, tracing, caching.
-- One place to enforce token budgets.
-- Route handlers stay thin (auth check → call orchestrator → stream).
-
----
-
-## 6. Data Model (Prisma)
-
-Extends [PRD §13](../PRD.md). Additions in **bold**.
-
-```prisma
-model User {
-  id                String   @id @default(cuid())
-  email             String   @unique
-  name              String?
-  image             String?
-  level             Level
-  targetRole        String?
-  targetCompanyType String?
-  preferredTopics   String[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  sessions          InterviewSession[]
-  // Supabase auth user id (UUID) maps to id via webhook
-}
-
-model InterviewSession {
-  id           String         @id @default(cuid())
-  userId       String
-  user         User           @relation(fields: [userId], references: [id])
-  mode         SessionMode
-  topics       String[]
-  difficulty   Difficulty
-  status       SessionStatus
-  overallScore Float?
-  startedAt    DateTime       @default(now())
-  completedAt  DateTime?
-  questions    InterviewQuestion[]
-  summary      SessionSummary?
-  // resumeContext String?       @db.Text  // post-MVP
-  @@index([userId, startedAt])
-}
-
-model InterviewQuestion {
-  id              String       @id @default(cuid())
-  sessionId       String
-  session         InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  topic           String
-  subtopic        String?
-  difficulty      Difficulty
-  type            QuestionType
-  question        String
-  expectedPoints  String[]
-  order           Int
-  seedQuestionId  String?      // points to SeedQuestion if hybrid
-  answer          UserAnswer?
-  @@index([sessionId, order])
-}
-
-model UserAnswer {
-  id              String   @id @default(cuid())
-  questionId      String   @unique
-  question        InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  sessionId       String
-  userId          String
-  answer          String   @db.Text
-  followUpAnswer  String?  @db.Text
-  feedback        AnswerFeedback?
-  createdAt       DateTime @default(now())
-}
-
-model AnswerFeedback {
-  id                       String   @id @default(cuid())
-  answerId                 String   @unique
-  answer                   UserAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
-  overallScore             Float
-  scoreCorrectness         Int
-  scoreCompleteness        Int
-  scoreClarity             Int
-  scoreDepth               Int
-  scoreTradeoffThinking    Int
-  scoreCommunication       Int
-  whatWentWell             String[]
-  whatWasMissing           String[]
-  technicalCorrections     String[]
-  improvementSuggestions   String[]
-  betterAnswer             String   @db.Text
-  seniorLevelAddition      String?  @db.Text
-  recommendedNextPractice  String[]
-  // Telemetry
-  modelUsed                String
-  tokensUsed               Int
-  createdAt                DateTime @default(now())
-}
-
-model SessionSummary {
-  id                String   @id @default(cuid())
-  sessionId         String   @unique
-  session           InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  overallScore      Float
-  strongAreas       String[]
-  weakAreas         String[]
-  repeatedMistakes  String[]
-  recommendedTopics String[]
-  actionItems       String[]
-  createdAt         DateTime @default(now())
-}
-
-// PRD §7.10 hybrid seed bank.
-// Source: extracted from `resources/*.html` (user-authored prep content),
-// batch-translated VN→EN during seeding. EN-only at MVP.
-model SeedQuestion {
-  id             String       @id
-  topic          String
-  subtopic       String?
-  difficulty     Difficulty
-  type           QuestionType
-  question       String
-  expectedPoints String[]
-  followUps      String[]
-  rubric         Json
-  tags           String[]     // e.g. ["web3"] — filters niche content
-  createdAt      DateTime     @default(now())
-  @@index([topic, difficulty])
-}
-
-// Cost & observability
-model AICall {
-  id               String   @id @default(cuid())
-  userId           String?
-  sessionId        String?
-  task             String   // 'generate_question' | 'evaluate_answer' | ...
-  model            String
-  promptTokens     Int
-  completionTokens Int
-  costUsd          Decimal  @db.Decimal(10, 6)
-  latencyMs        Int
-  succeeded        Boolean
-  errorReason      String?
-  createdAt        DateTime @default(now())
-  @@index([userId, createdAt])
-  @@index([task, createdAt])
-}
-
-enum Level         { junior mid senior }
-enum Difficulty    { junior mid senior }
-enum SessionMode   { quick standard deep_coaching }
-enum SessionStatus { in_progress completed ended_early }
-enum QuestionType  { conceptual debugging system_design behavioral tradeoff }
-```
-
----
-
-## 7. Session State Machine
-
-```
-        ┌──────────┐
-        │ created  │
-        └────┬─────┘
-             │ POST /api/sessions/:id/questions/generate
-             ▼
-   ┌─────────────────────┐         ┌────────────────────┐
-   │ question_active     │◄────────│ next question      │
-   └────┬────────────────┘         └──────────┬─────────┘
-        │ POST /api/answers                   │
-        ▼                                     │
-   ┌─────────────────┐                        │
-   │ answer_submitted│                        │
-   └────┬────────────┘                        │
-        │ POST .../feedback/generate (SSE)    │
-        ▼                                     │
-   ┌─────────────────────┐                    │
-   │ feedback_generated  │────────────────────┘
-   └────┬────────────────┘
-        │ POST /api/sessions/:id/complete
-        ▼
-   ┌──────────────┐   or   ┌──────────────┐
-   │  completed   │        │ ended_early  │
-   └──────────────┘        └──────────────┘
-```
-
-- Server is source of truth via `InterviewSession.status` + question order.
-- Zustand mirrors UI state only; refreshes from server on mount.
-- Edge case "user closes browser" (PRD §19) → server state intact → resume on next visit.
-
----
-
-## 8. Auth & Authorization (Supabase + Prisma)
-
-**Two clients:**
-- `lib/auth/supabase-server.ts` — `createServerClient` from `@supabase/ssr`, reads cookies. Used in Server Components, Route Handlers, Server Actions.
-- `lib/auth/supabase-client.ts` — `createBrowserClient`. Used in Client Components for sign-in/sign-out UI.
-
-**Identity bridge:** Supabase Auth owns the user (UUID). On signup, a webhook (or Server Action on first login) creates a `User` row in Prisma keyed by the same id. This keeps Prisma joins type-safe without RLS complexity.
-
-**Authorization:**
-- App-layer: every Route Handler calls `getCurrentUser()`. Service functions take `userId` explicitly and filter all queries.
-- RLS: deferred to post-MVP defense-in-depth. Direct DB access uses service role connection via Prisma; RLS would require JWT-based connection per request.
-
-**Guest mode (PRD §10.1):**
-- Unauthenticated users get one anonymous session stored in `sessionStorage`.
-- On completing, prompt to sign up to save progress.
-- Sign-up converts the anonymous session via `POST /api/sessions/import` with the local payload.
-
----
-
-## 9. API Contract
-
-Matches PRD §14, formalized:
-
-| Method | Path | Auth | Body | Returns |
-|---|---|---|---|---|
-| POST | `/api/sessions` | required | `{mode, topics, difficulty}` | `{sessionId, status}` |
-| GET | `/api/sessions/:id` | required | — | session + questions + feedback |
-| DELETE | `/api/sessions/:id` | required | — | `204` |
-| POST | `/api/sessions/:id/questions/generate` | required | — | **SSE** stream of question |
-| POST | `/api/answers` | required | `{questionId, answer, followUpAnswer?}` | `{answerId}` |
-| POST | `/api/answers/:id/feedback/generate` | required | — | **SSE** stream of feedback |
-| POST | `/api/sessions/:id/complete` | required | — | `{summaryId, overallScore, ...}` |
-| GET | `/api/dashboard` | required | — | progress aggregates |
-
-All SSE endpoints use the AI SDK's `toDataStreamResponse()`.
-
----
-
-## 10. Security
-
-- API keys server-only. No `NEXT_PUBLIC_OPENAI_*`.
-- Rate limit at middleware: 30 AI calls per hour per `userId`, 5 per IP for guests.
-- Input sanitization in orchestrator (strip `<|...|>`, ignore-instructions patterns, cap to 4k chars).
-- Output validation via Zod — every AI response parsed; invalid → retry once → fallback.
-- CSP headers set in `next.config.ts`.
-- Webhooks (Supabase) verify HMAC signature.
-
----
-
-## 11. Observability & Cost
-
-- **Cost dashboard** built on `AICall` table — query daily spend per task type, per model, per user.
-- **PostHog** captures PRD §20 events from client + server (autocapture off, explicit `capture()`).
-- **Vercel Analytics** for Core Web Vitals (PRD §11.1).
-- **Sentry** post-MVP for error tracing.
-
----
-
-## 12. Performance Targets (PRD §11.1)
-
-| Metric | Target |
+| Decision | Rationale |
 |---|---|
-| Landing LCP | < 1.5s |
-| Dashboard load | < 2s |
-| First AI token | < 2s |
-| Full feedback stream | < 15s |
-
-Streaming is mandatory for question generation and feedback. Submit → server returns `answerId` immediately, then UI subscribes to SSE for feedback.
-
----
-
-## 13. Post-MVP Architecture Hooks
-
-| Phase | Addition | How it slots in |
-|---|---|---|
-| Voice (Phase 2) | OpenAI Realtime API | 5th orchestrator task type; UI swaps `<TextInput>` for `<RealtimeMic>`; session machine unchanged |
-| Resume context | `UserDocument` + pgvector | Upload to Supabase Storage; embed; inject top-K chunks into question prompt |
-| Company-specific | Company profile table | Adds `companyId` to session creation; prompt template variant |
-| System design canvas | tldraw/excalidraw | `UserAnswer.canvasState Json?`; orchestrator reads canvas + transcript |
-
----
-
-## 14. Environment Variables
-
-```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-SUPABASE_DB_URL=                   # for Prisma direct connection
-SUPABASE_WEBHOOK_SECRET=
-
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
-
-POSTHOG_API_KEY=
-NEXT_PUBLIC_POSTHOG_KEY=
-NEXT_PUBLIC_POSTHOG_HOST=
-
-NEXT_PUBLIC_APP_URL=
-```
-
----
-
-## 15. Definition of Architecture Ready
-
-- [ ] Supabase project created (auth + db + storage enabled).
-- [ ] Prisma schema migrated to Supabase.
-- [ ] Vercel project linked; env vars set.
-- [ ] AI SDK provider configured; orchestrator skeleton compiles.
-- [ ] Zod schemas defined for all 4 AI tasks.
-- [ ] Rate-limit middleware wired.
-- [ ] PostHog initialized client + server.
-- [ ] Seed question script runs and populates ~50 questions across topics.
-
----
-
-## Open Questions
-
-1. Anonymous-session import flow — accept full session JSON or only topic preferences?
-2. AI provider strategy — start with OpenAI only and add Anthropic later, or dual from day 1?
-3. PostHog cloud vs self-hosted for portfolio piece (cost vs polish trade-off)?
-4. Should we ship a small public-read demo session for unauthenticated landing-page preview?
+| Single Vercel deploy | No microservices overhead for MVP scale |
+| `vm.runInNewContext` instead of Piston API | Piston went whitelist-only Feb 2026; local sandbox is faster, zero cost, no external dependency |
+| Async IIFE harness for code execution | Lets test cases `await` Promise-returning solutions (debounce, retry) without needing worker threads |
+| AI review cached per submission | Persists to `CodingSubmission.aiReview`; no redundant LLM calls on revisits |
+| `getCurrentUser()` uses React `cache()` | One DB round-trip per request tree regardless of how many server components call it |
+| Zod validation at AI output boundary | LLM JSON is untrusted — validate before persisting. Schema mismatch triggers one retry |
+| `cheap` / `smart` model tiers | Balances cost vs quality: question gen is high-volume (cheap); evaluation is quality-critical (smart) |
+| Visible test cases expose `expected` | Helps users understand the assertion. Hidden cases keep `expected` server-only to prevent gaming |
+| Progressive hints + gated solution | Encourages genuine problem-solving; friction (confirmation dialog) before solution reveal |

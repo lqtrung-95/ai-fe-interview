@@ -2,22 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Clock, Code2, Database, LayoutDashboard, Settings, Zap, Crown } from 'lucide-react';
+import { Crown, Zap } from 'lucide-react';
 import { BrandLogo } from '@/components/common/brand-logo';
-
-const NAV = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/practice/new', label: 'Practice', icon: Zap },
-  { href: '/study-plan', label: 'Study Plan', icon: BookOpen },
-  { href: '/question-bank', label: 'Question Bank', icon: Database },
-  { href: '/coding-challenges', label: 'Coding Challenges', icon: Code2 },
-  { href: '/history', label: 'History', icon: Clock },
-  { href: '/settings', label: 'Settings', icon: Settings },
-];
-
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(iso));
-}
+import { APP_NAV, formatAppDate, isAppNavActive } from './app-nav';
 
 interface Props {
   isPro?: boolean;
@@ -48,11 +35,9 @@ export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null
       {/* Nav items */}
       <nav className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
         <ul className="space-y-0.5">
-          {NAV.map((item) => {
+          {APP_NAV.map((item) => {
             const Icon = item.icon;
-            const active =
-              pathname === item.href ||
-              (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            const active = isAppNavActive(pathname, item.href);
             return (
               <li key={item.href} className="relative">
                 {/* Active left-edge bar */}
@@ -100,9 +85,9 @@ export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null
                 </div>
                 <p className="mt-0.5 truncate text-[10px] text-sidebar-foreground/45">
                   {proExpiresAt
-                    ? `Expires ${formatDate(proExpiresAt)}`
+                    ? `Expires ${formatAppDate(proExpiresAt)}`
                     : proSince
-                      ? `Since ${formatDate(proSince)}`
+                      ? `Since ${formatAppDate(proSince)}`
                       : 'Active plan'}
                 </p>
               </div>
