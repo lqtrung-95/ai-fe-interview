@@ -75,7 +75,8 @@ const HIGHLIGHT_TERMS = [
   'debounce','throttle','rate limiting',
 ].join('|');
 
-const HIGHLIGHT_PATTERN = new RegExp(`(${HIGHLIGHT_TERMS})`, 'gi');
+const HIGHLIGHT_BOUNDARY = '[A-Za-z0-9_]';
+const HIGHLIGHT_PATTERN = new RegExp(`(?<!${HIGHLIGHT_BOUNDARY})(${HIGHLIGHT_TERMS})(?!${HIGHLIGHT_BOUNDARY})`, 'gi');
 const HIGHLIGHT_TEST_PATTERN = new RegExp(`^(${HIGHLIGHT_TERMS})$`, 'i');
 
 export function BetterAnswerCard({ answer }: Props) {

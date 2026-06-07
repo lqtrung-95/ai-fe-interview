@@ -887,3 +887,158 @@ code, pre, .font-mono, [class*="font-mono"] {
   color: var(--foreground);
   font-size: 0.875rem;
 }
+
+/* ── Challenge description prose ────────────────────────────────────────────
+   Scoped to .challenge-prose in challenge-description.tsx
+   ─────────────────────────────────────────────────────────────────────────── */
+.challenge-prose {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.challenge-prose > * + * { margin-top: 0.75rem; }
+.challenge-prose p { color: var(--muted-foreground); }
+.challenge-prose strong { color: var(--foreground); font-weight: 600; }
+.challenge-prose em { font-style: italic; }
+.challenge-prose h1,
+.challenge-prose h2,
+.challenge-prose h3 {
+  color: var(--foreground);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.375rem;
+}
+.challenge-prose ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  space-y: 0.25rem;
+}
+.challenge-prose ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.challenge-prose li { margin-top: 0.25rem; }
+.challenge-prose code {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.8125rem;
+  background: color-mix(in srgb, var(--muted) 60%, transparent);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.375rem;
+  color: var(--foreground);
+}
+.challenge-prose pre {
+  background: color-mix(in srgb, var(--muted) 50%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+.challenge-prose pre code {
+  background: transparent;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--foreground);
+}
+
+/* ── Test cases section ─────────────────────────────────────────────────────
+   Better spacing between test case label and call signature
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Test case inline code block — no border-radius, sits inside a card */
+.hljs-block-inline {
+  background: #1a1b26;
+  overflow-x: auto;
+}
+.hljs-block-inline .hljs {
+  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
+  color: #c0caf5;
+  background: transparent;
+  white-space: pre;
+  display: block;
+}
+
+/* Inline code chip */
+.challenge-inline-code {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.8em;
+  background: color-mix(in srgb, var(--muted) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-radius: 0.3rem;
+  padding: 0.1em 0.4em;
+  color: var(--foreground);
+}
+
+/* Section headings inside challenge prose */
+.challenge-heading {
+  color: var(--foreground);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+/* ── highlight.js code block with line numbers ──────────────────────────────
+   .hljs-block wraps <pre>, .hljs-line wraps each line, .hljs-line-num is the gutter
+   ─────────────────────────────────────────────────────────────────────────── */
+.hljs-block {
+  background: #1a1b26;
+  border-radius: 0.625rem;
+  padding: 0;
+  margin: 0.875rem 0;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.hljs-block code {
+  display: block;
+  overflow-x: auto;
+  padding: 0.625rem 0;
+  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  background: transparent;
+  color: #c0caf5;
+  counter-reset: none;
+}
+.hljs-line {
+  display: flex;
+  align-items: flex-start;
+}
+.hljs-line:hover { background: rgba(255,255,255,0.04); }
+.hljs-line-num {
+  display: inline-block;
+  min-width: 2.5rem;
+  padding: 0 0.75rem 0 0.875rem;
+  text-align: right;
+  color: rgba(255,255,255,0.2);
+  user-select: none;
+  flex-shrink: 0;
+  line-height: 1.55;
+}
+.hljs-line-content {
+  white-space: pre;
+  flex: 1;
+  padding-right: 1rem;
+  line-height: 1.55;
+}
+
+/* Tokyo Night-inspired highlight.js token colours */
+.hljs-keyword,
+.hljs-built_in         { color: #bb9af7; font-style: italic; }
+.hljs-title            { color: #7aa2f7; }
+.hljs-title.function_  { color: #7dcfff; }
+.hljs-params           { color: #e0af68; }
+.hljs-string,
+.hljs-template-string  { color: #9ece6a; }
+.hljs-number,
+.hljs-literal          { color: #ff9e64; }
+.hljs-comment          { color: #565f89; font-style: italic; }
+.hljs-punctuation,
+.hljs-operator         { color: #89ddff; }
+.hljs-property         { color: #73daca; }
+.hljs-variable         { color: #c0caf5; }
+.hljs-attr             { color: #7dcfff; }
+.hljs-meta             { color: #89ddff; }

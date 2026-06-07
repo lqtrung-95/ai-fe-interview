@@ -62,4 +62,5 @@ export interface DashboardData {
   readiness: { topics: { topic: string; readiness: number; avgScore: number | null; answers: number }[]; overall: number };
   weeklyComparison: { thisWeekAvg: number | null; lastWeekAvg: number | null; delta: number | null; sessionsThisWeek: number };
   dailyChallenge: { topic: string; difficulty: string; question: string } | null;
+  codingStats: { solved: number; total: number };
 }

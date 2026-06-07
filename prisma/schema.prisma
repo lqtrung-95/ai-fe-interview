@@ -40,10 +40,11 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  sessions    InterviewSession[]
-  studyPlan   StudyPlan?
-  redemptions PromoRedemption[]
-  targetJobs  TargetJob[]
+  sessions          InterviewSession[]
+  studyPlan         StudyPlan?
+  redemptions       PromoRedemption[]
+  targetJobs        TargetJob[]
+  codingSubmissions CodingSubmission[]
 }
 
 // ============================================================================
@@ -329,4 +330,48 @@ enum QuestionType {
   system_design
   behavioral
   tradeoff
+}
+
+// ============================================================================
+// Coding Challenges
+// ============================================================================
+
+model CodingChallenge {
+  id          String     @id
+  title       String
+  description String     @db.Text
+  difficulty  Difficulty
+  topic       String
+  tags        String[]
+  starterCode String     @db.Text
+  testCases   Json
+  hints       Json       @default("[]")
+  solution    String     @db.Text
+  timeLimit   Int        @default(5000)
+  createdAt   DateTime   @default(now())
+
+  submissions CodingSubmission[]
+
+  @@index([difficulty])
+  @@index([topic])
+}
+
+model CodingSubmission {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   CodingChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  code        String          @db.Text
+  language    String          @default("javascript")
+  status      String
+  testResults Json
+  passedCount Int
+  totalCount  Int
+  executionMs Int?
+  aiReview    String?         @db.Text
+  createdAt   DateTime        @default(now())
+
+  @@index([userId, createdAt])
+  @@index([challengeId])
 }

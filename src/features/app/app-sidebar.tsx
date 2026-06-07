@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Clock, Database, LayoutDashboard, Settings, Zap, Crown } from 'lucide-react';
+import { BookOpen, Clock, Code2, Database, LayoutDashboard, Settings, Zap, Crown } from 'lucide-react';
 import { BrandLogo } from '@/components/common/brand-logo';
 
 const NAV = [
@@ -10,6 +10,7 @@ const NAV = [
   { href: '/practice/new', label: 'Practice', icon: Zap },
   { href: '/study-plan', label: 'Study Plan', icon: BookOpen },
   { href: '/question-bank', label: 'Question Bank', icon: Database },
+  { href: '/coding-challenges', label: 'Coding Challenges', icon: Code2 },
   { href: '/history', label: 'History', icon: Clock },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];

@@ -1,8 +1,9 @@
 import 'server-only';
-import { generateObject, streamObject } from 'ai';
+import { generateObject, streamObject, streamText } from 'ai';
 import type { ZodSchema } from 'zod';
 import {
   type AITask,
+  type ReviewCodeInput,
   type AITaskResult,
   questionInputSchema,
   questionOutputSchema,
@@ -206,4 +207,42 @@ function isRetryableError(err: unknown): boolean {
   if (e?.name === 'ZodError' || e?.name === 'AI_TypeValidationError') return true;
   if (e?.status && e.status >= 500) return true;
   return false;
+}
+
+// ── Streaming code review (uses streamText — free-form markdown, not structured JSON) ──
+
+import { buildCodeReviewPrompt } from './prompts/code-review-prompt';
+
+interface StreamCodeReviewOptions {
+  userId: string;
+  onFinish?: (text: string) => Promise<void>;
+}
+
+export function streamCodeReview(
+  input: ReviewCodeInput,
+  { userId, onFinish }: StreamCodeReviewOptions
+) {
+  const { model, modelId } = routeModel('evaluate_answer'); // smart tier
+  const { system, user } = buildCodeReviewPrompt(input);
+  const start = Date.now();
+
+  return streamText({
+    model,
+    system,
+    prompt: user,
+    temperature: 0.3,
+    maxOutputTokens: 800,
+    onFinish: async ({ text, usage }) => {
+      await recordAICall({
+        userId,
+        task: 'review_code',
+        modelId,
+        promptTokens: usage?.inputTokens ?? 0,
+        completionTokens: usage?.outputTokens ?? 0,
+        latencyMs: Date.now() - start,
+        succeeded: true,
+      });
+      await onFinish?.(text);
+    },
+  });
 }

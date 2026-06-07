@@ -10,13 +10,14 @@ import {
   getDailyChallenge,
 } from '@/features/dashboard/server/progress-service';
 import { getRecommendations } from '@/features/dashboard/server/recommendation-service';
+import { getCodingChallengesStats } from '@/features/coding-challenges/server/get-coding-challenges-stats';
 import type { DashboardData } from '@/features/dashboard/dashboard-types';
 
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const [overview, trend, topics, weakAreas, recommendations, readiness, weeklyComparison, dailyChallenge] =
+  const [overview, trend, topics, weakAreas, recommendations, readiness, weeklyComparison, dailyChallenge, codingStats] =
     await Promise.all([
       getOverview(user.id),
       getScoreTrend(user.id, 30),
@@ -26,6 +27,7 @@ export async function GET() {
       getReadinessScore(user.id),
       getWeeklyComparison(user.id),
       getDailyChallenge(user.id),
+      getCodingChallengesStats(user.id),
     ]);
 
   const data: DashboardData = {
@@ -40,6 +42,7 @@ export async function GET() {
     readiness,
     weeklyComparison,
     dailyChallenge,
+    codingStats,
   };
 
   return NextResponse.json(data);

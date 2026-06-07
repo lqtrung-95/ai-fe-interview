@@ -147,6 +147,15 @@ export const extractJdOutputSchema = z.object({
 });
 export type ExtractJdOutput = z.infer<typeof extractJdOutputSchema>;
 
+// ----- review_code — streaming AI code review (Pro, passing submissions only) -----
+
+export type ReviewCodeInput = {
+  challengeTitle: string;
+  challengeDescription: string;
+  userCode: string;
+  testsPassed: string; // e.g. "5 / 5"
+};
+
 // ----- Union task type for orchestrator -----
 
 export type AITask =
