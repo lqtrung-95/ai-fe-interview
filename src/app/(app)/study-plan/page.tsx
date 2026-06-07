@@ -31,7 +31,7 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
 
   if (!plan || isEdit) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-8 space-y-8">
+      <div className="app-page mx-auto max-w-2xl px-6 py-8 space-y-8">
         <div className="space-y-1.5">
           {isEdit && (
             <Link
@@ -63,7 +63,7 @@ export default async function StudyPlanPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8 space-y-8">
+    <div className="app-page mx-auto max-w-2xl px-6 py-8 space-y-8">
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div>

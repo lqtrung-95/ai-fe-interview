@@ -59,7 +59,7 @@ export default async function QuestionDetailPage({ params }: PageProps) {
   const { hasPlan, studiedIds } = planStatus;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8 space-y-8">
+    <div className="app-page mx-auto max-w-5xl px-6 py-8 space-y-8">
       {/* Back nav */}
       <Link
         href="/question-bank"

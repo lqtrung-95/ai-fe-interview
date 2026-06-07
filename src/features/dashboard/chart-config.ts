@@ -1,15 +1,22 @@
 /**
- * Shared chart tokens for the dashboard. Stays consistent with shadcn slate theme
- * via CSS vars; chart-specific colors fall back to neutral muted tones so charts
- * never clash with the calm palette (PRD §12.1).
+ * Shared chart tokens for the dashboard. These reference the same CSS variables
+ * used by the app and marketing surfaces so charts follow light/dark brand theming.
  */
 
 export const CHART = {
-  primary: 'hsl(220 90% 56%)',
-  primarySoft: 'hsl(220 90% 56% / 0.18)',
-  axis: 'hsl(220 5% 60%)',
-  grid: 'hsl(220 5% 80% / 0.4)',
-  topic: ['#2563eb', '#7c3aed', '#16a34a', '#ea580c', '#dc2626', '#0891b2', '#a21caf'],
+  primary: 'var(--primary)',
+  primarySoft: 'color-mix(in oklab, var(--primary) 18%, transparent)',
+  axis: 'var(--muted-foreground)',
+  grid: 'color-mix(in oklab, var(--border) 72%, transparent)',
+  topic: [
+    'var(--brand-indigo)',
+    'var(--brand-pink)',
+    'var(--brand-teal)',
+    'var(--primary)',
+    'color-mix(in oklab, var(--brand-indigo) 70%, var(--brand-pink))',
+    'color-mix(in oklab, var(--brand-teal) 70%, var(--brand-indigo))',
+    'color-mix(in oklab, var(--brand-pink) 70%, var(--brand-teal))',
+  ],
 } as const;
 
 export function formatScore(value: number): string {

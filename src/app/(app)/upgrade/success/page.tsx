@@ -6,7 +6,7 @@ export const metadata = { title: 'Welcome to Pro!' };
 
 export default function UpgradeSuccessPage() {
   return (
-    <div className="mx-auto max-w-sm px-6 py-20 text-center">
+    <div className="app-page mx-auto max-w-sm px-6 py-20 text-center">
       <div className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 mb-5">
         <CheckCircle className="h-7 w-7 text-emerald-500" />
       </div>

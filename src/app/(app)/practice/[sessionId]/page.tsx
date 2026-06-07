@@ -56,7 +56,7 @@ export default async function SessionPage({
   const target = QUESTION_TARGETS[session.mode];
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="app-page mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
       {/* Session metadata header — question counter lives in InterviewMainPanel (live) */}
       <header className="border-b border-border/50 pb-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

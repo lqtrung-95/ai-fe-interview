@@ -25,7 +25,7 @@ export default async function HistoryPage({
   const hasActiveFilters = Boolean(filters.topic || filters.minScore || filters.from || filters.to || filters.search);
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <div className="app-page mx-auto max-w-5xl px-6 py-10">
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">History</p>

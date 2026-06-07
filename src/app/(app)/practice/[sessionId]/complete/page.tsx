@@ -37,7 +37,7 @@ export default async function CompletePage({ params }: PageProps) {
   const shareUrl = `${base}/practice/${sessionId}/complete`;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="app-page mx-auto max-w-5xl px-6 py-8">
       <header className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">Practice</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Session complete</h1>

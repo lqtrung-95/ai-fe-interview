@@ -17,7 +17,7 @@ export default async function CvReviewPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10 space-y-8">
+    <div className="app-page mx-auto max-w-3xl px-6 py-10 space-y-8">
       <header className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight">CV Review</h1>
         <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">

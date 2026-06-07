@@ -22,7 +22,7 @@ export default async function UpgradePage() {
   const lifetimeUrl = lifetimeId ? `/api/checkout?products=${lifetimeId}` : '#';
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-16">
+    <div className="app-page mx-auto max-w-2xl px-6 py-16">
       <div className="text-center mb-10">
         <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
           <Zap className="h-6 w-6 text-primary" />
