@@ -149,19 +149,19 @@ export function PremiumLandingPage({ ctaHref = '/sign-in?next=/onboarding' }: Pr
 
 function Hero({ ctaHref, reduceMotion }: { ctaHref: string; reduceMotion: boolean | null }) {
   return (
-    <section className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-18 lg:grid-cols-[0.95fr_1.05fr] lg:py-20">
-      <motion.div initial="hidden" animate="visible" variants={stagger} className="relative z-10">
+    <section className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-10 overflow-hidden px-4 py-14 sm:px-6 sm:py-18 lg:grid-cols-[0.95fr_1.05fr] lg:py-20">
+      <motion.div initial="hidden" animate="visible" variants={stagger} className="relative z-10 min-w-0">
         <motion.div variants={fadeUp} className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3 py-1.5 text-xs font-semibold text-primary shadow-primary/10">
           <Sparkles className="size-3.5 shrink-0" />
           <span className="min-w-0 truncate">AI mock interviews for serious frontend engineers</span>
         </motion.div>
-        <motion.h1 variants={fadeUp} className="max-w-3xl text-5xl font-semibold leading-[1.03] text-foreground sm:text-6xl lg:text-7xl">
+        <motion.h1 variants={fadeUp} className="max-w-3xl text-4xl font-semibold leading-[1.05] text-foreground sm:text-6xl lg:text-7xl">
           Get senior-ready for frontend interviews.
         </motion.h1>
         <motion.p variants={fadeUp} className="mt-6 max-w-2xl text-base leading-8 text-foreground/80 sm:text-lg">
           FrontEnd Coach runs realistic React, JavaScript, performance, and frontend system design interviews, then turns every answer into scored feedback, stronger rewrites, and a focused practice plan.
         </motion.p>
-        <motion.div variants={fadeUp} className="mt-8 flex flex-col gap-3 min-[460px]:flex-row">
+        <motion.div variants={fadeUp} className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Link
             href={ctaHref}
             className={buttonVariants({
@@ -198,7 +198,7 @@ function Hero({ ctaHref, reduceMotion }: { ctaHref: string; reduceMotion: boolea
         initial={{ opacity: 0, y: 22, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.12 }}
-        className="relative min-h-[520px] lg:min-h-[640px]"
+        className="relative min-h-[360px] min-w-0 overflow-hidden sm:min-h-[520px] sm:overflow-visible lg:min-h-[640px]"
       >
         <ProductHeroPreview />
         <FloatingCard
@@ -232,8 +232,8 @@ function Hero({ ctaHref, reduceMotion }: { ctaHref: string; reduceMotion: boolea
 
 function ProductHeroPreview() {
   return (
-    <div className="absolute inset-x-0 top-8 mx-auto w-full max-w-2xl lg:top-20">
-      <div className="relative overflow-hidden rounded-lg border border-border bg-card/80 shadow-[0_28px_100px_rgba(0,0,0,0.55)] backdrop-blur-2xl">
+    <div className="absolute inset-x-0 top-6 mx-auto w-full max-w-full sm:top-8 lg:top-20 lg:max-w-2xl">
+      <div className="relative overflow-hidden rounded-lg border border-border bg-card/90 shadow-[0_22px_70px_rgba(79,70,229,0.14)] backdrop-blur-2xl dark:bg-card/80 dark:shadow-[0_28px_100px_rgba(0,0,0,0.55)]">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-indigo/80 to-transparent" />
         <div className="flex items-center justify-between border-b border-border/80 px-4 py-3">
           <div className="flex items-center gap-1.5">
@@ -246,7 +246,7 @@ function ProductHeroPreview() {
           </div>
         </div>
         <div className="grid gap-0 md:grid-cols-[0.88fr_1.12fr]">
-          <aside className="border-b border-border/80 bg-card/40 p-4 md:border-b-0 md:border-r">
+          <aside className="hidden border-b border-border/80 bg-card/40 p-4 sm:block md:border-b-0 md:border-r">
             <div className="rounded-lg border border-primary/20 bg-primary/8 p-3">
               <p className="text-[10px] font-bold uppercase text-brand-pink">Session setup</p>
               <p className="mt-2 text-sm font-semibold text-foreground">Senior Frontend Engineer</p>
@@ -287,7 +287,7 @@ function ProductHeroPreview() {
                 </div>
               </div>
             </div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3">
+            <div className="mt-3 hidden gap-3 sm:grid sm:grid-cols-3">
               {[
                 ['Correctness', '4.4'],
                 ['Depth', '3.6'],
@@ -325,7 +325,7 @@ function FloatingCard({
     <motion.div
       animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
       transition={{ duration: 5.5, delay, repeat: Infinity, ease: 'easeInOut' }}
-      className={cn('rounded-lg border border-border bg-card/80 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.36)] backdrop-blur-2xl', className)}
+      className={cn('rounded-lg border border-border bg-card/90 p-3 shadow-[0_18px_48px_rgba(79,70,229,0.12)] backdrop-blur-2xl dark:bg-card/80 dark:shadow-[0_18px_60px_rgba(0,0,0,0.36)]', className)}
     >
       <div className="flex items-start gap-2.5">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -727,7 +727,7 @@ function FinalCta({ ctaHref }: { ctaHref: string }) {
   return (
     <section className="mx-auto max-w-7xl px-4 pb-16 pt-4 sm:px-6 sm:pb-20">
       <div
-        className="relative overflow-hidden rounded-lg border border-border/80 px-6 py-14 text-center shadow-[0_28px_110px_rgba(0,0,0,0.42)]"
+        className="relative overflow-hidden rounded-lg border border-border/80 px-6 py-14 text-center shadow-[0_24px_80px_rgba(79,70,229,0.14)] dark:shadow-[0_28px_110px_rgba(0,0,0,0.42)]"
         style={{
           background:
             'linear-gradient(135deg, color-mix(in oklab, var(--brand-indigo) 18%, var(--card)), color-mix(in oklab, var(--brand-pink) 8%, var(--card)) 48%, color-mix(in oklab, var(--brand-teal) 6%, var(--card)))',
@@ -747,7 +747,7 @@ function FinalCta({ ctaHref }: { ctaHref: string }) {
         <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-foreground/80">
           Start a free mock interview, identify the gaps, and turn your next practice session into targeted progress.
         </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 min-[460px]:flex-row">
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Link href={ctaHref} className={buttonVariants({ size: 'lg', className: 'h-11 rounded-lg bg-primary px-5 text-primary-foreground hover:bg-primary/90' })}>
             Start free interview <ArrowRight className="size-4" />
           </Link>
@@ -796,7 +796,7 @@ function MotionCard({ children, className }: { children: React.ReactNode; classN
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.25 }}
-      className={cn('rounded-lg border border-border/80 bg-card/70 shadow-[0_20px_70px_rgba(0,0,0,0.22)] backdrop-blur-xl', className)}
+      className={cn('rounded-lg border border-border/80 bg-card/80 shadow-[0_18px_54px_rgba(79,70,229,0.10)] backdrop-blur-xl dark:bg-card/70 dark:shadow-[0_20px_70px_rgba(0,0,0,0.22)]', className)}
     >
       {children}
     </motion.div>

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { BrandLogo } from '@/components/common/brand-logo';
 import { buttonVariants } from '@/components/ui/button';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -16,22 +17,29 @@ export default async function MarketingLayout({ children }: { children: React.Re
             <span className="truncate whitespace-nowrap text-sm font-semibold text-foreground sm:text-base">FrontEnd Coach</span>
           </Link>
           <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <Link href="/resources" className="hidden no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
+            <Link href="/resources" className="hidden no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex">
               Resources
             </Link>
-            <Link href="/demo" className="hidden no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
+            <Link href="/demo" className="inline-flex no-underline rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:px-3">
               Demo
             </Link>
             <MarketingThemeToggle />
             {user ? (
-              <Link href="/dashboard" className={buttonVariants({ size: 'sm', className: 'border-border/80 bg-primary text-primary-foreground hover:bg-primary/90 px-2.5 sm:px-3' })}>
-                <span className="sm:hidden">Dashboard</span>
-                <span className="hidden sm:inline">Go to dashboard</span>
-              </Link>
+              <span className="inline-flex">
+                <Link href="/dashboard" className={buttonVariants({ size: 'sm', className: 'border-border/80 bg-primary px-2.5 text-primary-foreground hover:bg-primary/90 sm:px-3' })}>
+                  <span className="sm:hidden">App</span>
+                  <span className="hidden sm:inline">Go to dashboard</span>
+                </Link>
+              </span>
             ) : (
-              <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm', className: 'border-border/80 bg-primary text-primary-foreground hover:bg-primary/90 px-2.5 sm:px-3' })}>
-                Get started
-              </Link>
+              <span className="inline-flex">
+                <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm', className: 'border-border/80 bg-primary px-2.5 text-primary-foreground hover:bg-primary/90 sm:px-3' })}>
+                  <span className="sm:hidden">Start</span>
+                  <span className="hidden items-center gap-1 sm:inline-flex">
+                    Get started <ArrowRight className="size-3.5" />
+                  </span>
+                </Link>
+              </span>
             )}
           </nav>
         </div>

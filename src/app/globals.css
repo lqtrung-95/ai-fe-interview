@@ -147,6 +147,19 @@
 }
 
 /* Marketing-only atmosphere and motion. Kept out of the authenticated app. */
+.marketing-shell {
+  --background: oklch(0.985 0.006 258);
+  --foreground: oklch(0.12 0.030 258);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.12 0.030 258);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.12 0.030 258);
+  --muted: oklch(0.955 0.010 258);
+  --muted-foreground: oklch(0.43 0.024 258);
+  --border: oklch(0.88 0.014 258);
+  --input: oklch(0.88 0.014 258);
+}
+
 .marketing-hero {
   background:
     radial-gradient(circle at 18% 25%, color-mix(in oklab, var(--brand-pink) 10%, transparent), transparent 27rem),
