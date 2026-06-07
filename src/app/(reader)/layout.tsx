@@ -11,7 +11,7 @@ export default async function ReaderLayout({ children }: { children: React.React
   const user = await getCurrentUser();
 
   return (
-    <div className="reader-shell relative flex min-h-screen flex-col overflow-x-hidden bg-background">
+    <div className="reader-shell relative flex min-h-screen flex-col overflow-x-clip bg-background">
       <div aria-hidden="true" className="reader-atmosphere reader-atmosphere-primary" />
       <div aria-hidden="true" className="reader-atmosphere reader-atmosphere-teal" />
       <ReaderHeader user={user} />

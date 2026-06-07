@@ -20,7 +20,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="app-shell relative flex min-h-screen overflow-x-hidden bg-background">
+    <div className="app-shell relative flex min-h-screen overflow-x-clip bg-background">
       <div aria-hidden="true" className="app-atmosphere app-atmosphere-primary" />
       <div aria-hidden="true" className="app-atmosphere app-atmosphere-teal" />
       <AppSidebar
