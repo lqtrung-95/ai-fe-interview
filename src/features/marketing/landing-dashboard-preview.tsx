@@ -2,9 +2,9 @@ import { AlertTriangle, ArrowRight, BarChart3, Radar, Sparkles, Zap } from 'luci
 
 const FEATURES = [
   { icon: BarChart3, title: 'Score trend', body: 'Track whether your answers improve across sessions.' },
-  { icon: Radar, title: 'Topic breakdown', body: 'Compare React, browser APIs, testing, and performance.' },
+  { icon: Radar, title: 'Role fit signal', body: 'On Pro, compare your answers against the skills emphasized in saved JDs.' },
   { icon: AlertTriangle, title: 'Technical weak areas', body: 'See the exact concepts missing from recent answers.' },
-  { icon: Sparkles, title: 'AI-guided drills', body: 'Practice the follow-up most likely to expose the gap.' },
+  { icon: Sparkles, title: 'AI-guided drills', body: 'Practice the follow-up most likely to close the gap; Pro can match drills to a saved JD.' },
 ];
 
 const WEAK_AREAS = [
@@ -29,8 +29,8 @@ const WEAK_AREAS = [
 ];
 
 const RELATED_DRILLS = [
-  'Lighthouse CI performance budgets',
-  'IntersectionObserver pagination edge cases',
+  'Checkout error state trade-offs',
+  'React performance budgets for search',
 ];
 
 export function LandingDashboardPreview() {
@@ -39,9 +39,9 @@ export function LandingDashboardPreview() {
       <div className="grid items-start gap-8 lg:grid-cols-[0.72fr_1.28fr]">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">Personalized dashboard</p>
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight">Know exactly what to practice next</h2>
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight">Know what to practice next</h2>
           <p className="mt-3 max-w-md text-sm leading-6 text-muted-foreground">
-            Turn interview feedback into a technical practice plan. See the gaps, then launch the drill that targets them.
+            Turn interview feedback and CV context into a technical practice plan. Pro users can add JD requirements for target-role drills.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             {FEATURES.map(({ icon: Icon, title, body }) => (
@@ -103,9 +103,9 @@ function RecommendationsPreview() {
     <div className="rounded-xl border border-border/70 bg-background/60 p-3.5">
       <Header icon={Sparkles} title="AI Recommendations" subtitle="Built from your latest feedback" tone="primary" />
       <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
-        <p className="text-[9px] font-bold uppercase tracking-wider text-primary">Next technical drill</p>
-        <h4 className="mt-2 text-xs font-bold leading-5">Profile React commit cost before memoizing</h4>
-        <p className="mt-1 text-[10px] leading-4 text-muted-foreground">Use React Profiler and INP traces to isolate render work, handler cost, and layout thrash before choosing a fix.</p>
+        <p className="text-[9px] font-bold uppercase tracking-wider text-primary">Pro JD-matched drill</p>
+        <h4 className="mt-2 text-xs font-bold leading-5">Design marketplace search under latency constraints</h4>
+        <p className="mt-1 text-[10px] leading-4 text-muted-foreground">Use saved JD context to practice ranking boundaries, fallback states, Core Web Vitals, and rollout metrics.</p>
         <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/10 px-2.5 py-2 text-[10px] font-semibold text-primary">
           <Zap className="size-3" /> Start focused drill <ArrowRight className="size-3" />
         </div>

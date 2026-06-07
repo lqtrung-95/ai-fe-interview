@@ -1,7 +1,7 @@
 const FACTS = [
   { value: '7', label: 'Frontend topic areas' },
   { value: '6', label: 'Feedback dimensions' },
-  { value: '3', label: 'Practice modes' },
+  { value: '3', label: 'Pro saved target JDs' },
   { value: '1', label: 'Free session to start' },
 ];
 

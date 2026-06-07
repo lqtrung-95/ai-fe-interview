@@ -8,14 +8,14 @@ export function LandingCta({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref?
         <div className="pointer-events-none absolute left-1/2 top-0 -z-0 h-64 w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[80px]" />
 
         <p className="relative text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-          Practice with a clear next step
+          Practice now. Add Pro context later.
         </p>
         <h2 className="relative mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Ready to practice your next{' '}
-          <span className="text-primary">frontend interview</span>?
+          Ready to practice for your next{' '}
+          <span className="text-primary">target role</span>?
         </h2>
         <p className="relative mt-4 text-sm leading-7 text-muted-foreground">
-          Three questions. Honest AI feedback. Five minutes well spent.
+          Start with a free session, add CV context when useful, and upgrade for saved JD-targeted questions.
         </p>
 
         <div className="relative mt-9 flex flex-wrap items-center justify-center gap-3">
@@ -34,7 +34,7 @@ export function LandingCta({ ctaHref = '/sign-in?next=/onboarding' }: { ctaHref?
         </div>
 
         <p className="relative mt-4 text-xs text-muted-foreground">
-          No credit card required · No CV required · Add one anytime for personalized questions
+          No credit card required · No CV required · JD targeting is included in Pro
         </p>
       </div>
     </section>

@@ -6,6 +6,8 @@ const CATEGORIES = [
   'Browser & Web APIs',
   'Testing',
   'Behavioral & Communication',
+  'Pro JD-tailored context',
+  'CV-based follow-ups',
 ];
 
 export function LandingCategories() {
@@ -17,7 +19,7 @@ export function LandingCategories() {
           Supported interview categories
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          Pick what you want to drill. Mix topics. Filter by difficulty.
+          Pick what you want to drill, add CV context when useful, or upgrade to Pro for saved JD targeting.
         </p>
       </div>
       <div className="mt-8 flex flex-wrap justify-center gap-2.5">

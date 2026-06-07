@@ -10,25 +10,26 @@ export default async function MarketingLayout({ children }: { children: React.Re
   return (
     <div className="marketing-shell flex min-h-screen flex-col bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-2">
-            <BrandLogo className="size-7" />
-            <span className="font-semibold tracking-tight">FrontEnd Coach</span>
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+          <Link href="/" className="flex min-w-0 items-center gap-2">
+            <BrandLogo className="size-7 shrink-0" />
+            <span className="truncate whitespace-nowrap text-sm font-semibold tracking-tight sm:text-base">FrontEnd Coach</span>
           </Link>
-          <nav className="flex items-center gap-2">
-            <Link href="/resources" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <nav className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <Link href="/resources" className="hidden no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
               Resources
             </Link>
-            <Link href="/demo" className="no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+            <Link href="/demo" className="hidden no-underline rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
               Demo
             </Link>
             <MarketingThemeToggle />
             {user ? (
-              <Link href="/dashboard" className={buttonVariants({ size: 'sm' })}>
-                Go to dashboard →
+              <Link href="/dashboard" className={buttonVariants({ size: 'sm', className: 'px-2.5 sm:px-3' })}>
+                <span className="sm:hidden">Dashboard</span>
+                <span className="hidden sm:inline">Go to dashboard →</span>
               </Link>
             ) : (
-              <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm' })}>
+              <Link href="/sign-in?next=/onboarding" className={buttonVariants({ size: 'sm', className: 'px-2.5 sm:px-3' })}>
                 Get started
               </Link>
             )}

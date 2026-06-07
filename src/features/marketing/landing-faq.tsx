@@ -8,6 +8,14 @@ const FAQS = [
     answer: 'JavaScript, React, browser APIs, web performance, frontend system design, testing, and behavioral communication.',
   },
   {
+    question: 'Can questions be tailored to a job description?',
+    answer: 'Yes, on Pro. Pro users can save target job descriptions, choose one when starting a session, and use that role, company domain, and expected stack as context.',
+  },
+  {
+    question: 'Can I use my CV?',
+    answer: 'Yes. Upload a CV to unlock CV-based practice and a CV review workflow with frontend-specific suggestions.',
+  },
+  {
     question: 'What happens after I answer a question?',
     answer: 'You receive rubric-based scores, missing points, a stronger answer example, and recommendations for your next session.',
   },

@@ -2,13 +2,13 @@ import { ArrowRight, CheckCircle2, Circle, LineChart, MessageSquareText } from '
 
 const FLOWS = [
   {
-    title: 'Start with a focused session',
-    body: 'Choose a standard mock, a quick drill, or a deep coaching pass. The setup keeps the interview scoped to the topics you need.',
+    title: 'Start with the right session context',
+    body: 'Set topics, difficulty, mode, and timer. Pro users can also choose a saved job description for role-specific question generation.',
     preview: <SetupPreview />,
   },
   {
     title: 'Practice in an interview-style workspace',
-    body: 'Answer one question at a time with progress, guide rails, hints, and space to write a structured response.',
+    body: 'Answer one question at a time with progress, guide rails, hints, and space to write a structured response shaped by the selected context.',
     preview: <InterviewPreview />,
   },
   {
@@ -61,6 +61,14 @@ function SetupPreview() {
             <p className="mt-1 text-xs text-muted-foreground">{i === 1 ? '5 questions · 25 min' : 'Targeted practice'}</p>
           </div>
         ))}
+      </div>
+      <div className="mt-4 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Pro target job</p>
+        <div className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-card px-3 py-2">
+          <span className="min-w-0 truncate text-sm font-semibold">Senior Frontend Engineer · Marketplace</span>
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-primary" />
+        </div>
+        <p className="mt-2 text-xs leading-5 text-muted-foreground">On Pro, JD context steers questions toward role-specific systems, technologies, and constraints.</p>
       </div>
       <div className="mt-4 grid gap-2">
         {['JavaScript', 'Web Performance', 'Frontend System Design'].map((topic) => (
