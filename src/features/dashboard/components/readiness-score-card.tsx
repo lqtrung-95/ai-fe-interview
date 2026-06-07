@@ -30,7 +30,7 @@ function scoreLabel(pct: number) {
 
 export function ReadinessScoreCard({ overall, topics }: Props) {
   return (
-    <section className="rounded-xl border border-border/60 bg-card p-5">
+    <section className="app-surface-card rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -41,7 +41,7 @@ export function ReadinessScoreCard({ overall, topics }: Props) {
         </div>
         {/* Overall ring */}
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-extrabold tabular-nums">{overall}</span>
+          <span className="app-gradient-text text-2xl font-extrabold tabular-nums">{overall}</span>
           <span className="text-xs text-muted-foreground">/ 100</span>
         </div>
       </div>

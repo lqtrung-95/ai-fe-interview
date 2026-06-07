@@ -17,7 +17,7 @@ export function RecommendedPractice({ recommendations }: Props) {
   const [primary, ...secondary] = recommendations;
 
   return (
-    <section className="rounded-xl border border-border/60 bg-card p-5">
+    <section className="app-surface-card rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm">
       <div className="mb-4 flex items-center gap-2.5">
         <span className="flex size-7 items-center justify-center rounded-md bg-primary/10 text-primary">
           <Sparkles className="size-3.5" />
@@ -32,7 +32,7 @@ export function RecommendedPractice({ recommendations }: Props) {
         <EmptyState />
       ) : (
         <div className="space-y-3">
-          <div className="space-y-3 rounded-xl border border-primary/25 bg-primary/[0.04] p-4">
+          <div className="app-feature-panel space-y-3 rounded-xl border border-primary/25 p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary">
               Next recommended session
             </p>
@@ -98,7 +98,7 @@ function EmptyState() {
       <Clock3 className="mx-auto h-5 w-5 text-muted-foreground" />
       <p className="mt-3 text-sm font-medium">No recommendations yet</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Complete a session and we'll suggest where to drill next.
+        Complete a session and we&apos;ll suggest where to drill next.
       </p>
     </div>
   );

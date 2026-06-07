@@ -22,7 +22,7 @@ function DashboardContent() {
   const hasAnyData = overview.totalSessions > 0 || overview.totalQuestionsAnswered > 0;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="app-page mx-auto max-w-5xl px-6 py-8">
       {targetInterviewDate && (
         <div className="mb-6">
           <InterviewCountdownBanner targetInterviewDate={targetInterviewDate} />
@@ -40,7 +40,7 @@ function DashboardContent() {
             Next best practice based on your recent performance.
           </p>
         </div>
-        <Link href="/practice/new" className={buttonVariants()}>
+        <Link href="/practice/new" className={buttonVariants({ className: 'app-primary-button' })}>
           Start practice →
         </Link>
       </header>
@@ -65,7 +65,7 @@ function DashboardContent() {
             {isPro ? (
               <WeakAreasList weakAreas={weakAreas} />
             ) : (
-              <section className="flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-border/60 bg-card p-8 text-center">
+              <section className="app-surface-card flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-border/60 bg-card p-8 text-center">
                 <span className="flex size-10 items-center justify-center rounded-full bg-primary/10">
                   <Lock className="size-4 text-primary" />
                 </span>

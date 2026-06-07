@@ -33,7 +33,7 @@ export function LandingProductWalkthrough() {
         {FLOWS.map((flow, index) => (
           <article
             key={flow.title}
-            className="grid items-center gap-6 rounded-2xl border border-border bg-card p-6 shadow-md shadow-black/5 dark:shadow-black/20 lg:grid-cols-2"
+            className="marketing-surface-card grid items-center gap-6 rounded-2xl border border-border bg-card p-6 shadow-md shadow-black/5 dark:shadow-black/20 lg:grid-cols-2"
           >
             <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
               <span className="text-xs font-semibold uppercase tracking-widest text-primary">Step {index + 1}</span>

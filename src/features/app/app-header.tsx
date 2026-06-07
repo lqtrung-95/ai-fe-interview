@@ -3,7 +3,6 @@
 import { LogOut, Moon, Sun, Library } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 import { signOut } from '@/features/auth/sign-out-action';
 
 interface Props {
@@ -14,14 +13,11 @@ interface Props {
 
 export function AppHeader({ userName, userEmail, userImage }: Props) {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
   const isDark = resolvedTheme === 'dark';
   const displayName = userName ?? userEmail;
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/90 px-5 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+    <header className="app-header fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/85 px-5 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 md:left-56">
       {/* Left — Resources entry (links to the index, user picks handbook or glossary from there) */}
       <Link
         href="/resources"
@@ -60,11 +56,12 @@ export function AppHeader({ userName, userEmail, userImage }: Props) {
         {/* Theme toggle */}
         <button
           type="button"
-          onClick={() => mounted && setTheme(isDark ? 'light' : 'dark')}
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
           aria-label="Toggle color theme"
           className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
         >
-          {mounted && isDark ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+          <Sun className="hidden h-3.5 w-3.5 dark:block" />
+          <Moon className="h-3.5 w-3.5 dark:hidden" />
         </button>
 
         {/* Sign out */}

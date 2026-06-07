@@ -46,7 +46,7 @@ export function LandingCvPersonalization() {
 
 function CvPreview() {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 shadow-md shadow-black/5 dark:shadow-black/20">
+    <div className="marketing-surface-card rounded-2xl border border-border bg-card p-5 shadow-md shadow-black/5 dark:shadow-black/20">
       <div className="flex items-center gap-3 border-b border-border/60 pb-4">
         <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <FileText className="size-4.5" />

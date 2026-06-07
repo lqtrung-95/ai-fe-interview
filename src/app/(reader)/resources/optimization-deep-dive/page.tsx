@@ -34,12 +34,12 @@ export default function FrontendSystemDesignPage() {
   const data = loadHandbook();
 
   return (
-    <div className="flex min-h-screen">
-      {/* Handbook sidebar — sticky, hidden on mobile */}
+    <div className="handbook-page min-h-screen">
+      {/* Handbook sidebar — fixed below the reader header, hidden on mobile */}
       <HandbookSidebar nav={data.nav} />
 
       {/* Main content */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 md:ml-60">
         {/* Hero header */}
         <header className="relative border-b border-border/60 px-6 lg:px-12 pt-10 pb-8 overflow-hidden">
           {/* Subtle radial glow behind title */}
@@ -90,7 +90,7 @@ export default function FrontendSystemDesignPage() {
             <section
               key={section.id}
               id={section.id}
-              className="py-14 border-b border-border/30 scroll-mt-6 last:border-b-0"
+              className="scroll-mt-20 border-b border-border/30 py-14 last:border-b-0"
             >
               {/* Section heading */}
               <div className="mb-6">

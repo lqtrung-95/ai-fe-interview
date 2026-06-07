@@ -20,15 +20,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="app-shell relative flex min-h-screen overflow-x-hidden bg-background">
+      <div aria-hidden="true" className="app-atmosphere app-atmosphere-primary" />
+      <div aria-hidden="true" className="app-atmosphere app-atmosphere-teal" />
       <AppSidebar
         isPro={user.isPro}
         proExpiresAt={user.proExpiresAt?.toISOString() ?? null}
         proSince={user.proSince?.toISOString() ?? null}
       />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col md:pl-56">
         <AppHeader userName={user.name} userEmail={user.email} userImage={user.image} />
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="app-main min-w-0 flex-1 pt-14">{children}</main>
       </div>
     </div>
   );

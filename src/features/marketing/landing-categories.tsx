@@ -26,7 +26,7 @@ export function LandingCategories() {
         {CATEGORIES.map((label) => (
           <span
             key={label}
-            className="rounded-full border border-border/70 bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground"
+            className="marketing-category rounded-full border border-border/70 bg-card px-4 py-1.5 text-sm font-medium text-muted-foreground"
           >
             {label}
           </span>

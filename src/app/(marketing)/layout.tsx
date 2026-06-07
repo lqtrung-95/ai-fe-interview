@@ -9,7 +9,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
 
   return (
     <div className="marketing-shell flex min-h-screen flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 shadow-[0_1px_0_0_color-mix(in_oklab,var(--primary)_4%,transparent)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/70">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link href="/" className="flex min-w-0 items-center gap-2">
             <BrandLogo className="size-7 shrink-0" />

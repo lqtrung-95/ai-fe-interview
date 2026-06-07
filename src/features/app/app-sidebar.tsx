@@ -28,7 +28,7 @@ export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-56 shrink-0 self-start flex-col overflow-hidden border-r border-sidebar-border bg-sidebar md:flex">
+    <aside className="app-sidebar fixed inset-y-0 left-0 z-30 hidden h-dvh w-56 flex-col overflow-hidden border-r border-sidebar-border bg-sidebar/95 backdrop-blur-xl md:flex">
       {/* Logo */}
       <div className="px-4 py-5">
         <Link href="/dashboard" className="flex items-center gap-2.5">
@@ -56,15 +56,15 @@ export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null
               <li key={item.href} className="relative">
                 {/* Active left-edge bar */}
                 {active && (
-                  <span className="absolute -left-2 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-full bg-primary" />
+                  <span className="app-nav-indicator absolute -left-2 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full" />
                 )}
                 <Link
                   href={item.href}
                   className={
                     'group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150 ' +
                     (active
-                      ? 'bg-primary/15 text-primary'
-                      : 'text-sidebar-foreground/55 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground')
+                      ? 'app-nav-active text-primary'
+                      : 'text-sidebar-foreground/55 hover:translate-x-0.5 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground')
                   }
                 >
                   <Icon
@@ -110,7 +110,7 @@ export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null
         ) : (
           <Link
             href="/upgrade"
-            className="flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/8 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/12 transition-colors"
+            className="app-upgrade-card flex items-center gap-2 rounded-lg border border-primary/25 px-3 py-2 text-xs font-medium text-primary transition-all"
           >
             <Zap className="h-3 w-3 shrink-0" />
             Upgrade to Pro

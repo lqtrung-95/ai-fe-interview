@@ -58,7 +58,7 @@ export default async function NewSessionPage({
   const defaultDifficulty: SessionDifficulty = toSessionDifficulty(requestedDifficulty ?? user.level);
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="app-page mx-auto max-w-5xl px-6 py-8">
       <header className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-1">Practice</p>
         <h1 className="text-3xl font-extrabold tracking-tight">New session</h1>

@@ -22,14 +22,14 @@ export default async function SettingsPage() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8 px-6 py-10">
+    <div className="app-page mx-auto max-w-4xl space-y-8 px-6 py-10">
       <div>
         <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-primary">Account</p>
         <h1 className="text-3xl font-extrabold tracking-tight">Settings</h1>
         <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
       </div>
 
-      <section className="rounded-xl border border-border/70 bg-card p-6 shadow-sm">
+      <section className="app-surface-card rounded-xl border border-border/70 bg-card/90 p-6 shadow-sm backdrop-blur-sm">
         <div className="mb-5">
           <h2 className="text-base font-bold">Profile</h2>
           <p className="mt-1 text-sm text-muted-foreground">Manage how your account appears inside the app.</p>

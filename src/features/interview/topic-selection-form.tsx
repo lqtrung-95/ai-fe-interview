@@ -90,7 +90,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
   return (
     <>
     <UpgradeWallDialog open={showUpgradeWall} onClose={() => setShowUpgradeWall(false)} />
-    <div className="space-y-8">
+    <div className="app-form-panel space-y-8 rounded-2xl border border-border/60 bg-card/65 p-5 shadow-sm backdrop-blur-sm sm:p-7">
       {/* Mode */}
       <section className="space-y-3">
         <SectionLabel>Mode</SectionLabel>
@@ -287,7 +287,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
 
       {error && <p className="text-sm text-destructive" role="alert">{error}</p>}
       <div className="flex justify-end">
-        <Button size="lg" onClick={handleStart} disabled={pending || topics.length === 0}>
+        <Button className="app-primary-button" size="lg" onClick={handleStart} disabled={pending || topics.length === 0}>
           {pending ? 'Starting…' : 'Start session →'}
         </Button>
       </div>
@@ -311,10 +311,10 @@ function ChoiceCard(props: { active: boolean; title: string; detail: string; onC
       type="button"
       onClick={props.onClick}
       className={
-        'rounded-xl border p-4 text-left transition-all ' +
+        'rounded-xl border p-4 text-left transition-all duration-200 ' +
         (props.active
-          ? 'border-primary bg-primary text-primary-foreground shadow-sm'
-          : 'border-border/60 bg-card hover:border-primary/40 hover:shadow-sm')
+          ? 'app-choice-active border-transparent text-primary-foreground shadow-sm'
+          : 'border-border/60 bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md')
       }
     >
       <p className="text-sm font-semibold">{props.title}</p>

@@ -54,7 +54,7 @@ export function OverviewCards({ metrics }: Props) {
           <article
             key={item.label}
             className={
-              'rounded-xl border bg-card p-5 ' +
+              'app-surface-card rounded-xl border bg-card/90 p-5 backdrop-blur-sm ' +
               (item.accent
                 ? 'border-primary/30 bg-primary/5 dark:bg-primary/10'
                 : 'border-border/60')
@@ -71,7 +71,7 @@ export function OverviewCards({ metrics }: Props) {
             <p
               className={
                 'mt-3 text-3xl font-extrabold tracking-tight ' +
-                (item.accent ? 'text-primary' : 'text-foreground')
+                (item.accent ? 'app-gradient-text' : 'text-foreground')
               }
             >
               {item.value}

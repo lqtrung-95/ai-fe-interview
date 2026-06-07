@@ -65,7 +65,7 @@ export function LandingDashboardPreview() {
 
 function DashboardMock() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-md shadow-black/5 dark:shadow-black/20">
+    <div className="marketing-surface-card overflow-hidden rounded-2xl border border-border bg-card shadow-md shadow-black/5 dark:shadow-black/20">
       <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
         <div className="flex gap-1.5"><span className="size-2 rounded-full bg-muted-foreground/30" /><span className="size-2 rounded-full bg-muted-foreground/30" /><span className="size-2 rounded-full bg-muted-foreground/30" /></div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Dashboard · performance review</p>

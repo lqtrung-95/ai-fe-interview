@@ -72,13 +72,13 @@ const RESOURCES = [
 
 export default function ResourcesIndexPage() {
   return (
-    <div className="mx-auto max-w-4xl px-6 py-12 space-y-10">
+    <div className="reader-page mx-auto max-w-4xl space-y-10 px-6 py-12">
       {/* Header */}
       <div className="space-y-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           Resources
         </p>
-        <h1 className="text-2xl font-bold tracking-tight">Study Guides</h1>
+        <h1 className="reader-gradient-text text-2xl font-bold tracking-tight">Study Guides</h1>
         <p className="text-sm text-muted-foreground max-w-lg leading-relaxed">
           Deep-dive material built for lasting understanding — not just interview answers.
         </p>
@@ -90,10 +90,9 @@ export default function ResourcesIndexPage() {
           <Link
             key={r.href}
             href={r.href}
-            className="group relative rounded-xl border border-border/60 bg-card p-5 space-y-4
-                       hover:border-primary/40 hover:bg-primary/[0.03] transition-all duration-200
-                       hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.12)]"
+            className="reader-resource-card group relative space-y-4 overflow-hidden rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm"
           >
+            <span aria-hidden="true" className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
             {/* Label chip */}
             <span className="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               {r.label}
