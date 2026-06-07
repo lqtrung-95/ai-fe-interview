@@ -5,6 +5,7 @@ import { marked, type Tokens } from 'marked';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 import typescript from 'highlight.js/lib/languages/typescript';
+import beautify from 'js-beautify';
 import { HintsPanel } from './hints-panel';
 import { SolutionViewer } from './solution-viewer';
 import type { ChallengePublic } from './types';
@@ -110,8 +111,18 @@ export function ChallengeDescription({ challenge }: Props) {
           <div className="space-y-2">
             {visibleCases.map((tc) => {
               const code = buildTestCode(tc.input, tc.expected);
-              const codeHtml = code
-                ? hljs.highlight(code, { language: 'javascript' }).value
+              const formatted = code
+                ? beautify.js(code, {
+                    indent_size: 2,
+                    wrap_line_length: 56,
+                    end_with_newline: false,
+                    brace_style: 'collapse',
+                    space_before_conditional: true,
+                    max_preserve_newlines: 1,
+                  })
+                : '';
+              const codeHtml = formatted
+                ? hljs.highlight(formatted, { language: 'javascript' }).value
                 : '';
               return (
                 <div key={tc.id} className="rounded-lg border border-border/60 overflow-hidden">

@@ -9,7 +9,7 @@ import { buttonVariants } from '@/components/ui/button';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full items-center justify-center bg-[#1e1e1e] text-sm text-muted-foreground">
+    <div className="flex h-full items-center justify-center bg-card text-sm text-muted-foreground">
       Loading editor…
     </div>
   ),

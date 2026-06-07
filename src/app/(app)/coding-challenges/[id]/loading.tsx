@@ -19,7 +19,7 @@ export default function Loading() {
       </div>
 
       {/* Right panel skeleton */}
-      <div className="w-full flex-1 bg-[#1e1e1e]/50 md:w-1/2" />
+      <div className="w-full flex-1 bg-card/80 md:w-1/2" />
     </div>
   );
 }

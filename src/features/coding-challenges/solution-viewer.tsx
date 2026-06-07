@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
+import beautify from 'js-beautify';
 import { Code2, ChevronDown } from 'lucide-react';
 
 hljs.registerLanguage('javascript', javascript);
@@ -72,7 +73,14 @@ export function SolutionViewer({ challengeId }: Props) {
   }
 
   // Shown
-  const highlighted = hljs.highlight(solution, { language: 'javascript' }).value;
+  const formatted = beautify.js(solution, {
+    indent_size: 2,
+    wrap_line_length: 80,
+    end_with_newline: false,
+    brace_style: 'collapse',
+    max_preserve_newlines: 1,
+  });
+  const highlighted = hljs.highlight(formatted, { language: 'javascript' }).value;
   const lines = highlighted.split('\n');
   const numbered = lines
     .map(
