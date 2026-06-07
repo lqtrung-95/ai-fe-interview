@@ -13,10 +13,12 @@ import { TopicRadarChart } from './topic-radar-chart';
 import { WeakAreasList } from './weak-areas-list';
 import { RecommendedPractice } from './recommended-practice';
 import { DashboardEmptyState } from './dashboard-empty-state';
+import { ReadinessScoreCard } from './readiness-score-card';
+import { WeeklyProgressCard } from './weekly-progress-card';
 
 function DashboardContent() {
   const { data } = useDashboardQuery();
-  const { overview, trend, topics, weakAreas, recommendations, isPro, userName, targetInterviewDate } = data;
+  const { overview, trend, topics, weakAreas, recommendations, isPro, userName, targetInterviewDate, readiness, weeklyComparison } = data;
   const hasAnyData = overview.totalSessions > 0 || overview.totalQuestionsAnswered > 0;
 
   return (
@@ -48,10 +50,17 @@ function DashboardContent() {
       ) : (
         <div className="space-y-5">
           <OverviewCards metrics={overview} />
+          <WeeklyProgressCard
+            thisWeekAvg={weeklyComparison.thisWeekAvg}
+            lastWeekAvg={weeklyComparison.lastWeekAvg}
+            delta={weeklyComparison.delta}
+            sessionsThisWeek={weeklyComparison.sessionsThisWeek}
+          />
           <div className="grid gap-5 lg:grid-cols-2">
             <ScoreTrendChart data={trend} />
             <TopicRadarChart data={topics} />
           </div>
+          <ReadinessScoreCard overall={readiness.overall} topics={readiness.topics} />
           <div className="grid gap-5 lg:grid-cols-2">
             {isPro ? (
               <WeakAreasList weakAreas={weakAreas} />

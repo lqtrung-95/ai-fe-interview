@@ -83,6 +83,27 @@ export async function getSummary(sessionId: string, userId: string) {
   });
 }
 
+/**
+ * Returns the user's previous personal best overall score, excluding the
+ * current session. Used on the complete page to show a "new record" banner.
+ */
+export async function getPreviousPersonalBest(
+  userId: string,
+  excludeSessionId: string,
+): Promise<number | null> {
+  const result = await prisma.interviewSession.findFirst({
+    where: {
+      userId,
+      status: 'completed',
+      id: { not: excludeSessionId },
+      overallScore: { not: null },
+    },
+    orderBy: { overallScore: 'desc' },
+    select: { overallScore: true },
+  });
+  return result?.overallScore ?? null;
+}
+
 function getSessionForSummary(sessionId: string, userId: string) {
   return prisma.interviewSession.findFirst({
     where: { id: sessionId, userId },

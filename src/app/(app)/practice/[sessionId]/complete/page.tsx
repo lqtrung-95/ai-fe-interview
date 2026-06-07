@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { buttonVariants } from '@/components/ui/button';
 import { requireUser } from '@/lib/auth/session';
-import { getSummary } from '@/features/feedback/server/summary-service';
+import { getSummary, getPreviousPersonalBest } from '@/features/feedback/server/summary-service';
 import { SummaryView } from '@/features/feedback/components/summary-view';
 import { ShareSessionButton } from '@/features/feedback/components/share-session-button';
+import { PersonalBestBanner } from '@/features/feedback/components/personal-best-banner';
 
 interface PageProps {
   params: Promise<{ sessionId: string }>;
@@ -26,7 +27,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CompletePage({ params }: PageProps) {
   const user = await requireUser();
   const { sessionId } = await params;
-  const summary = await getSummary(sessionId, user.id);
+  const [summary, prevBest] = await Promise.all([
+    getSummary(sessionId, user.id),
+    getPreviousPersonalBest(user.id, sessionId),
+  ]);
   if (!summary) notFound();
 
   const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://frontcoach.app';
@@ -41,6 +45,9 @@ export default async function CompletePage({ params }: PageProps) {
           Here&apos;s how you did — review the breakdown below.
         </p>
       </header>
+      {summary.overallScore !== null && (
+        <PersonalBestBanner score={summary.overallScore} prevBest={prevBest} />
+      )}
       <SummaryView summary={summary} />
       <div className="mt-8 flex flex-wrap items-center gap-3">
         <Link href="/practice/new" className={buttonVariants({ size: 'lg' })}>

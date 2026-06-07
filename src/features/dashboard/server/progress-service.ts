@@ -228,3 +228,165 @@ async function getCurrentStreakDays(userId: string): Promise<number> {
   }
   return streak;
 }
+
+// ── Readiness score ───────────────────────────────────────────────────────────
+
+const STANDARD_TOPICS = [
+  'JavaScript',
+  'React',
+  'Frontend System Design',
+  'Web Performance',
+  'Browser & Web APIs',
+  'Testing',
+  'Behavioral',
+] as const;
+
+export type TopicReadiness = {
+  topic: string;
+  readiness: number; // 0-100
+  avgScore: number | null;
+  answers: number;
+};
+
+/**
+ * Computes a 0-100 readiness score per topic and an overall score.
+ * Formula: (avgScore/5)*100, confidence-gated by answer count (needs ≥3 to reach full score).
+ */
+export function getReadinessScore(userId: string) {
+  return unstable_cache(
+    async () => {
+      const rows = await prisma.userAnswer.findMany({
+        where: { userId, feedback: { isNot: null } },
+        select: {
+          question: { select: { topic: true } },
+          feedback: { select: { overallScore: true } },
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const topicMap = new Map<string, { sum: number; count: number }>();
+      for (const r of rows) {
+        if (!r.feedback) continue;
+        const t = r.question.topic;
+        const cur = topicMap.get(t) ?? { sum: 0, count: 0 };
+        cur.sum += r.feedback.overallScore;
+        cur.count += 1;
+        topicMap.set(t, cur);
+      }
+
+      const topics: TopicReadiness[] = STANDARD_TOPICS.map((topic) => {
+        const data = topicMap.get(topic);
+        if (!data || data.count === 0) return { topic, readiness: 0, avgScore: null, answers: 0 };
+        const avgScore = data.sum / data.count;
+        // Gate confidence: <3 answers caps readiness at 60; ≥5 is full
+        const confidence = Math.min(1, data.count / 5);
+        const readiness = Math.round((avgScore / 5) * 100 * confidence);
+        return { topic, readiness, avgScore: Number(avgScore.toFixed(2)), answers: data.count };
+      });
+
+      const practiced = topics.filter((t) => t.answers > 0);
+      const overall =
+        practiced.length === 0
+          ? 0
+          : Math.round(practiced.reduce((s, t) => s + t.readiness, 0) / STANDARD_TOPICS.length);
+
+      return { topics, overall };
+    },
+    ['dashboard-readiness', userId],
+    { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+  )();
+}
+
+// ── Weekly comparison (before vs now) ────────────────────────────────────────
+
+export type WeeklyComparison = {
+  thisWeekAvg: number | null;
+  lastWeekAvg: number | null;
+  delta: number | null; // positive = improved
+  sessionsThisWeek: number;
+};
+
+export function getWeeklyComparison(userId: string): Promise<WeeklyComparison> {
+  return unstable_cache(
+    async () => {
+      const now = new Date();
+      now.setUTCHours(0, 0, 0, 0);
+      const weekStart = new Date(now);
+      weekStart.setUTCDate(now.getUTCDate() - 6); // last 7 days
+      const prevStart = new Date(weekStart);
+      prevStart.setUTCDate(weekStart.getUTCDate() - 7); // 7-13 days ago
+
+      const [thisWeek, lastWeek] = await Promise.all([
+        prisma.interviewSession.findMany({
+          where: { userId, status: 'completed', completedAt: { gte: weekStart }, overallScore: { not: null } },
+          select: { overallScore: true },
+        }),
+        prisma.interviewSession.findMany({
+          where: { userId, status: 'completed', completedAt: { gte: prevStart, lt: weekStart }, overallScore: { not: null } },
+          select: { overallScore: true },
+        }),
+      ]);
+
+      const avg = (rows: { overallScore: number | null }[]) => {
+        const valid = rows.filter((r) => r.overallScore !== null);
+        return valid.length === 0 ? null : valid.reduce((s, r) => s + r.overallScore!, 0) / valid.length;
+      };
+
+      const thisWeekAvg = avg(thisWeek);
+      const lastWeekAvg = avg(lastWeek);
+      const delta =
+        thisWeekAvg !== null && lastWeekAvg !== null
+          ? Number((thisWeekAvg - lastWeekAvg).toFixed(2))
+          : null;
+
+      return { thisWeekAvg: thisWeekAvg ? Number(thisWeekAvg.toFixed(2)) : null, lastWeekAvg: lastWeekAvg ? Number(lastWeekAvg.toFixed(2)) : null, delta, sessionsThisWeek: thisWeek.length };
+    },
+    ['dashboard-weekly-comparison', userId],
+    { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+  )();
+}
+
+// ── Daily challenge ───────────────────────────────────────────────────────────
+
+export type DailyChallenge = {
+  topic: string;
+  difficulty: string;
+  question: string;
+};
+
+export function getDailyChallenge(userId: string): Promise<DailyChallenge | null> {
+  return unstable_cache(
+    async () => {
+      // Deterministic daily seed from UTC day number
+      const dayNumber = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+
+      // Pick from mid+senior conceptual questions the user hasn't answered recently
+      const recentlyAnswered = await prisma.userAnswer.findMany({
+        where: { userId, createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+        select: { question: { select: { seedQuestionId: true } } },
+      });
+      const recentSeedIds = new Set(
+        recentlyAnswered.map((a) => a.question.seedQuestionId).filter(Boolean),
+      );
+
+      const candidates = await prisma.seedQuestion.findMany({
+        where: {
+          difficulty: { in: ['mid', 'senior'] },
+          type: { in: ['conceptual', 'tradeoff'] },
+          ...(recentSeedIds.size > 0 ? { id: { notIn: [...recentSeedIds] as string[] } } : {}),
+        },
+        select: { id: true, topic: true, difficulty: true, question: true },
+        take: 200,
+      });
+
+      if (candidates.length === 0) return null;
+      const idx = dayNumber % candidates.length;
+      const picked = candidates[idx];
+      return { topic: picked.topic, difficulty: picked.difficulty, question: picked.question };
+    },
+    // Daily challenge changes each UTC day — key includes the day number
+    [`dashboard-daily-challenge-${Math.floor(Date.now() / (1000 * 60 * 60 * 24))}`, userId],
+    { revalidate: 3600, tags: [dashboardCacheTag(userId)] },
+  )();
+}
