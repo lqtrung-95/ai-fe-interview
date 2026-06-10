@@ -401,18 +401,20 @@ sequenceDiagram
     participant DB as Prisma
 
     B->>MW: any request
-    MW->>Supa: auth.getUser() from cookie
+    MW->>MW: auth.getClaims() — local JWT verify (JWKS cached)
+    alt Expired token / legacy HS256
+        MW->>Supa: refresh / validate over network
+    end
     alt No valid session
-        Supa-->>MW: null
         MW-->>B: redirect /sign-in
     else Valid session
-        Supa-->>MW: authUser { id, email }
-        MW->>DB: upsert User row (first-visit provisioning)
+        Note over MW: claims { sub, email, user_metadata }
+        MW->>DB: upsert User row (first-visit provisioning, 30s unstable_cache)
         DB-->>MW: DbUser
         MW-->>B: serve page
     end
 
-    Note over MW,DB: getCurrentUser() is memoized via React cache()<br/>— single DB hit per server request tree
+    Note over MW,DB: getCurrentUser() is memoized via React cache()<br/>— single DB hit per server request tree.<br/>getClaims() avoids a Supabase Auth round-trip per request<br/>(requires asymmetric JWT signing keys for local verification)
 ```
 
 ---
