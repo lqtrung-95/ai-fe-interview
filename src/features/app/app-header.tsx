@@ -8,6 +8,7 @@ import { useTheme } from 'next-themes';
 import { BrandLogo } from '@/components/common/brand-logo';
 import { signOut } from '@/features/auth/sign-out-action';
 import { APP_NAV, formatAppDate, isAppNavActive } from './app-nav';
+import { NavLinkPendingIndicator } from './nav-link-pending-indicator';
 
 interface Props {
   isPro?: boolean;
@@ -195,6 +196,7 @@ export function AppHeader({
                           }
                         />
                         {item.label}
+                        <NavLinkPendingIndicator />
                       </Link>
                     </li>
                   );

@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Crown, Zap } from 'lucide-react';
 import { BrandLogo } from '@/components/common/brand-logo';
 import { APP_NAV, formatAppDate, isAppNavActive } from './app-nav';
+import { NavLinkPendingIndicator } from './nav-link-pending-indicator';
 
 interface Props {
   isPro?: boolean;
@@ -60,6 +61,7 @@ export function AppSidebar({ isPro = false, proExpiresAt = null, proSince = null
                     }
                   />
                   {item.label}
+                  <NavLinkPendingIndicator />
                 </Link>
               </li>
             );

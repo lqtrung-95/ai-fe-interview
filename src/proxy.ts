@@ -36,7 +36,10 @@ export default async function proxy(request: NextRequest) {
 
   // Refresh the session if expired. Does not redirect — auth gating happens
   // in (app) layout via getCurrentUser().
-  await supabase.auth.getUser();
+  // getClaims() verifies the JWT locally against the project's public signing
+  // keys (cached JWKS) instead of a network round-trip per request; it only
+  // hits the Auth server to refresh an expired token or on legacy HS256 keys.
+  await supabase.auth.getClaims();
 
   return response;
 }

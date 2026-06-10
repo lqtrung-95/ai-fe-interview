@@ -349,6 +349,37 @@
   box-shadow: 0 0 12px color-mix(in oklab, var(--primary) 45%, transparent);
 }
 
+/* Nav link pending dot (useLinkStatus) — fixed size so it never shifts
+   layout; the 100ms animation delay keeps it invisible when navigation
+   completes quickly. */
+.app-nav-pending {
+  background: currentColor;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.app-nav-pending.is-pending {
+  visibility: visible;
+  animation-name: app-nav-pending-fade-in, app-nav-pending-pulse;
+  animation-duration: 200ms, 1s;
+  animation-delay: 100ms, 100ms;
+  animation-timing-function: ease, ease-in-out;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: forwards, none;
+}
+
+@keyframes app-nav-pending-fade-in {
+  to {
+    opacity: 0.45;
+  }
+}
+
+@keyframes app-nav-pending-pulse {
+  50% {
+    opacity: 0.2;
+  }
+}
+
 .app-upgrade-card,
 .app-feature-panel {
   background-image: linear-gradient(135deg, color-mix(in oklab, var(--brand-indigo) 14%, transparent), color-mix(in oklab, var(--brand-pink) 7%, transparent));

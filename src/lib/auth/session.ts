@@ -39,24 +39,25 @@ const getDbUser = unstable_cache(
  * Returns the Prisma `User` for the currently signed-in Supabase auth user.
  * Idempotently provisions a User row on first authenticated request — covers
  * the race where the webhook hasn't fired yet (architecture §8 fallback).
- * getUser() validates the token with Supabase Auth (secure); the DB lookup is
- * cached per-user for 30s to avoid a round-trip on every navigation.
+ * getClaims() verifies the JWT signature locally against the project's public
+ * signing keys (no Auth-server round-trip with asymmetric keys; falls back to
+ * a network check on legacy HS256). The DB lookup is cached per-user for 30s
+ * to avoid a round-trip on every navigation.
  * Cached per-request via React's cache().
  */
 export const getCurrentUser = cache(async (): Promise<DbUser | null> => {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
+  const claims = data?.claims;
 
-  if (!authUser) return null;
+  if (!claims?.sub) return null;
 
-  const { id, email, user_metadata } = authUser;
+  const meta = (claims.user_metadata ?? {}) as Record<string, unknown>;
   const cached = await getDbUser(
-    id,
-    email ?? '',
-    ((user_metadata?.full_name as string | undefined) ?? (user_metadata?.name as string | undefined)) ?? null,
-    (user_metadata?.avatar_url as string | undefined) ?? null,
+    claims.sub,
+    (claims.email as string | undefined) ?? '',
+    ((meta.full_name as string | undefined) ?? (meta.name as string | undefined)) ?? null,
+    (meta.avatar_url as string | undefined) ?? null,
   );
   return cached ? rehydrateDates(cached) : null;
 });

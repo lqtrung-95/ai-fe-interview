@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth/session';
 import { AppHeader } from '@/features/app/app-header';
 import { AppSidebar } from '@/features/app/app-sidebar';
+import { DashboardPrefetcher } from '@/features/dashboard/components/dashboard-prefetcher';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
@@ -21,6 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="app-shell relative flex min-h-screen overflow-x-clip bg-background">
+      <DashboardPrefetcher />
       <div aria-hidden="true" className="app-atmosphere app-atmosphere-primary" />
       <div aria-hidden="true" className="app-atmosphere app-atmosphere-teal" />
       <AppSidebar
