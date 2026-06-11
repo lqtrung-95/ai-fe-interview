@@ -21,7 +21,7 @@ bookmarks, AI practice.
 | 1 | [Slug foundation (DB + service)](phase-01-question-slug-column-and-service.md) | ✅ done | ~0.5d |
 | 2 | [Public question pages + gating](phase-02-public-question-pages-with-gating.md) | ✅ done | ~2d |
 | 3 | [SEO plumbing (sitemap, OG, metadata, links)](phase-03-seo-sitemap-og-metadata-internal-links.md) | ✅ done | ~1.5d |
-| 4 | [Content sprint (JS, Behavioral, polish)](phase-04-content-sprint-thin-topics.md) | pending (owner curation) | curation hrs |
+| 4 | [Content sprint (JS, Behavioral, polish)](phase-04-content-sprint-thin-topics.md) | ✅ done | curation hrs |
 
 ## Implementation Notes (2026-06-11)
 

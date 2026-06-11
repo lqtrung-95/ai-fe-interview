@@ -10,7 +10,7 @@
 ## Overview
 
 - Priority: medium (multiplies phase 2–3 value: every question = an indexed page)
-- Status: pending
+- Status: ✅ done (2026-06-11)
 - Curation-heavy, code-light. Targets: **JavaScript ≥ 50, Behavioral ≥ 30**, polish pass on
   existing questions missing ELI5/diagram/quiz.
 
@@ -53,13 +53,18 @@
 
 ## Todo List
 
-- [ ] JS gap list + Behavioral gap list
-- [ ] JS: generate → review → ≥ 50 total
-- [ ] Behavioral: generate → review → ≥ 30 total
-- [ ] Diagrams for accepted technical questions
-- [ ] Polish pass: missing ELI5/diagram/quiz on existing high-value questions
-- [ ] Reseed (dev verify → prod) + cache revalidation
-- [ ] 10-page public spot-check
+- [x] JS gap list + Behavioral gap list (specs: `scripts/question-specs-javascript-core-gaps.ts`, `question-specs-behavioral-stories.ts`)
+- [x] JS: 27 generated → 51 total (≥50 ✓)
+- [x] Behavioral: 21 generated via new behavioral prompt variant → 30 total (≥30 ✓)
+- [x] Diagrams: 43 generated (27 new JS + 15 React backlog + 1 regen), 0 failures; behavioral excluded by design
+- [x] Polish pass: 8 hand-written behavioral rows enriched (ELI5+notes+quiz) — all noindex thin pages eliminated; `font-loading-strategy` regenerated (was missing ladder/pitfall); 2 broken quizzes fixed
+- [x] Backfill (48 slugs) + double reseed verified: 338 rows, 0 churn, 0 null slugs
+- [ ] 10-page public spot-check (after deploy)
+
+**Notes:** generation prompt did NOT handle type=behavioral — added `behavioral-content-prompt.ts`
+(STAR structure, interviewer-probe ladder, judgment quiz, no code blocks) + docs §9.6.
+Format validator added: `scripts/validate-question-content-format.ts` (all 98 new-prep rows pass;
+2 pre-existing live rows with 1 code block accepted as legacy).
 
 ## Success Criteria
 

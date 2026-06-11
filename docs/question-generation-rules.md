@@ -227,6 +227,23 @@ HTML entities in code: `>` → `&gt;`  `<` → `&lt;`  `&` → `&amp;`
 - No vague filler sentences — every sentence must carry technical signal.
 - No first-person ("I would…").
 
+### 9.6 Behavioral questions — format variant
+
+`type: "behavioral"` rows use a different `detailedExplanation` structure
+(prompt: `scripts/behavioral-content-prompt.ts`). Differences from §9.1:
+
+| Rule | Technical | Behavioral |
+|---|---|---|
+| Length | 7,000–9,000 chars | 5,000–7,000 chars |
+| `<pre>` code blocks | 2+ required | **none** (prohibited) |
+| `<h4>` sections | technical subtopics | why-asked · STAR structure · strong answer · example outline · weak answers |
+| Ladder | deep-dive self-interview | 5 interviewer probes pressure-testing the story |
+| `diagramSvg` | required (§12) | **not required** — stories have no architecture to diagram |
+| Quiz | concept check | judgment scenario (strongest candidate response) |
+
+Pitfall div, `Senior signal:` blockquote, ladder markup/IDs, and quiz JSON
+shape are identical to the technical format.
+
 ---
 
 ## 10. `diagramSvg` — SVG Diagram
