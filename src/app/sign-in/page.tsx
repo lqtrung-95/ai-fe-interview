@@ -17,7 +17,10 @@ export default async function SignInPage({
   const { next } = await searchParams;
 
   if (user) {
-    redirect(next ?? '/dashboard');
+    // Only follow internal paths — "https://evil.com" or "//evil.com" in
+    // ?next= must not turn this into an open redirect.
+    const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard';
+    redirect(safeNext);
   }
 
   return (
