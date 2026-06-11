@@ -159,6 +159,30 @@ async function main() {
   console.log(`\n✓ Upserted ${total} seed questions across ${files.length} files.`);
 
   await prisma.$disconnect();
+  await revalidateSeedCache();
+}
+
+/**
+ * Bust the app's 'seed-questions' cache tag so the new content shows up
+ * immediately (otherwise pages serve stale data for up to 1h).
+ * Best-effort: a failure here never fails the seed.
+ */
+async function revalidateSeedCache() {
+  const secret = process.env.REVALIDATE_SECRET;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!secret || !appUrl) {
+    console.log('  (cache revalidation skipped — set REVALIDATE_SECRET + NEXT_PUBLIC_APP_URL to enable)');
+    return;
+  }
+  try {
+    const res = await fetch(`${appUrl}/api/revalidate`, {
+      method: 'POST',
+      headers: { 'x-revalidate-secret': secret },
+    });
+    console.log(res.ok ? '  ✓ seed-questions cache revalidated' : `  ⚠ revalidation responded ${res.status}`);
+  } catch (err) {
+    console.log(`  ⚠ revalidation call failed: ${(err as Error).message}`);
+  }
 }
 
 main().catch(async (err) => {

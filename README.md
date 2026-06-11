@@ -147,6 +147,11 @@ UPSTASH_REDIS_REST_TOKEN=
 # App origin
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 
+# Optional: lets `pnpm seed` bust the seed-questions cache immediately
+# (otherwise content updates wait out the 1h TTL). Any random string;
+# must match the value set on the deployment.
+REVALIDATE_SECRET=
+
 # Optional Polar billing
 POLAR_ACCESS_TOKEN=
 POLAR_WEBHOOK_SECRET=
