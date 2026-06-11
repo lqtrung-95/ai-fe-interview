@@ -10,6 +10,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PrismaClient, type Prisma } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { uniqueQuestionSlug } from '../src/lib/seo/slugify-question';
 
 loadEnv({ path: '.env.local', quiet: true });
 loadEnv({ path: '.env', quiet: true });
@@ -67,10 +68,24 @@ async function main() {
     }
   }
 
+  // Snapshot id → slug BEFORE pruning. Slugs are assigned once and never
+  // changed — public /questions/[slug] URLs must stay stable across re-seeds,
+  // text edits, and prune+recreate cycles (e.g. a row whose sourceFile moved).
+  const preSeedRows = await prisma.seedQuestion.findMany({ select: { id: true, slug: true } });
+  const slugByExistingId = new Map(preSeedRows.map((r) => [r.id, r.slug]));
+  const takenSlugs = new Set(preSeedRows.flatMap((r) => (r.slug ? [r.slug] : [])));
+
   // Per-source prune: delete any existing rows from this sourceFile whose id
   // is no longer present in the freshly extracted JSON.
   let pruned = 0;
   for (const [sourceFile, rows] of rowsByFile) {
+    // A missing sourceFile would make the findMany below unfiltered
+    // (Prisma ignores `where: { sourceFile: undefined }`), flagging every
+    // other row in the table as stale. Refuse to prune such groups.
+    if (typeof sourceFile !== 'string' || sourceFile.length === 0) {
+      console.warn(`  ⚠ ${rows.length} row(s) missing sourceFile (e.g. ${rows[0].id}) — prune skipped for them`);
+      continue;
+    }
     const incomingIds = new Set(rows.map((r) => r.id));
     const existing = await prisma.seedQuestion.findMany({
       where: { sourceFile },
@@ -84,10 +99,20 @@ async function main() {
   }
   if (pruned > 0) console.log(`  − ${pruned} stale rows pruned`);
 
+  // Rows that survived the prune keep their slug via the upsert update branch
+  // (which never writes slug). Rows being (re)created reuse their pre-prune
+  // slug when one existed; only genuinely new ids get a freshly derived slug.
+  const survivingIds = new Set(
+    (await prisma.seedQuestion.findMany({ select: { id: true } })).map((r) => r.id),
+  );
+
   let total = 0;
   for (const file of files) {
     const rows: SeedRow[] = JSON.parse(readFileSync(join(SEED_DIR, file), 'utf8'));
     for (const r of rows) {
+      const slugForNewRow = survivingIds.has(r.id)
+        ? undefined
+        : (slugByExistingId.get(r.id) ?? uniqueQuestionSlug(r.question, takenSlugs));
       await prisma.seedQuestion.upsert({
         where: { id: r.id },
         update: {
@@ -109,6 +134,7 @@ async function main() {
         },
         create: {
           id: r.id,
+          slug: slugForNewRow,
           topic: r.topic,
           subtopic: r.subtopic,
           difficulty: r.difficulty,

@@ -49,6 +49,21 @@ new-prep-react-suspense-concurrent
 
 ---
 
+## 2b. `slug` Field — DB-only, auto-assigned, permanent
+
+The public URL slug for `/questions/[slug]` pages. **Do NOT include it in seed JSON files.**
+
+- Auto-assigned by `prisma/seed.ts` on **first insert only**, via
+  `src/lib/seo/slugify-question.ts`: kebab-cased question text, ≤ 80 chars,
+  truncated at a word boundary, `-2`/`-3` suffix on collision.
+- **Never regenerated** — editing a question's text does not change its slug.
+  URL permanence beats slug freshness (indexed pages must not 404).
+- Re-running `pnpm seed` must change zero existing slugs (the upsert `update`
+  branch never touches `slug`).
+- Backfill for pre-slug rows: `pnpm exec tsx scripts/backfill-question-slugs.ts`.
+
+---
+
 ## 3. `topic` Field — Canonical Values Only
 
 Must be exactly one of:

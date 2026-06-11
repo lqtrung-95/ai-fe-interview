@@ -212,6 +212,10 @@ model SeedQuestion {
   rubric         Json
   tags           String[]     @default([]) // e.g. ["web3"]
   sourceFile     String?      // provenance: which resources/*.html
+  // URL slug for public /questions/[slug] pages. Assigned once (backfill or
+  // first seed insert) and never recomputed when question text is edited —
+  // URL permanence beats slug freshness.
+  slug           String?      @unique
 
   // Study content — populated from source HTML or AI generation.
   // childExplanation: plain-text ELI5 paragraph(s), EN.
