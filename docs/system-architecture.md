@@ -521,6 +521,7 @@ src/
 │   │   └── supabase-*.ts         # SSR/browser Supabase clients
 │   ├── db/client.ts              # Prisma singleton with pg adapter
 │   ├── rate-limit/               # Upstash guard helpers
+│   ├── seo/                      # site-url base · slugify-question (stable public slugs)
 │   └── subscription/             # isPro checks
 │
 ├── components/ui/                # shadcn primitives
@@ -547,4 +548,5 @@ src/
 | Zod validation at AI output boundary | LLM JSON is untrusted — validate before persisting. Schema mismatch triggers one retry |
 | `cheap` / `smart` model tiers | Balances cost vs quality: question gen is high-volume (cheap); evaluation is quality-critical (smart) |
 | Visible test cases expose `expected` | Helps users understand the assertion. Hidden cases keep `expected` server-only to prevent gaming |
+| Public SEO question bank (`/questions`, `/questions/[slug]`) | Organic acquisition channel in the `(reader)` group: free preview (question + ELI5 + diagram) is fully server-rendered; quiz/notes/AI practice gated behind sign-up. `SeedQuestion.slug` is assigned once, never regenerated (URL permanence). `study-public-service.ts` never selects rubric/expectedPoints/followUps — the answer key can't reach anonymous HTML. Sitemap/robots/OG: `src/app/sitemap.ts`, `robots.ts`, `/api/og/question` |
 | Progressive hints + gated solution | Encourages genuine problem-solving; friction (confirmation dialog) before solution reveal |
