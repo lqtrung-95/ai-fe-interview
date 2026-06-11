@@ -10,7 +10,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
-import { Library, LayoutDashboard, ChevronRight, Moon, Sun, LogOut } from 'lucide-react';
+import { Library, LayoutDashboard, ChevronRight, Moon, Sun, LogOut, HelpCircle } from 'lucide-react';
 import { BrandLogo } from '@/components/common/brand-logo';
 import { buttonVariants } from '@/components/ui/button';
 import { signOut } from '@/features/auth/sign-out-action';
@@ -31,6 +31,7 @@ export function ReaderHeader({ user }: Props) {
 
   const isDark = resolvedTheme === 'dark';
   const isResourcesIndex = pathname === '/resources';
+  const isQuestionsSection = pathname.startsWith('/questions');
 
   // Label + href for the specific handbook/glossary sub-page (null on the index)
   const handbookLabel =
@@ -87,6 +88,20 @@ export function ReaderHeader({ user }: Props) {
         >
           <Library className="h-3.5 w-3.5 shrink-0" />
           Resources
+        </Link>
+
+        {/* Questions crumb — links to the public question bank hub */}
+        <Link
+          href="/questions"
+          className={
+            'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors duration-150 ' +
+            (isQuestionsSection
+              ? 'bg-primary/12 text-primary'
+              : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground')
+          }
+        >
+          <HelpCircle className="h-3.5 w-3.5 shrink-0" />
+          Questions
         </Link>
 
         {/* Handbook crumb — only on a specific handbook/glossary page */}

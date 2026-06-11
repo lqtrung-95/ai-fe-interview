@@ -9,6 +9,18 @@ export const metadata: Metadata = {
 
 const RESOURCES = [
   {
+    href: '/questions',
+    label: 'Question Bank',
+    title: 'Interview Question Bank',
+    description:
+      'Real interview questions across JavaScript, React, system design, performance, testing, and behavioral — each with a plain-English explanation and architecture diagram.',
+    stats: [
+      { icon: HelpCircle, value: '290+ questions' },
+      { icon: Hash, value: '7 topics' },
+    ],
+    tags: ['JavaScript', 'React', 'System Design', 'Behavioral'],
+  },
+  {
     href: '/resources/frontend-system-design',
     label: 'Handbook',
     title: 'Frontend System Design',
