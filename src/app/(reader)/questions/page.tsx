@@ -5,6 +5,7 @@ import { buttonVariants } from '@/components/ui/button';
 import { listPublicQuestionSummaries } from '@/features/study/server/study-public-service';
 import { PublicQuestionHubList } from '@/features/study/components/public/public-question-hub-list';
 import { getSiteUrl } from '@/lib/seo/site-url';
+import { QUESTION_TOPIC_PAGES } from '@/lib/seo/question-topic-slugs';
 
 export const metadata: Metadata = {
   title: 'Frontend Interview Questions — Free Question Bank',
@@ -17,17 +18,8 @@ export const metadata: Metadata = {
 // reads auth cookies, so render fully dynamic instead of streaming.
 export const dynamic = 'force-dynamic';
 
-interface PageProps {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}
-
-export default async function PublicQuestionsHubPage({ searchParams }: PageProps) {
-  const sp = await searchParams;
-  const activeTopic = typeof sp.topic === 'string' ? sp.topic : undefined;
-
+export default async function PublicQuestionsHubPage() {
   const all = await listPublicQuestionSummaries();
-  const topics = [...new Set(all.map((q) => q.topic))];
-  const questions = activeTopic ? all.filter((q) => q.topic === activeTopic) : all;
 
   return (
     <div className="reader-page mx-auto max-w-4xl space-y-8 px-6 py-12">
@@ -45,20 +37,20 @@ export default async function PublicQuestionsHubPage({ searchParams }: PageProps
         </p>
       </div>
 
-      {/* Topic filter pills — plain links so the filtered views are crawlable */}
+      {/* Topic pills — link to the per-topic hub pages */}
       <div className="flex flex-wrap gap-2">
-        <TopicPill href="/questions" label={`All (${all.length})`} active={!activeTopic} />
-        {topics.map((t) => (
-          <TopicPill
-            key={t}
-            href={`/questions?topic=${encodeURIComponent(t)}`}
-            label={`${t} (${all.filter((q) => q.topic === t).length})`}
-            active={activeTopic === t}
-          />
+        {QUESTION_TOPIC_PAGES.map((t) => (
+          <Link
+            key={t.slug}
+            href={`/questions/${t.slug}`}
+            className="rounded-full border border-border/70 bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/30 hover:text-foreground"
+          >
+            {t.topic} ({all.filter((q) => q.topic === t.topic).length})
+          </Link>
         ))}
       </div>
 
-      <PublicQuestionHubList questions={questions} />
+      <PublicQuestionHubList questions={all} />
 
       {/* Bottom CTA */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/25 bg-primary/5 p-5">
@@ -76,21 +68,5 @@ export default async function PublicQuestionsHubPage({ searchParams }: PageProps
         </Link>
       </div>
     </div>
-  );
-}
-
-function TopicPill({ href, label, active }: { href: string; label: string; active: boolean }) {
-  return (
-    <Link
-      href={href}
-      className={
-        'rounded-full border px-3 py-1 text-xs font-medium transition-colors ' +
-        (active
-          ? 'border-primary/40 bg-primary/12 text-primary'
-          : 'border-border/70 bg-card/60 text-muted-foreground hover:border-primary/30 hover:text-foreground')
-      }
-    >
-      {label}
-    </Link>
   );
 }

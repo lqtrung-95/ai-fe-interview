@@ -6,7 +6,9 @@ import {
   listPublicQuestionSummaries,
 } from '@/features/study/server/study-public-service';
 import { PublicQuestionDetail } from '@/features/study/components/public/public-question-detail';
+import { PublicTopicHub } from '@/features/study/components/public/public-topic-hub';
 import { getSiteUrl } from '@/lib/seo/site-url';
+import { getTopicPageBySlug } from '@/lib/seo/question-topic-slugs';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -25,6 +27,24 @@ function excerpt(text: string, max: number): string {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+
+  // Topic hub pages share this segment — reserved slugs, zero overlap with
+  // question slugs (which derive from question text).
+  const topicPage = getTopicPageBySlug(slug);
+  if (topicPage) {
+    const canonical = `${getSiteUrl()}/questions/${topicPage.slug}`;
+    const description = topicPage.intro.length > 155
+      ? `${topicPage.intro.slice(0, 152).trimEnd()}…`
+      : topicPage.intro;
+    return {
+      title: topicPage.title,
+      description,
+      alternates: { canonical },
+      openGraph: { title: topicPage.title, description, url: canonical, type: 'website' },
+      twitter: { card: 'summary', title: topicPage.title, description },
+    };
+  }
+
   const q = await getStudyQuestionBySlug(slug);
   // Renders the not-found page. Note: on this force-dynamic route the response
   // streams with status 200 + a noindex meta tag (Next streaming-metadata
@@ -68,6 +88,14 @@ export const dynamic = 'force-dynamic';
 
 export default async function PublicQuestionDetailPage({ params }: PageProps) {
   const { slug } = await params;
+
+  const topicPage = getTopicPageBySlug(slug);
+  if (topicPage) {
+    const questions = (await listPublicQuestionSummaries()).filter(
+      (q) => q.topic === topicPage.topic,
+    );
+    return <PublicTopicHub page={topicPage} questions={questions} />;
+  }
 
   const [q, user] = await Promise.all([getStudyQuestionBySlug(slug), getCurrentUser()]);
   if (!q) notFound();

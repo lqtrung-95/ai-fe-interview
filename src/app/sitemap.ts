@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { listIndexableQuestionSlugs } from '@/features/study/server/study-public-service';
 import { getSiteUrl } from '@/lib/seo/site-url';
+import { QUESTION_TOPIC_PAGES } from '@/lib/seo/question-topic-slugs';
 
 /**
  * /sitemap.xml — static marketing/reader routes plus every indexable
@@ -24,6 +25,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/resources/optimization-deep-dive/cheatsheet`, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${base}/resources/glossary`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${base}/questions`, changeFrequency: 'weekly', priority: 0.9 },
+    // Per-topic hub pages — head-term landing pages ("react interview questions")
+    ...QUESTION_TOPIC_PAGES.map((t) => ({
+      url: `${base}/questions/${t.slug}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.85,
+    })),
   ];
 
   // This runs at build time (the route has no dynamic API usage) — a DB blip

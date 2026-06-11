@@ -12,6 +12,7 @@ import type {
   PublicQuestionDetail as PublicQuestionDetailData,
   PublicQuestionSummary,
 } from '@/features/study/server/study-public-service';
+import { getTopicPageByTopic } from '@/lib/seo/question-topic-slugs';
 import { Eli5Card } from '@/features/study/components/eli5-card';
 import { StudyDiagram } from '@/features/study/components/study-diagram';
 import { GatedSectionTeaser } from './gated-section-teaser';
@@ -105,7 +106,17 @@ export function PublicQuestionDetail({ q, related, isSignedIn }: Props) {
       {/* Same-topic internal links */}
       {related.length > 0 && (
         <section className="space-y-3">
-          <SectionHeading title={`More ${q.topic} questions`} />
+          <div className="flex items-baseline justify-between gap-3">
+            <SectionHeading title={`More ${q.topic} questions`} />
+            {getTopicPageByTopic(q.topic) && (
+              <Link
+                href={`/questions/${getTopicPageByTopic(q.topic)!.slug}`}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                View all {q.topic} questions →
+              </Link>
+            )}
+          </div>
           <div className="divide-y divide-border/60 rounded-xl border border-border/70 bg-card/80">
             {related.map((r) => (
               <Link
