@@ -1,6 +1,6 @@
 ---
 title: Public SEO Question Bank + Content Sprint
-status: in-progress (phases 1–3 done, phase 4 pending)
+status: complete (all 4 phases shipped 2026-06-11)
 created: 2026-06-11
 updated: 2026-06-11
 source: plans/reports/brainstorm-260611-0018-public-seo-question-bank-and-content-sprint-report.md
