@@ -17,6 +17,10 @@ import { createHash } from 'node:crypto';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import OpenAI from 'openai';
+import type { QuestionSpec } from './question-spec-types';
+import { JS_CORE_GAP_SPECS } from './question-specs-javascript-core-gaps';
+import { BEHAVIORAL_STORY_SPECS } from './question-specs-behavioral-stories';
+import { buildBehavioralSystemPrompt } from './behavioral-content-prompt';
 
 loadEnv({ path: '.env.local' });
 
@@ -56,17 +60,8 @@ function getLLMConfig() {
 }
 
 // ── Question specs ─────────────────────────────────────────────────────────────
-
-interface QuestionSpec {
-  key: string;
-  file: string;
-  topic: string;
-  subtopic: string;
-  difficulty: 'mid' | 'senior';
-  type: 'conceptual' | 'system_design' | 'tradeoff';
-  question: string;
-  tags: string[];
-}
+// QuestionSpec shape lives in question-spec-types.ts (shared with the
+// phase-4 spec modules appended below this array).
 
 const QUESTIONS: QuestionSpec[] = [
   // React deep-dives
@@ -578,6 +573,11 @@ const QUESTIONS: QuestionSpec[] = [
   },
 ];
 
+// Phase-4 content sprint: JS core gap-fill (27) + behavioral stories (21).
+// The originals above are already generated — use `--from 51` to target
+// only these additions.
+QUESTIONS.push(...JS_CORE_GAP_SPECS, ...BEHAVIORAL_STORY_SPECS);
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function makeId(key: string): string {
@@ -598,7 +598,8 @@ function ladderCount(html: string): number {
 
 // ── System prompt ─────────────────────────────────────────────────────────────
 
-function buildSystemPrompt(): string {
+function buildSystemPrompt(spec: QuestionSpec): string {
+  if (spec.type === 'behavioral') return buildBehavioralSystemPrompt();
   return `You are a senior staff-level frontend engineer writing technical interview preparation content at the level of Google/Meta/Stripe.
 
 Return ONLY valid JSON — no markdown fences, no extra text.
@@ -708,7 +709,7 @@ async function generateQuestion(
       max_tokens: 5000,
       temperature: 0.4,
       messages: [
-        { role: 'system', content: buildSystemPrompt() },
+        { role: 'system', content: buildSystemPrompt(spec) },
         { role: 'user', content: buildUserPrompt(spec, prefix) },
       ],
     });

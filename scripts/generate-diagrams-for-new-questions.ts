@@ -209,6 +209,7 @@ async function main() {
     const rows = JSON.parse(readFileSync(fpath, 'utf-8')) as SeedRow[];
     for (const row of rows) {
       if (!row.id.startsWith('new-prep-')) continue;
+      if (row.type === 'behavioral') continue; // stories have no architecture to diagram
       if (!FORCE && (row.diagramSvg || row.diagramMermaid)) continue; // already has diagram
       if (idArg && row.id !== idArg) continue;
       targets.push({ row, file: fname });
