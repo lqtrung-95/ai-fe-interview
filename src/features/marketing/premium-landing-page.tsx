@@ -143,6 +143,15 @@ export function PremiumLandingPage({ ctaHref = '/sign-in?next=/onboarding' }: Pr
       <PricingSection ctaHref={ctaHref} />
       <FaqSection />
       <FinalCta ctaHref={ctaHref} />
+      <footer className="border-t border-border/60 py-6">
+        <div className="mx-auto flex max-w-7xl flex-col items-center gap-2 px-4 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
+          <span>© {new Date().getFullYear()} Frontend Coach. All rights reserved.</span>
+          <nav className="flex gap-4">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link>
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }

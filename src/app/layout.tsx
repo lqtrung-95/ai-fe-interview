@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { QueryProvider } from "@/lib/query/provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { getSiteUrl } from "@/lib/seo/site-url";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
@@ -17,13 +18,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Frontend Coach — Master Your Frontend Interview with AI",
     template: "%s · Frontend Coach",
   },
   description:
     "Realistic AI-led frontend interview practice with rubric-grounded feedback, scoring, and a personalised study plan.",
+  openGraph: {
+    type: 'website',
+    siteName: 'Frontend Coach',
+    title: 'Frontend Coach — Master Your Frontend Interview with AI',
+    description:
+      'Realistic AI-led frontend interview practice with rubric-grounded feedback, scoring, and a personalised study plan.',
+    url: siteUrl,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Frontend Coach — Master Your Frontend Interview with AI',
+    description:
+      'Realistic AI-led frontend interview practice with rubric-grounded feedback, scoring, and a personalised study plan.',
+  },
 };
 
 export default function RootLayout({
