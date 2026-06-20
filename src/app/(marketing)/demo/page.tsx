@@ -15,7 +15,7 @@ export default function DemoPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <header className="mb-10 text-center">
-        <p className="text-xs uppercase tracking-wide text-muted-foreground">Demo · no sign-in</p>
+        <p className="text-xs uppercase tracking-wide text-primary font-semibold">Try it free · No account needed</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           One question. One answer. Full feedback.
         </h1>
