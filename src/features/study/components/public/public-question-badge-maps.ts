@@ -11,6 +11,7 @@ export const DIFFICULTY_BADGE_CLASSES: Record<string, string> = {
 
 export const QUESTION_TYPE_LABELS: Record<string, string> = {
   conceptual:    'Conceptual',
+  coding:        'Live coding',
   debugging:     'Debugging',
   system_design: 'System design',
   behavioral:    'Behavioral',

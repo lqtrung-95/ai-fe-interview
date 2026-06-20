@@ -20,7 +20,9 @@ import OpenAI from 'openai';
 import type { QuestionSpec } from './question-spec-types';
 import { JS_CORE_GAP_SPECS } from './question-specs-javascript-core-gaps';
 import { BEHAVIORAL_STORY_SPECS } from './question-specs-behavioral-stories';
+import { CODING_CHALLENGE_SPECS } from './question-specs-coding-challenges';
 import { buildBehavioralSystemPrompt } from './behavioral-content-prompt';
+import { buildCodingChallengeSystemPrompt } from './coding-challenge-content-prompt';
 
 loadEnv({ path: '.env.local' });
 
@@ -578,6 +580,10 @@ const QUESTIONS: QuestionSpec[] = [
 // only these additions.
 QUESTIONS.push(...JS_CORE_GAP_SPECS, ...BEHAVIORAL_STORY_SPECS);
 
+// Phase-5 content sprint: live coding / implementation challenges (20).
+// Use `--from 99` to target only these (adjust index as needed).
+QUESTIONS.push(...CODING_CHALLENGE_SPECS);
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function makeId(key: string): string {
@@ -600,6 +606,7 @@ function ladderCount(html: string): number {
 
 function buildSystemPrompt(spec: QuestionSpec): string {
   if (spec.type === 'behavioral') return buildBehavioralSystemPrompt();
+  if (spec.type === 'coding') return buildCodingChallengeSystemPrompt();
   return `You are a senior staff-level frontend engineer writing technical interview preparation content at the level of Google/Meta/Stripe.
 
 Return ONLY valid JSON — no markdown fences, no extra text.

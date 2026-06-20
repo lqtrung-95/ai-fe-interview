@@ -45,7 +45,7 @@ Live demo: [ai-fe-interview.vercel.app/demo](https://ai-fe-interview.vercel.app/
 
 | Feature | Description |
 |---|---|
-| **Question bank** | Browse 250+ questions and growing, with filters, local bookmarks, ELI5 explanations, detailed notes, diagrams, and quizzes. |
+| **Question bank** | Browse 350+ questions and growing — JavaScript, React, system design, performance, testing, and behavioral — each with ELI5 explanations, detailed notes, diagrams, and quizzes. |
 | **Spaced repetition plan** | Build a plan by topic, target level, and preparation window. The SM-2 scheduler determines which questions are due for review. |
 | **Public resources** | Read deep-dive handbooks for Frontend System Design, JavaScript Core, React, and Optimization, plus cheatsheets and a 133-term glossary. |
 | **Dark and light themes** | Theme preference persists and respects the operating-system default. |

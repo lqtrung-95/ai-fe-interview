@@ -12,6 +12,7 @@ const DIFFICULTY_STYLES: Record<string, string> = {
 
 const TYPE_LABELS: Record<string, string> = {
   conceptual:    'Conceptual',
+  coding:        'Live coding',
   debugging:     'Debugging',
   system_design: 'System design',
   behavioral:    'Behavioral',

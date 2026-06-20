@@ -42,9 +42,10 @@ function validateRow(r: Row): { errs: string[]; warns: string[] } {
   if (!d) errs.push('missing detailedExplanation');
   else {
     // Docs give 7-9k as the target band; treat it loosely — only flag clear
-    // outliers (4 live rows sit at 11-12.6k and read fine).
+    // outliers. Coding questions are allowed more space for full implementations.
+    const isCoding = r.type === 'coding';
     const min = isBehavioral ? 3500 : 4500;
-    const max = isBehavioral ? 9000 : 13000;
+    const max = isBehavioral ? 9000 : isCoding ? 16000 : 13000;
     if (d.length < min || d.length > max) errs.push(`detailedExplanation length ${d.length} outside [${min},${max}]`);
 
     // Models emit single- or double-quoted attributes; the DOM treats them identically.

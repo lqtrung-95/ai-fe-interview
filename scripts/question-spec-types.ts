@@ -9,7 +9,7 @@ export interface QuestionSpec {
   topic: string;
   subtopic: string;
   difficulty: 'mid' | 'senior';
-  type: 'conceptual' | 'system_design' | 'tradeoff' | 'behavioral';
+  type: 'conceptual' | 'coding' | 'system_design' | 'tradeoff' | 'behavioral';
   question: string;
   tags: string[];
 }

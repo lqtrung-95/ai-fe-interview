@@ -330,6 +330,7 @@ enum SessionStatus {
 
 enum QuestionType {
   conceptual
+  coding
   debugging
   system_design
   behavioral

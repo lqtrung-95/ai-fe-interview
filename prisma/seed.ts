@@ -22,7 +22,7 @@ interface SeedRow {
   topic: string;
   subtopic?: string;
   difficulty: 'junior' | 'mid' | 'senior';
-  type: 'conceptual' | 'debugging' | 'system_design' | 'behavioral' | 'tradeoff';
+  type: 'conceptual' | 'coding' | 'debugging' | 'system_design' | 'behavioral' | 'tradeoff';
   question: string;
   expectedPoints: string[];
   followUps: string[];
