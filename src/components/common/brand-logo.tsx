@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 export function BrandLogo({ className }: { className?: string }) {
   return (
     <Image
-      src="/brand/frontend-coach-logo-v2.png"
+      src="/brand/frontend-coach-logo-v3.png"
       alt=""
       width={32}
       height={32}
