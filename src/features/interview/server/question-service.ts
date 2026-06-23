@@ -85,7 +85,7 @@ export async function nextQuestion(args: NextQuestionArgs): Promise<InterviewQue
 
   const ai = await runAITask(
     { type: 'generate_question', input },
-    { userId: args.user.id, sessionId: args.session.id }
+    { userId: args.user.id, sessionId: args.session.id, isPro: args.user.isPro }
   );
 
   const order = previous.length;

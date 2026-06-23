@@ -97,7 +97,7 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
 
   const result = streamAITask(
     { type: 'generate_question', input },
-    { userId: args.user.id, sessionId: args.session.id }
+    { userId: args.user.id, sessionId: args.session.id, isPro: args.user.isPro }
   );
 
   const stream = new ReadableStream<Uint8Array>({

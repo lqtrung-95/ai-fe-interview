@@ -58,13 +58,20 @@ function tierForTask(task: AITask['type']): Tier {
   }
 }
 
-export function routeModel(task: AITask['type']): {
+export function routeModel(
+  task: AITask['type'],
+  opts: { isPro?: boolean } = {}
+): {
   model: LanguageModel;
   provider: Provider;
   tier: Tier;
   modelId: string;
 } {
-  const tier = tierForTask(task);
+  let tier = tierForTask(task);
+  // Pro perk ("Priority AI responses"): Pro users get the premium (smart) model
+  // on otherwise-cheap tasks — question generation, follow-ups, JD extraction.
+  // Evaluation and summary already run on the smart tier for everyone.
+  if (opts.isPro && tier === 'cheap') tier = 'smart';
   const provider = pickProvider(tier);
   const model = modelFor(provider, tier);
   // `modelId` is best-effort: AI SDK doesn't expose it uniformly.

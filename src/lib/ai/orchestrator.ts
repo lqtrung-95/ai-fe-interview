@@ -27,6 +27,8 @@ import { buildJdExtractPrompt } from './prompts/jd-extract-prompt';
 interface RunOptions {
   userId?: string;
   sessionId?: string;
+  /** Pro users are routed to the premium model tier (see routeModel). */
+  isPro?: boolean;
 }
 
 export async function runAITask<T extends AITask>(
@@ -34,7 +36,7 @@ export async function runAITask<T extends AITask>(
   options: RunOptions = {}
 ): Promise<AITaskResult<T>> {
   validateInput(task);
-  const { model, modelId } = routeModel(task.type);
+  const { model, modelId } = routeModel(task.type, { isPro: options.isPro });
   const { system, user } = buildPrompt(task);
   const schema = outputSchemaFor(task) as unknown as ZodSchema<AITaskResult<T>>;
   const start = Date.now();
@@ -85,7 +87,7 @@ export async function runAITask<T extends AITask>(
 
 export function streamAITask<T extends AITask>(task: T, options: RunOptions = {}) {
   validateInput(task);
-  const { model, modelId } = routeModel(task.type);
+  const { model, modelId } = routeModel(task.type, { isPro: options.isPro });
   const { system, user } = buildPrompt(task);
   const schema = outputSchemaFor(task) as unknown as ZodSchema<AITaskResult<T>>;
   const start = Date.now();

@@ -35,10 +35,10 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
 
   const limited = await guardAILimit(user.id);
   if (limited) return limited;
-  return generateFollowUp(id, user.id);
+  return generateFollowUp(id, user.id, user.isPro);
 }
 
-async function generateFollowUp(answerId: string, userId: string) {
+async function generateFollowUp(answerId: string, userId: string, isPro: boolean) {
   const answer = await prisma.userAnswer.findFirst({
     where: { id: answerId, userId },
     include: { question: { select: { question: true, difficulty: true } } },
@@ -55,7 +55,7 @@ async function generateFollowUp(answerId: string, userId: string) {
           difficulty: answer.question.difficulty,
         },
       },
-      { userId, sessionId: answer.sessionId }
+      { userId, sessionId: answer.sessionId, isPro }
     );
     return NextResponse.json({ followUp: result.followUp });
   } catch (err) {

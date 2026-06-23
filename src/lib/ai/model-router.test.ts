@@ -34,3 +34,26 @@ describe('routeModel — task → tier mapping', () => {
     }
   });
 });
+
+describe('routeModel — Pro priority (premium model tier)', () => {
+  const cheapTasks = ['generate_question', 'generate_followup', 'extract_jd'] as const;
+
+  it.each(cheapTasks)('Pro user is upgraded to the smart tier on %s', (task) => {
+    expect(routeModel(task, { isPro: false }).tier).toBe('cheap');
+    expect(routeModel(task, { isPro: true }).tier).toBe('smart');
+  });
+
+  it('smart-tier tasks stay smart regardless of Pro status (no double-upgrade)', () => {
+    expect(routeModel('evaluate_answer', { isPro: true }).tier).toBe('smart');
+    expect(routeModel('evaluate_answer', { isPro: false }).tier).toBe('smart');
+    expect(routeModel('generate_summary', { isPro: true }).tier).toBe('smart');
+  });
+
+  it('defaults to free (cheap) routing when no options are passed', () => {
+    expect(routeModel('generate_question').tier).toBe('cheap');
+  });
+
+  it('Pro modelId reflects the upgraded smart tier for telemetry/cost', () => {
+    expect(routeModel('generate_question', { isPro: true }).modelId).toMatch(/:smart$/);
+  });
+});

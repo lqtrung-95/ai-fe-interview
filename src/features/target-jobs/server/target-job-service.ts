@@ -36,7 +36,7 @@ export async function createTargetJob(args: {
   try {
     jdContext = await runAITask(
       { type: 'extract_jd', input: { rawJd: args.rawJd.slice(0, 8000) } },
-      { userId: args.userId }
+      { userId: args.userId, isPro: args.isPro }
     );
   } catch {
     // Non-fatal: save the target job without extracted context rather than failing entirely
