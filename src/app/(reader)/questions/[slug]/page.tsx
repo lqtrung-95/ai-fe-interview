@@ -9,6 +9,12 @@ import { PublicQuestionDetail } from '@/features/study/components/public/public-
 import { PublicTopicHub } from '@/features/study/components/public/public-topic-hub';
 import { getSiteUrl } from '@/lib/seo/site-url';
 import { getTopicPageBySlug } from '@/lib/seo/question-topic-slugs';
+import { JsonLd } from '@/components/seo/json-ld';
+import {
+  buildQuestionQaPageJsonLd,
+  buildQuestionBreadcrumbs,
+  buildTopicHubBreadcrumbs,
+} from '@/lib/seo/structured-data';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -94,7 +100,16 @@ export default async function PublicQuestionDetailPage({ params }: PageProps) {
     const questions = (await listPublicQuestionSummaries()).filter(
       (q) => q.topic === topicPage.topic,
     );
-    return <PublicTopicHub page={topicPage} questions={questions} />;
+    const breadcrumbs = buildTopicHubBreadcrumbs({
+      topicTitle: topicPage.title,
+      topicSlug: topicPage.slug,
+    });
+    return (
+      <>
+        <JsonLd data={breadcrumbs} />
+        <PublicTopicHub page={topicPage} questions={questions} />
+      </>
+    );
   }
 
   const [q, user] = await Promise.all([getStudyQuestionBySlug(slug), getCurrentUser()]);
@@ -105,5 +120,31 @@ export default async function PublicQuestionDetailPage({ params }: PageProps) {
     .filter((r) => r.topic === q.topic && r.slug !== q.slug)
     .slice(0, RELATED_COUNT);
 
-  return <PublicQuestionDetail q={q} related={related} isSignedIn={!!user} />;
+  // Structured data: QAPage (only on indexable pages — those with an ELI5
+  // answer) plus a breadcrumb trail. The noindex thin pages skip the QAPage so
+  // we never advertise a rich result for a page we ask Google not to index.
+  const questionUrl = `${getSiteUrl()}/questions/${q.slug}`;
+  const structuredData: Record<string, unknown>[] = [
+    buildQuestionBreadcrumbs({
+      topic: q.topic,
+      questionTitle: excerpt(q.question, 60),
+      questionUrl,
+    }),
+  ];
+  if (q.childExplanation) {
+    structuredData.unshift(
+      buildQuestionQaPageJsonLd({
+        question: q.question,
+        answerText: q.childExplanation,
+        url: questionUrl,
+      }),
+    );
+  }
+
+  return (
+    <>
+      <JsonLd data={structuredData} />
+      <PublicQuestionDetail q={q} related={related} isSignedIn={!!user} />
+    </>
+  );
 }

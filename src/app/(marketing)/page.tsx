@@ -1,5 +1,7 @@
 import { PremiumLandingPage } from '@/features/marketing/premium-landing-page';
 import { getCurrentUser } from '@/lib/auth/session';
+import { JsonLd } from '@/components/seo/json-ld';
+import { buildSiteIdentityJsonLd } from '@/lib/seo/structured-data';
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
@@ -14,5 +16,10 @@ export default async function LandingPage() {
       : '/onboarding'
     : '/sign-in?next=/onboarding';
 
-  return <PremiumLandingPage ctaHref={ctaHref} />;
+  return (
+    <>
+      <JsonLd data={buildSiteIdentityJsonLd()} />
+      <PremiumLandingPage ctaHref={ctaHref} />
+    </>
+  );
 }
