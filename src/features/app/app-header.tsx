@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { BrandLogo } from '@/components/common/brand-logo';
-import { signOut } from '@/features/auth/sign-out-action';
+import { SignOutButton } from '@/features/auth/sign-out-button';
 import { APP_NAV, formatAppDate, isAppNavActive } from './app-nav';
 import { NavLinkPendingIndicator } from './nav-link-pending-indicator';
 
@@ -104,15 +104,12 @@ export function AppHeader({
         </button>
 
         {/* Sign out */}
-        <form action={signOut}>
-          <button
-            type="submit"
-            aria-label="Sign out"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-          </button>
-        </form>
+        <SignOutButton
+          ariaLabel="Sign out"
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+        </SignOutButton>
       </div>
 
       <button
@@ -215,15 +212,10 @@ export function AppHeader({
                 <Moon className="h-3.5 w-3.5 dark:hidden" />
                 Theme
               </button>
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/35 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:text-destructive"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                  Sign out
-                </button>
-              </form>
+              <SignOutButton className="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/35 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:text-destructive">
+                <LogOut className="h-3.5 w-3.5" />
+                Sign out
+              </SignOutButton>
             </div>
             <div className="shrink-0 px-3 py-3">
               {isPro ? (

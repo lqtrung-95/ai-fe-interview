@@ -13,7 +13,7 @@ import { useTheme } from 'next-themes';
 import { Library, LayoutDashboard, ChevronRight, Moon, Sun, LogOut, HelpCircle } from 'lucide-react';
 import { BrandLogo } from '@/components/common/brand-logo';
 import { buttonVariants } from '@/components/ui/button';
-import { signOut } from '@/features/auth/sign-out-action';
+import { SignOutButton } from '@/features/auth/sign-out-button';
 
 interface AuthUser {
   name: string | null;
@@ -152,15 +152,12 @@ export function ReaderHeader({ user }: Props) {
               <Sun className="hidden h-3.5 w-3.5 dark:block" />
               <Moon className="h-3.5 w-3.5 dark:hidden" />
             </button>
-            <form action={signOut}>
-              <button
-                type="submit"
-                aria-label="Sign out"
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-              >
-                <LogOut className="h-3.5 w-3.5" />
-              </button>
-            </form>
+            <SignOutButton
+              ariaLabel="Sign out"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </SignOutButton>
           </>
         ) : (
           // Guest: theme toggle + sign-in + CTA
