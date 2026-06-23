@@ -2,7 +2,7 @@
 
 A full-stack AI interview coach for frontend engineers. Run realistic mock interviews, receive structured feedback, identify technical weak areas, and turn each session into a focused practice plan.
 
-Live demo: [ai-fe-interview.vercel.app/demo](https://ai-fe-interview.vercel.app/demo) (no sign-in required)
+Live demo: [frontendcoach.app/demo](https://frontendcoach.app/demo) (no sign-in required)
 
 ---
 

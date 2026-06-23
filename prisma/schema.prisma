@@ -32,6 +32,7 @@ model User {
   targetInterviewDate DateTime?
   // Subscription
   isPro               Boolean   @default(false)
+  hasLifetimePlan     Boolean   @default(false) // true = lifetime order.paid; protected from subscription cancellation
   polarCustomerId     String?   @unique
   polarSubscriptionId String?   @unique
   proSince            DateTime?

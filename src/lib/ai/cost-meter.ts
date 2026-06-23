@@ -46,6 +46,14 @@ export interface CostMeterArgs {
 
 export async function recordAICall(args: CostMeterArgs): Promise<void> {
   const costUsd = estimateCost(args.modelId, args.promptTokens, args.completionTokens);
+
+  // Feed actual spend into the daily cap tracker (fire-and-forget — never blocks response).
+  if (args.succeeded && costUsd > 0) {
+    import('../rate-limit/upstash')
+      .then(({ isDailySpendCapExceeded }) => isDailySpendCapExceeded(costUsd))
+      .catch((err) => console.error('[cost-meter] spend-cap update failed:', err));
+  }
+
   try {
     await prisma.aICall.create({
       data: {

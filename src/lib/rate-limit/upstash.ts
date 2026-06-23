@@ -4,14 +4,14 @@ import { Ratelimit } from '@upstash/ratelimit';
 
 /**
  * Two limiters:
- *   - aiCallLimiter     — 30 AI-bearing requests per hour per userId. Applies to
- *                          the question-generate and feedback-generate routes.
- *   - generalApiLimiter — 120 requests per minute per userId-or-IP for the rest.
+ *   - aiCallLimiter     — 30 AI-bearing requests per hour per userId
+ *   - generalApiLimiter — 120 requests per minute per userId-or-IP
  *
- * Returns null when Upstash is not configured (dev convenience). Callers must
- * treat null as "allow" but never in production — guarded by env check at deploy.
+ * In production, Upstash MUST be configured — we throw at startup rather than
+ * silently allowing unlimited AI spend with no protection.
  */
 
+let _redis: Redis | null = null;
 let _aiLimiter: Ratelimit | null = null;
 let _generalLimiter: Ratelimit | null = null;
 let _initTried = false;
@@ -22,19 +22,25 @@ function init(): void {
 
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token || url.includes('placeholder') || token === 'placeholder') {
-    return; // dev — limiters stay null, all requests pass
+  const missing = !url || !token || url.includes('placeholder') || token === 'placeholder';
+
+  if (missing) {
+    if (process.env.NODE_ENV === 'production') {
+      // Fail hard — unconfigured rate limiting in prod = unlimited AI spend.
+      throw new Error('[rate-limit] UPSTASH_REDIS_REST_URL / TOKEN are not set in production. Refusing to start.');
+    }
+    return; // dev/test — limiters stay null, all requests pass
   }
 
-  const redis = new Redis({ url, token });
+  _redis = new Redis({ url, token });
   _aiLimiter = new Ratelimit({
-    redis,
+    redis: _redis,
     limiter: Ratelimit.slidingWindow(30, '1 h'),
     prefix: 'rl:ai',
     analytics: false,
   });
   _generalLimiter = new Ratelimit({
-    redis,
+    redis: _redis,
     limiter: Ratelimit.slidingWindow(120, '1 m'),
     prefix: 'rl:gen',
     analytics: false,
@@ -59,4 +65,29 @@ export async function checkGeneralLimit(identifier: string): Promise<LimitResult
   if (!_generalLimiter) return { ok: true, remaining: 999, resetAt: Date.now() + 60_000 };
   const r = await _generalLimiter.limit(identifier);
   return { ok: r.success, remaining: r.remaining, resetAt: r.reset };
+}
+
+/**
+ * Daily total AI spend cap — fail-closed circuit breaker.
+ * Tracks cumulative USD spend in Redis for the UTC day key.
+ * Returns true when the cap is exceeded (caller should 503).
+ */
+const DAILY_SPEND_CAP_USD = Number(process.env.DAILY_SPEND_CAP_USD ?? 10);
+
+export async function isDailySpendCapExceeded(addCostUsd: number): Promise<boolean> {
+  init();
+  if (!_redis) return false; // dev — no cap enforcement
+
+  const dayKey = `spend:${new Date().toISOString().slice(0, 10)}`; // e.g. "spend:2026-06-23"
+  const pipeline = _redis.pipeline();
+  pipeline.incrbyfloat(dayKey, addCostUsd);
+  pipeline.expire(dayKey, 60 * 60 * 25); // keep for 25 h so yesterday's key is still readable
+  const [totalStr] = await pipeline.exec<[number, number]>();
+  const total = typeof totalStr === 'number' ? totalStr : 0;
+
+  if (total > DAILY_SPEND_CAP_USD) {
+    console.error('[spend-cap] daily AI spend cap exceeded', { total, cap: DAILY_SPEND_CAP_USD });
+    return true;
+  }
+  return false;
 }
