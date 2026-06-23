@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { ArrowRight, BookOpenCheck, Briefcase, Sparkles, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { deleteSessionAction } from '../server/delete-session-action';
 
 interface Props {
@@ -37,18 +38,19 @@ function modeDetails(mode: string) {
 export function SessionListItem({ session }: Props) {
   const isInProgress = session.status === 'in_progress';
   const { label: modeLabel, Icon } = modeDetails(session.mode);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  function handleDelete(e: React.MouseEvent) {
+  function openDeleteDialog(e: React.MouseEvent) {
     e.preventDefault();
-    if (!confirmDelete) { setConfirmDelete(true); return; }
-    startTransition(async () => { await deleteSessionAction(session.id); });
+    setDialogOpen(true);
   }
 
-  function handleCancelDelete(e: React.MouseEvent) {
-    e.preventDefault();
-    setConfirmDelete(false);
+  function confirmDelete() {
+    setDialogOpen(false);
+    startTransition(async () => {
+      await deleteSessionAction(session.id);
+    });
   }
 
   return (
@@ -130,28 +132,28 @@ export function SessionListItem({ session }: Props) {
           >
             Continue →
           </Link>
-          {confirmDelete ? (
-            <>
-              <span className="text-xs text-muted-foreground">Remove this session?</span>
-              <Button variant="destructive" size="sm" className="h-7 px-3 text-xs" onClick={handleDelete} disabled={isPending}>
-                {isPending ? 'Removing…' : 'Yes, remove'}
-              </Button>
-              <Button variant="ghost" size="sm" className="h-7 px-3 text-xs" onClick={handleCancelDelete} disabled={isPending}>
-                Cancel
-              </Button>
-            </>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 px-3 text-xs text-muted-foreground hover:text-destructive"
-              onClick={handleDelete}
-            >
-              Remove
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-3 text-xs text-muted-foreground hover:text-destructive"
+            onClick={openDeleteDialog}
+            disabled={isPending}
+          >
+            {isPending ? 'Removing…' : 'Remove'}
+          </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={dialogOpen}
+        title="Remove this session?"
+        description="This permanently deletes the session and its questions, answers, and feedback. This can't be undone."
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={confirmDelete}
+        onCancel={() => setDialogOpen(false)}
+      />
     </article>
   );
 }

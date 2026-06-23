@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Upload, FileText, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { ParsedCvPreview } from './parsed-cv-preview';
 import { CvProcessingState } from './cv-processing-state';
@@ -23,6 +24,7 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
   const [cvData, setCvData] = useState<CvData | null>(initialCvData);
   const [parsedAt, setParsedAt] = useState(cvParsedAt);
   const [pasteText, setPasteText] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const hasCv = !!cvData;
@@ -97,7 +99,7 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleDelete}
+            onClick={() => setConfirmRemove(true)}
             disabled={busy}
             className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
           >
@@ -106,6 +108,20 @@ export function CvProfileCard({ cvData: initialCvData, cvParsedAt }: Props) {
           </Button>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmRemove}
+        title="Remove your CV?"
+        description="This deletes your uploaded résumé and its parsed profile. CV-grounded questions will be unavailable until you upload again."
+        confirmLabel="Remove CV"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={() => {
+          setConfirmRemove(false);
+          handleDelete();
+        }}
+        onCancel={() => setConfirmRemove(false)}
+      />
 
       {busy ? (
         <CvProcessingState status={status} />

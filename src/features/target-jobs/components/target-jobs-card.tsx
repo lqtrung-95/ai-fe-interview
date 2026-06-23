@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Briefcase, Lock, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { TargetJobAddForm } from './target-job-add-form';
 
 const MAX_JOBS = 3;
@@ -23,6 +24,7 @@ export function TargetJobsCard({ isPro, initialJobs }: Props) {
   const [jobs, setJobs] = useState<SavedJob[]>(initialJobs);
   const [showForm, setShowForm] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<SavedJob | null>(null);
   const [, startTransition] = useTransition();
 
   function handleSaved(job: SavedJob) {
@@ -86,7 +88,7 @@ export function TargetJobsCard({ isPro, initialJobs }: Props) {
                   <span className="flex-1 truncate text-sm font-medium">{job.label}</span>
                   <button
                     type="button"
-                    onClick={() => handleDelete(job.id)}
+                    onClick={() => setPendingDelete(job)}
                     disabled={deletingId === job.id}
                     aria-label={`Remove ${job.label}`}
                     className="text-muted-foreground transition-colors hover:text-destructive disabled:opacity-40"
@@ -114,6 +116,24 @@ export function TargetJobsCard({ isPro, initialJobs }: Props) {
           )}
         </>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Remove this job target?"
+        description={
+          pendingDelete
+            ? `"${pendingDelete.label}" will be removed. Sessions already tailored to it are unaffected.`
+            : ''
+        }
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={() => {
+          if (pendingDelete) handleDelete(pendingDelete.id);
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </section>
   );
 }
