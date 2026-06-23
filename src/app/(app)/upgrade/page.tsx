@@ -6,7 +6,7 @@ const PRO_FEATURES = [
   'Unlimited practice sessions',
   'Full session history & replays',
   'Spaced repetition study plan',
-  'Voice answer input',
+  'Job-targeted question generation',
   'Per-dimension weak-area coaching',
   'Priority AI responses',
 ];
