@@ -105,7 +105,7 @@ const FAQS = [
 
 const FREE_FEATURES = ['1 session per day', 'Question bank access', 'AI feedback', 'Basic score breakdown'];
 const PRO_FEATURES = [
-  'Unlimited mock interviews',
+  'Unlimited practice sessions',
   'Mock interview exam mode',
   'Full history and answer replays',
   'Weak-area coaching dashboard',
