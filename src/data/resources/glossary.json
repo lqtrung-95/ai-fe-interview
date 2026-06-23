@@ -553,7 +553,7 @@
     {
       "term": "RADIO framework",
       "abbr": "RADIO",
-      "definition": "A mnemonic for frontend system design interviews that guides candidates through Requirements, Architecture, Design, Implementation, and Optimization. It ensures systematic thinking and helps avoid missing critical steps during the design process.",
+      "definition": "A mnemonic for frontend system design interviews that guides candidates through Requirements, Architecture, Data model, Interface (API), and Optimizations. It ensures systematic thinking and helps avoid missing critical steps during the design process. Referenced from greatfrontend.com.",
       "category": "Architecture",
       "handbookId": "intro"
     },

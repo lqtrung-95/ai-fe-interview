@@ -230,7 +230,7 @@
         },
         {
           "type": "p",
-          "html": "RADIO is a popular mnemonic to help you not miss any steps. Proceed sequentially but be flexible to revisit steps when needed."
+          "html": "RADIO is a popular mnemonic to help you not miss any steps. Proceed sequentially but be flexible to revisit steps when needed. <em>The RADIO framework is referenced from <a href=\"https://www.greatfrontend.com\" target=\"_blank\" rel=\"noopener noreferrer\">greatfrontend.com</a>.</em>"
         },
         {
           "type": "diagram",
