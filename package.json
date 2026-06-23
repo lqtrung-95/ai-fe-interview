@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && pnpm generate:search-index && next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
@@ -29,6 +29,7 @@
     "enrich:system-design": "tsx scripts/enrich-system-design-explanations.ts",
     "generate:questions": "tsx scripts/generate-new-questions.ts",
     "generate:diagrams-new": "tsx scripts/generate-diagrams-for-new-questions.ts",
+    "generate:search-index": "tsx scripts/generate-resources-search-index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
