@@ -10,13 +10,16 @@ loadEnv({ path: '.env', quiet: true });
  * (`prisma migrate`, `prisma db push`, `prisma studio`) read it from here;
  * runtime PrismaClient uses the pg driver adapter (see src/lib/db/client.ts).
  *
- * For local DB migrations: Prisma migrate needs a direct (non-pooled) URL.
- * Temporarily set DATABASE_URL to the Supabase "Direct connection" string
- * (Project Settings → Database → Connection String → URI, port 5432) before
- * running `pnpm prisma migrate deploy`, then restore the transaction pooler URL.
+ * Applying migrations: the simplest path is the Supabase Dashboard → SQL Editor
+ * (paste the migration .sql and run). For the CLI, point DIRECT_URL at the
+ * Supabase "Session pooler" string — same host/credentials as DATABASE_URL but
+ * port 5432 and no ?pgbouncer flag (Settings → Database → Session pooler).
+ * NOTE: the legacy "Direct connection" host db.<ref>.supabase.co was retired
+ * and no longer resolves; use the Session pooler, not the direct host.
  *
  * Production deployments (Vercel) run `prisma generate` only — migrations are
- * applied manually via Supabase Studio SQL editor, so DATABASE_URL is fine here.
+ * applied manually via the SQL editor, so DATABASE_URL (transaction pooler) is
+ * fine here.
  */
 export default defineConfig({
   schema: 'prisma/schema.prisma',
