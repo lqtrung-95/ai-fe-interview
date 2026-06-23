@@ -10,6 +10,7 @@ const QUESTION_TARGETS = {
   quick: 3,
   standard: 5,
   deep_coaching: 5,
+  mock: 5,
 } as const;
 
 function formatSessionMode(mode: string) {
@@ -104,6 +105,7 @@ export default async function SessionPage({
         initialCompleted={completed}
         questionTarget={target}
         timerSeconds={timerSeconds}
+        isMock={session.mode === 'mock'}
       />
     </div>
   );

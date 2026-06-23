@@ -15,6 +15,7 @@ interface Props {
   current: ActiveQuestion | null;
   completed: number;
   questionTarget: number;
+  isMock?: boolean;
   draft: string;
   followUp: string;
   followUpDraft: string;
@@ -93,9 +94,16 @@ export function InterviewMainPanel(props: Props) {
             <Badge variant="secondary">{props.current.type.replace('_', ' ')}</Badge>
           )}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Question {props.completed + 1} of {props.questionTarget}
-        </p>
+        <div className="flex items-center gap-2">
+          {props.isMock && (
+            <Badge variant="secondary" className="font-medium">
+              Mock · no feedback until the end
+            </Badge>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Question {props.completed + 1} of {props.questionTarget}
+          </p>
+        </div>
         <Button variant="outline" onClick={props.onEndSession} disabled={props.isSubmitting}>
           End session
         </Button>
@@ -190,7 +198,7 @@ export function InterviewMainPanel(props: Props) {
             disabled={props.isSubmitting || !props.draft.trim()}
             title="⌘ Enter"
           >
-            {props.isSubmitting ? 'Submitting...' : 'Submit answer'}
+            {props.isSubmitting ? 'Submitting...' : submitLabel(props)}
             {!props.isSubmitting && (
               <kbd className="ml-1.5 hidden rounded border border-border/50 bg-primary-foreground/10 px-1 py-0.5 text-[10px] font-mono sm:inline">⌘↵</kbd>
             )}
@@ -199,6 +207,14 @@ export function InterviewMainPanel(props: Props) {
       </div>
     </div>
   );
+}
+
+/** Submit-button label. Mock mode advances without feedback, so the copy
+ *  reflects "next question" or "finish" instead of "submit answer". */
+function submitLabel(props: Props): string {
+  if (!props.isMock) return 'Submit answer';
+  const isLast = props.completed + 1 >= props.questionTarget;
+  return isLast ? 'Finish & see results' : 'Submit & next';
 }
 
 function FeedbackFailedNotice({

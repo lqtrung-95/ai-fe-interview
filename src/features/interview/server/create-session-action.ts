@@ -21,6 +21,11 @@ export async function createSession(input: CreateSessionInput): Promise<CreateRe
     return { ok: false, message: parsed.error.issues.map((i) => i.message).join(', ') };
   }
 
+  // Mock interview (exam simulation) is a Pro perk.
+  if (parsed.data.mode === 'mock' && !user.isPro) {
+    return { ok: false, message: 'Pro required for mock interviews', code: 'not_pro' };
+  }
+
   if (await hasDailyLimitReached(user)) {
     return { ok: false, message: 'daily_limit_reached', code: 'daily_limit_reached' };
   }

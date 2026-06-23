@@ -321,6 +321,9 @@ enum SessionMode {
   quick
   standard
   deep_coaching
+  // Exam-simulation: no live feedback during the session; all scoring revealed
+  // together at the end. Pro-only.
+  mock
 }
 
 enum SessionStatus {

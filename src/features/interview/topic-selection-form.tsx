@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Briefcase, Check, Timer, Sparkles } from 'lucide-react';
+import { Briefcase, Check, Timer, Sparkles, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -23,6 +23,8 @@ interface Props {
   hasCv?: boolean;
   /** Pro users' saved job targets — shows the target job selector when non-empty. */
   targetJobs?: { id: string; label: string }[];
+  /** Gates Pro-only modes (mock interview) — non-Pro clicks open the upgrade wall. */
+  isPro?: boolean;
 }
 
 const GROUPS = [
@@ -41,7 +43,7 @@ const TIMER_OPTIONS = [
   { value: CUSTOM_SENTINEL, label: 'Custom' },
 ] as const;
 
-export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts, hasCv = false, targetJobs = [] }: Props) {
+export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCounts, hasCv = false, targetJobs = [], isPro = false }: Props) {
   const router = useRouter();
   const [topics, setTopics] = useState<string[]>(defaultTopics.length ? defaultTopics : ['JavaScript']);
   const [difficulty, setDifficulty] = useState<Difficulty>(defaultDifficulty);
@@ -94,17 +96,35 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
       {/* Mode */}
       <section className="space-y-3">
         <SectionLabel>Mode</SectionLabel>
-        <div className="grid gap-3 md:grid-cols-3">
-          {SESSION_MODES.map((item) => (
-            <ChoiceCard
-              key={item.value}
-              active={mode === item.value}
-              title={item.label}
-              detail={item.meta}
-              onClick={() => setMode(item.value)}
-            />
-          ))}
+        <div className="grid gap-3 md:grid-cols-2">
+          {SESSION_MODES.map((item) => {
+            const locked = 'pro' in item && item.pro === true && !isPro;
+            return (
+              <ChoiceCard
+                key={item.value}
+                active={mode === item.value}
+                title={item.label}
+                detail={item.meta}
+                locked={locked}
+                onClick={() => {
+                  if (locked) {
+                    setShowUpgradeWall(true);
+                    return;
+                  }
+                  setMode(item.value);
+                }}
+              />
+            );
+          })}
         </div>
+        {mode === 'mock' && (
+          <p className="rounded-lg border border-primary/30 bg-primary/5 px-3.5 py-2.5 text-xs leading-relaxed text-muted-foreground">
+            <span className="font-semibold text-foreground">Exam simulation.</span>{' '}
+            You answer all questions back-to-back with no feedback in between — just like a real
+            interview. All scores, model answers, and a full breakdown are revealed at the end. Set a
+            timer below to add pressure.
+          </p>
+        )}
       </section>
 
       {/* Difficulty */}
@@ -305,19 +325,27 @@ function SectionLabel({ children, icon }: { children: React.ReactNode; icon?: Re
   );
 }
 
-function ChoiceCard(props: { active: boolean; title: string; detail: string; onClick: () => void }) {
+function ChoiceCard(props: { active: boolean; title: string; detail: string; locked?: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={props.onClick}
       className={
-        'rounded-xl border p-4 text-left transition-all duration-200 ' +
+        'relative rounded-xl border p-4 text-left transition-all duration-200 ' +
         (props.active
           ? 'app-choice-active border-transparent text-primary-foreground shadow-sm'
           : 'border-border/60 bg-card hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md')
       }
     >
-      <p className="text-sm font-semibold">{props.title}</p>
+      <div className="flex items-center gap-1.5">
+        <p className="text-sm font-semibold">{props.title}</p>
+        {props.locked && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+            <Lock className="h-2.5 w-2.5" />
+            Pro
+          </span>
+        )}
+      </div>
       <p className={'mt-2 text-xs leading-5 ' + (props.active ? 'text-primary-foreground/75' : 'text-muted-foreground')}>
         {props.detail}
       </p>

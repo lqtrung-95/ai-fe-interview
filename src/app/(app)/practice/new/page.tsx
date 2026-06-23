@@ -72,6 +72,7 @@ export default async function NewSessionPage({
         topicCounts={topicCounts}
         hasCv={!!user.cvData}
         targetJobs={targetJobs}
+        isPro={user.isPro}
       />
     </div>
   );

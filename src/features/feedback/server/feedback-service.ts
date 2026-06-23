@@ -1,6 +1,6 @@
 import 'server-only';
 import { prisma } from '@/lib/db/client';
-import { streamAITask } from '@/lib/ai/orchestrator';
+import { runAITask, streamAITask } from '@/lib/ai/orchestrator';
 import { evaluateOutputSchema, type EvaluateOutput } from '@/features/interview/ai-schemas';
 
 export async function streamFeedback(answerId: string, userId: string): Promise<Response> {
@@ -61,6 +61,51 @@ export async function streamFeedback(answerId: string, userId: string): Promise<
   });
 
   return sseResponse(stream);
+}
+
+/**
+ * Generates and persists feedback for every answered question in a session
+ * that doesn't yet have feedback. Used by mock interviews, where live feedback
+ * is deferred until completion. Runs answers in parallel and tolerates
+ * individual failures so one bad answer can't block the whole debrief — the
+ * summary step reads whatever persisted.
+ */
+export async function generateMissingFeedbackForSession(
+  sessionId: string,
+  userId: string,
+): Promise<void> {
+  const answers = await prisma.userAnswer.findMany({
+    where: { sessionId, userId, feedback: null },
+    include: { question: { select: { question: true, expectedPoints: true } } },
+  });
+  if (answers.length === 0) return;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { level: true },
+  });
+  if (!user) return;
+
+  await Promise.allSettled(
+    answers.map(async (answer) => {
+      const output = await runAITask(
+        {
+          type: 'evaluate_answer',
+          input: {
+            question: answer.question.question,
+            expectedPoints: answer.question.expectedPoints,
+            userAnswer: answer.answer,
+            followUpAnswer: answer.followUpAnswer ?? undefined,
+            level: user.level,
+          },
+        },
+        { userId, sessionId },
+      );
+      // Token cost is recorded by runAITask in AICall; persist 0 here (the
+      // per-feedback tokensUsed field is secondary telemetry only).
+      await persistFeedback(answer.id, output, 0);
+    }),
+  );
 }
 
 async function persistFeedback(answerId: string, output: EvaluateOutput, tokensUsed: number) {

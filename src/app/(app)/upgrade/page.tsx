@@ -4,6 +4,7 @@ import { RedeemCodeForm } from '@/features/subscription/redeem-code-form';
 
 const PRO_FEATURES = [
   'Unlimited practice sessions',
+  'Mock interview exam mode',
   'Full session history & replays',
   'Spaced repetition study plan',
   'Job-targeted question generation',

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import { ArrowRight, BookOpenCheck, Briefcase, Sparkles, Zap } from 'lucide-react';
+import { ArrowRight, BookOpenCheck, Briefcase, Sparkles, Timer, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { deleteSessionAction } from '../server/delete-session-action';
@@ -30,8 +30,9 @@ function scoreColor(score: number | null) {
 }
 
 function modeDetails(mode: string) {
-  if (mode === 'quick_drill') return { label: 'Quick drill', Icon: Zap };
+  if (mode === 'quick') return { label: 'Quick practice', Icon: Zap };
   if (mode === 'deep_coaching') return { label: 'Deep coaching', Icon: Sparkles };
+  if (mode === 'mock') return { label: 'Mock interview', Icon: Timer };
   return { label: 'Standard mock', Icon: BookOpenCheck };
 }
 

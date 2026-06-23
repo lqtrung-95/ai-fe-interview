@@ -21,7 +21,14 @@ interface Args {
   initialCompleted: number;
   questionTarget: number;
   timerSeconds: number;
+  /** Mock interview: skip live follow-up + feedback; advance straight to the next question. */
+  isMock: boolean;
 }
+
+// Placeholder stored when an answer is submitted empty (timer ran out). The
+// answers API requires a non-empty string, and the evaluator reads this as
+// "no answer given" so it scores the timeout honestly.
+const EMPTY_ANSWER_PLACEHOLDER = '(No answer provided — time ran out.)';
 
 export function useInterviewFlow(args: Args) {
   const state = useInterviewStore();
@@ -72,10 +79,17 @@ export function useInterviewFlow(args: Args) {
     try {
       const answerId = await submitAnswerMutation.mutateAsync({
         questionId: current.questionId,
-        answer: draft, // may be empty string on timeout — backend handles it
+        // Empty on timeout — store a placeholder so the API + evaluator accept it.
+        answer: draft.trim() ? draft : EMPTY_ANSWER_PLACEHOLDER,
       });
       state.setAnswerId(answerId);
-      await loadFollowUp(answerId);
+      // Mock interview: no live follow-up or feedback — move straight to the
+      // next question. Feedback for every answer is generated at completion.
+      if (args.isMock) {
+        await finishQuestion();
+      } else {
+        await loadFollowUp(answerId);
+      }
     } catch (e) {
       recordError(e, 'Failed to submit answer');
       state.setPhase('error');

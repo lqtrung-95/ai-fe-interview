@@ -15,6 +15,8 @@ interface Props {
   initialCompleted: number;
   questionTarget: number;
   timerSeconds?: number;
+  /** Mock interview (exam simulation): no live feedback; debrief at the end. */
+  isMock?: boolean;
 }
 
 export function InterviewShell({
@@ -23,6 +25,7 @@ export function InterviewShell({
   initialCompleted,
   questionTarget,
   timerSeconds = 0,
+  isMock = false,
 }: Props) {
   const flow = useInterviewFlow({
     sessionId,
@@ -30,6 +33,7 @@ export function InterviewShell({
     initialCompleted,
     questionTarget,
     timerSeconds,
+    isMock,
   });
   const state = flow.state;
 
@@ -98,8 +102,14 @@ export function InterviewShell({
     return (
       <div className="mx-auto max-w-3xl space-y-4 py-12">
         <div className="space-y-2 text-center">
-          <p className="text-sm font-medium text-muted-foreground">Preparing your session summary…</p>
-          <p className="text-xs text-muted-foreground">Organising scores and your next practice steps.</p>
+          <p className="text-sm font-medium text-muted-foreground">
+            {isMock ? 'Scoring every answer…' : 'Preparing your session summary…'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {isMock
+              ? 'Grading all your answers and building your full debrief — this takes a moment.'
+              : 'Organising scores and your next practice steps.'}
+          </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           {[1, 2, 3].map((item) => <Skeleton key={item} className="h-24 rounded-xl" />)}
@@ -129,6 +139,7 @@ export function InterviewShell({
         current={state.current}
         completed={state.completed}
         questionTarget={questionTarget}
+        isMock={isMock}
         draft={state.draft}
         followUp={state.followUp}
         followUpDraft={state.followUpDraft}

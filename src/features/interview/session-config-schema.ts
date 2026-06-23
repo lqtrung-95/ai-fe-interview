@@ -5,6 +5,8 @@ export const SESSION_MODES = [
   { value: 'quick', label: 'Quick practice', meta: '3 questions · 10 min' },
   { value: 'standard', label: 'Standard mock', meta: '5 questions · 25 min' },
   { value: 'deep_coaching', label: 'Deep coaching', meta: '5 questions · detailed coaching' },
+  // Pro-only exam simulation: answer back-to-back, no feedback until the end.
+  { value: 'mock', label: 'Mock interview', meta: '5 questions · no live feedback · Pro', pro: true },
 ] as const;
 
 export const SESSION_DIFFICULTIES = [
@@ -14,7 +16,7 @@ export const SESSION_DIFFICULTIES = [
 ] as const;
 
 export const createSessionSchema = z.object({
-  mode: z.enum(['quick', 'standard', 'deep_coaching']),
+  mode: z.enum(['quick', 'standard', 'deep_coaching', 'mock']),
   difficulty: z.enum(['junior', 'mid', 'senior']),
   topics: z.array(z.enum(ONBOARDING_TOPICS)).min(1, 'Pick at least one topic'),
   /** When true, question generation is grounded in the user's parsed CV data. */

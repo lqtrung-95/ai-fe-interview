@@ -74,7 +74,9 @@ export async function nextQuestion(args: NextQuestionArgs): Promise<InterviewQue
     topic,
     difficulty: args.session.difficulty,
     level: args.user.level,
-    sessionMode: args.session.mode,
+    // Mock interviews generate the same questions as a standard mock — only the
+    // feedback timing differs — so the prompt sees 'standard'.
+    sessionMode: args.session.mode === 'mock' ? 'standard' : args.session.mode,
     targetRole: args.user.targetRole,
     targetCompanyType: args.user.targetCompanyType,
     avoidQuestions: previous.map((p) => p.question),
