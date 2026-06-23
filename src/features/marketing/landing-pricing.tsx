@@ -16,7 +16,7 @@ const PRO_FEATURES = [
   'Spaced repetition study plan',
   'Job-targeted question generation',
   'Per-dimension weak-area coaching',
-  'Priority AI responses',
+  'Premium AI model',
 ];
 
 interface Props {

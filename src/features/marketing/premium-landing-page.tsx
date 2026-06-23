@@ -110,7 +110,7 @@ const PRO_FEATURES = [
   'Weak-area coaching dashboard',
   'CV and target-role practice',
   'Spaced repetition study plan',
-  'Priority AI responses',
+  'Premium AI model',
 ];
 
 export function PremiumLandingPage({ ctaHref = '/sign-in?next=/onboarding' }: Props) {

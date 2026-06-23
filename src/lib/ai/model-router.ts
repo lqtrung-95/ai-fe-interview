@@ -68,7 +68,7 @@ export function routeModel(
   modelId: string;
 } {
   let tier = tierForTask(task);
-  // Pro perk ("Priority AI responses"): Pro users get the premium (smart) model
+  // Pro perk ("Premium AI model"): Pro users get the premium (smart) model
   // on otherwise-cheap tasks — question generation, follow-ups, JD extraction.
   // Evaluation and summary already run on the smart tier for everyone.
   if (opts.isPro && tier === 'cheap') tier = 'smart';
