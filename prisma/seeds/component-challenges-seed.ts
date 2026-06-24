@@ -1293,6 +1293,218 @@ fills the field.
   );
 }`,
   },
+
+  {
+    id: 'cc-country-select',
+    title: 'Accessible Select',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'forms', 'state'],
+    componentName: 'CountrySelect',
+    description: `## Accessible Select
+
+Build a \`CountrySelect\` dropdown of countries.
+
+**Requirements**
+- A select with at least three options that updates on change.
+- The select must have an **accessible name** (a select with no label is a
+  common, real failure).
+
+> Reach for a native <select> here — then make sure it's labelled.`,
+    hints: [
+      'A <select> with no associated label is announced as just "combobox" — useless.',
+      'Add a <label htmlFor> (or aria-label) naming the field.',
+    ],
+    checks: [
+      { id: 'has-select', label: 'Renders a select', selector: 'select', exists: true },
+      { id: 'options', label: 'Has at least three options', selector: 'option', minCount: 3 },
+    ],
+    starterCode: `function CountrySelect() {
+  const [country, setCountry] = React.useState('us');
+  return (
+    <div>
+      <select value={country} onChange={(e) => setCountry(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }}>
+        <option value="us">United States</option>
+        <option value="uk">United Kingdom</option>
+        <option value="vn">Vietnam</option>
+      </select>
+    </div>
+  );
+}`,
+    solution: `function CountrySelect() {
+  const [country, setCountry] = React.useState('us');
+  return (
+    <div style={{ display: 'grid', gap: 4 }}>
+      <label htmlFor="country" style={{ fontSize: 13, fontWeight: 600 }}>Country</label>
+      <select id="country" value={country} onChange={(e) => setCountry(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }}>
+        <option value="us">United States</option>
+        <option value="uk">United Kingdom</option>
+        <option value="vn">Vietnam</option>
+      </select>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-data-table',
+    title: 'Accessible Data Table',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'components'],
+    componentName: 'DataTable',
+    description: `## Accessible Data Table
+
+Build a \`DataTable\` listing people with Name and Role, with a sort control on Name.
+
+**Requirements**
+- Render the rows of data in a table.
+- The sort button needs an **accessible name**.
+- For full marks (the AI checks): use real table semantics — \`<th scope="col">\`
+  header cells, a \`<thead>\`, and a \`<caption>\` — not styled \`<td>\`s.
+
+> The component takes no props.`,
+    hints: [
+      'The ↕ sort button is icon-only — give it an aria-label.',
+      'Header cells should be <th scope="col">, and the table should have a <caption>.',
+    ],
+    checks: [{ id: 'rows', label: 'Renders the data rows', selector: 'tr', minCount: 3 }],
+    starterCode: `function DataTable() {
+  const rows = [
+    { name: 'Ada Lovelace', role: 'Engineer' },
+    { name: 'Linus Torvalds', role: 'Maintainer' },
+    { name: 'Grace Hopper', role: 'Admiral' },
+  ];
+  const cell = { padding: '6px 12px', borderBottom: '1px solid #e5e7eb', textAlign: 'left' };
+  return (
+    <table style={{ borderCollapse: 'collapse', fontSize: 14 }}>
+      <tbody>
+        <tr>
+          <td style={{ ...cell, fontWeight: 600 }}>
+            Name{' '}
+            <button style={{ border: 'none', background: 'none', cursor: 'pointer' }}><span aria-hidden="true">↕</span></button>
+          </td>
+          <td style={{ ...cell, fontWeight: 600 }}>Role</td>
+        </tr>
+        {rows.map((r) => (
+          <tr key={r.name}>
+            <td style={cell}>{r.name}</td>
+            <td style={cell}>{r.role}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}`,
+    solution: `function DataTable() {
+  const rows = [
+    { name: 'Ada Lovelace', role: 'Engineer' },
+    { name: 'Linus Torvalds', role: 'Maintainer' },
+    { name: 'Grace Hopper', role: 'Admiral' },
+  ];
+  const cell = { padding: '6px 12px', borderBottom: '1px solid #e5e7eb', textAlign: 'left' };
+  return (
+    <table style={{ borderCollapse: 'collapse', fontSize: 14 }}>
+      <caption style={{ textAlign: 'left', fontWeight: 600, marginBottom: 6 }}>Team members</caption>
+      <thead>
+        <tr>
+          <th scope="col" style={cell}>
+            Name{' '}
+            <button aria-label="Sort by name" style={{ border: 'none', background: 'none', cursor: 'pointer' }}><span aria-hidden="true">↕</span></button>
+          </th>
+          <th scope="col" style={cell}>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.name}>
+            <td style={cell}>{r.name}</td>
+            <td style={cell}>{r.role}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-date-picker',
+    title: 'Accessible Date Picker',
+    difficulty: 'senior',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'DatePicker',
+    description: `## Accessible Date Picker
+
+Build a \`DatePicker\` — a month header with prev/next and a grid of selectable days.
+
+**Requirements**
+- Previous/next month buttons and a grid of day buttons; clicking selects a day.
+- The prev/next icon buttons need **accessible names**.
+- For full marks (the AI checks): each day should convey its full date and
+  selected state to assistive tech, and arrow keys should move between days.
+
+> The component takes no props.`,
+    hints: [
+      'The ‹ / › buttons are icon-only — add aria-label="Previous month" / "Next month".',
+      'A day button needs a descriptive name (the full date) and aria-pressed for selection.',
+      'A real date grid supports arrow-key navigation between days.',
+    ],
+    checks: [{ id: 'day-buttons', label: 'Renders month nav and day cells', selector: 'button', minCount: 10 }],
+    starterCode: `function DatePicker() {
+  const [selected, setSelected] = React.useState(null);
+  const days = Array.from({ length: 30 }, (_, i) => i + 1);
+  const nav = { width: 28, height: 28, border: '1px solid #cbd5e1', background: '#fff', borderRadius: 6, cursor: 'pointer' };
+  return (
+    <div style={{ width: 248, border: '1px solid #e5e7eb', borderRadius: 10, padding: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <button style={nav}><span aria-hidden="true">‹</span></button>
+        <span style={{ fontWeight: 600 }}>June 2026</span>
+        <button style={nav}><span aria-hidden="true">›</span></button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 4 }}>
+        {days.map((d) => (
+          <button
+            key={d}
+            onClick={() => setSelected(d)}
+            style={{ height: 32, border: 'none', borderRadius: 6, cursor: 'pointer', background: selected === d ? '#4f46e5' : '#f3f4f6', color: selected === d ? '#fff' : '#111' }}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}`,
+    solution: `function DatePicker() {
+  const [selected, setSelected] = React.useState(null);
+  const days = Array.from({ length: 30 }, (_, i) => i + 1);
+  const nav = { width: 28, height: 28, border: '1px solid #cbd5e1', background: '#fff', borderRadius: 6, cursor: 'pointer' };
+  return (
+    <div role="group" aria-label="Choose a date" style={{ width: 248, border: '1px solid #e5e7eb', borderRadius: 10, padding: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <button aria-label="Previous month" style={nav}><span aria-hidden="true">‹</span></button>
+        <span style={{ fontWeight: 600 }}>June 2026</span>
+        <button aria-label="Next month" style={nav}><span aria-hidden="true">›</span></button>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 4 }}>
+        {days.map((d) => (
+          <button
+            key={d}
+            aria-label={'June ' + d + ', 2026'}
+            aria-pressed={selected === d}
+            onClick={() => setSelected(d)}
+            style={{ height: 32, border: 'none', borderRadius: 6, cursor: 'pointer', background: selected === d ? '#4f46e5' : '#f3f4f6', color: selected === d ? '#fff' : '#111' }}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}`,
+  },
 ];
 
 async function main() {
