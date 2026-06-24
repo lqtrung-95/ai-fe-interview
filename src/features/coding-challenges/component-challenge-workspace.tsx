@@ -1,27 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useTheme } from 'next-themes';
 import { marked } from 'marked';
 import { Lightbulb, Play, RotateCcw, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { buttonVariants } from '@/components/ui/button';
 import { AiCodeReviewPanel } from './ai-code-review-panel';
+import { ResilientCodeEditor } from './resilient-code-editor';
 import { A11yReportPanel } from './component-sandbox/a11y-report-panel';
 import { useComponentSandbox } from './component-sandbox/use-component-sandbox';
 import { toSignalSummary } from './component-sandbox/sandbox-signals';
 import type { ComponentChallengePublic } from './types';
-
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full items-center justify-center bg-card text-sm text-muted-foreground">
-      Loading editor…
-    </div>
-  ),
-});
 
 interface Props {
   challenge: ComponentChallengePublic;
@@ -30,7 +20,6 @@ interface Props {
 }
 
 export function ComponentChallengeWorkspace({ challenge, isAuthenticated, isPro }: Props) {
-  const { resolvedTheme } = useTheme();
   const [code, setCode] = useState(challenge.starterCode);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -182,29 +171,7 @@ export function ComponentChallengeWorkspace({ challenge, isAuthenticated, isPro 
         </div>
 
         <div className="min-h-0 flex-1">
-          <MonacoEditor
-            height="100%"
-            language="javascript"
-            theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
-            value={code}
-            onChange={(v) => setCode(v ?? '')}
-            // JSX is valid here but Monaco's plain-JS worker flags it — silence the
-            // false squiggles so the editor doesn't look broken.
-            onMount={(_editor, monaco) => {
-              monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-                noSemanticValidation: true,
-                noSyntaxValidation: true,
-              });
-            }}
-            options={{
-              fontSize: 14,
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              tabSize: 2,
-              wordWrap: 'on',
-              padding: { top: 12, bottom: 12 },
-            }}
-          />
+          <ResilientCodeEditor value={code} onChange={setCode} ariaLabel={`${challenge.componentName} component`} />
         </div>
 
         {/* Live preview */}

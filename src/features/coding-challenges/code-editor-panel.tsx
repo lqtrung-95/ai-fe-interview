@@ -1,19 +1,8 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-import { useTheme } from 'next-themes';
 import { RotateCcw } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
-
-// Lazy load Monaco — ~2MB bundle, only needed on the workspace page
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex h-full items-center justify-center bg-card text-sm text-muted-foreground">
-      Loading editor…
-    </div>
-  ),
-});
+import { ResilientCodeEditor } from './resilient-code-editor';
 
 interface Props {
   value: string;
@@ -24,9 +13,6 @@ interface Props {
 }
 
 export function CodeEditorPanel({ value, onChange, onReset, isSubmitting, onSubmit }: Props) {
-  const { resolvedTheme } = useTheme();
-  const monacoTheme = resolvedTheme === 'dark' ? 'vs-dark' : 'light';
-
   return (
     <div className="flex h-full flex-col">
       {/* Editor toolbar */}
@@ -41,23 +27,9 @@ export function CodeEditorPanel({ value, onChange, onReset, isSubmitting, onSubm
         </button>
       </div>
 
-      {/* Monaco */}
+      {/* Editor (falls back to a textarea if Monaco fails) */}
       <div className="min-h-0 flex-1">
-        <MonacoEditor
-          height="100%"
-          language="javascript"
-          theme={monacoTheme}
-          value={value}
-          onChange={(v) => onChange(v ?? '')}
-          options={{
-            fontSize: 14,
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            tabSize: 2,
-            wordWrap: 'on',
-            padding: { top: 12, bottom: 12 },
-          }}
-        />
+        <ResilientCodeEditor value={value} onChange={onChange} ariaLabel="JavaScript solution" />
       </div>
 
       {/* Submit */}
