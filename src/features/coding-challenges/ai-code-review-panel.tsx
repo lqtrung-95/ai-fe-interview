@@ -8,9 +8,11 @@ import { buttonVariants } from '@/components/ui/button';
 interface Props {
   challengeId: string;
   submissionId: string;
+  /** Idle-state copy. Defaults to the JS-challenge wording. */
+  intro?: string;
 }
 
-export function AiCodeReviewPanel({ challengeId, submissionId }: Props) {
+export function AiCodeReviewPanel({ challengeId, submissionId, intro }: Props) {
   const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
   const [reviewText, setReviewText] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -63,7 +65,7 @@ export function AiCodeReviewPanel({ challengeId, submissionId }: Props) {
     return (
       <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Get an AI analysis of your solution — complexity, edge cases, and alternatives.
+          {intro ?? 'Get an AI analysis of your solution — complexity, edge cases, and alternatives.'}
         </p>
         <button onClick={requestReview} className={buttonVariants({ size: 'sm', className: 'shrink-0 gap-1.5' })}>
           <Sparkles className="h-3.5 w-3.5" />

@@ -1,6 +1,8 @@
 import type { ReviewCodeInput } from '@/features/interview/ai-schemas';
 
 export function buildCodeReviewPrompt(input: ReviewCodeInput): { system: string; user: string } {
+  if (input.kind === 'component') return buildComponentReviewPrompt(input);
+
   const system = `You are a senior frontend engineer reviewing a candidate's JavaScript solution to an interview coding challenge.
 
 Your review must cover these sections in order, using ## markdown headers:
@@ -38,6 +40,60 @@ ${input.userCode}
 \`\`\`
 
 Please review this solution.`;
+
+  return { system, user };
+}
+
+/**
+ * Component-challenge review. The candidate built a real React component; we
+ * rendered it and ran axe-core against the live DOM. The review is grounded in
+ * those real a11y findings plus a senior read of the code.
+ */
+function buildComponentReviewPrompt(input: ReviewCodeInput): { system: string; user: string } {
+  const system = `You are a senior frontend engineer reviewing a candidate's React component built in a live interview challenge. The component was rendered in a real browser and audited with axe-core — treat the accessibility findings below as ground truth, not speculation.
+
+Your review must cover these sections in order, using ## markdown headers:
+
+## Accessibility
+Interpret the axe-core findings. For each real violation, explain WHY it matters and the concrete fix (semantic element, ARIA attribute, keyboard handler). If there are none, verify the component is genuinely accessible (keyboard operable, correct roles/labels) rather than just passing automated checks — call out anything axe can't catch.
+
+## Component Correctness
+Does it satisfy the requirements? Controlled vs uncontrolled state, edge cases (empty, loading, boundary values), and interaction handling.
+
+## Re-render & Performance
+Flag unnecessary re-renders, missing memoization where it matters, inline-object/function pitfalls, and expensive work in render. Don't over-prescribe memoization where it isn't needed.
+
+## API & Reusability
+Prop design, sensible defaults, composition. Would a teammate enjoy using this component?
+
+## What a Senior Would Add
+The one or two things that separate a senior submission from a junior one here.
+
+Rules:
+- Be direct and constructive — no fluff
+- Ground the accessibility section in the actual findings provided
+- Target 300–550 words total
+- Use markdown formatting (backticks for code)
+- Do NOT repeat the user's code back verbatim`;
+
+  const a11y = input.a11yFindings?.trim()
+    ? input.a11yFindings.trim()
+    : 'No automated accessibility violations were detected. Assess accessibility beyond what axe can catch.';
+
+  const user = `Challenge: ${input.challengeTitle}
+
+Requirements:
+${input.challengeDescription}
+
+Accessibility audit (axe-core, live render):
+${a11y}
+
+Submitted component:
+\`\`\`jsx
+${input.userCode}
+\`\`\`
+
+Please review this component.`;
 
   return { system, user };
 }

@@ -1,6 +1,13 @@
 import 'server-only';
 import type { CodingChallenge } from '@prisma/client';
-import type { ChallengePublic, TestCasePublic } from '@/features/coding-challenges/types';
+import type {
+  ChallengePublic,
+  ComponentChallengePublic,
+  TestCasePublic,
+} from '@/features/coding-challenges/types';
+
+/** Component spec stored in `testCases` Json for kind='component' challenges. */
+type ComponentSpec = { componentName: string };
 
 type TestCaseRaw = {
   id: string;
@@ -14,7 +21,10 @@ type TestCaseRaw = {
  * Strips solution and hidden test case expected values before returning to client.
  */
 export function toPublicChallenge(ch: CodingChallenge): ChallengePublic {
-  const testCases = (ch.testCases as unknown as TestCaseRaw[]).map(
+  // Component challenges store an object spec in `testCases`, not an array.
+  // Guard so this projection (used by the shared list) is safe for both kinds.
+  const rawTestCases = Array.isArray(ch.testCases) ? (ch.testCases as unknown as TestCaseRaw[]) : [];
+  const testCases = rawTestCases.map(
     (tc): TestCasePublic => ({
       id: tc.id,
       label: tc.label,
@@ -37,5 +47,24 @@ export function toPublicChallenge(ch: CodingChallenge): ChallengePublic {
     testCases,
     hints: (ch.hints as unknown as string[]) ?? [],
     timeLimit: ch.timeLimit,
+  };
+}
+
+/**
+ * Projects a 'component' challenge for the client. The solution stays server-side;
+ * the component name (needed by the sandbox) lives in the `testCases` Json spec.
+ */
+export function toPublicComponentChallenge(ch: CodingChallenge): ComponentChallengePublic {
+  const spec = (ch.testCases as unknown as ComponentSpec) ?? { componentName: 'App' };
+  return {
+    id: ch.id,
+    title: ch.title,
+    description: ch.description,
+    difficulty: ch.difficulty as 'junior' | 'mid' | 'senior',
+    topic: ch.topic,
+    tags: ch.tags,
+    starterCode: ch.starterCode,
+    hints: (ch.hints as unknown as string[]) ?? [],
+    componentName: spec.componentName ?? 'App',
   };
 }

@@ -35,6 +35,11 @@ export function ChallengeCard({ challenge }: Props) {
         <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${DIFFICULTY_STYLES[challenge.difficulty] ?? ''}`}>
           {challenge.difficulty}
         </span>
+        {challenge.kind === 'component' && (
+          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            Build · a11y
+          </span>
+        )}
         <span className="rounded-md bg-muted/60 px-2 py-0.5 text-xs text-muted-foreground">
           {challenge.topic}
         </span>

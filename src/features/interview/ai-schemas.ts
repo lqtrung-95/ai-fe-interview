@@ -154,6 +154,10 @@ export type ReviewCodeInput = {
   challengeDescription: string;
   userCode: string;
   testsPassed: string; // e.g. "5 / 5"
+  // 'component' challenges are React UI builds reviewed with real render signals.
+  kind?: 'function' | 'component';
+  // Formatted axe-core a11y findings from the live render (component kind only).
+  a11yFindings?: string;
 };
 
 // ----- Union task type for orchestrator -----

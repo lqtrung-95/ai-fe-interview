@@ -352,6 +352,11 @@ model CodingChallenge {
   difficulty  Difficulty
   topic       String
   tags        String[]
+  // 'function' = classic JS challenge run in the Node vm executor.
+  // 'component' = React UI challenge built + graded client-side (axe-core a11y,
+  // live render) in a sandboxed iframe. For 'component', `testCases` holds the
+  // component spec { componentName } and `starterCode`/`solution` are JSX.
+  kind        String     @default("function")
   starterCode String     @db.Text
   testCases   Json
   hints       Json       @default("[]")

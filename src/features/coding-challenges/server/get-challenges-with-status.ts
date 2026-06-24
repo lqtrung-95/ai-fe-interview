@@ -34,5 +34,6 @@ export async function getChallengesWithStatus(userId?: string): Promise<Challeng
       : attemptedIds.has(ch.id)
         ? 'attempted'
         : 'unsolved',
+    kind: ch.kind === 'component' ? 'component' : 'function',
   }));
 }

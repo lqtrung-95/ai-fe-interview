@@ -14,6 +14,7 @@
     "db:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
     "seed:coding": "tsx prisma/seeds/coding-challenges-seed.ts",
+    "seed:components": "tsx prisma/seeds/component-challenges-seed.ts",
     "seed:diagrams": "tsx scripts/seed-diagrams-to-db.ts",
     "regen-diagram": "tsx scripts/regen-diagram.ts",
     "extract-seed": "tsx scripts/extract-seed-from-html.ts",

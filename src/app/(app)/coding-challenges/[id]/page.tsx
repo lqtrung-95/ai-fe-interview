@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCurrentUser } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
-import { toPublicChallenge } from '@/lib/coding-challenges/challenge-projection';
+import { toPublicChallenge, toPublicComponentChallenge } from '@/lib/coding-challenges/challenge-projection';
 import { ChallengeWorkspace } from '@/features/coding-challenges/challenge-workspace';
+import { ComponentChallengeWorkspace } from '@/features/coding-challenges/component-challenge-workspace';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -23,6 +24,16 @@ export default async function ChallengePage({ params }: PageProps) {
   ]);
 
   if (!challenge) notFound();
+
+  if (challenge.kind === 'component') {
+    return (
+      <ComponentChallengeWorkspace
+        challenge={toPublicComponentChallenge(challenge)}
+        isAuthenticated={!!user}
+        isPro={user?.isPro ?? false}
+      />
+    );
+  }
 
   return (
     <ChallengeWorkspace
