@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { buildSandboxSrcdoc } from './build-sandbox-srcdoc';
-import type { SandboxMessage, SandboxResult } from './sandbox-signals';
+import type { FunctionalCheck, SandboxMessage, SandboxResult } from './sandbox-signals';
 
 /**
  * Drives the sandboxed preview iframe: attach the returned `iframeRef` and
  * `srcdoc` to an <iframe sandbox="allow-scripts">, then call `run(code)` to
- * render the user's component and collect a11y signals.
+ * render the user's component and collect a11y + render + functional signals.
  */
-export function useComponentSandbox(componentName: string) {
+export function useComponentSandbox(componentName: string, checks: FunctionalCheck[] = []) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const srcdoc = useMemo(() => buildSandboxSrcdoc(), []);
   const [ready, setReady] = useState(false);
@@ -37,9 +37,9 @@ export function useComponentSandbox(componentName: string) {
       const win = iframeRef.current?.contentWindow;
       if (!win) return;
       setRunning(true);
-      win.postMessage({ type: 'run', code, componentName }, '*');
+      win.postMessage({ type: 'run', code, componentName, checks }, '*');
     },
-    [componentName],
+    [componentName, checks],
   );
 
   return { iframeRef, srcdoc, ready, running, result, run };

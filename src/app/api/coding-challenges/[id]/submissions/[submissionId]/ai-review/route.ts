@@ -72,20 +72,47 @@ export async function POST(_req: Request, { params }: Params) {
   return result.toTextStreamResponse();
 }
 
-/** Formats the persisted axe-core signals into a readable block for the prompt. */
+/** Formats the persisted sandbox signals (a11y + checks + re-renders) for the prompt. */
 function formatA11yFindings(testResults: unknown): string {
   const signals = testResults as {
     status?: string;
     renderError?: string;
     violations?: { id: string; impact: string | null; help: string; nodes: number }[];
+    render?: { mountCommits: number; interactionCommits: number; interacted: boolean } | null;
+    checks?: { label: string; passed: boolean }[];
   } | null;
-  if (!signals) return 'No accessibility signals were captured.';
+  if (!signals) return 'No signals were captured.';
   if (signals.status && signals.status !== 'ok') {
     return `The component did not render (${signals.status}): ${signals.renderError ?? 'unknown error'}.`;
   }
+
+  const parts: string[] = [];
+
   const violations = signals.violations ?? [];
-  if (violations.length === 0) return 'No automated accessibility violations were detected.';
-  return violations
-    .map((v) => `- [${v.impact ?? 'info'}] ${v.help} (${v.id}) — ${v.nodes} element(s)`)
-    .join('\n');
+  parts.push(
+    violations.length === 0
+      ? 'Accessibility: no automated axe-core violations.'
+      : 'Accessibility violations (axe-core):\n' +
+          violations
+            .map((v) => `- [${v.impact ?? 'info'}] ${v.help} (${v.id}) — ${v.nodes} element(s)`)
+            .join('\n'),
+  );
+
+  const checks = signals.checks ?? [];
+  if (checks.length > 0) {
+    parts.push(
+      'Functional checks:\n' +
+        checks.map((c) => `- [${c.passed ? 'PASS' : 'FAIL'}] ${c.label}`).join('\n'),
+    );
+  }
+
+  if (signals.render) {
+    const r = signals.render;
+    parts.push(
+      `Re-renders (React Profiler): ${r.mountCommits} commit(s) on mount` +
+        (r.interacted ? `, ${r.interactionCommits} on a single interaction.` : '.'),
+    );
+  }
+
+  return parts.join('\n\n');
 }

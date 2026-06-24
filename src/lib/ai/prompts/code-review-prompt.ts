@@ -50,7 +50,7 @@ Please review this solution.`;
  * those real a11y findings plus a senior read of the code.
  */
 function buildComponentReviewPrompt(input: ReviewCodeInput): { system: string; user: string } {
-  const system = `You are a senior frontend engineer reviewing a candidate's React component built in a live interview challenge. The component was rendered in a real browser and audited with axe-core — treat the accessibility findings below as ground truth, not speculation.
+  const system = `You are a senior frontend engineer reviewing a candidate's React component built in a live interview challenge. The component was rendered in a real browser, audited with axe-core, checked against the requirements, and profiled for re-renders — treat the signals below as ground truth, not speculation.
 
 Your review must cover these sections in order, using ## markdown headers:
 
@@ -61,7 +61,7 @@ Interpret the axe-core findings. For each real violation, explain WHY it matters
 Does it satisfy the requirements? Controlled vs uncontrolled state, edge cases (empty, loading, boundary values), and interaction handling.
 
 ## Re-render & Performance
-Flag unnecessary re-renders, missing memoization where it matters, inline-object/function pitfalls, and expensive work in render. Don't over-prescribe memoization where it isn't needed.
+Use the measured re-render commit counts. A single interaction causing many commits is a red flag; one or two is healthy. Flag unnecessary re-renders, missing memoization where it matters, inline-object/function pitfalls, and expensive work in render. Don't over-prescribe memoization where it isn't needed.
 
 ## API & Reusability
 Prop design, sensible defaults, composition. Would a teammate enjoy using this component?
@@ -76,17 +76,17 @@ Rules:
 - Use markdown formatting (backticks for code)
 - Do NOT repeat the user's code back verbatim`;
 
-  const a11y = input.a11yFindings?.trim()
+  const signals = input.a11yFindings?.trim()
     ? input.a11yFindings.trim()
-    : 'No automated accessibility violations were detected. Assess accessibility beyond what axe can catch.';
+    : 'No signals captured. Assess accessibility and quality from the code.';
 
   const user = `Challenge: ${input.challengeTitle}
 
 Requirements:
 ${input.challengeDescription}
 
-Accessibility audit (axe-core, live render):
-${a11y}
+Live signals (axe-core a11y, functional checks, re-render profile):
+${signals}
 
 Submitted component:
 \`\`\`jsx

@@ -24,6 +24,16 @@ const signalSchema = z.object({
       }),
     )
     .max(100),
+  render: z
+    .object({
+      mountCommits: z.number().int().min(0).max(100000),
+      interactionCommits: z.number().int().min(0).max(100000),
+      interacted: z.boolean(),
+    })
+    .nullable(),
+  checks: z
+    .array(z.object({ id: z.string().max(120), label: z.string().max(300), passed: z.boolean() }))
+    .max(50),
 });
 
 const bodySchema = z.object({
@@ -66,8 +76,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   }
 
   const { signals } = parsed.data;
-  // "passed" = rendered cleanly with no serious/critical a11y violations.
-  const status = signals.status === 'ok' && signals.seriousOrCritical === 0 ? 'passed' : 'failed';
+  // "passed" = rendered cleanly, no serious/critical a11y violations, and all
+  // authored functional checks satisfied.
+  const checksPass = signals.checks.every((c) => c.passed);
+  const status =
+    signals.status === 'ok' && signals.seriousOrCritical === 0 && checksPass ? 'passed' : 'failed';
 
   const submission = await prisma.codingSubmission.create({
     data: {

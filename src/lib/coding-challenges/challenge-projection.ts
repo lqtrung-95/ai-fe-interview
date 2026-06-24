@@ -7,7 +7,10 @@ import type {
 } from '@/features/coding-challenges/types';
 
 /** Component spec stored in `testCases` Json for kind='component' challenges. */
-type ComponentSpec = { componentName: string };
+type ComponentSpec = {
+  componentName: string;
+  checks?: ComponentChallengePublic['checks'];
+};
 
 type TestCaseRaw = {
   id: string;
@@ -66,5 +69,6 @@ export function toPublicComponentChallenge(ch: CodingChallenge): ComponentChalle
     starterCode: ch.starterCode,
     hints: (ch.hints as unknown as string[]) ?? [],
     componentName: spec.componentName ?? 'App',
+    checks: spec.checks ?? [],
   };
 }

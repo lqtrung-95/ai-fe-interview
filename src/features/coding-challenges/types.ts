@@ -55,4 +55,6 @@ export type ComponentChallengePublic = {
   hints: string[];
   /** Name the user's exported component must use, so the sandbox can render it. */
   componentName: string;
+  /** Optional functional checks evaluated against the live render. */
+  checks: import('./component-sandbox/sandbox-signals').FunctionalCheck[];
 };

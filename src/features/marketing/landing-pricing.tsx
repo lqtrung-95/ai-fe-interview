@@ -6,6 +6,7 @@ const FREE_FEATURES = [
   '1 practice session / day',
   '250+ questions in the bank and growing',
   'AI feedback on every answer',
+  'Live component a11y audits',
   'Voice answer input',
   'Basic score breakdown',
 ];
@@ -13,6 +14,7 @@ const FREE_FEATURES = [
 const PRO_FEATURES = [
   'Unlimited practice sessions',
   'Mock interview exam mode',
+  'AI critique of your components',
   'Full session history & replays',
   'Spaced repetition study plan',
   'Job-targeted question generation',

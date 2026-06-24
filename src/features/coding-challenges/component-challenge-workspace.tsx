@@ -36,7 +36,10 @@ export function ComponentChallengeWorkspace({ challenge, isAuthenticated, isPro 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { iframeRef, srcdoc, ready, running, result, run } = useComponentSandbox(challenge.componentName);
+  const { iframeRef, srcdoc, ready, running, result, run } = useComponentSandbox(
+    challenge.componentName,
+    challenge.checks,
+  );
 
   // Auto-render the starter once the sandbox is ready so the preview isn't blank.
   useEffect(() => {

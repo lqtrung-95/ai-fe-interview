@@ -3,17 +3,18 @@
 // The iframe runs with sandbox="allow-scripts" (NO allow-same-origin), so it has
 // a null origin and cannot touch the parent app's cookies, storage, or DOM. It
 // loads React 18 + ReactDOM 18 + @babel/standalone + axe-core from a CDN (the app
-// has no CSP that would block this). React 18 (not the app's 19) is used purely
-// because it ships a UMD global build suitable for a script-tag sandbox.
+// has no CSP that would block this). React 18 (not the app's 19) is used because
+// it ships a UMD global build. The *development* build is required so <Profiler>
+// onRender fires (production React disables it) — that powers re-render counting.
 //
 // Protocol:
-//   parent -> iframe:  { type: 'run', code, componentName }
+//   parent -> iframe:  { type: 'run', code, componentName, checks }
 //   iframe -> parent:  { source:'cc-sandbox', type:'ready' }
 //                      { source:'cc-sandbox', type:'result', payload: SandboxResult }
 
 const CDN = {
-  react: 'https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js',
-  reactDom: 'https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js',
+  react: 'https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.development.js',
+  reactDom: 'https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.development.js',
   babel: 'https://cdn.jsdelivr.net/npm/@babel/standalone@7.26.4/babel.min.js',
   axe: 'https://cdn.jsdelivr.net/npm/axe-core@4.10.2/axe.min.js',
 };
@@ -24,12 +25,13 @@ const HARNESS = `
 (function () {
   var root = document.getElementById('root');
   var reactRoot = null;
+  var commitCount = 0;
 
-  function post(msg) {
-    msg.source = 'cc-sandbox';
-    parent.postMessage(msg, '*');
-  }
+  function post(msg) { msg.source = 'cc-sandbox'; parent.postMessage(msg, '*'); }
   function errMsg(e) { return (e && e.message) ? e.message : String(e); }
+  function fail(status, message) {
+    post({ type: 'result', payload: { status: status, renderError: message, a11y: null, render: null, checks: [] } });
+  }
 
   // Error boundary so a throwing component reports instead of silently blanking.
   function makeBoundary() {
@@ -47,16 +49,30 @@ const HARNESS = `
     return EB;
   }
 
-  async function run(code, componentName) {
+  function runChecks(checks) {
+    if (!checks || !checks.length) return [];
+    return checks.map(function (c) {
+      var passed = false;
+      try {
+        var nodes = root.querySelectorAll(c.selector);
+        if (typeof c.minCount === 'number') passed = nodes.length >= c.minCount;
+        else if (typeof c.exists === 'boolean') passed = c.exists ? nodes.length > 0 : nodes.length === 0;
+        else if (c.everyHasAttr) passed = nodes.length > 0 && Array.prototype.every.call(nodes, function (n) {
+          var a = n.getAttribute(c.everyHasAttr); return a !== null && a !== '';
+        });
+        else passed = nodes.length > 0;
+      } catch (e) { passed = false; }
+      return { id: c.id, label: c.label, passed: passed };
+    });
+  }
+
+  async function run(code, componentName, checks) {
     window.__renderError = null;
+    commitCount = 0;
 
     var transformed;
-    try {
-      transformed = Babel.transform(code, { presets: ['react'] }).code;
-    } catch (e) {
-      post({ type: 'result', payload: { status: 'compile_error', renderError: errMsg(e), a11y: null } });
-      return;
-    }
+    try { transformed = Babel.transform(code, { presets: ['react'] }).code; }
+    catch (e) { fail('compile_error', errMsg(e)); return; }
 
     var Component;
     try {
@@ -64,14 +80,9 @@ const HARNESS = `
         transformed + '\\n;return typeof ' + componentName + " !== 'undefined' ? " + componentName +
         ' : (typeof exports !== "undefined" && exports.default) || null;');
       Component = factory(React);
-    } catch (e) {
-      post({ type: 'result', payload: { status: 'compile_error', renderError: errMsg(e), a11y: null } });
-      return;
-    }
+    } catch (e) { fail('compile_error', errMsg(e)); return; }
     if (!Component) {
-      post({ type: 'result', payload: { status: 'compile_error',
-        renderError: 'Component "' + componentName + '" not found. Name your component ' + componentName + '.',
-        a11y: null } });
+      fail('compile_error', 'Component "' + componentName + '" not found. Name your component ' + componentName + '.');
       return;
     }
 
@@ -80,19 +91,17 @@ const HARNESS = `
       root.innerHTML = '';
       reactRoot = ReactDOM.createRoot(root);
       var EB = makeBoundary();
-      reactRoot.render(React.createElement(EB, null, React.createElement(Component)));
-    } catch (e) {
-      post({ type: 'result', payload: { status: 'render_error', renderError: errMsg(e), a11y: null } });
-      return;
-    }
+      var tree = React.createElement(EB, null, React.createElement(Component));
+      // Profiler counts commits (re-renders) in the subtree.
+      var profiled = React.createElement(React.Profiler, { id: 'cc', onRender: function () { commitCount++; } }, tree);
+      reactRoot.render(profiled);
+    } catch (e) { fail('render_error', errMsg(e)); return; }
 
-    // Let effects run and the DOM paint before auditing.
     await new Promise(function (r) { setTimeout(r, 180); });
+    if (window.__renderError) { fail('render_error', window.__renderError); return; }
 
-    if (window.__renderError) {
-      post({ type: 'result', payload: { status: 'render_error', renderError: window.__renderError, a11y: null } });
-      return;
-    }
+    var mountCommits = commitCount;
+    var checkResults = runChecks(checks);
 
     var a11y;
     try {
@@ -107,16 +116,39 @@ const HARNESS = `
           };
         }),
       };
-    } catch (e) {
-      a11y = { passCount: 0, violations: [], error: errMsg(e) };
-    }
+    } catch (e) { a11y = { passCount: 0, violations: [], error: errMsg(e) }; }
 
-    post({ type: 'result', payload: { status: 'ok', a11y: a11y } });
+    // Synthetic interaction: click the first safe interactive element and count
+    // the re-render commits it causes. Skips links/text inputs (navigation/typing).
+    var interacted = false;
+    var interactionCommits = 0;
+    try {
+      var target = root.querySelector('button, [role="radio"], [role="switch"], input[type="checkbox"], input[type="radio"]');
+      if (target) {
+        interacted = true;
+        target.click();
+        await new Promise(function (r) { setTimeout(r, 200); });
+        interactionCommits = commitCount - mountCommits; // capture BEFORE remount
+        // Remount fresh so the visible preview returns to its initial state —
+        // the synthetic click shouldn't leave the component (e.g. a modal) altered.
+        reactRoot.unmount();
+        reactRoot = ReactDOM.createRoot(root);
+        reactRoot.render(profiled);
+        await new Promise(function (r) { setTimeout(r, 60); });
+      }
+    } catch (e) { /* interaction errors shouldn't fail the run */ }
+
+    post({ type: 'result', payload: {
+      status: 'ok',
+      a11y: a11y,
+      render: { mountCommits: mountCommits, interactionCommits: interactionCommits, interacted: interacted },
+      checks: checkResults,
+    } });
   }
 
   window.addEventListener('message', function (e) {
     var data = e.data || {};
-    if (data.type === 'run') run(data.code, data.componentName);
+    if (data.type === 'run') run(data.code, data.componentName, data.checks);
   });
 
   post({ type: 'ready' });

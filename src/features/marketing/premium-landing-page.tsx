@@ -97,16 +97,28 @@ const FAQS = [
       'Each answer receives dimension scores, missing points, technical corrections, improvement suggestions, and a stronger answer example.',
   },
   {
+    question: 'What makes the coding challenges different?',
+    answer:
+      'Build & Critique challenges render your React component in a real browser sandbox and run an accessibility audit (axe-core) against the live DOM — the a11y report is free. Pro adds a senior AI critique grounded in those exact findings, plus re-render and component-API feedback. No other prep tool grades your running UI.',
+  },
+  {
     question: 'Can I use it without paying?',
     answer:
-      'Yes. The free tier lets you start practicing and inspect the question bank. Pro unlocks unlimited sessions, history, spaced repetition, and deeper targeting.',
+      'Yes. The free tier lets you start practicing, inspect the question bank, and get live accessibility audits on build challenges. Pro unlocks unlimited sessions, history, spaced repetition, deeper targeting, and AI critiques.',
   },
 ];
 
-const FREE_FEATURES = ['1 session per day', 'Question bank access', 'AI feedback', 'Basic score breakdown'];
+const FREE_FEATURES = [
+  '1 session per day',
+  'Question bank access',
+  'AI feedback',
+  'Live component a11y audits',
+  'Basic score breakdown',
+];
 const PRO_FEATURES = [
   'Unlimited practice sessions',
   'Mock interview exam mode',
+  'AI critique of your components',
   'Full history and answer replays',
   'Weak-area coaching dashboard',
   'CV and target-role practice',

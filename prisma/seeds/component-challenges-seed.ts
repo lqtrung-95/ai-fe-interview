@@ -17,6 +17,16 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter } as never);
 
+// Declarative functional check, evaluated against the live render in the sandbox.
+type Check = {
+  id: string;
+  label: string;
+  selector: string;
+  minCount?: number;
+  exists?: boolean;
+  everyHasAttr?: string;
+};
+
 type ComponentChallenge = {
   id: string;
   title: string;
@@ -28,6 +38,7 @@ type ComponentChallenge = {
   componentName: string;
   starterCode: string;
   solution: string;
+  checks?: Check[];
 };
 
 const challenges: ComponentChallenge[] = [
@@ -119,6 +130,9 @@ issues. Fix them, then submit for a senior critique.
     </div>
   );
 }`,
+    checks: [
+      { id: 'five-stars', label: 'Renders 5 rating controls', selector: 'button, [role="radio"]', minCount: 5 },
+    ],
   },
 
   {
@@ -304,6 +318,486 @@ The audit will flag two real issues here. Fix both.
   );
 }`,
   },
+
+  {
+    id: 'cc-icon-toolbar',
+    title: 'Accessible Formatting Toolbar',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'TextToolbar',
+    description: `## Accessible Formatting Toolbar
+
+Build a \`TextToolbar\` with bold, italic, and underline toggle buttons.
+
+**Requirements**
+- Three toggle buttons; clicking one toggles its active state.
+- Each button must be **named for assistive tech** and expose its pressed state.
+
+The glyphs are hidden from screen readers (as icon fonts usually are), so the
+buttons currently have no accessible name. The audit will catch it.
+
+> The component takes no props.`,
+    hints: [
+      'A button whose only content is aria-hidden has no accessible name — add aria-label.',
+      'A toggle button should report state with aria-pressed.',
+    ],
+    checks: [
+      { id: 'three-buttons', label: 'Renders three toolbar buttons', selector: 'button', minCount: 3 },
+    ],
+    starterCode: `function TextToolbar() {
+  const [active, setActive] = React.useState({ bold: false, italic: false, underline: false });
+  const toggle = (k) => setActive((s) => ({ ...s, [k]: !s[k] }));
+  const items = [['bold', 'B'], ['italic', 'I'], ['underline', 'U']];
+
+  return (
+    <div role="toolbar" style={{ display: 'flex', gap: 6 }}>
+      {items.map(([k, label]) => (
+        <button
+          key={k}
+          onClick={() => toggle(k)}
+          style={{ width: 36, height: 36, borderRadius: 6, cursor: 'pointer', border: '1px solid #cbd5e1', background: active[k] ? '#e0e7ff' : '#fff' }}
+        >
+          <span aria-hidden="true" style={{ fontWeight: 700 }}>{label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}`,
+    solution: `function TextToolbar() {
+  const [active, setActive] = React.useState({ bold: false, italic: false, underline: false });
+  const toggle = (k) => setActive((s) => ({ ...s, [k]: !s[k] }));
+  const items = [['bold', 'B', 'Bold'], ['italic', 'I', 'Italic'], ['underline', 'U', 'Underline']];
+
+  return (
+    <div role="toolbar" aria-label="Text formatting" style={{ display: 'flex', gap: 6 }}>
+      {items.map(([k, label, name]) => (
+        <button
+          key={k}
+          type="button"
+          aria-label={name}
+          aria-pressed={active[k]}
+          onClick={() => toggle(k)}
+          style={{ width: 36, height: 36, borderRadius: 6, cursor: 'pointer', border: '1px solid #cbd5e1', background: active[k] ? '#e0e7ff' : '#fff' }}
+        >
+          <span aria-hidden="true" style={{ fontWeight: 700 }}>{label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-social-links',
+    title: 'Accessible Social Links',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'components'],
+    componentName: 'SocialLinks',
+    description: `## Accessible Social Links
+
+Build a \`SocialLinks\` row of icon-only links (X, GitHub, LinkedIn).
+
+**Requirements**
+- Three links, each pointing somewhere.
+- Each link must have an **accessible name** — an icon alone tells a screen reader nothing.
+
+> The component takes no props.`,
+    hints: [
+      'An icon-only link has no text, so screen readers announce nothing useful.',
+      'Give each <a> an aria-label describing where it goes.',
+    ],
+    checks: [
+      { id: 'three-links', label: 'Renders three links', selector: 'a', minCount: 3 },
+    ],
+    starterCode: `function SocialLinks() {
+  const links = [
+    { id: 'x', glyph: 'X', href: 'https://x.com' },
+    { id: 'gh', glyph: 'GH', href: 'https://github.com' },
+    { id: 'in', glyph: 'in', href: 'https://linkedin.com' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', gap: 10 }}>
+      {links.map((l) => (
+        <a
+          key={l.id}
+          href={l.href}
+          style={{ width: 36, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #cbd5e1', borderRadius: 8, textDecoration: 'none', color: '#111' }}
+        >
+          <span aria-hidden="true">{l.glyph}</span>
+        </a>
+      ))}
+    </div>
+  );
+}`,
+    solution: `function SocialLinks() {
+  const links = [
+    { id: 'x', glyph: 'X', href: 'https://x.com', name: 'X (Twitter)' },
+    { id: 'gh', glyph: 'GH', href: 'https://github.com', name: 'GitHub' },
+    { id: 'in', glyph: 'in', href: 'https://linkedin.com', name: 'LinkedIn' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', gap: 10 }}>
+      {links.map((l) => (
+        <a
+          key={l.id}
+          href={l.href}
+          aria-label={l.name}
+          style={{ width: 36, height: 36, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #cbd5e1', borderRadius: 8, textDecoration: 'none', color: '#111' }}
+        >
+          <span aria-hidden="true">{l.glyph}</span>
+        </a>
+      ))}
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-alert-banner',
+    title: 'Readable Alert Banner',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'color-contrast'],
+    componentName: 'AlertBanner',
+    description: `## Readable Alert Banner
+
+Build an \`AlertBanner\` that shows a short notice.
+
+**Requirements**
+- Display the message clearly.
+- Text must meet **WCAG AA color contrast** (≥ 4.5:1 against its background).
+
+The starter uses a light grey that fails contrast — the audit measures it.
+
+> The component takes no props.`,
+    hints: [
+      'Light grey on white is pretty, but unreadable for many users.',
+      'Darken the text until it passes 4.5:1 (axe reports the exact ratio).',
+    ],
+    starterCode: `function AlertBanner() {
+  return (
+    <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, width: 280 }}>
+      <p style={{ margin: 0, color: '#cbd5e1' }}>Heads up — your free trial ends in 3 days.</p>
+    </div>
+  );
+}`,
+    solution: `function AlertBanner() {
+  return (
+    <div role="status" style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, width: 280 }}>
+      <p style={{ margin: 0, color: '#374151' }}>Heads up — your free trial ends in 3 days.</p>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-login-form',
+    title: 'Accessible Login Form',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'forms', 'state'],
+    componentName: 'LoginForm',
+    description: `## Accessible Login Form
+
+Build a \`LoginForm\` with email and password fields and a submit button.
+
+**Requirements**
+- Email and password inputs, plus a submit button.
+- Every field must have a **real label** (a placeholder is not a label).
+
+> The component takes no props — manage the values with internal state.`,
+    hints: [
+      'Placeholders disappear on input and are not exposed as labels.',
+      'Use a <label> (wrap or htmlFor + id) or aria-label for each field.',
+    ],
+    checks: [
+      { id: 'two-inputs', label: 'Renders two input fields', selector: 'input', minCount: 2 },
+      { id: 'submit', label: 'Has a submit button', selector: 'button[type="submit"], button', minCount: 1 },
+    ],
+    starterCode: `function LoginForm() {
+  const [email, setEmail] = React.useState('');
+  const [pw, setPw] = React.useState('');
+
+  return (
+    <form onSubmit={(e) => e.preventDefault()} style={{ display: 'grid', gap: 10, width: 240 }}>
+      <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
+      <input type="password" placeholder="Password" value={pw} onChange={(e) => setPw(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
+      <button type="submit" style={{ padding: 8, border: 'none', background: '#4f46e5', color: '#fff', borderRadius: 6, cursor: 'pointer' }}>Sign in</button>
+    </form>
+  );
+}`,
+    solution: `function LoginForm() {
+  const [email, setEmail] = React.useState('');
+  const [pw, setPw] = React.useState('');
+
+  return (
+    <form onSubmit={(e) => e.preventDefault()} style={{ display: 'grid', gap: 10, width: 240 }}>
+      <label style={{ display: 'grid', gap: 4, fontSize: 13 }}>
+        Email
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
+      </label>
+      <label style={{ display: 'grid', gap: 4, fontSize: 13 }}>
+        Password
+        <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} style={{ padding: 8, border: '1px solid #cbd5e1', borderRadius: 6 }} />
+      </label>
+      <button type="submit" style={{ padding: 8, border: 'none', background: '#4f46e5', color: '#fff', borderRadius: 6, cursor: 'pointer' }}>Sign in</button>
+    </form>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-quantity-stepper',
+    title: 'Accessible Quantity Stepper',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'QuantityStepper',
+    description: `## Accessible Quantity Stepper
+
+Build a \`QuantityStepper\` with minus and plus buttons around a quantity.
+
+**Requirements**
+- Decrement and increment buttons; quantity never drops below 1.
+- Both icon buttons must have an **accessible name**.
+
+> The component takes no props.`,
+    hints: [
+      'The − and + glyphs are aria-hidden, so the buttons are unnamed.',
+      'aria-label="Decrease quantity" / "Increase quantity" makes intent clear.',
+    ],
+    checks: [
+      { id: 'two-buttons', label: 'Renders increment and decrement buttons', selector: 'button', minCount: 2 },
+    ],
+    starterCode: `function QuantityStepper() {
+  const [qty, setQty] = React.useState(1);
+  const s = { width: 32, height: 32, border: '1px solid #cbd5e1', background: '#fff', borderRadius: 6, cursor: 'pointer', fontSize: 18 };
+
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+      <button onClick={() => setQty((q) => Math.max(1, q - 1))} style={s}><span aria-hidden="true">−</span></button>
+      <span style={{ minWidth: 24, textAlign: 'center' }}>{qty}</span>
+      <button onClick={() => setQty((q) => q + 1)} style={s}><span aria-hidden="true">+</span></button>
+    </div>
+  );
+}`,
+    solution: `function QuantityStepper() {
+  const [qty, setQty] = React.useState(1);
+  const s = { width: 32, height: 32, border: '1px solid #cbd5e1', background: '#fff', borderRadius: 6, cursor: 'pointer', fontSize: 18 };
+
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+      <button type="button" aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))} style={s}><span aria-hidden="true">−</span></button>
+      <span aria-live="polite" style={{ minWidth: 24, textAlign: 'center' }}>{qty}</span>
+      <button type="button" aria-label="Increase quantity" onClick={() => setQty((q) => q + 1)} style={s}><span aria-hidden="true">+</span></button>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-modal-dialog',
+    title: 'Accessible Modal Dialog',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'Modal',
+    description: `## Accessible Modal Dialog
+
+Build a \`Modal\` confirm dialog (it renders open).
+
+**Requirements**
+- An icon-only close button, a title, a message, and a confirm action.
+- The close button needs an **accessible name**.
+- Bonus the AI will check: dialog semantics (\`role="dialog"\`, \`aria-modal\`,
+  \`aria-labelledby\`) and focus management — things automated checks miss.
+
+> The component takes no props.`,
+    hints: [
+      'The × is aria-hidden, so the close button is unnamed — add aria-label="Close".',
+      'A real dialog uses role="dialog" aria-modal and labels itself via aria-labelledby.',
+      'Focus should move into the dialog and be trapped while it is open.',
+    ],
+    checks: [
+      { id: 'close-and-confirm', label: 'Renders close and confirm controls', selector: 'button', minCount: 2 },
+    ],
+    starterCode: `function Modal() {
+  const [open, setOpen] = React.useState(true);
+  if (!open) return <button onClick={() => setOpen(true)}>Open dialog</button>;
+
+  return (
+    <div style={{ position: 'relative', width: 300, border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, boxShadow: '0 10px 30px rgba(0,0,0,.12)' }}>
+      <button onClick={() => setOpen(false)} style={{ position: 'absolute', top: 8, right: 10, border: 'none', background: 'none', cursor: 'pointer', fontSize: 20 }}>
+        <span aria-hidden="true">×</span>
+      </button>
+      <h3 style={{ margin: '0 0 8px' }}>Delete item?</h3>
+      <p style={{ margin: '0 0 14px', color: '#6b7280' }}>This action cannot be undone.</p>
+      <button style={{ padding: '8px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Delete</button>
+    </div>
+  );
+}`,
+    solution: `function Modal() {
+  const [open, setOpen] = React.useState(true);
+  const titleId = 'modal-title';
+  if (!open) return <button onClick={() => setOpen(true)}>Open dialog</button>;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      style={{ position: 'relative', width: 300, border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, boxShadow: '0 10px 30px rgba(0,0,0,.12)' }}
+    >
+      <button aria-label="Close" onClick={() => setOpen(false)} style={{ position: 'absolute', top: 8, right: 10, border: 'none', background: 'none', cursor: 'pointer', fontSize: 20 }}>
+        <span aria-hidden="true">×</span>
+      </button>
+      <h3 id={titleId} style={{ margin: '0 0 8px' }}>Delete item?</h3>
+      <p style={{ margin: '0 0 14px', color: '#6b7280' }}>This action cannot be undone.</p>
+      <button style={{ padding: '8px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>Delete</button>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-progress-bar',
+    title: 'Accessible Progress Bar',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'aria', 'components'],
+    componentName: 'ProgressBar',
+    description: `## Accessible Progress Bar
+
+Build a \`ProgressBar\` that visualises an upload at 65%.
+
+**Requirements**
+- A visual bar filled to the current percentage.
+- It must expose its value to assistive tech via the **progressbar role's
+  required ARIA attributes**.
+
+> The component takes no props — hardcode 65%.`,
+    hints: [
+      'role="progressbar" requires aria-valuenow, aria-valuemin, and aria-valuemax.',
+      'Give it an aria-label too, so its purpose is announced.',
+    ],
+    checks: [
+      { id: 'has-progressbar', label: 'Has an element with role="progressbar"', selector: '[role="progressbar"]', exists: true },
+    ],
+    starterCode: `function ProgressBar() {
+  const pct = 65;
+  return (
+    <div style={{ width: 240 }}>
+      <div style={{ marginBottom: 4, fontSize: 13 }}>Uploading… {pct}%</div>
+      <div role="progressbar" style={{ height: 10, background: '#e5e7eb', borderRadius: 999, overflow: 'hidden' }}>
+        <div style={{ width: pct + '%', height: '100%', background: '#4f46e5' }} />
+      </div>
+    </div>
+  );
+}`,
+    solution: `function ProgressBar() {
+  const pct = 65;
+  return (
+    <div style={{ width: 240 }}>
+      <div style={{ marginBottom: 4, fontSize: 13 }}>Uploading… {pct}%</div>
+      <div
+        role="progressbar"
+        aria-label="Upload progress"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        style={{ height: 10, background: '#e5e7eb', borderRadius: 999, overflow: 'hidden' }}
+      >
+        <div style={{ width: pct + '%', height: '100%', background: '#4f46e5' }} />
+      </div>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-tabs',
+    title: 'Accessible Tabs',
+    difficulty: 'senior',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'Tabs',
+    description: `## Accessible Tabs
+
+Build a \`Tabs\` component with three tabs that switch the panel below.
+
+**Requirements**
+- Clicking a tab shows its panel.
+- Use the **WAI-ARIA tabs pattern**: \`role="tablist"\`, \`role="tab"\` with
+  \`aria-selected\`, \`role="tabpanel"\`, and arrow-key navigation between tabs.
+
+> Heads up: automated checks may pass even when the semantics are missing — this
+> is exactly where the AI critique earns its keep. Build it properly.`,
+    hints: [
+      'A row of <button>s that swaps content is not yet "tabs" to a screen reader.',
+      'Wire role="tablist" / role="tab" (aria-selected) / role="tabpanel", and Left/Right arrow keys.',
+    ],
+    checks: [
+      { id: 'three-tabs', label: 'Renders three tabs', selector: 'button, [role="tab"]', minCount: 3 },
+    ],
+    starterCode: `function Tabs() {
+  const tabs = ['Overview', 'Pricing', 'Reviews'];
+  const [active, setActive] = React.useState(0);
+
+  return (
+    <div style={{ width: 320 }}>
+      <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #e5e7eb' }}>
+        {tabs.map((t, i) => (
+          <button
+            key={t}
+            onClick={() => setActive(i)}
+            style={{ padding: '8px 12px', border: 'none', background: 'none', cursor: 'pointer', fontWeight: active === i ? 600 : 400, borderBottom: active === i ? '2px solid #4f46e5' : '2px solid transparent' }}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+      <div style={{ padding: 12 }}>Content for {tabs[active]}</div>
+    </div>
+  );
+}`,
+    solution: `function Tabs() {
+  const tabs = ['Overview', 'Pricing', 'Reviews'];
+  const [active, setActive] = React.useState(0);
+
+  function onKeyDown(e) {
+    if (e.key === 'ArrowRight') setActive((i) => (i + 1) % tabs.length);
+    if (e.key === 'ArrowLeft') setActive((i) => (i - 1 + tabs.length) % tabs.length);
+  }
+
+  return (
+    <div style={{ width: 320 }}>
+      <div role="tablist" aria-label="Sections" onKeyDown={onKeyDown} style={{ display: 'flex', gap: 4, borderBottom: '1px solid #e5e7eb' }}>
+        {tabs.map((t, i) => (
+          <button
+            key={t}
+            role="tab"
+            id={'tab-' + i}
+            aria-selected={active === i}
+            aria-controls={'panel-' + i}
+            tabIndex={active === i ? 0 : -1}
+            onClick={() => setActive(i)}
+            style={{ padding: '8px 12px', border: 'none', background: 'none', cursor: 'pointer', fontWeight: active === i ? 600 : 400, borderBottom: active === i ? '2px solid #4f46e5' : '2px solid transparent' }}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel" id={'panel-' + active} aria-labelledby={'tab-' + active} style={{ padding: 12 }}>
+        Content for {tabs[active]}
+      </div>
+    </div>
+  );
+}`,
+  },
 ];
 
 async function main() {
@@ -317,7 +811,7 @@ async function main() {
       kind: 'component',
       starterCode: c.starterCode,
       // For component challenges, testCases holds the component spec.
-      testCases: { componentName: c.componentName },
+      testCases: { componentName: c.componentName, checks: c.checks ?? [] },
       hints: c.hints,
       solution: c.solution,
       timeLimit: 5000,
