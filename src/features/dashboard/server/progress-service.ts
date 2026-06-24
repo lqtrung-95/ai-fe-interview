@@ -248,22 +248,35 @@ export type TopicReadiness = {
   answers: number;
 };
 
+// Hands-on coding readiness: distinct challenges solved counts toward "ready".
+// Fixed targets (not total available) so readiness stays stable as challenges
+// are added — a user's score shouldn't drop when new content ships.
+const CODING_SOLVE_TARGET = 8; // distinct function challenges for full readiness
+const COMPONENT_SOLVE_TARGET = 6; // distinct component (build) challenges
+
 /**
- * Computes a 0-100 readiness score per topic and an overall score.
- * Formula: (avgScore/5)*100, confidence-gated by answer count (needs ≥3 to reach full score).
+ * Computes a 0-100 readiness score per dimension and an overall score.
+ * Topic dimensions: (avgScore/5)*100, confidence-gated by answer count.
+ * Hands-on dimensions: distinct challenges solved vs a fixed target.
  */
 export function getReadinessScore(userId: string) {
   return unstable_cache(
     async () => {
-      const rows = await prisma.userAnswer.findMany({
-        where: { userId, feedback: { isNot: null } },
-        select: {
-          question: { select: { topic: true } },
-          feedback: { select: { overallScore: true } },
-          createdAt: true,
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+      const [rows, codingRows] = await Promise.all([
+        prisma.userAnswer.findMany({
+          where: { userId, feedback: { isNot: null } },
+          select: {
+            question: { select: { topic: true } },
+            feedback: { select: { overallScore: true } },
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.codingSubmission.findMany({
+          where: { userId, status: 'passed' },
+          select: { challengeId: true, challenge: { select: { kind: true } } },
+        }),
+      ]);
 
       const topicMap = new Map<string, { sum: number; count: number }>();
       for (const r of rows) {
@@ -285,13 +298,34 @@ export function getReadinessScore(userId: string) {
         return { topic, readiness, avgScore: Number(avgScore.toFixed(2)), answers: data.count };
       });
 
-      const practiced = topics.filter((t) => t.answers > 0);
-      const overall =
-        practiced.length === 0
-          ? 0
-          : Math.round(practiced.reduce((s, t) => s + t.readiness, 0) / STANDARD_TOPICS.length);
+      // Distinct solved challenges per kind.
+      const fnSolved = new Set<string>();
+      const compSolved = new Set<string>();
+      for (const r of codingRows) {
+        if (r.challenge.kind === 'component') compSolved.add(r.challengeId);
+        else fnSolved.add(r.challengeId);
+      }
+      const codingDimensions: TopicReadiness[] = [
+        {
+          topic: 'Coding challenges',
+          readiness: Math.round(Math.min(1, fnSolved.size / CODING_SOLVE_TARGET) * 100),
+          avgScore: null,
+          answers: fnSolved.size,
+        },
+        {
+          topic: 'Component & a11y builds',
+          readiness: Math.round(Math.min(1, compSolved.size / COMPONENT_SOLVE_TARGET) * 100),
+          avgScore: null,
+          answers: compSolved.size,
+        },
+      ];
 
-      return { topics, overall };
+      const allDimensions = [...topics, ...codingDimensions];
+      const overall = Math.round(
+        allDimensions.reduce((s, t) => s + t.readiness, 0) / allDimensions.length,
+      );
+
+      return { topics: allDimensions, overall };
     },
     ['dashboard-readiness', userId],
     { revalidate: 60, tags: [dashboardCacheTag(userId)] },

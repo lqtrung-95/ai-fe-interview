@@ -1,8 +1,10 @@
+import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireUser } from '@/lib/auth/session';
 import { guardGeneralLimit } from '@/lib/rate-limit/guard';
 import { prisma } from '@/lib/db/client';
+import { dashboardCacheTag } from '@/features/dashboard/server/progress-service';
 
 export const runtime = 'nodejs';
 
@@ -96,6 +98,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     },
     select: { id: true },
   });
+
+  // Refresh the dashboard so the readiness "Component & a11y builds" bar updates.
+  revalidateTag(dashboardCacheTag(user.id), 'default');
 
   return NextResponse.json({ submissionId: submission.id, status });
 }

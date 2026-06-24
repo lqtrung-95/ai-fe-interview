@@ -798,6 +798,501 @@ Build a \`Tabs\` component with three tabs that switch the panel below.
   );
 }`,
   },
+
+  {
+    id: 'cc-volume-slider',
+    title: 'Accessible Volume Slider',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'forms', 'state'],
+    componentName: 'VolumeSlider',
+    description: `## Accessible Volume Slider
+
+Build a \`VolumeSlider\` using a range input.
+
+**Requirements**
+- A slider from 0–100 that shows the current value.
+- The slider must have an **accessible name**.
+
+> The component takes no props.`,
+    hints: ['A bare range input has no label — add aria-label or a <label>.'],
+    checks: [{ id: 'has-range', label: 'Renders a range slider', selector: 'input[type="range"]', exists: true }],
+    starterCode: `function VolumeSlider() {
+  const [vol, setVol] = React.useState(50);
+  return (
+    <div style={{ width: 220 }}>
+      <input type="range" min={0} max={100} value={vol} onChange={(e) => setVol(Number(e.target.value))} style={{ width: '100%' }} />
+      <div style={{ fontSize: 13, color: '#6b7280' }}>{vol}%</div>
+    </div>
+  );
+}`,
+    solution: `function VolumeSlider() {
+  const [vol, setVol] = React.useState(50);
+  return (
+    <div style={{ width: 220 }}>
+      <input type="range" min={0} max={100} value={vol} aria-label="Volume" onChange={(e) => setVol(Number(e.target.value))} style={{ width: '100%' }} />
+      <div style={{ fontSize: 13, color: '#6b7280' }}>{vol}%</div>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-breadcrumbs',
+    title: 'Accessible Breadcrumbs',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'navigation'],
+    componentName: 'Breadcrumbs',
+    description: `## Accessible Breadcrumbs
+
+Build a \`Breadcrumbs\` trail: Home → Products → Shoes.
+
+**Requirements**
+- Show the path as links separated by a divider.
+- The home link uses an icon — it still needs an **accessible name**, and the
+  trail should be a labelled navigation landmark with the current page marked.
+
+> The component takes no props.`,
+    hints: [
+      'An icon-only link (the home icon) has no accessible name — add aria-label.',
+      'Wrap the trail in <nav aria-label="Breadcrumb"> and mark the current page with aria-current.',
+    ],
+    checks: [{ id: 'three-links', label: 'Renders the breadcrumb links', selector: 'a', minCount: 3 }],
+    starterCode: `function Breadcrumbs() {
+  const crumbs = [
+    { label: 'Home', href: '/', icon: true },
+    { label: 'Products', href: '/products' },
+    { label: 'Shoes', href: '/products/shoes' },
+  ];
+  return (
+    <nav style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 14 }}>
+      {crumbs.map((c, i) => (
+        <React.Fragment key={c.href}>
+          {i > 0 && <span aria-hidden="true" style={{ color: '#9ca3af' }}>/</span>}
+          <a href={c.href} style={{ color: '#4f46e5', textDecoration: 'none' }}>
+            {c.icon ? <span aria-hidden="true">🏠</span> : c.label}
+          </a>
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+}`,
+    solution: `function Breadcrumbs() {
+  const crumbs = [
+    { label: 'Home', href: '/', icon: true },
+    { label: 'Products', href: '/products' },
+    { label: 'Shoes', href: '/products/shoes' },
+  ];
+  const last = crumbs.length - 1;
+  return (
+    <nav aria-label="Breadcrumb" style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 14 }}>
+      {crumbs.map((c, i) => (
+        <React.Fragment key={c.href}>
+          {i > 0 && <span aria-hidden="true" style={{ color: '#9ca3af' }}>/</span>}
+          <a
+            href={c.href}
+            aria-label={c.icon ? 'Home' : undefined}
+            aria-current={i === last ? 'page' : undefined}
+            style={{ color: '#4f46e5', textDecoration: 'none' }}
+          >
+            {c.icon ? <span aria-hidden="true">🏠</span> : c.label}
+          </a>
+        </React.Fragment>
+      ))}
+    </nav>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-checkbox-list',
+    title: 'Accessible Filter Checkboxes',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'forms', 'state'],
+    componentName: 'TopicFilter',
+    description: `## Accessible Filter Checkboxes
+
+Build a \`TopicFilter\` — a group of checkboxes to filter by topic.
+
+**Requirements**
+- Three checkboxes the user can toggle.
+- Each checkbox needs a **real label**, and the set should be a named group.
+
+> The component takes no props.`,
+    hints: [
+      'A checkbox next to a <span> is not labelled — associate them with <label>.',
+      'Group related checkboxes in a <fieldset> with a <legend>.',
+    ],
+    checks: [{ id: 'three-checkboxes', label: 'Renders three checkboxes', selector: 'input[type="checkbox"]', minCount: 3 }],
+    starterCode: `function TopicFilter() {
+  const topics = ['React', 'CSS', 'TypeScript'];
+  const [sel, setSel] = React.useState([]);
+  const toggle = (t) => setSel((s) => (s.includes(t) ? s.filter((x) => x !== t) : [...s, t]));
+  return (
+    <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
+      {topics.map((t) => (
+        <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+          <input type="checkbox" checked={sel.includes(t)} onChange={() => toggle(t)} />
+          <span>{t}</span>
+        </div>
+      ))}
+    </fieldset>
+  );
+}`,
+    solution: `function TopicFilter() {
+  const topics = ['React', 'CSS', 'TypeScript'];
+  const [sel, setSel] = React.useState([]);
+  const toggle = (t) => setSel((s) => (s.includes(t) ? s.filter((x) => x !== t) : [...s, t]));
+  return (
+    <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
+      <legend style={{ fontWeight: 600, fontSize: 13 }}>Filter by topic</legend>
+      {topics.map((t) => (
+        <label key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', cursor: 'pointer' }}>
+          <input type="checkbox" checked={sel.includes(t)} onChange={() => toggle(t)} />
+          <span>{t}</span>
+        </label>
+      ))}
+    </fieldset>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-pagination',
+    title: 'Accessible Pagination',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'navigation', 'state'],
+    componentName: 'Pagination',
+    description: `## Accessible Pagination
+
+Build a \`Pagination\` control with previous/next arrows and page numbers.
+
+**Requirements**
+- Previous and next buttons plus numbered pages; clicking changes the page.
+- The arrow buttons need **accessible names**, and the current page should be marked.
+
+> The component takes no props.`,
+    hints: [
+      'The ‹ / › arrows are aria-hidden, so the buttons are unnamed — add aria-label.',
+      'Mark the active page with aria-current="page".',
+    ],
+    checks: [{ id: 'page-buttons', label: 'Renders page buttons', selector: 'button', minCount: 5 }],
+    starterCode: `function Pagination() {
+  const [page, setPage] = React.useState(1);
+  const pages = [1, 2, 3, 4, 5];
+  const arrow = { width: 32, height: 32, border: '1px solid #cbd5e1', background: '#fff', borderRadius: 6, cursor: 'pointer' };
+  return (
+    <nav style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+      <button onClick={() => setPage((p) => Math.max(1, p - 1))} style={arrow}><span aria-hidden="true">‹</span></button>
+      {pages.map((p) => (
+        <button key={p} onClick={() => setPage(p)} style={{ width: 32, height: 32, border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', background: page === p ? '#4f46e5' : '#fff', color: page === p ? '#fff' : '#111' }}>{p}</button>
+      ))}
+      <button onClick={() => setPage((p) => Math.min(5, p + 1))} style={arrow}><span aria-hidden="true">›</span></button>
+    </nav>
+  );
+}`,
+    solution: `function Pagination() {
+  const [page, setPage] = React.useState(1);
+  const pages = [1, 2, 3, 4, 5];
+  const arrow = { width: 32, height: 32, border: '1px solid #cbd5e1', background: '#fff', borderRadius: 6, cursor: 'pointer' };
+  return (
+    <nav aria-label="Pagination" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+      <button aria-label="Previous page" onClick={() => setPage((p) => Math.max(1, p - 1))} style={arrow}><span aria-hidden="true">‹</span></button>
+      {pages.map((p) => (
+        <button key={p} aria-label={'Page ' + p} aria-current={page === p ? 'page' : undefined} onClick={() => setPage(p)} style={{ width: 32, height: 32, border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', background: page === p ? '#4f46e5' : '#fff', color: page === p ? '#fff' : '#111' }}>{p}</button>
+      ))}
+      <button aria-label="Next page" onClick={() => setPage((p) => Math.min(5, p + 1))} style={arrow}><span aria-hidden="true">›</span></button>
+    </nav>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-tooltip',
+    title: 'Accessible Info Tooltip',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'InfoTooltip',
+    description: `## Accessible Info Tooltip
+
+Build an \`InfoTooltip\` — an info button that reveals a tip on hover/focus.
+
+**Requirements**
+- The tip shows on hover and on keyboard focus.
+- The button needs an **accessible name**, and the tip should be associated with
+  it (so screen readers announce it).
+
+> The component takes no props.`,
+    hints: [
+      'The "i" glyph is aria-hidden, so the button is unnamed — add aria-label.',
+      'Link the button to the tip with aria-describedby so it is announced on focus.',
+    ],
+    checks: [{ id: 'has-button', label: 'Renders the info button', selector: 'button', minCount: 1 }],
+    starterCode: `function InfoTooltip() {
+  const [show, setShow] = React.useState(false);
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}
+      >
+        <span aria-hidden="true">i</span>
+      </button>
+      {show && (
+        <span role="tooltip" style={{ position: 'absolute', left: 30, top: 0, whiteSpace: 'nowrap', background: '#111', color: '#fff', padding: '4px 8px', borderRadius: 4, fontSize: 12 }}>
+          We never share your email.
+        </span>
+      )}
+    </span>
+  );
+}`,
+    solution: `function InfoTooltip() {
+  const [show, setShow] = React.useState(false);
+  const tipId = 'tip-email';
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        aria-label="More information"
+        aria-describedby={tipId}
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid #cbd5e1', background: '#fff', cursor: 'pointer' }}
+      >
+        <span aria-hidden="true">i</span>
+      </button>
+      <span
+        id={tipId}
+        role="tooltip"
+        style={{ position: 'absolute', left: 30, top: 0, whiteSpace: 'nowrap', background: '#111', color: '#fff', padding: '4px 8px', borderRadius: 4, fontSize: 12, visibility: show ? 'visible' : 'hidden' }}
+      >
+        We never share your email.
+      </span>
+    </span>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-accordion',
+    title: 'Accessible Accordion',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'Accordion',
+    description: `## Accessible Accordion
+
+Build an \`Accordion\` (FAQ-style) where each header toggles its panel.
+
+**Requirements**
+- Clicking a header shows/hides its panel.
+- Use the **disclosure pattern**: each trigger is a button with \`aria-expanded\`
+  and \`aria-controls\` pointing at its panel.
+
+> Automated checks may pass even without these — the AI critique verifies the
+> disclosure semantics. Build it properly.`,
+    hints: [
+      'A header button that toggles content should expose state with aria-expanded.',
+      'Connect each button to its panel via aria-controls + a matching id.',
+    ],
+    checks: [{ id: 'two-headers', label: 'Renders the section headers', selector: 'button', minCount: 2 }],
+    starterCode: `function Accordion() {
+  const items = [
+    { q: 'What is React?', a: 'A library for building user interfaces.' },
+    { q: 'What is JSX?', a: 'A syntax extension that looks like HTML.' },
+  ];
+  const [open, setOpen] = React.useState(null);
+  return (
+    <div style={{ width: 320 }}>
+      {items.map((it, i) => (
+        <div key={i} style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            style={{ width: '100%', textAlign: 'left', padding: '10px 0', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}
+          >
+            {it.q}
+          </button>
+          {open === i && <div style={{ padding: '0 0 10px', color: '#6b7280' }}>{it.a}</div>}
+        </div>
+      ))}
+    </div>
+  );
+}`,
+    solution: `function Accordion() {
+  const items = [
+    { q: 'What is React?', a: 'A library for building user interfaces.' },
+    { q: 'What is JSX?', a: 'A syntax extension that looks like HTML.' },
+  ];
+  const [open, setOpen] = React.useState(null);
+  return (
+    <div style={{ width: 320 }}>
+      {items.map((it, i) => (
+        <div key={i} style={{ borderBottom: '1px solid #e5e7eb' }}>
+          <h3 style={{ margin: 0 }}>
+            <button
+              aria-expanded={open === i}
+              aria-controls={'panel-' + i}
+              id={'acc-' + i}
+              onClick={() => setOpen(open === i ? null : i)}
+              style={{ width: '100%', textAlign: 'left', padding: '10px 0', border: 'none', background: 'none', cursor: 'pointer', fontWeight: 600 }}
+            >
+              {it.q}
+            </button>
+          </h3>
+          <div id={'panel-' + i} role="region" aria-labelledby={'acc-' + i} hidden={open !== i} style={{ padding: '0 0 10px', color: '#6b7280' }}>
+            {it.a}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-toast',
+    title: 'Accessible Toast',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'Toast',
+    description: `## Accessible Toast
+
+Build a \`Toast\` notification with a dismiss button (it renders shown).
+
+**Requirements**
+- A message and an icon-only dismiss button.
+- The dismiss button needs an **accessible name**, and the toast should be
+  **announced** to screen readers when it appears.
+
+> The component takes no props.`,
+    hints: [
+      'The × dismiss button is unnamed (aria-hidden glyph) — add aria-label="Dismiss".',
+      'role="status" with aria-live="polite" announces the toast politely.',
+    ],
+    checks: [{ id: 'dismiss', label: 'Renders a dismiss button', selector: 'button', minCount: 1 }],
+    starterCode: `function Toast() {
+  const [show, setShow] = React.useState(true);
+  if (!show) return <button onClick={() => setShow(true)}>Show toast</button>;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: 280, background: '#111', color: '#fff', padding: '10px 12px', borderRadius: 8 }}>
+      <span style={{ flex: 1, fontSize: 14 }}>Your changes were saved.</span>
+      <button onClick={() => setShow(false)} style={{ border: 'none', background: 'none', color: '#fff', cursor: 'pointer', fontSize: 18 }}>
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+  );
+}`,
+    solution: `function Toast() {
+  const [show, setShow] = React.useState(true);
+  if (!show) return <button onClick={() => setShow(true)}>Show toast</button>;
+  return (
+    <div role="status" aria-live="polite" style={{ display: 'flex', alignItems: 'center', gap: 12, width: 280, background: '#111', color: '#fff', padding: '10px 12px', borderRadius: 8 }}>
+      <span style={{ flex: 1, fontSize: 14 }}>Your changes were saved.</span>
+      <button aria-label="Dismiss" onClick={() => setShow(false)} style={{ border: 'none', background: 'none', color: '#fff', cursor: 'pointer', fontSize: 18 }}>
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-autocomplete',
+    title: 'Accessible Autocomplete',
+    difficulty: 'senior',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'Autocomplete',
+    description: `## Accessible Autocomplete
+
+Build an \`Autocomplete\` — a text field that filters a list; clicking a result
+fills the field.
+
+**Requirements**
+- Typing filters the options; clicking an option selects it.
+- The input needs a **label**. For full marks (the AI checks this), use the
+  combobox pattern: \`role="combobox"\`, \`aria-expanded\`, a \`role="listbox"\` of
+  \`role="option"\`s, and keyboard support (arrows + Enter).
+
+> The component takes no props.`,
+    hints: [
+      'The input has only a placeholder — give it a real accessible name.',
+      'Plain <li onClick> options are not keyboard reachable; use listbox/option roles and arrow keys.',
+    ],
+    checks: [{ id: 'has-input', label: 'Renders a text input', selector: 'input', minCount: 1 }],
+    starterCode: `function Autocomplete() {
+  const all = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'];
+  const [q, setQ] = React.useState('');
+  const matches = all.filter((o) => o.toLowerCase().includes(q.toLowerCase()));
+  return (
+    <div style={{ width: 220 }}>
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search fruit" style={{ width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }} />
+      {q && (
+        <ul style={{ listStyle: 'none', margin: '4px 0 0', padding: 4, border: '1px solid #e5e7eb', borderRadius: 6 }}>
+          {matches.map((o) => (
+            <li key={o} onClick={() => setQ(o)} style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: 4 }}>{o}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}`,
+    solution: `function Autocomplete() {
+  const all = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'];
+  const [q, setQ] = React.useState('');
+  const [active, setActive] = React.useState(0);
+  const matches = all.filter((o) => o.toLowerCase().includes(q.toLowerCase()));
+  const open = q.length > 0 && matches.length > 0;
+
+  function onKeyDown(e) {
+    if (!open) return;
+    if (e.key === 'ArrowDown') setActive((i) => Math.min(matches.length - 1, i + 1));
+    if (e.key === 'ArrowUp') setActive((i) => Math.max(0, i - 1));
+    if (e.key === 'Enter') { setQ(matches[active]); }
+  }
+
+  return (
+    <div style={{ width: 220 }}>
+      <input
+        value={q}
+        onChange={(e) => { setQ(e.target.value); setActive(0); }}
+        onKeyDown={onKeyDown}
+        aria-label="Search fruit"
+        role="combobox"
+        aria-expanded={open}
+        aria-controls="ac-list"
+        aria-activedescendant={open ? 'opt-' + active : undefined}
+        style={{ width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 6, boxSizing: 'border-box' }}
+      />
+      {open && (
+        <ul id="ac-list" role="listbox" style={{ listStyle: 'none', margin: '4px 0 0', padding: 4, border: '1px solid #e5e7eb', borderRadius: 6 }}>
+          {matches.map((o, i) => (
+            <li
+              key={o}
+              id={'opt-' + i}
+              role="option"
+              aria-selected={i === active}
+              onClick={() => setQ(o)}
+              style={{ padding: '6px 8px', cursor: 'pointer', borderRadius: 4, background: i === active ? '#eef2ff' : 'transparent' }}
+            >
+              {o}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}`,
+  },
 ];
 
 async function main() {
