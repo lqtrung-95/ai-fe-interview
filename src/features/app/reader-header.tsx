@@ -59,6 +59,7 @@ export function ReaderHeader({ user }: Props) {
           <>
             <Link
               href="/dashboard"
+              aria-label="Dashboard"
               className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted/60 hover:text-foreground"
             >
               <LayoutDashboard className="h-3.5 w-3.5 shrink-0" />
@@ -70,6 +71,7 @@ export function ReaderHeader({ user }: Props) {
           // Guest: brand name links home
           <Link
             href="/"
+            aria-label="Frontend Coach home"
             className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors duration-150 hover:bg-muted/60 hover:text-foreground"
           >
             <BrandLogo className="size-5" />
