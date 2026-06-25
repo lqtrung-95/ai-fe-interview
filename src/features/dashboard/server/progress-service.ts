@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { prisma } from '@/lib/db/client';
 import type {
@@ -13,13 +14,72 @@ import type {
 export const dashboardCacheTag = (userId: string) => `dashboard-${userId}`;
 
 const DIMENSION_FIELDS = [
-  ['scoreCorrectness', 'correctness', 'Correctness'],
-  ['scoreCompleteness', 'completeness', 'Completeness'],
-  ['scoreClarity', 'clarity', 'Clarity'],
-  ['scoreDepth', 'depth', 'Depth'],
-  ['scoreTradeoffThinking', 'tradeoffThinking', 'Trade-off thinking'],
-  ['scoreCommunication', 'communication', 'Communication'],
+  ['correctness', 'correctness', 'Correctness'],
+  ['completeness', 'completeness', 'Completeness'],
+  ['clarity', 'clarity', 'Clarity'],
+  ['depth', 'depth', 'Depth'],
+  ['tradeoffThinking', 'tradeoffThinking', 'Trade-off thinking'],
+  ['communication', 'communication', 'Communication'],
 ] as const;
+
+/**
+ * Single source of truth for "answered questions with AI feedback". The
+ * dashboard derives topic breakdown, readiness, weak areas, and dimension
+ * averages from this one dataset instead of issuing ~4 near-identical queries.
+ * `cache()` dedupes concurrent calls within a request; `unstable_cache` persists
+ * across requests (60s, busted by the dashboard tag).
+ */
+type AnswerWithFeedback = {
+  createdAt: Date;
+  topic: string;
+  overallScore: number;
+  whatWasMissing: string[];
+  dims: Record<(typeof DIMENSION_FIELDS)[number][1], number>;
+};
+
+const getAnswersWithFeedback = cache(
+  (userId: string): Promise<AnswerWithFeedback[]> =>
+    unstable_cache(
+      async () => {
+        const rows = await prisma.userAnswer.findMany({
+          where: { userId, feedback: { isNot: null } },
+          orderBy: { createdAt: 'desc' },
+          select: {
+            createdAt: true,
+            question: { select: { topic: true } },
+            feedback: {
+              select: {
+                overallScore: true,
+                whatWasMissing: true,
+                scoreCorrectness: true,
+                scoreCompleteness: true,
+                scoreClarity: true,
+                scoreDepth: true,
+                scoreTradeoffThinking: true,
+                scoreCommunication: true,
+              },
+            },
+          },
+        });
+        return rows.map((r) => ({
+          createdAt: r.createdAt,
+          topic: r.question.topic,
+          overallScore: r.feedback!.overallScore,
+          whatWasMissing: r.feedback!.whatWasMissing,
+          dims: {
+            correctness: r.feedback!.scoreCorrectness,
+            completeness: r.feedback!.scoreCompleteness,
+            clarity: r.feedback!.scoreClarity,
+            depth: r.feedback!.scoreDepth,
+            tradeoffThinking: r.feedback!.scoreTradeoffThinking,
+            communication: r.feedback!.scoreCommunication,
+          },
+        }));
+      },
+      ['dashboard-answers-with-feedback', userId],
+      { revalidate: 60, tags: [dashboardCacheTag(userId)] },
+    )(),
+);
 
 export function getOverview(userId: string): Promise<OverviewMetrics> {
   return unstable_cache(
@@ -91,21 +151,13 @@ export function getScoreTrend(userId: string, days = 30): Promise<ScoreTrendPoin
 
 /** Private helper — called inside getOverview's cache. Not exported as cached. */
 async function getTopicBreakdownRaw(userId: string): Promise<TopicBreakdownEntry[]> {
-  const rows = await prisma.userAnswer.findMany({
-    where: { userId, feedback: { isNot: null } },
-    select: {
-      question: { select: { topic: true } },
-      feedback: { select: { overallScore: true } },
-    },
-  });
+  const rows = await getAnswersWithFeedback(userId);
   const acc = new Map<string, { sum: number; count: number }>();
   for (const r of rows) {
-    if (!r.feedback) continue;
-    const topic = r.question.topic;
-    const cur = acc.get(topic) ?? { sum: 0, count: 0 };
-    cur.sum += r.feedback.overallScore;
+    const cur = acc.get(r.topic) ?? { sum: 0, count: 0 };
+    cur.sum += r.overallScore;
     cur.count += 1;
-    acc.set(topic, cur);
+    acc.set(r.topic, cur);
   }
   return [...acc.entries()]
     .map(([topic, { sum, count }]) => ({
@@ -127,18 +179,12 @@ export function getTopicBreakdown(userId: string): Promise<TopicBreakdownEntry[]
 export function getDimensionWeakAreas(userId: string): Promise<DimensionAverage[]> {
   return unstable_cache(
     async () => {
-      const rows = await prisma.answerFeedback.findMany({
-        where: { answer: { userId } },
-        select: {
-          scoreCorrectness: true, scoreCompleteness: true, scoreClarity: true,
-          scoreDepth: true, scoreTradeoffThinking: true, scoreCommunication: true,
-        },
-      });
+      const rows = await getAnswersWithFeedback(userId);
       if (rows.length === 0) return [];
 
       return DIMENSION_FIELDS
-        .map(([field, dimension, label]) => {
-          const sum = rows.reduce((acc, r) => acc + (r as Record<string, number>)[field], 0);
+        .map(([key, dimension, label]) => {
+          const sum = rows.reduce((acc, r) => acc + r.dims[key], 0);
           return { dimension, label, avgScore: Number((sum / rows.length).toFixed(2)) } satisfies DimensionAverage;
         })
         .sort((a, b) => a.avgScore - b.avgScore)
@@ -157,29 +203,19 @@ export function getDimensionWeakAreas(userId: string): Promise<DimensionAverage[
 export function getTopicWeakAreas(userId: string): Promise<TopicWeakArea[]> {
   return unstable_cache(
     async () => {
-      // Load recent answers with topic + overallScore + whatWasMissing (most recent first)
-      const rows = await prisma.userAnswer.findMany({
-        where: { userId, feedback: { isNot: null } },
-        orderBy: { createdAt: 'desc' },
-        take: 60,
-        select: {
-          createdAt: true,
-          question: { select: { topic: true } },
-          feedback: { select: { overallScore: true, whatWasMissing: true } },
-        },
-      });
+      // Most recent 60 answers (the shared dataset is already ordered desc).
+      const rows = (await getAnswersWithFeedback(userId)).slice(0, 60);
 
       // Group by topic: accumulate scores and keep the most recent whatWasMissing
       const topicMap = new Map<string, { sum: number; count: number; recentGap: string | null }>();
       for (const row of rows) {
-        if (!row.feedback) continue;
-        const topic = row.question.topic;
+        const topic = row.topic;
         const existing = topicMap.get(topic) ?? { sum: 0, count: 0, recentGap: null };
-        existing.sum += row.feedback.overallScore;
+        existing.sum += row.overallScore;
         existing.count += 1;
         // Keep the gap from the most recent answer (rows are ordered desc)
-        if (!existing.recentGap && row.feedback.whatWasMissing.length > 0) {
-          existing.recentGap = row.feedback.whatWasMissing[0];
+        if (!existing.recentGap && row.whatWasMissing.length > 0) {
+          existing.recentGap = row.whatWasMissing[0];
         }
         topicMap.set(topic, existing);
       }
@@ -263,15 +299,7 @@ export function getReadinessScore(userId: string) {
   return unstable_cache(
     async () => {
       const [rows, codingRows] = await Promise.all([
-        prisma.userAnswer.findMany({
-          where: { userId, feedback: { isNot: null } },
-          select: {
-            question: { select: { topic: true } },
-            feedback: { select: { overallScore: true } },
-            createdAt: true,
-          },
-          orderBy: { createdAt: 'desc' },
-        }),
+        getAnswersWithFeedback(userId),
         prisma.codingSubmission.findMany({
           where: { userId, status: 'passed' },
           select: { challengeId: true, challenge: { select: { kind: true } } },
@@ -280,10 +308,9 @@ export function getReadinessScore(userId: string) {
 
       const topicMap = new Map<string, { sum: number; count: number }>();
       for (const r of rows) {
-        if (!r.feedback) continue;
-        const t = r.question.topic;
+        const t = r.topic;
         const cur = topicMap.get(t) ?? { sum: 0, count: 0 };
-        cur.sum += r.feedback.overallScore;
+        cur.sum += r.overallScore;
         cur.count += 1;
         topicMap.set(t, cur);
       }
