@@ -46,7 +46,7 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
     select: {
       question: true,
       topic: true,
-      answer: { select: { feedback: { select: { overallScore: true } } } },
+      answer: { select: { answer: true, feedback: { select: { overallScore: true } } } },
     },
   });
   const topic = pickTopic(args.session.topics, previous.map((p) => p.topic));
@@ -58,8 +58,10 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
   const baseDifficulty = difficultyEnum.parse(args.session.difficulty);
   const difficulty = adaptDifficulty(baseDifficulty, answeredScores);
 
+  // CV/experience sessions run conversationally (opener → drill into the
+  // candidate's answers), so they skip canned seed questions entirely.
   const seedQuestion =
-    Math.random() < SEED_PROBABILITY
+    !args.session.usesCv && Math.random() < SEED_PROBABILITY
       ? await pickSeedQuestion({ topic, difficulty, sessionId: args.session.id })
       : null;
 
@@ -69,6 +71,15 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
     const ctx = buildCvContext(args.user.cvData as CvData);
     cvContext = ctx ?? undefined;
   }
+
+  // Recent exchanges (last 2 answered) so a CV session drills into what the
+  // candidate actually said rather than inventing a premise.
+  const transcript = args.session.usesCv
+    ? previous
+        .filter((p): p is typeof p & { answer: { answer: string } } => !!p.answer)
+        .slice(-2)
+        .map((p) => ({ question: p.question, answer: p.answer.answer }))
+    : undefined;
 
   // Job context — NOT stored in AICall logs; only lives in the LLM prompt for this request.
   let jdContext: string | undefined;
@@ -95,6 +106,7 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
     seed: seedQuestion ?? undefined,
     cvContext,
     jdContext,
+    transcript: transcript && transcript.length > 0 ? transcript : undefined,
   };
 
   const result = streamAITask(

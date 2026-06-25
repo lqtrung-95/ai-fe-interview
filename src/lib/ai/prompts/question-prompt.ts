@@ -7,9 +7,19 @@ export function buildQuestionPrompt(input: QuestionInput): {
   system: string;
   user: string;
 } {
-  const cvInstruction = input.cvContext
-    ? '\n- When candidate background is provided, tailor the question to probe their specific companies, projects, or technologies. Prefer "Walk me through how you…" or "At [company] you worked on…" framing.'
-    : '';
+  const hasTranscript = !!input.transcript && input.transcript.length > 0;
+
+  // CV/experience sessions are conversational: open with an invitation to tell a
+  // story, then drill into what the candidate ACTUALLY said — never assert what
+  // they did or invent a premise.
+  let cvInstruction = '';
+  if (input.cvContext && hasTranscript) {
+    cvInstruction =
+      '\n- You are mid-interview. Read the candidate\'s most recent answer in the conversation below. Pick ONE specific thing THEY actually said — a decision, technology, trade-off, or challenge — and drill one level deeper into its technical foundation, trade-offs, or what they would do differently. Reference their own words. Do NOT introduce facts, projects, or technologies they did not mention, and do NOT assert they used something. If their last answer was vague, ask them to get concrete (mechanisms, numbers, alternatives they weighed).';
+  } else if (input.cvContext) {
+    cvInstruction =
+      '\n- This is the OPENING question. Use the candidate background only as context and INVITE a story — e.g. "Tell me about the most technically challenging thing you built at <company>" or "Walk me through a project you\'re proud of and the hardest problem in it." Keep it open; do NOT assert what they did or quiz a specific API. Set "type" to "behavioral".';
+  }
 
   const jdInstruction = input.jdContext
     ? '\n- When a target job context is provided, probe the technologies and domain in that JD. Prefer scenario framing tied to the company\'s domain (e.g. high-scale payments, marketplace, SaaS).'
@@ -20,6 +30,8 @@ export function buildQuestionPrompt(input: QuestionInput): {
     'Generate ONE interview question that matches the user level and topic.',
     'Requirements:',
     '- Realistic phrasing — what an actual interviewer would say.',
+    '- Ask ONE focused question. Do NOT stack multiple sub-questions or list several APIs to explain in a single prompt.',
+    '- Never assert the candidate did something specific unless they stated it; invite ("Have you run into…? If so… if not, how would you approach…") rather than presume.',
     '- Concise, no preamble.',
     '- For senior level, lean into trade-offs, architecture, debugging, scalability.',
     '- Do NOT include the answer.',
@@ -46,6 +58,15 @@ export function buildQuestionPrompt(input: QuestionInput): {
   const cvBlock = input.cvContext ? `\n\n${input.cvContext}` : '';
   const jdBlock = input.jdContext ? `\n\nTarget job context:\n${input.jdContext}` : '';
 
+  // Recent conversation so the model can drill into the candidate's own words.
+  const transcriptBlock = hasTranscript
+    ? `\n\nConversation so far (most recent last):\n${input
+        .transcript!.map(
+          (t) => `Interviewer: ${sanitize(t.question, 300)}\nCandidate: ${sanitize(t.answer, 600)}`,
+        )
+        .join('\n\n')}`
+    : '';
+
   const user = [
     `Topic: ${input.topic}`,
     input.subtopic ? `Subtopic: ${input.subtopic}` : null,
@@ -58,6 +79,7 @@ export function buildQuestionPrompt(input: QuestionInput): {
     avoid,
     cvBlock,
     jdBlock,
+    transcriptBlock,
     seedBlock,
   ]
     .filter(Boolean)
