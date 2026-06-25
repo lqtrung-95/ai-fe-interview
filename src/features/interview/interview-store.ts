@@ -25,6 +25,7 @@ interface InterviewState {
   answerId: string | null;
   followUp: string;
   followUpDraft: string;
+  followUpTurn: number; // how many follow-ups asked in the current question's thread
   feedback: FeedbackPayload | null;
   rateLimitedUntil: number | null;
   // --- Timer (opt-in countdown per question, 0 = disabled) ---
@@ -40,6 +41,7 @@ interface InterviewState {
   setAnswerId: (answerId: string | null) => void;
   setFollowUp: (followUp: string) => void;
   setFollowUpDraft: (draft: string) => void;
+  incrementFollowUpTurn: () => void;
   setFeedback: (feedback: FeedbackPayload | null) => void;
   startQuestionLoad: () => void;
   setLoadedQuestion: (question: ActiveQuestion) => void;
@@ -60,6 +62,7 @@ const initialState = {
   answerId: null,
   followUp: '',
   followUpDraft: '',
+  followUpTurn: 0,
   feedback: null,
   rateLimitedUntil: null as number | null,
   timerSeconds: 0,
@@ -89,6 +92,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
   setAnswerId: (answerId) => set({ answerId }),
   setFollowUp: (followUp) => set({ followUp }),
   setFollowUpDraft: (followUpDraft) => set({ followUpDraft }),
+  incrementFollowUpTurn: () => set((state) => ({ followUpTurn: state.followUpTurn + 1 })),
   setFeedback: (feedback) => set({ feedback }),
   startQuestionLoad: () =>
     set({
@@ -105,6 +109,7 @@ export const useInterviewStore = create<InterviewState>((set, get) => ({
       answerId: null,
       followUp: '',
       followUpDraft: '',
+      followUpTurn: 0,
       feedback: null,
       streamingQuestion: '',
       phase: 'answering',

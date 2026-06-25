@@ -25,11 +25,18 @@ export function useGenerateFollowUpMutation() {
   });
 }
 
-/** Save the follow-up answer text */
+/** Save the follow-up answer text (with the question, for the multi-turn transcript) */
 export function useSaveFollowUpMutation() {
   return useMutation({
-    mutationFn: ({ answerId, followUpAnswer }: { answerId: string; followUpAnswer: string }) =>
-      saveFollowUpAnswer(answerId, followUpAnswer),
+    mutationFn: ({
+      answerId,
+      followUpAnswer,
+      followUpQuestion,
+    }: {
+      answerId: string;
+      followUpAnswer: string;
+      followUpQuestion?: string;
+    }) => saveFollowUpAnswer(answerId, followUpAnswer, followUpQuestion),
   });
 }
 

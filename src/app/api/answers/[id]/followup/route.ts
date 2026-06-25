@@ -11,6 +11,8 @@ export const runtime = 'nodejs';
 const bodySchema = z
   .object({
     followUpAnswer: z.string().min(1).max(8000).optional(),
+    // The follow-up question being answered (so the saved transcript keeps Q+A).
+    followUpQuestion: z.string().max(2000).optional(),
   })
   .optional();
 
@@ -30,7 +32,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
   if (parsed.data?.followUpAnswer) {
     const limited = await guardGeneralLimit(user.id);
     if (limited) return limited;
-    return saveFollowUpAnswer(id, user.id, parsed.data.followUpAnswer);
+    return saveFollowUpAnswer(id, user.id, parsed.data.followUpAnswer, parsed.data.followUpQuestion);
   }
 
   const limited = await guardAILimit(user.id);
@@ -53,6 +55,8 @@ async function generateFollowUp(answerId: string, userId: string, isPro: boolean
           question: answer.question.question,
           userAnswer: answer.answer,
           difficulty: answer.question.difficulty,
+          // Accumulated follow-up turns so far → drives the deeper drill.
+          priorFollowups: answer.followUpAnswer ?? undefined,
         },
       },
       { userId, sessionId: answer.sessionId, isPro }
@@ -67,16 +71,29 @@ async function generateFollowUp(answerId: string, userId: string, isPro: boolean
   }
 }
 
-async function saveFollowUpAnswer(answerId: string, userId: string, followUpAnswer: string) {
+async function saveFollowUpAnswer(
+  answerId: string,
+  userId: string,
+  followUpAnswer: string,
+  followUpQuestion?: string,
+) {
   const answer = await prisma.userAnswer.findFirst({
     where: { id: answerId, userId },
-    select: { id: true },
+    select: { id: true, followUpAnswer: true },
   });
   if (!answer) return NextResponse.json({ error: 'not_found' }, { status: 404 });
 
+  // Append this turn to the running transcript so multi-turn drilling is kept.
+  // When the question is provided we store "Q:/A:"; otherwise just the answer
+  // (legacy single-follow-up shape).
+  const turn = followUpQuestion
+    ? `Q: ${sanitize(followUpQuestion, 1000)}\nA: ${sanitize(followUpAnswer, 4000)}`
+    : sanitize(followUpAnswer, 4000);
+  const combined = answer.followUpAnswer ? `${answer.followUpAnswer}\n\n${turn}` : turn;
+
   await prisma.userAnswer.update({
     where: { id: answer.id },
-    data: { followUpAnswer: sanitize(followUpAnswer, 4000) },
+    data: { followUpAnswer: combined },
   });
   return NextResponse.json({ status: 'submitted' });
 }

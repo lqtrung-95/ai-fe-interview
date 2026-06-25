@@ -17,6 +17,8 @@ interface Props {
   timerSeconds?: number;
   /** Mock interview (exam simulation): no live feedback; debrief at the end. */
   isMock?: boolean;
+  /** CV/experience session: multi-turn drill-down before feedback. */
+  cvDeepDive?: boolean;
 }
 
 export function InterviewShell({
@@ -26,6 +28,7 @@ export function InterviewShell({
   questionTarget,
   timerSeconds = 0,
   isMock = false,
+  cvDeepDive = false,
 }: Props) {
   const flow = useInterviewFlow({
     sessionId,
@@ -34,6 +37,7 @@ export function InterviewShell({
     questionTarget,
     timerSeconds,
     isMock,
+    cvDeepDive,
   });
   const state = flow.state;
 

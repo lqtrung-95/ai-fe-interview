@@ -23,7 +23,13 @@ interface Args {
   timerSeconds: number;
   /** Mock interview: skip live follow-up + feedback; advance straight to the next question. */
   isMock: boolean;
+  /** CV/experience session: drill deeper with multiple follow-ups before feedback. */
+  cvDeepDive: boolean;
 }
+
+// CV sessions keep drilling on the same answer up to this many follow-ups before
+// moving to feedback — mirrors a real interviewer probing a topic in depth.
+const MAX_CV_FOLLOWUPS = 2;
 
 // Placeholder stored when an answer is submitted empty (timer ran out). The
 // answers API requires a non-empty string, and the evaluator reads this as
@@ -104,7 +110,10 @@ export function useInterviewFlow(args: Args) {
   async function loadFollowUp(answerId: string) {
     state.setPhase('generating_followup');
     try {
-      state.setFollowUp(await generateFollowUpMutation.mutateAsync(answerId));
+      const followUp = await generateFollowUpMutation.mutateAsync(answerId);
+      state.setFollowUp(followUp);
+      state.incrementFollowUpTurn();
+      state.setFollowUpDraft(''); // fresh textarea for each drill turn
       state.setPhase('followup');
     } catch (e) {
       recordError(e, 'Failed to generate follow-up');
@@ -113,13 +122,24 @@ export function useInterviewFlow(args: Args) {
   }
 
   async function submitFollowUp() {
-    const { answerId, followUpDraft } = state;
+    const { answerId, followUpDraft, followUp, followUpTurn } = state;
     if (!answerId || !followUpDraft.trim()) return;
     state.setError(null);
     state.setPhase('submitting');
     try {
-      await saveFollowUpMutation.mutateAsync({ answerId, followUpAnswer: followUpDraft });
-      await generateFeedback(answerId);
+      await saveFollowUpMutation.mutateAsync({
+        answerId,
+        followUpAnswer: followUpDraft,
+        followUpQuestion: followUp,
+      });
+      // CV deep-dive: keep drilling deeper while the candidate gives substantive
+      // answers, up to the cap. Otherwise move on to feedback.
+      const substantive = followUpDraft.trim().length >= 15;
+      if (args.cvDeepDive && followUpTurn < MAX_CV_FOLLOWUPS && substantive) {
+        await loadFollowUp(answerId);
+      } else {
+        await generateFeedback(answerId);
+      }
     } catch (e) {
       recordError(e, 'Failed to submit follow-up');
       state.setPhase('followup');

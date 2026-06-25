@@ -64,6 +64,9 @@ export const followupInputSchema = z.object({
   question: z.string(),
   userAnswer: z.string(),
   difficulty: difficultyEnum,
+  // Prior follow-up turns in this thread (formatted transcript) so each new
+  // follow-up drills one level DEEPER instead of repeating. Empty on turn 1.
+  priorFollowups: z.string().optional(),
 });
 export type FollowupInput = z.infer<typeof followupInputSchema>;
 

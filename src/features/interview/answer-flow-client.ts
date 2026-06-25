@@ -18,11 +18,15 @@ export async function generateFollowUp(answerId: string): Promise<string> {
   return body.followUp;
 }
 
-export async function saveFollowUpAnswer(answerId: string, followUpAnswer: string): Promise<void> {
+export async function saveFollowUpAnswer(
+  answerId: string,
+  followUpAnswer: string,
+  followUpQuestion?: string,
+): Promise<void> {
   const response = await fetch(`/api/answers/${answerId}/followup`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ followUpAnswer }),
+    body: JSON.stringify({ followUpAnswer, followUpQuestion }),
   });
   if (!response.ok) await throwForFailedResponse(response);
 }

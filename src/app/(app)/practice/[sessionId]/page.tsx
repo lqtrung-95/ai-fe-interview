@@ -106,6 +106,7 @@ export default async function SessionPage({
         questionTarget={target}
         timerSeconds={timerSeconds}
         isMock={session.mode === 'mock'}
+        cvDeepDive={session.usesCv}
       />
     </div>
   );
