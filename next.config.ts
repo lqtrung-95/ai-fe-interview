@@ -4,7 +4,10 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  // Allow our own origin to use the microphone — the voice-answer input relies on
+  // the Web Speech API. `microphone=()` blocks it site-wide (SpeechRecognition
+  // throws "not-allowed"). camera/geolocation stay disabled (unused).
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=()' },
 ];
 
 const nextConfig: NextConfig = {
