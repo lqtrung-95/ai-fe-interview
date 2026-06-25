@@ -14,7 +14,8 @@
  */
 
 import { useEffect, useId, useRef, useState } from 'react';
-import mermaid from 'mermaid';
+// mermaid is ~500KB+ gzipped — load it lazily inside the effect (only when a
+// diagram actually renders) so it never lands in the route's initial JS.
 
 interface Props {
   source: string;
@@ -31,33 +32,36 @@ export function StudyDiagramMermaid({ source }: Props) {
   const seqRef = useRef(0);
 
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: isDark ? 'dark' : 'neutral',
-      flowchart: { curve: 'basis', padding: 12 },
-      themeVariables: isDark
-        ? { fontSize: '13px', lineColor: '#6b7280' }
-        : { fontSize: '13px', lineColor: '#9ca3af' },
-    });
-
-    // Suppress Mermaid's built-in error toast — errors are handled via .catch() below.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mermaid as any).parseError = () => {};
-
     const seq = ++_renderSeq;
     seqRef.current = seq;
     let cancelled = false;
 
-    mermaid
-      .render(`mmd-${uid}-${seq}`, source)
-      .then(({ svg }) => {
-        if (!cancelled && seqRef.current === seq) setSvgHtml(svg);
-      })
-      .catch(() => {
-        if (!cancelled && seqRef.current === seq) setFailed(true);
+    (async () => {
+      // Dynamic import — mermaid is fetched on demand, not in the page bundle.
+      const mermaid = (await import('mermaid')).default;
+      if (cancelled) return;
+
+      const isDark = document.documentElement.classList.contains('dark');
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: isDark ? 'dark' : 'neutral',
+        flowchart: { curve: 'basis', padding: 12 },
+        themeVariables: isDark
+          ? { fontSize: '13px', lineColor: '#6b7280' }
+          : { fontSize: '13px', lineColor: '#9ca3af' },
       });
+
+      // Suppress Mermaid's built-in error toast — errors are handled below.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (mermaid as any).parseError = () => {};
+
+      try {
+        const { svg } = await mermaid.render(`mmd-${uid}-${seq}`, source);
+        if (!cancelled && seqRef.current === seq) setSvgHtml(svg);
+      } catch {
+        if (!cancelled && seqRef.current === seq) setFailed(true);
+      }
+    })();
 
     return () => { cancelled = true; };
   }, [source, uid]);

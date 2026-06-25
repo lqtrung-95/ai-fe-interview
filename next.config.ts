@@ -25,6 +25,8 @@ const nextConfig: NextConfig = {
     staleTimes: {
       dynamic: 30,
     },
+    // Tree-shake barrel imports so only the used icons/components are bundled.
+    optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion'],
   },
 };
 

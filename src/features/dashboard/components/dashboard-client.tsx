@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Lock } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
@@ -8,14 +9,32 @@ import { DashboardPageSkeleton } from '@/components/ui/dashboard-page-skeleton';
 import { useDashboardQuery } from '../hooks/use-dashboard-query';
 import { InterviewCountdownBanner } from './interview-countdown-banner';
 import { OverviewCards } from './overview-cards';
-import { ScoreTrendChart } from './score-trend-chart';
-import { TopicRadarChart } from './topic-radar-chart';
 import { WeakAreasList } from './weak-areas-list';
 import { RecommendedPractice } from './recommended-practice';
 import { DashboardEmptyState } from './dashboard-empty-state';
 import { ReadinessScoreCard } from './readiness-score-card';
 import { WeeklyProgressCard } from './weekly-progress-card';
 import { CodingChallengesStatCard } from './coding-challenges-stat-card';
+
+// recharts (~120KB gz) is loaded only when these charts render — keeps it out of
+// the dashboard's initial JS. Skeleton holds the layout while the chunk loads.
+function ChartCardSkeleton() {
+  return (
+    <section className="rounded-xl border border-border/60 bg-card p-5">
+      <div className="h-5 w-28 animate-pulse rounded bg-muted" />
+      <div className="mt-4 h-56 animate-pulse rounded-lg bg-muted/50" />
+    </section>
+  );
+}
+
+const ScoreTrendChart = dynamic(
+  () => import('./score-trend-chart').then((m) => m.ScoreTrendChart),
+  { ssr: false, loading: () => <ChartCardSkeleton /> },
+);
+const TopicRadarChart = dynamic(
+  () => import('./topic-radar-chart').then((m) => m.TopicRadarChart),
+  { ssr: false, loading: () => <ChartCardSkeleton /> },
+);
 
 function DashboardContent() {
   const { data } = useDashboardQuery();
