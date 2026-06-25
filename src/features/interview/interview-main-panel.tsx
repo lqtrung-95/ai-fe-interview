@@ -7,7 +7,7 @@ import { FeedbackCard } from '@/features/feedback/components/feedback-card';
 import type { FeedbackPayload } from '@/features/feedback/feedback-types';
 import { CountdownRing } from './components/countdown-ring';
 import { VoiceInputButton } from './components/voice-input-button';
-import { useSpeechRecognition } from './hooks/use-speech-recognition';
+import { useAudioTranscription } from './hooks/use-audio-transcription';
 import { FollowupPanel } from './followup-panel';
 import type { ActiveQuestion } from './question-stream-types';
 
@@ -40,14 +40,14 @@ export function InterviewMainPanel(props: Props) {
   const draftRef = useRef(props.draft);
   draftRef.current = props.draft;
 
-  const { status: micStatus, toggle: toggleMic, stop: stopMic } = useSpeechRecognition({
+  const { status: micStatus, toggle: toggleMic, stop: stopMic } = useAudioTranscription({
     onTranscript: (text) => {
       const separator = draftRef.current ? ' ' : '';
       props.onDraftChange(draftRef.current + separator + text);
     },
   });
 
-  // Stop the mic if the answering phase ends (submitted / follow-up / feedback).
+  // Stop recording if the answering phase ends (submitted / follow-up / feedback).
   useEffect(() => {
     if (props.isSubmitting || props.isFollowUp || props.isFeedback) stopMic();
   }, [props.isSubmitting, props.isFollowUp, props.isFeedback, stopMic]);
@@ -131,14 +131,17 @@ export function InterviewMainPanel(props: Props) {
           disabled={props.isSubmitting || props.isFollowUp}
           className="min-h-72 w-full resize-y rounded-md border border-border/70 bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
-        {micStatus === 'listening' && (
+        {micStatus === 'recording' && (
           <p className="text-xs text-muted-foreground">
-            🎙 Listening — speak your answer, then click the mic to stop.
+            🎙 Recording — speak your answer, then click the stop button to transcribe.
           </p>
         )}
-        {micStatus === 'network-failed' && (
+        {micStatus === 'transcribing' && (
+          <p className="text-xs text-muted-foreground">Transcribing your answer…</p>
+        )}
+        {micStatus === 'error' && (
           <p className="text-xs text-amber-600 dark:text-amber-400">
-            Voice input couldn&apos;t reach the speech service (network error). Type your answer or click the mic icon to retry.
+            Couldn&apos;t access the mic or transcribe. Check microphone permission and try again, or type your answer.
           </p>
         )}
       </section>
