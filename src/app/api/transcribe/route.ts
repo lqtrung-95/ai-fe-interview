@@ -19,9 +19,40 @@ function extFor(type: string): string {
 }
 
 /**
- * Server-side speech-to-text. The browser records audio (MediaRecorder, works in
- * every browser) and uploads it here; we transcribe via Groq's Whisper. This
- * replaces the Web Speech API, which only has a working backend in Chrome.
+ * Calls a Whisper-compatible transcription endpoint.
+ * Returns the transcript string, or throws on failure.
+ */
+async function callWhisper(
+  apiKey: string,
+  endpoint: string,
+  model: string,
+  file: Blob,
+  ext: string,
+): Promise<string> {
+  const form = new FormData();
+  form.append('file', file, `answer.${ext}`);
+  form.append('model', model);
+  form.append('response_format', 'json');
+  form.append('language', 'en');
+  form.append('temperature', '0');
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`${res.status} ${detail.slice(0, 200)}`);
+  }
+  const data = (await res.json()) as { text?: string };
+  return (data.text ?? '').trim();
+}
+
+/**
+ * Server-side speech-to-text. Tries Groq Whisper first (free tier); falls
+ * back to OpenAI Whisper ($0.006/min) if Groq is unavailable or rate-limited.
+ * Replaces the Web Speech API which only works in Chrome.
  */
 export async function POST(req: Request) {
   let user;
@@ -35,8 +66,10 @@ export async function POST(req: Request) {
   const limited = await guardGeneralLimit(user.id);
   if (limited) return limited;
 
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey || apiKey.includes('placeholder')) {
+  const groqKey = process.env.GROQ_API_KEY;
+  const openaiKey = process.env.OPENAI_API_KEY;
+
+  if ((!groqKey || groqKey.includes('placeholder')) && (!openaiKey || openaiKey.includes('placeholder'))) {
     return NextResponse.json({ error: 'transcription_unavailable' }, { status: 503 });
   }
 
@@ -55,29 +88,39 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'bad_size' }, { status: 400 });
   }
 
-  // Forward to Groq's OpenAI-compatible Whisper endpoint.
-  const groqForm = new FormData();
-  groqForm.append('file', file, `answer.${extFor(file.type)}`);
-  groqForm.append('model', 'whisper-large-v3-turbo');
-  groqForm.append('response_format', 'json');
-  groqForm.append('language', 'en');
-  groqForm.append('temperature', '0');
+  const ext = extFor(file.type);
 
-  try {
-    const res = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}` },
-      body: groqForm,
-    });
-    if (!res.ok) {
-      const detail = await res.text().catch(() => '');
-      console.error('[transcribe] groq error', res.status, detail.slice(0, 300));
-      return NextResponse.json({ error: 'transcription_failed' }, { status: 502 });
+  // Try Groq first (free), fall back to OpenAI on rate-limit or error.
+  if (groqKey && !groqKey.includes('placeholder')) {
+    try {
+      const text = await callWhisper(
+        groqKey,
+        'https://api.groq.com/openai/v1/audio/transcriptions',
+        'whisper-large-v3-turbo',
+        file,
+        ext,
+      );
+      return NextResponse.json({ text });
+    } catch (err) {
+      console.warn('[transcribe] groq failed, trying openai fallback:', err instanceof Error ? err.message : err);
     }
-    const data = (await res.json()) as { text?: string };
-    return NextResponse.json({ text: (data.text ?? '').trim() });
-  } catch (err) {
-    console.error('[transcribe] failed', err);
-    return NextResponse.json({ error: 'transcription_failed' }, { status: 502 });
   }
+
+  // OpenAI fallback
+  if (openaiKey && !openaiKey.includes('placeholder')) {
+    try {
+      const text = await callWhisper(
+        openaiKey,
+        'https://api.openai.com/v1/audio/transcriptions',
+        'whisper-1',
+        file,
+        ext,
+      );
+      return NextResponse.json({ text });
+    } catch (err) {
+      console.error('[transcribe] openai fallback failed:', err instanceof Error ? err.message : err);
+    }
+  }
+
+  return NextResponse.json({ error: 'transcription_failed' }, { status: 502 });
 }
