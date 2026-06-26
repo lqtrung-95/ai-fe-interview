@@ -8,6 +8,7 @@ import type { FeedbackPayload } from '@/features/feedback/feedback-types';
 import { CountdownRing } from './components/countdown-ring';
 import { VoiceInputButton } from './components/voice-input-button';
 import { useAudioTranscription } from './hooks/use-audio-transcription';
+import { applyTabIndent } from './utils/textarea-indent';
 import { FollowupPanel } from './followup-panel';
 import type { ActiveQuestion } from './question-stream-types';
 
@@ -95,6 +96,23 @@ export function InterviewMainPanel(props: Props) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []); // empty deps — handler reads latest values via propsRef
 
+  // Tab inserts a 2-space indent instead of moving focus, so candidates can
+  // sketch code snippets in their answer. Cursor is restored after re-render.
+  function handleAnswerKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key !== 'Tab' || e.shiftKey) return;
+    e.preventDefault();
+    const ta = e.currentTarget;
+    const { value, cursor } = applyTabIndent(props.draft, ta.selectionStart, ta.selectionEnd);
+    props.onDraftChange(value);
+    requestAnimationFrame(() => {
+      ta.selectionStart = ta.selectionEnd = cursor;
+    });
+  }
+
+  // Technical questions often involve small code snippets → monospace reads
+  // better. Behavioral answers are prose → keep the normal font.
+  const codeFriendly = props.current?.type !== 'behavioral';
+
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -140,10 +158,14 @@ export function InterviewMainPanel(props: Props) {
           id="answer"
           value={props.draft}
           onChange={(e) => props.onDraftChange(e.target.value)}
+          onKeyDown={handleAnswerKeyDown}
           placeholder="Walk through your thinking. Trade-offs, examples, edge cases."
           rows={10}
+          spellCheck={!codeFriendly}
           disabled={props.isSubmitting || props.isFollowUp}
-          className="min-h-72 w-full resize-y rounded-md border border-border/70 bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
+          className={`min-h-72 w-full resize-y rounded-md border border-border/70 bg-card p-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30 ${
+            codeFriendly ? 'font-mono leading-relaxed' : ''
+          }`}
         />
         {micStatus === 'recording' && (
           <p className="text-xs text-muted-foreground">

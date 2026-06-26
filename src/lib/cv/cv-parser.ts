@@ -27,10 +27,10 @@ function cheapModel() {
     const or = createOpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY ?? '',
-      compatibility: 'compatible',
       headers: { 'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://frontendcoach.app', 'X-Title': 'Frontend Coach' },
     });
-    return or(process.env.OPENROUTER_CHEAP_MODEL ?? 'meta-llama/llama-3.1-8b-instruct');
+    // `.chat()` forces /v1/chat/completions — OpenRouter has no /v1/responses API.
+    return or.chat(process.env.OPENROUTER_CHEAP_MODEL ?? 'meta-llama/llama-3.1-8b-instruct');
   }
   if (raw === 'groq')      return groq('llama-3.1-8b-instant');
   if (raw === 'openai')    return openai('gpt-4o-mini');

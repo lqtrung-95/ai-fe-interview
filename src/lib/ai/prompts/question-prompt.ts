@@ -31,6 +31,7 @@ export function buildQuestionPrompt(input: QuestionInput): {
     'Requirements:',
     '- Realistic phrasing — what an actual interviewer would say.',
     '- Ask ONE focused question. Do NOT stack multiple sub-questions or list several APIs to explain in a single prompt.',
+    '- This is a spoken/written-discussion interview, NOT a live coding screen. The candidate answers in prose. Phrase questions to be answered by EXPLAINING — the approach, mechanism, and trade-offs. Avoid imperatives that demand writing a full implementation ("implement", "write a function that…", "code a…"); instead ask "how would you approach…", "walk me through how X works", or "what\'s your strategy for…". A candidate may sketch a small snippet, but the question must be fully answerable by talking through it.',
     '- Never assert the candidate did something specific unless they stated it; invite ("Have you run into…? If so… if not, how would you approach…") rather than presume.',
     '- Concise, no preamble.',
     '- For senior level, lean into trade-offs, architecture, debugging, scalability.',

@@ -30,9 +30,6 @@ function openrouterClient() {
     _openrouter = createOpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY ?? '',
-      // 'compatible' forces /v1/chat/completions — OpenRouter does not support
-      // the new OpenAI /v1/responses endpoint that @ai-sdk/openai v3 defaults to.
-      compatibility: 'compatible',
       headers: {
         'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://frontendcoach.app',
         'X-Title': 'Frontend Coach',
@@ -55,7 +52,9 @@ function modelFor(provider: Provider, tier: Tier): LanguageModel {
     const model = tier === 'cheap'
       ? (process.env.OPENROUTER_CHEAP_MODEL ?? 'meta-llama/llama-3.1-8b-instruct')
       : (process.env.OPENROUTER_SMART_MODEL ?? 'anthropic/claude-3.5-haiku-20241022');
-    return openrouterClient()(model);
+    // `.chat()` forces the /v1/chat/completions endpoint — OpenRouter does not
+    // implement the /v1/responses API that the default callable uses in v3.
+    return openrouterClient().chat(model);
   }
   if (provider === 'deepseek') {
     return deepseek('deepseek-chat');
