@@ -120,7 +120,10 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
       try {
         for await (const part of result.fullStream) {
           if (part.type === 'object') send('partial', part.object);
-          if (part.type === 'error') send('error', { message: 'Question generation failed.' });
+          if (part.type === 'error') {
+            console.error('[question-stream] stream error part:', part.error);
+            send('error', { message: 'Question generation failed.' });
+          }
         }
 
         const ai = questionOutputSchema.parse(await result.object);
