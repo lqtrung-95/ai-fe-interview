@@ -23,12 +23,17 @@ type Provider = 'groq' | 'openai' | 'anthropic' | 'deepseek' | 'openrouter';
 type Tier = 'cheap' | 'smart';
 
 // Lazily-created OpenRouter client (OpenAI-compatible, custom base URL).
+// HTTP-Referer + X-Title are required by OpenRouter for all requests.
 let _openrouter: ReturnType<typeof createOpenAI> | null = null;
 function openrouterClient() {
   if (!_openrouter) {
     _openrouter = createOpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY ?? '',
+      headers: {
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL ?? 'https://frontendcoach.app',
+        'X-Title': 'Frontend Coach',
+      },
     });
   }
   return _openrouter;
