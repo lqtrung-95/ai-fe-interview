@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { generateObject } from 'ai';
 import { deepseek } from '@ai-sdk/deepseek';
 import { groq } from '@ai-sdk/groq';
-import { openai } from '@ai-sdk/openai';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { requireUser } from '@/lib/auth/session';
 import { buildCvReviewPrompt } from '@/lib/ai/prompts/cv-review-prompt';
@@ -12,6 +12,10 @@ import type { CvData } from '@/lib/cv/cv-types';
 /** Cheap-tier model — same selection logic as cv-parser. */
 function cheapModel() {
   const raw = (process.env.LLM_CHEAP_PROVIDER ?? process.env.LLM_PROVIDER ?? 'deepseek').toLowerCase();
+  if (raw === 'openrouter') {
+    const or = createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_API_KEY ?? '' });
+    return or(process.env.OPENROUTER_CHEAP_MODEL ?? 'meta-llama/llama-3.1-8b-instruct');
+  }
   if (raw === 'groq')      return groq('llama-3.3-70b-versatile');
   if (raw === 'openai')    return openai('gpt-4o-mini');
   if (raw === 'anthropic') return anthropic('claude-haiku-4-5-20251001');

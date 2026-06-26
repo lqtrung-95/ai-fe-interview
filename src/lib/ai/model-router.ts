@@ -1,7 +1,7 @@
 import 'server-only';
 import type { LanguageModel } from 'ai';
 import { groq } from '@ai-sdk/groq';
-import { openai } from '@ai-sdk/openai';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { deepseek } from '@ai-sdk/deepseek';
 import type { AITask } from '@/features/interview/ai-schemas';
@@ -13,22 +13,43 @@ import type { AITask } from '@/features/interview/ai-schemas';
 // Pick model by task tier:
 //   - cheap = high-volume, structuring-heavy (question gen, follow-up)
 //   - smart = quality-critical (evaluation, summary)
+//
+// OpenRouter models (set LLM_PROVIDER=openrouter):
+//   cheap → OPENROUTER_CHEAP_MODEL  (default: meta-llama/llama-3.1-8b-instruct)
+//   smart → OPENROUTER_SMART_MODEL  (default: anthropic/claude-3.5-haiku)
 // ----------------------------------------------------------------------------
 
-type Provider = 'groq' | 'openai' | 'anthropic' | 'deepseek';
+type Provider = 'groq' | 'openai' | 'anthropic' | 'deepseek' | 'openrouter';
 type Tier = 'cheap' | 'smart';
+
+// Lazily-created OpenRouter client (OpenAI-compatible, custom base URL).
+let _openrouter: ReturnType<typeof createOpenAI> | null = null;
+function openrouterClient() {
+  if (!_openrouter) {
+    _openrouter = createOpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
+      apiKey: process.env.OPENROUTER_API_KEY ?? '',
+    });
+  }
+  return _openrouter;
+}
 
 function pickProvider(tier: Tier): Provider {
   const override = tier === 'smart' ? process.env.LLM_SMART_PROVIDER : process.env.LLM_CHEAP_PROVIDER;
   const fallback = process.env.LLM_PROVIDER ?? 'deepseek';
   const raw = (override ?? fallback).toLowerCase();
-  if (raw === 'openai' || raw === 'anthropic' || raw === 'groq' || raw === 'deepseek') return raw;
+  if (raw === 'openai' || raw === 'anthropic' || raw === 'groq' || raw === 'deepseek' || raw === 'openrouter') return raw;
   return 'deepseek';
 }
 
 function modelFor(provider: Provider, tier: Tier): LanguageModel {
+  if (provider === 'openrouter') {
+    const model = tier === 'cheap'
+      ? (process.env.OPENROUTER_CHEAP_MODEL ?? 'meta-llama/llama-3.1-8b-instruct')
+      : (process.env.OPENROUTER_SMART_MODEL ?? 'anthropic/claude-3.5-haiku');
+    return openrouterClient()(model);
+  }
   if (provider === 'deepseek') {
-    // DeepSeek ships one general-purpose chat model; same for both tiers.
     return deepseek('deepseek-chat');
   }
   if (provider === 'groq') {
