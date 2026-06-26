@@ -17,8 +17,8 @@ export default function UpgradeSuccessPage() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-2xl font-bold tracking-tight">You&apos;re on Pro!</h1>
-        <p className="mt-3 text-sm text-muted-foreground">
+        <h1 className="text-center text-2xl font-bold tracking-tight">You&apos;re on Pro!</h1>
+        <p className="mt-3 text-center text-sm text-muted-foreground">
           Unlimited sessions, full history, and the complete coaching system are now unlocked.
         </p>
 
