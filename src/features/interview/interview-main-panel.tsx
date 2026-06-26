@@ -47,10 +47,24 @@ export function InterviewMainPanel(props: Props) {
     },
   });
 
-  // Stop recording if the answering phase ends (submitted / follow-up / feedback).
+  const followUpDraftRef = useRef(props.followUpDraft);
+  followUpDraftRef.current = props.followUpDraft;
+
+  const { status: followUpMicStatus, toggle: toggleFollowUpMic, stop: stopFollowUpMic } = useAudioTranscription({
+    onTranscript: (text) => {
+      const separator = followUpDraftRef.current ? ' ' : '';
+      props.onFollowUpDraftChange(followUpDraftRef.current + separator + text);
+    },
+  });
+
+  // Stop both mics when phases change.
   useEffect(() => {
     if (props.isSubmitting || props.isFollowUp || props.isFeedback) stopMic();
   }, [props.isSubmitting, props.isFollowUp, props.isFeedback, stopMic]);
+
+  useEffect(() => {
+    if (!props.isFollowUp) stopFollowUpMic();
+  }, [props.isFollowUp, stopFollowUpMic]);
 
   // Keyboard shortcuts: Cmd/Ctrl+Enter → submit; Esc → skip follow-up.
   // Stored in refs so the handler always sees the latest props without
@@ -151,6 +165,8 @@ export function InterviewMainPanel(props: Props) {
           followUp={props.followUp}
           value={props.followUpDraft}
           onChange={props.onFollowUpDraftChange}
+          micStatus={followUpMicStatus}
+          onMicToggle={toggleFollowUpMic}
         />
       )}
 
