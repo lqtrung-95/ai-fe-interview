@@ -1,6 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
+import { Prisma } from '@prisma/client';
 import { createSupabaseServerClient } from './supabase-server';
 import { prisma } from '@/lib/db/client';
 import type { User as DbUser } from '@prisma/client';
@@ -25,11 +26,22 @@ function rehydrateDates(user: DbUser): DbUser {
 // Invalidated via revalidateTag(USER_CACHE_TAG(userId)) after any user mutation.
 const getDbUser = unstable_cache(
   async (userId: string, email: string, name: string | null, image: string | null) => {
-    return prisma.user.upsert({
-      where: { id: userId },
-      update: {},
-      create: { id: userId, email, name, image },
-    });
+    try {
+      return await prisma.user.upsert({
+        where: { id: userId },
+        update: {},
+        create: { id: userId, email, name, image },
+      });
+    } catch (e) {
+      // P2002: a stale row with the same email exists under a different ID
+      // (e.g. the row was deleted by ID while a duplicate email row remained).
+      // Fall back to the email-keyed row so the user can still log in.
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+        const existing = await prisma.user.findUnique({ where: { email } });
+        if (existing) return existing;
+      }
+      throw e;
+    }
   },
   ['user-db-lookup'],
   { revalidate: 30 },

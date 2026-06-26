@@ -68,7 +68,7 @@ export function AppHeader({
   return (
     <header className="app-header fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/85 px-5 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 md:left-56">
       <div className="flex min-w-0 items-center gap-2">
-        <Link href="/dashboard" className="flex min-w-0 items-center gap-2 md:hidden">
+        <Link href="/dashboard" className="flex min-w-0 items-center gap-2 md:!hidden">
           <BrandLogo className="size-7 shrink-0" />
           <span className="truncate text-sm font-bold tracking-tight text-foreground">
             Frontend Coach
@@ -150,7 +150,7 @@ export function AppHeader({
         aria-expanded={menuOpen}
         aria-label="Open navigation menu"
         onClick={() => setMenuOpen(true)}
-        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary md:hidden"
+        className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/60 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary md:!hidden"
       >
         <Menu className="h-3.5 w-3.5" />
       </button>

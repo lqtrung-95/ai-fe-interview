@@ -1,36 +1,50 @@
-import { type NextRequest } from 'next/server';
-import { Checkout } from '@polar-sh/nextjs';
+import { type NextRequest, NextResponse } from 'next/server';
+import { Polar } from '@polar-sh/sdk';
 import { requireUser } from '@/lib/auth/session';
 
 export const runtime = 'nodejs';
 
-/**
- * GET /api/checkout?products=<productId>
- *
- * Auth-gates checkout so we can tie the Polar customer to the logged-in user.
- * The Checkout helper from @polar-sh/nextjs reads ?products= from the query
- * string, creates a Polar hosted checkout session, and redirects there.
- *
- * Env vars required:
- *   POLAR_ACCESS_TOKEN   — server-side Polar API token
- *   NEXT_PUBLIC_APP_URL  — canonical origin (e.g. https://app.example.com)
- */
-
-const polarCheckout = Checkout({
+const polar = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN!,
-  successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/upgrade/success`,
   server: (process.env.POLAR_SERVER ?? 'production') as 'production' | 'sandbox',
 });
 
+/**
+ * GET /api/checkout?products=<productId>
+ *
+ * Creates a Polar hosted checkout session locked to the signed-in user's email.
+ * Using the SDK directly (instead of the @polar-sh/nextjs Checkout helper) lets
+ * us pass customerEmail so the webhook reliably matches the Polar customer to the
+ * DB user — if emails differ the webhook handler silently finds 0 rows and Pro
+ * is never granted.
+ */
 export async function GET(req: NextRequest) {
-  // Verify the user is signed in before creating a checkout session.
+  let user;
   try {
-    await requireUser();
+    user = await requireUser();
   } catch (e) {
     if (e instanceof Response) return e;
     throw e;
   }
 
-  // Delegate to the Polar Next.js checkout handler (reads ?products= query param).
-  return polarCheckout(req);
+  const productIds = req.nextUrl.searchParams.getAll('products').filter(Boolean);
+  if (!productIds.length) {
+    return NextResponse.json({ error: 'no_products' }, { status: 400 });
+  }
+
+  try {
+    const checkout = await polar.checkouts.create({
+      products: productIds,
+      customerEmail: user.email,
+      // userId in metadata is the reliable tie between Polar customer and DB user.
+      // The webhook uses it as primary lookup so a changed email at checkout doesn't
+      // break Pro activation.
+      metadata: { userId: user.id },
+      successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/upgrade/success`,
+    });
+    return NextResponse.redirect(checkout.url);
+  } catch (err) {
+    console.error('[checkout] Polar SDK error', err);
+    return NextResponse.json({ error: 'checkout_failed' }, { status: 502 });
+  }
 }
