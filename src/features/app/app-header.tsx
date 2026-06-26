@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Crown, Library, LogOut, Menu, Moon, Sun, X, Zap } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown, Crown, Library, LogOut, Menu, Moon, Sun, X, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
@@ -30,6 +30,8 @@ export function AppHeader({
   const pathname = usePathname();
   const { resolvedTheme, setTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
   const isDark = resolvedTheme === 'dark';
   const displayName = userName ?? userEmail;
 
@@ -45,6 +47,23 @@ export function AppHeader({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [menuOpen]);
+
+  // Close the account dropdown on outside click or Escape.
+  useEffect(() => {
+    if (!accountOpen) return;
+    function onPointerDown(e: MouseEvent) {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) setAccountOpen(false);
+    }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setAccountOpen(false);
+    }
+    window.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('mousedown', onPointerDown);
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [accountOpen]);
 
   return (
     <header className="app-header fixed inset-x-0 top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/85 px-5 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 md:left-56">
@@ -66,50 +85,63 @@ export function AppHeader({
         </Link>
       </div>
 
-      {/* Right — user controls */}
-      <div className="hidden items-center gap-2 md:flex">
-        {/* Name + email */}
-        <div className="hidden min-w-0 text-right sm:block mr-1">
-          <p className="truncate text-sm font-semibold text-foreground leading-tight">{displayName}</p>
-          {userName && (
-            <p className="truncate text-xs text-muted-foreground leading-tight">{userEmail}</p>
-          )}
-        </div>
-
-        {/* Avatar */}
-        {userImage ? (
-          <img
-            src={userImage}
-            alt={displayName}
-            className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/30"
-          />
-        ) : (
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-brand-indigo text-xs font-bold text-primary-foreground">
-            {displayName.slice(0, 1).toUpperCase()}
-          </span>
-        )}
-
-        {/* Divider */}
-        <span className="mx-1 h-5 w-px bg-border/80" />
-
-        {/* Theme toggle */}
+      {/* Right — single account menu (declutters name/email/theme/sign-out into one avatar dropdown) */}
+      <div ref={accountRef} className="relative hidden md:block">
         <button
           type="button"
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
-          aria-label="Toggle color theme"
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+          onClick={() => setAccountOpen((o) => !o)}
+          aria-haspopup="menu"
+          aria-expanded={accountOpen}
+          aria-label="Account menu"
+          className="flex cursor-pointer items-center gap-2 rounded-lg py-1 pl-1 pr-1.5 transition-colors hover:bg-muted/60"
         >
-          <Sun className="hidden h-3.5 w-3.5 dark:block" />
-          <Moon className="h-3.5 w-3.5 dark:hidden" />
+          {userImage ? (
+            <img src={userImage} alt="" className="h-8 w-8 rounded-full object-cover ring-2 ring-primary/30" />
+          ) : (
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-brand-indigo text-xs font-bold text-primary-foreground">
+              {displayName.slice(0, 1).toUpperCase()}
+            </span>
+          )}
+          <span className="hidden max-w-[10rem] truncate text-sm font-medium text-foreground lg:block">
+            {userName ?? userEmail}
+          </span>
+          <ChevronDown
+            className={'h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ' + (accountOpen ? 'rotate-180' : '')}
+          />
         </button>
 
-        {/* Sign out */}
-        <SignOutButton
-          ariaLabel="Sign out"
-          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-border/60 bg-card/50 text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-        </SignOutButton>
+        {accountOpen && (
+          <div
+            role="menu"
+            aria-label="Account"
+            className="absolute right-0 top-full mt-2 w-60 overflow-hidden rounded-xl border border-border bg-card p-1.5 shadow-xl shadow-black/10 dark:shadow-black/30"
+          >
+            <div className="px-2.5 py-2">
+              <p className="truncate text-sm font-semibold text-foreground">{displayName}</p>
+              {userName && <p className="truncate text-xs text-muted-foreground">{userEmail}</p>}
+            </div>
+            <div className="my-1 h-px bg-border/60" />
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setTheme(isDark ? 'light' : 'dark');
+                setAccountOpen(false);
+              }}
+              className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 transition-colors hover:bg-muted/60"
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {isDark ? 'Light mode' : 'Dark mode'}
+            </button>
+            <SignOutButton
+              ariaLabel="Sign out"
+              className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-foreground/80 transition-colors hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </SignOutButton>
+          </div>
+        )}
       </div>
 
       <button
