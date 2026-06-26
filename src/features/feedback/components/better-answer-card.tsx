@@ -114,12 +114,35 @@ export function BetterAnswerCard({ answer }: Props) {
         </Button>
       </div>
       <div className="space-y-3 text-sm leading-7 text-foreground/80">
-        {answer.split(/\n\n+/).map((para, i) => (
-          <p key={i}>{renderHighlightedAnswer(para.trim())}</p>
-        ))}
+        {renderAnswer(answer)}
       </div>
     </section>
   );
+}
+
+/** Top-level renderer: splits on fenced code blocks first, then handles prose. */
+function renderAnswer(text: string) {
+  // Split on ```...``` fences (including the fence lines themselves).
+  return text.split(/(```[\s\S]*?```)/g).flatMap((segment, i) => {
+    if (segment.startsWith('```')) {
+      const match = segment.match(/```(?:\w*)\n?([\s\S]*?)```/);
+      const code = (match ? match[1] : segment.slice(3, -3)).trim();
+      return [
+        <pre
+          key={i}
+          className="overflow-x-auto rounded-md border border-border/50 bg-muted/60 p-3 text-xs font-mono leading-relaxed text-foreground/90"
+        >
+          <code>{code}</code>
+        </pre>,
+      ];
+    }
+    // Prose: split on blank lines and highlight inline terms.
+    return segment
+      .split(/\n\n+/)
+      .map((para) => para.trim())
+      .filter(Boolean)
+      .map((para, j) => <p key={`${i}-${j}`}>{renderHighlightedAnswer(para)}</p>);
+  });
 }
 
 function renderHighlightedAnswer(text: string) {
