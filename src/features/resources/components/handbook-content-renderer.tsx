@@ -5,6 +5,7 @@
  */
 
 import { cn, mdToHtml } from '@/lib/utils';
+import { highlightCode, isJsLabel } from '@/components/common/syntax-highlight';
 import type { ContentBlock, PillVariant } from '@/data/resources/handbook-types';
 import { HandbookCallout } from './handbook-callout';
 import { HandbookDiagram } from './handbook-diagram';
@@ -107,7 +108,11 @@ export function HandbookContentRenderer({ blocks }: Props) {
                   )}
                 </div>
                 <pre className="p-4 overflow-x-auto text-xs font-mono leading-[1.7] text-slate-300 whitespace-pre">
-                  {block.code}
+                  <code>
+                    {isJsLabel(block.label ?? '')
+                      ? highlightCode(block.code, { onDark: true })
+                      : block.code}
+                  </code>
                 </pre>
               </div>
             );
