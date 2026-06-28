@@ -52,7 +52,7 @@ export function HandbookContentRenderer({ blocks }: Props) {
             return (
               <p
                 key={i}
-                className="text-sm text-muted-foreground leading-[1.75] my-2.5"
+                className="handbook-inline-html text-sm text-muted-foreground leading-[1.75] my-2.5"
                 // HTML from our own extraction script — safe, no user input
                 // eslint-disable-next-line react/no-danger
                 dangerouslySetInnerHTML={{ __html: block.html }}

@@ -725,6 +725,21 @@ code, pre, .font-mono, [class*="font-mono"] {
   font-feature-settings: "liga" 0, "calt" 0;
 }
 
+/* Inline links inside handbook prose (e.g. source attributions) — give them a
+   distinct brand color + underline so they read as links, not plain italic text. */
+.handbook-inline-html a {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.handbook-inline-html a:hover {
+  text-decoration-color: var(--primary);
+}
+
 .study-prose code {
   font-family: var(--font-mono);
   font-size: 0.8125rem;

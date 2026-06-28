@@ -102,7 +102,7 @@ export default function FrontendSystemDesignPage() {
                   {section.title}
                 </h2>
                 {section.intro && (
-                  <p className="text-muted-foreground mt-2.5 max-w-2xl text-sm leading-relaxed">
+                  <p className="text-muted-foreground mt-2.5 text-sm leading-relaxed">
                     {section.intro}
                   </p>
                 )}
