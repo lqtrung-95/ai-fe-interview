@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CodeBlock } from './code-block';
 
 interface Props {
   answer: string;
@@ -125,16 +126,10 @@ function renderAnswer(text: string) {
   // Split on ```...``` fences (including the fence lines themselves).
   return text.split(/(```[\s\S]*?```)/g).flatMap((segment, i) => {
     if (segment.startsWith('```')) {
-      const match = segment.match(/```(?:\w*)\n?([\s\S]*?)```/);
-      const code = (match ? match[1] : segment.slice(3, -3)).trim();
-      return [
-        <pre
-          key={i}
-          className="overflow-x-auto rounded-md border border-border/50 bg-muted/60 p-3 text-xs font-mono leading-relaxed text-foreground/90"
-        >
-          <code>{code}</code>
-        </pre>,
-      ];
+      const match = segment.match(/```(\w*)\n?([\s\S]*?)```/);
+      const lang = match ? match[1] : '';
+      const code = (match ? match[2] : segment.slice(3, -3)).trim();
+      return [<CodeBlock key={i} code={code} lang={lang} />];
     }
     // Prose: split on blank lines and highlight inline terms.
     return segment
