@@ -63,4 +63,11 @@ export interface DashboardData {
   weeklyComparison: { thisWeekAvg: number | null; lastWeekAvg: number | null; delta: number | null; sessionsThisWeek: number };
   dailyChallenge: { topic: string; difficulty: string; question: string } | null;
   codingStats: { solved: number; total: number };
+  review: {
+    dueCount: number;
+    reviewedToday: number;
+    dailyGoal: number;
+    currentStreak: number;
+    longestStreak: number;
+  };
 }

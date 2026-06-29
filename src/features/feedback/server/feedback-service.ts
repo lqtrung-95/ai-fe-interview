@@ -2,6 +2,7 @@ import 'server-only';
 import { prisma } from '@/lib/db/client';
 import { runAITask, streamAITask } from '@/lib/ai/orchestrator';
 import { evaluateOutputSchema, type EvaluateOutput } from '@/features/interview/ai-schemas';
+import { recordReview } from '@/features/review/server/review-scheduler-service';
 
 export async function streamFeedback(answerId: string, userId: string): Promise<Response> {
   const answer = await prisma.userAnswer.findFirst({
@@ -109,7 +110,7 @@ export async function generateMissingFeedbackForSession(
 }
 
 async function persistFeedback(answerId: string, output: EvaluateOutput, tokensUsed: number) {
-  return prisma.answerFeedback.create({
+  const feedback = await prisma.answerFeedback.create({
     data: {
       answerId,
       overallScore: output.overallScore,
@@ -130,6 +131,10 @@ async function persistFeedback(answerId: string, output: EvaluateOutput, tokensU
       tokensUsed,
     },
   });
+  // Advance the spaced-repetition schedule + streak for this answer's topic.
+  // Guarded internally — never blocks or breaks feedback delivery.
+  await recordReview(answerId);
+  return feedback;
 }
 
 function fromFeedback(feedback: Awaited<ReturnType<typeof persistFeedback>>) {

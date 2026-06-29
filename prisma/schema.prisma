@@ -38,6 +38,11 @@ model User {
   proSince            DateTime?
   // proExpiresAt is set only for promo-granted access; null = permanent (Polar subscriber)
   proExpiresAt        DateTime?
+  // Daily practice loop — spaced repetition schedule + streak
+  dailyGoal           Int       @default(3)  // target reviews per day
+  currentStreak       Int       @default(0)
+  longestStreak       Int       @default(0)
+  lastActiveDate      DateTime?              // UTC date of last review activity (streak bookkeeping)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
@@ -46,6 +51,7 @@ model User {
   redemptions       PromoRedemption[]
   targetJobs        TargetJob[]
   codingSubmissions CodingSubmission[]
+  reviewItems       ReviewItem[]
 }
 
 // ============================================================================
@@ -182,6 +188,31 @@ model AnswerFeedback {
   modelUsed   String
   tokensUsed  Int
   createdAt   DateTime @default(now())
+}
+
+// ============================================================================
+// Spaced repetition — one row per (user, topic). Advanced by every scored answer
+// (see review-scheduler-service); the /review flow resurfaces due topics.
+// ============================================================================
+
+model ReviewItem {
+  id             String      @id @default(cuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic          String
+  // SM-2-lite scheduling state
+  easeFactor     Float       @default(2.5) // clamped 1.3 .. 2.5
+  intervalDays   Int         @default(0)
+  repetitions    Int         @default(0)
+  dueAt          DateTime    @default(now())
+  lastScore      Float?                    // last answer overallScore (1..5), for weak-area ordering
+  lastDifficulty Difficulty?               // informs difficulty when regenerating a question
+  lastReviewedAt DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([userId, topic])
+  @@index([userId, dueAt])
 }
 
 model SessionSummary {

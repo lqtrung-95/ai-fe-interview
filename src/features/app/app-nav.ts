@@ -1,8 +1,9 @@
-import { BookOpen, Clock, Code2, Database, LayoutDashboard, Settings, Zap } from 'lucide-react';
+import { BookOpen, CalendarCheck, Clock, Code2, Database, LayoutDashboard, Settings, Zap } from 'lucide-react';
 
 export const APP_NAV = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/practice/new', label: 'Practice', icon: Zap },
+  { href: '/review', label: 'Daily Review', icon: CalendarCheck },
   { href: '/study-plan', label: 'Study Plan', icon: BookOpen },
   { href: '/question-bank', label: 'Question Bank', icon: Database },
   { href: '/coding-challenges', label: 'Coding Challenges', icon: Code2 },

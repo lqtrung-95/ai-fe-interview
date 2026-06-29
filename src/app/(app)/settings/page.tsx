@@ -5,6 +5,7 @@ import { InterviewPreferencesCard } from '@/features/settings/components/intervi
 import { CvProfileCard } from '@/features/settings/components/cv-profile-card';
 import { TargetJobsCard } from '@/features/target-jobs/components/target-jobs-card';
 import { InterviewDateCard } from '@/features/settings/components/interview-date-card';
+import { DailyGoalCard } from '@/features/settings/components/daily-goal-card';
 import type { CvData } from '@/lib/cv/cv-types';
 
 export const metadata = { title: 'Settings' };
@@ -62,6 +63,8 @@ export default async function SettingsPage() {
       <InterviewDateCard
         initialDate={user.targetInterviewDate?.toISOString() ?? null}
       />
+
+      <DailyGoalCard initialGoal={user.dailyGoal} />
     </div>
   );
 }

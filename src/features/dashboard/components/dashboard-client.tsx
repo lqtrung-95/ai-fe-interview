@@ -15,6 +15,7 @@ import { DashboardEmptyState } from './dashboard-empty-state';
 import { ReadinessScoreCard } from './readiness-score-card';
 import { WeeklyProgressCard } from './weekly-progress-card';
 import { CodingChallengesStatCard } from './coding-challenges-stat-card';
+import { DailyReviewCard } from './daily-review-card';
 
 // recharts (~120KB gz) is loaded only when these charts render — keeps it out of
 // the dashboard's initial JS. Skeleton holds the layout while the chunk loads.
@@ -38,7 +39,7 @@ const TopicRadarChart = dynamic(
 
 function DashboardContent() {
   const { data } = useDashboardQuery();
-  const { overview, trend, topics, weakAreas, recommendations, isPro, userName, targetInterviewDate, readiness, weeklyComparison, codingStats } = data;
+  const { overview, trend, topics, weakAreas, recommendations, isPro, userName, targetInterviewDate, readiness, weeklyComparison, codingStats, review } = data;
   const hasAnyData = overview.totalSessions > 0 || overview.totalQuestionsAnswered > 0;
 
   return (
@@ -81,7 +82,15 @@ function DashboardContent() {
             <TopicRadarChart data={topics} />
           </div>
           <ReadinessScoreCard overall={readiness.overall} topics={readiness.topics} />
-          <CodingChallengesStatCard solved={codingStats.solved} total={codingStats.total} />
+          <div className="grid gap-5 lg:grid-cols-2">
+            <DailyReviewCard
+              dueCount={review.dueCount}
+              reviewedToday={review.reviewedToday}
+              dailyGoal={review.dailyGoal}
+              currentStreak={review.currentStreak}
+            />
+            <CodingChallengesStatCard solved={codingStats.solved} total={codingStats.total} />
+          </div>
           <div className="grid gap-5 lg:grid-cols-2">
             {isPro ? (
               <WeakAreasList weakAreas={weakAreas} />

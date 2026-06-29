@@ -11,13 +11,14 @@ import {
 } from '@/features/dashboard/server/progress-service';
 import { getRecommendations } from '@/features/dashboard/server/recommendation-service';
 import { getCodingChallengesStats } from '@/features/coding-challenges/server/get-coding-challenges-stats';
+import { getReviewStats, getStreak } from '@/features/review/server/review-queue-service';
 import type { DashboardData } from '@/features/dashboard/dashboard-types';
 
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const [overview, trend, topics, weakAreas, recommendations, readiness, weeklyComparison, dailyChallenge, codingStats] =
+  const [overview, trend, topics, weakAreas, recommendations, readiness, weeklyComparison, dailyChallenge, codingStats, reviewStats, streak] =
     await Promise.all([
       getOverview(user.id),
       getScoreTrend(user.id, 30),
@@ -28,6 +29,8 @@ export async function GET() {
       getWeeklyComparison(user.id),
       getDailyChallenge(user.id),
       getCodingChallengesStats(user.id),
+      getReviewStats(user.id),
+      getStreak(user.id),
     ]);
 
   const data: DashboardData = {
@@ -43,6 +46,13 @@ export async function GET() {
     weeklyComparison,
     dailyChallenge,
     codingStats,
+    review: {
+      dueCount: reviewStats.dueCount,
+      reviewedToday: reviewStats.reviewedToday,
+      dailyGoal: streak.dailyGoal,
+      currentStreak: streak.currentStreak,
+      longestStreak: streak.longestStreak,
+    },
   };
 
   return NextResponse.json(data);
