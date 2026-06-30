@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Lock } from 'lucide-react';
+import { AlertTriangle, Lock } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import { DashboardPageSkeleton } from '@/components/ui/dashboard-page-skeleton';
 import { useDashboardQuery } from '../hooks/use-dashboard-query';
@@ -95,26 +95,74 @@ function DashboardContent() {
             {isPro ? (
               <WeakAreasList weakAreas={weakAreas} />
             ) : (
-              <section className="app-surface-card flex h-full flex-col items-center justify-center gap-3 rounded-xl border border-border/60 bg-card p-8 text-center">
-                <span className="flex size-10 items-center justify-center rounded-full bg-primary/10">
-                  <Lock className="size-4 text-primary" />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold">Per-dimension weak-area coaching</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    See exactly which topics drag your score down and why.
-                  </p>
-                </div>
-                <Link href="/upgrade" className={buttonVariants({ size: 'sm' })}>
-                  Upgrade to Pro
-                </Link>
-              </section>
+              <WeakAreasLockedPreview />
             )}
             <RecommendedPractice recommendations={recommendations} />
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+/** Blurred preview of weak-areas list shown to free users as an upgrade teaser. */
+function WeakAreasLockedPreview() {
+  const GHOST_ROWS = [
+    { topic: 'JavaScript Closures', score: 2.1, gap: 'Scope chain and lexical environment not well understood.' },
+    { topic: 'CSS Specificity',     score: 1.8, gap: 'Selector weight rules unclear; cascade order confused.' },
+    { topic: 'React Reconciliation', score: 2.4, gap: 'Diffing algorithm and key prop role need reinforcement.' },
+  ];
+
+  return (
+    <section className="app-surface-card relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card p-5">
+      {/* Header — identical to WeakAreasList */}
+      <div className="mb-4 flex items-center gap-2.5">
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-amber-500/10 text-amber-500">
+          <AlertTriangle className="size-3.5" />
+        </span>
+        <div>
+          <h2 className="text-sm font-semibold tracking-tight">Weak Areas</h2>
+          <p className="text-xs text-muted-foreground">Topics where you score lowest, with what&apos;s missing.</p>
+        </div>
+      </div>
+
+      {/* Blurred ghost rows */}
+      <ul className="grid flex-1 auto-rows-fr gap-2 select-none" aria-hidden="true">
+        {GHOST_ROWS.map((row) => (
+          <li key={row.topic} className="flex flex-col justify-between rounded-lg border border-border/50 bg-muted/15 px-3.5 py-3 blur-[3px]">
+            <div className="flex items-start gap-3">
+              <span className="mt-1.5 size-2 shrink-0 rounded-full bg-red-500/80" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="text-sm font-semibold truncate">{row.topic}</p>
+                  <p className="shrink-0 text-xs font-bold tabular-nums text-red-500">
+                    {row.score.toFixed(1)}<span className="font-normal text-muted-foreground">/5</span>
+                  </p>
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">{row.gap}</p>
+                <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-muted">
+                  <div className="h-full rounded-full bg-red-500/70" style={{ width: `${(row.score / 5) * 100}%` }} />
+                </div>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {/* Gradient overlay + CTA */}
+      <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-3 bg-gradient-to-t from-card via-card/90 to-transparent px-5 pb-5 pt-16 text-center">
+        <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+          <Lock className="size-3.5 text-primary" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold">Unlock your weak spots</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">See which topics drag your score down and exactly why.</p>
+        </div>
+        <Link href="/upgrade" className={buttonVariants({ size: 'sm' })}>
+          Upgrade to Pro
+        </Link>
+      </div>
+    </section>
   );
 }
 
