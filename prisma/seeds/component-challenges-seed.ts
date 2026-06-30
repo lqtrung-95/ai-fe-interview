@@ -1505,6 +1505,674 @@ Build a \`DatePicker\` — a month header with prev/next and a grid of selectabl
   );
 }`,
   },
+
+  {
+    id: 'cc-radio-group',
+    title: 'Accessible Radio Group',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'forms', 'state'],
+    componentName: 'ShippingOptions',
+    description: `## Accessible Radio Group
+
+Build a \`ShippingOptions\` component with three radio buttons: Standard, Express, and Overnight.
+
+**Requirements**
+- Three radio buttons; selecting one deselects the others.
+- The group must have a visible **legend** and each radio a **real label** — not just an adjacent span.
+
+The starter renders the options but fails labelling on two levels. Fix both.
+
+> The component takes no props — manage selection with internal state.`,
+    hints: [
+      'A bare <input type="radio"> next to a <span> is not labelled — wrap both in a <label> or use htmlFor.',
+      'Wrap the whole group in a <fieldset> with a <legend> so screen readers announce what the group is for.',
+    ],
+    checks: [
+      { id: 'three-radios', label: 'Renders three radio inputs', selector: 'input[type="radio"]', minCount: 3 },
+    ],
+    starterCode: `function ShippingOptions() {
+  const [selected, setSelected] = React.useState('standard');
+  const options = [
+    { value: 'standard', text: 'Standard (3–5 days)' },
+    { value: 'express', text: 'Express (1–2 days)' },
+    { value: 'overnight', text: 'Overnight' },
+  ];
+
+  return (
+    <div style={{ display: 'grid', gap: 8 }}>
+      <span style={{ fontWeight: 600 }}>Shipping method</span>
+      {options.map((o) => (
+        <div key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <input type="radio" value={o.value} checked={selected === o.value} onChange={() => setSelected(o.value)} />
+          <span>{o.text}</span>
+        </div>
+      ))}
+    </div>
+  );
+}`,
+    solution: `function ShippingOptions() {
+  const [selected, setSelected] = React.useState('standard');
+  const options = [
+    { value: 'standard', text: 'Standard (3–5 days)' },
+    { value: 'express', text: 'Express (1–2 days)' },
+    { value: 'overnight', text: 'Overnight' },
+  ];
+
+  return (
+    <fieldset style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12 }}>
+      <legend style={{ fontWeight: 600, padding: '0 4px' }}>Shipping method</legend>
+      {options.map((o) => (
+        <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', cursor: 'pointer' }}>
+          <input type="radio" name="shipping" value={o.value} checked={selected === o.value} onChange={() => setSelected(o.value)} />
+          <span>{o.text}</span>
+        </label>
+      ))}
+    </fieldset>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-loading-button',
+    title: 'Accessible Loading Button',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'LoadingButton',
+    description: `## Accessible Loading Button
+
+Build a \`LoadingButton\` that simulates a 2-second async save — it shows a spinner while loading.
+
+**Requirements**
+- Clicking starts a 2-second loading state; the button is non-interactive during it.
+- While loading, the button must communicate its busy state to screen readers, not just visually.
+
+The starter is visually correct but announces nothing to assistive tech during the wait.
+
+> The component takes no props.`,
+    hints: [
+      'aria-busy="true" tells screen readers the control is in a loading state.',
+      'aria-disabled prevents double-submission while keeping the button announced. Update aria-label to describe the current state.',
+    ],
+    checks: [
+      { id: 'has-button', label: 'Renders the save button', selector: 'button', minCount: 1 },
+    ],
+    starterCode: `function LoadingButton() {
+  const [loading, setLoading] = React.useState(false);
+
+  function handleClick() {
+    setLoading(true);
+    setTimeout(() => setLoading(false), 2000);
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      style={{ padding: '8px 20px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
+    >
+      {loading ? '⏳ Saving…' : 'Save'}
+    </button>
+  );
+}`,
+    solution: `function LoadingButton() {
+  const [loading, setLoading] = React.useState(false);
+
+  function handleClick() {
+    if (loading) return;
+    setLoading(true);
+    setTimeout(() => setLoading(false), 2000);
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      aria-busy={loading}
+      aria-disabled={loading}
+      aria-label={loading ? 'Saving, please wait' : 'Save'}
+      style={{ padding: '8px 20px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
+    >
+      {loading ? '⏳ Saving…' : 'Save'}
+    </button>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-error-form',
+    title: 'Form with Inline Error',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'forms', 'state'],
+    componentName: 'EmailForm',
+    description: `## Form with Inline Error
+
+Build an \`EmailForm\` with an email field and a submit button that validates on submit.
+
+**Requirements**
+- Submit shows an error if the field is empty or not a valid email.
+- The error must be **programmatically linked to the input** so screen readers announce it when the field is focused — not just visually rendered below it.
+
+> The component takes no props.`,
+    hints: [
+      'aria-invalid="true" tells screen readers the field is in an error state.',
+      'Connect the error message to the input with aria-describedby (matching id on the error element).',
+    ],
+    checks: [
+      { id: 'has-input', label: 'Renders an email input', selector: 'input[type="email"], input', minCount: 1 },
+    ],
+    starterCode: `function EmailForm() {
+  const [email, setEmail] = React.useState('');
+  const [error, setError] = React.useState('');
+
+  function validate() {
+    if (!email) { setError('Email is required.'); return; }
+    if (!email.includes('@')) { setError('Enter a valid email address.'); return; }
+    setError('');
+    alert('Subscribed!');
+  }
+
+  return (
+    <div style={{ width: 280 }}>
+      <label htmlFor="email" style={{ display: 'block', marginBottom: 4, fontSize: 13, fontWeight: 600 }}>Email address</label>
+      <input
+        id="email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        style={{ width: '100%', padding: 8, border: '1px solid ' + (error ? '#ef4444' : '#cbd5e1'), borderRadius: 6, boxSizing: 'border-box' }}
+      />
+      {error && <p style={{ margin: '4px 0 0', color: '#ef4444', fontSize: 12 }}>{error}</p>}
+      <button onClick={validate} style={{ marginTop: 10, padding: '8px 16px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', width: '100%' }}>Subscribe</button>
+    </div>
+  );
+}`,
+    solution: `function EmailForm() {
+  const [email, setEmail] = React.useState('');
+  const [error, setError] = React.useState('');
+  const errId = 'email-error';
+
+  function validate() {
+    if (!email) { setError('Email is required.'); return; }
+    if (!email.includes('@')) { setError('Enter a valid email address.'); return; }
+    setError('');
+    alert('Subscribed!');
+  }
+
+  return (
+    <div style={{ width: 280 }}>
+      <label htmlFor="email" style={{ display: 'block', marginBottom: 4, fontSize: 13, fontWeight: 600 }}>Email address</label>
+      <input
+        id="email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        aria-invalid={!!error}
+        aria-describedby={error ? errId : undefined}
+        style={{ width: '100%', padding: 8, border: '1px solid ' + (error ? '#ef4444' : '#cbd5e1'), borderRadius: 6, boxSizing: 'border-box' }}
+      />
+      {error && <p id={errId} role="alert" style={{ margin: '4px 0 0', color: '#ef4444', fontSize: 12 }}>{error}</p>}
+      <button onClick={validate} style={{ marginTop: 10, padding: '8px 16px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', width: '100%' }}>Subscribe</button>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-character-counter',
+    title: 'Accessible Character Counter',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'forms', 'aria-live'],
+    componentName: 'BioInput',
+    description: `## Accessible Character Counter
+
+Build a \`BioInput\` — a textarea with a live character counter (max 100 chars).
+
+**Requirements**
+- Shows remaining characters as the user types; textarea is blocked at the limit.
+- The counter must be **announced** as it updates — not just displayed visually.
+
+The counter updates on every keystroke, but screen reader users hear nothing.
+
+> The component takes no props.`,
+    hints: [
+      'aria-live="polite" on the counter announces updates without interrupting the user.',
+      'aria-describedby on the textarea connects it to the counter, so it is also read on focus.',
+    ],
+    checks: [
+      { id: 'has-textarea', label: 'Renders a textarea', selector: 'textarea', exists: true },
+    ],
+    starterCode: `function BioInput() {
+  const max = 100;
+  const [text, setText] = React.useState('');
+  const left = max - text.length;
+
+  return (
+    <div style={{ width: 280 }}>
+      <label htmlFor="bio" style={{ display: 'block', marginBottom: 4, fontSize: 13, fontWeight: 600 }}>Bio</label>
+      <textarea
+        id="bio"
+        maxLength={max}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={4}
+        style={{ width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 6, resize: 'vertical', boxSizing: 'border-box' }}
+      />
+      <div style={{ fontSize: 12, color: left < 20 ? '#ef4444' : '#6b7280', textAlign: 'right' }}>{left} characters remaining</div>
+    </div>
+  );
+}`,
+    solution: `function BioInput() {
+  const max = 100;
+  const [text, setText] = React.useState('');
+  const left = max - text.length;
+  const counterId = 'bio-counter';
+
+  return (
+    <div style={{ width: 280 }}>
+      <label htmlFor="bio" style={{ display: 'block', marginBottom: 4, fontSize: 13, fontWeight: 600 }}>Bio</label>
+      <textarea
+        id="bio"
+        maxLength={max}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        aria-describedby={counterId}
+        rows={4}
+        style={{ width: '100%', padding: 8, border: '1px solid #cbd5e1', borderRadius: 6, resize: 'vertical', boxSizing: 'border-box' }}
+      />
+      <div id={counterId} aria-live="polite" aria-atomic="true" style={{ fontSize: 12, color: left < 20 ? '#ef4444' : '#6b7280', textAlign: 'right' }}>{left} characters remaining</div>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-notification-badge',
+    title: 'Notification Badge Button',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'components'],
+    componentName: 'NotificationButton',
+    description: `## Notification Badge Button
+
+Build a \`NotificationButton\` — a bell icon button with a red badge showing a count.
+
+**Requirements**
+- Shows the notification count visually on the badge.
+- The button must convey the count to screen readers too — the badge number alone is invisible to assistive tech.
+
+The button currently reads as just "button" to a screen reader, with no mention of the count.
+
+> The component takes no props — hardcode 4 notifications.`,
+    hints: [
+      'Give the button an aria-label that includes the count: "4 notifications".',
+      'Mark the badge number as aria-hidden so the count is not announced twice.',
+    ],
+    checks: [
+      { id: 'has-button', label: 'Renders the notification button', selector: 'button', minCount: 1 },
+    ],
+    starterCode: `function NotificationButton() {
+  const count = 4;
+
+  return (
+    <button style={{ position: 'relative', border: 'none', background: 'none', cursor: 'pointer', padding: 8 }}>
+      <span aria-hidden="true" style={{ fontSize: 24 }}>🔔</span>
+      <span style={{ position: 'absolute', top: 2, right: 2, background: '#ef4444', color: '#fff', borderRadius: 999, fontSize: 10, fontWeight: 700, minWidth: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+        {count}
+      </span>
+    </button>
+  );
+}`,
+    solution: `function NotificationButton() {
+  const count = 4;
+
+  return (
+    <button aria-label={count + ' notifications'} style={{ position: 'relative', border: 'none', background: 'none', cursor: 'pointer', padding: 8 }}>
+      <span aria-hidden="true" style={{ fontSize: 24 }}>🔔</span>
+      <span aria-hidden="true" style={{ position: 'absolute', top: 2, right: 2, background: '#ef4444', color: '#fff', borderRadius: 999, fontSize: 10, fontWeight: 700, minWidth: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+        {count}
+      </span>
+    </button>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-dropdown-menu',
+    title: 'Accessible Dropdown Menu',
+    difficulty: 'senior',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'UserMenu',
+    description: `## Accessible Dropdown Menu
+
+Build a \`UserMenu\` — a button that reveals a dropdown with Profile, Settings, and Sign out.
+
+**Requirements**
+- Clicking the button opens/closes the menu.
+- Use the **WAI-ARIA menu pattern**: the trigger exposes \`aria-expanded\` and
+  \`aria-haspopup="menu"\`; the list uses \`role="menu"\` with \`role="menuitem"\` children;
+  Escape closes the menu; arrow keys move between items.
+
+> The component takes no props.`,
+    hints: [
+      'The trigger needs aria-haspopup="menu" and aria-expanded to expose open/closed state.',
+      'role="menu" on the list + role="menuitem" on each option. Arrow keys and Escape are required by the pattern.',
+    ],
+    checks: [
+      { id: 'trigger', label: 'Renders the menu trigger', selector: 'button', minCount: 1 },
+    ],
+    starterCode: `function UserMenu() {
+  const [open, setOpen] = React.useState(false);
+  const items = ['Profile', 'Settings', 'Sign out'];
+
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <button onClick={() => setOpen((o) => !o)} style={{ padding: '8px 14px', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', background: '#fff' }}>
+        My account ▾
+      </button>
+      {open && (
+        <ul style={{ position: 'absolute', top: '110%', left: 0, listStyle: 'none', margin: 0, padding: 4, border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff', minWidth: 150, boxShadow: '0 4px 12px rgba(0,0,0,.1)' }}>
+          {items.map((it) => (
+            <li key={it} onClick={() => setOpen(false)} style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: 4 }}>{it}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}`,
+    solution: `function UserMenu() {
+  const [open, setOpen] = React.useState(false);
+  const [focused, setFocused] = React.useState(0);
+  const items = ['Profile', 'Settings', 'Sign out'];
+  const menuRef = React.useRef(null);
+
+  function onTriggerKeyDown(e) {
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault(); setOpen(true); setFocused(0);
+    }
+  }
+
+  function onMenuKeyDown(e) {
+    if (e.key === 'Escape') { setOpen(false); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setFocused((i) => Math.min(items.length - 1, i + 1)); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); setFocused((i) => Math.max(0, i - 1)); }
+  }
+
+  React.useEffect(() => {
+    if (open && menuRef.current) {
+      const els = menuRef.current.querySelectorAll('[role="menuitem"]');
+      if (els[focused]) els[focused].focus();
+    }
+  }, [open, focused]);
+
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={onTriggerKeyDown}
+        style={{ padding: '8px 14px', border: '1px solid #cbd5e1', borderRadius: 6, cursor: 'pointer', background: '#fff' }}
+      >
+        My account ▾
+      </button>
+      {open && (
+        <ul ref={menuRef} role="menu" onKeyDown={onMenuKeyDown}
+          style={{ position: 'absolute', top: '110%', left: 0, listStyle: 'none', margin: 0, padding: 4, border: '1px solid #e5e7eb', borderRadius: 8, background: '#fff', minWidth: 150, boxShadow: '0 4px 12px rgba(0,0,0,.1)' }}
+        >
+          {items.map((it) => (
+            <li key={it} role="menuitem" tabIndex={-1} onClick={() => setOpen(false)}
+              style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: 4 }}>{it}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-card-link',
+    title: 'Accessible Card Link',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'components'],
+    componentName: 'ArticleCard',
+    description: `## Accessible Card Link
+
+Build an \`ArticleCard\` with a title, excerpt, and "Read more" link.
+
+**Requirements**
+- The card shows a title, a short excerpt, and a call-to-action link.
+- The link must tell screen readers **which article** it leads to — "Read more" alone is meaningless when there are many cards on a page.
+
+> The component takes no props — hardcode the example article.`,
+    hints: [
+      '"Read more" is vague — screen reader users navigating by links hear a list of identical "Read more" entries.',
+      'Add aria-label="Read more about <title>" or include visually-hidden text inside the link.',
+    ],
+    checks: [
+      { id: 'has-link', label: 'Renders the read-more link', selector: 'a', minCount: 1 },
+    ],
+    starterCode: `function ArticleCard() {
+  return (
+    <div style={{ width: 280, border: '1px solid #e5e7eb', borderRadius: 10, padding: 16 }}>
+      <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>Understanding useEffect</h3>
+      <p style={{ margin: '0 0 12px', color: '#6b7280', fontSize: 13 }}>
+        A deep dive into the React hook that handles side effects in functional components.
+      </p>
+      <a href="/articles/useeffect" style={{ fontSize: 13, color: '#4f46e5', textDecoration: 'none', fontWeight: 600 }}>
+        Read more →
+      </a>
+    </div>
+  );
+}`,
+    solution: `function ArticleCard() {
+  const title = 'Understanding useEffect';
+  return (
+    <div style={{ width: 280, border: '1px solid #e5e7eb', borderRadius: 10, padding: 16 }}>
+      <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>{title}</h3>
+      <p style={{ margin: '0 0 12px', color: '#6b7280', fontSize: 13 }}>
+        A deep dive into the React hook that handles side effects in functional components.
+      </p>
+      <a
+        href="/articles/useeffect"
+        aria-label={'Read more about ' + title}
+        style={{ fontSize: 13, color: '#4f46e5', textDecoration: 'none', fontWeight: 600 }}
+      >
+        Read more →
+      </a>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-skip-link',
+    title: 'Skip Navigation Link',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'navigation'],
+    componentName: 'PageLayout',
+    description: `## Skip Navigation Link
+
+Build a \`PageLayout\` with a **skip navigation** link, a nav bar, and a main content area.
+
+**Requirements**
+- A "Skip to main content" link that is visually hidden but becomes visible on keyboard focus.
+- Activating it moves focus directly to the \`<main>\` content, bypassing all nav links.
+
+Without this, keyboard and screen reader users must Tab through every nav item before reaching content on every page load.
+
+> The component takes no props.`,
+    hints: [
+      'Visually hide the skip link with absolute positioning off-screen; reveal it on :focus.',
+      'The link\'s href="#main" must match id="main" on <main>. Add tabIndex={-1} to <main> so programmatic focus sticks.',
+    ],
+    checks: [
+      { id: 'has-main', label: 'Renders a main content area', selector: 'main', exists: true },
+    ],
+    starterCode: `function PageLayout() {
+  const navLinks = ['Home', 'About', 'Blog', 'Contact'];
+
+  return (
+    <div style={{ fontFamily: 'sans-serif' }}>
+      <nav style={{ background: '#1e293b', padding: '12px 16px', display: 'flex', gap: 16 }}>
+        {navLinks.map((l) => (
+          <a key={l} href={'#' + l.toLowerCase()} style={{ color: '#94a3b8', textDecoration: 'none', fontSize: 14 }}>{l}</a>
+        ))}
+      </nav>
+      <main style={{ padding: 24 }}>
+        <h1 style={{ margin: '0 0 8px' }}>Welcome</h1>
+        <p style={{ color: '#6b7280' }}>This is the main content area.</p>
+      </main>
+    </div>
+  );
+}`,
+    solution: `function PageLayout() {
+  const navLinks = ['Home', 'About', 'Blog', 'Contact'];
+  const hiddenStyle = { position: 'absolute', left: '-9999px', top: 'auto', width: 1, height: 1, overflow: 'hidden' };
+  const visibleStyle = { position: 'absolute', left: '8px', top: '8px', width: 'auto', height: 'auto', overflow: 'visible', background: '#4f46e5', color: '#fff', padding: '8px 16px', borderRadius: 4, zIndex: 9999, textDecoration: 'none', fontWeight: 600 };
+  const [skipStyle, setSkipStyle] = React.useState(hiddenStyle);
+
+  return (
+    <div style={{ fontFamily: 'sans-serif', position: 'relative' }}>
+      <a href="#main" style={skipStyle} onFocus={() => setSkipStyle(visibleStyle)} onBlur={() => setSkipStyle(hiddenStyle)}>
+        Skip to main content
+      </a>
+      <nav style={{ background: '#1e293b', padding: '12px 16px', display: 'flex', gap: 16 }}>
+        {navLinks.map((l) => (
+          <a key={l} href={'#' + l.toLowerCase()} style={{ color: '#94a3b8', textDecoration: 'none', fontSize: 14 }}>{l}</a>
+        ))}
+      </nav>
+      <main id="main" tabIndex={-1} style={{ padding: 24, outline: 'none' }}>
+        <h1 style={{ margin: '0 0 8px' }}>Welcome</h1>
+        <p style={{ color: '#6b7280' }}>This is the main content area.</p>
+      </main>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-switch',
+    title: 'Accessible ARIA Switch',
+    difficulty: 'mid',
+    topic: 'React',
+    tags: ['accessibility', 'components', 'state'],
+    componentName: 'NotificationSwitch',
+    description: `## Accessible ARIA Switch
+
+Build a \`NotificationSwitch\` — a custom pill-style toggle (not a native checkbox) for email notifications.
+
+**Requirements**
+- A custom visual switch that toggles between on and off.
+- It must use \`role="switch"\` with \`aria-checked\` so screen readers announce
+  its on/off state, and it must be keyboard operable.
+
+The starter renders the pill correctly but is semantically invisible to screen readers.
+
+> The component takes no props.`,
+    hints: [
+      'A plain <div> that toggles visually is semantically empty — give it role="switch" and aria-checked.',
+      'Add tabIndex={0} and handle the Space key in onKeyDown to match native checkbox behaviour.',
+    ],
+    checks: [
+      { id: 'has-switch', label: 'Renders a switch control', selector: '[role="switch"], button, input[type="checkbox"]', exists: true },
+    ],
+    starterCode: `function NotificationSwitch() {
+  const [on, setOn] = React.useState(false);
+
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+      <div
+        onClick={() => setOn((v) => !v)}
+        style={{ width: 44, height: 24, borderRadius: 999, background: on ? '#4f46e5' : '#d1d5db', cursor: 'pointer', position: 'relative', transition: 'background .2s' }}
+      >
+        <div style={{ position: 'absolute', top: 3, left: on ? 23 : 3, width: 18, height: 18, background: '#fff', borderRadius: '50%', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
+      </div>
+      <span style={{ fontSize: 14 }}>Email notifications</span>
+    </div>
+  );
+}`,
+    solution: `function NotificationSwitch() {
+  const [on, setOn] = React.useState(false);
+
+  function handleKeyDown(e) {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setOn((v) => !v); }
+  }
+
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+      <div
+        role="switch"
+        aria-checked={on}
+        aria-label="Email notifications"
+        tabIndex={0}
+        onClick={() => setOn((v) => !v)}
+        onKeyDown={handleKeyDown}
+        style={{ width: 44, height: 24, borderRadius: 999, background: on ? '#4f46e5' : '#d1d5db', cursor: 'pointer', position: 'relative', transition: 'background .2s', outline: 'none' }}
+      >
+        <div style={{ position: 'absolute', top: 3, left: on ? 23 : 3, width: 18, height: 18, background: '#fff', borderRadius: '50%', transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,.3)' }} />
+      </div>
+      <span aria-hidden="true" style={{ fontSize: 14 }}>Email notifications</span>
+    </div>
+  );
+}`,
+  },
+
+  {
+    id: 'cc-visually-hidden',
+    title: 'Visually Hidden Text',
+    difficulty: 'junior',
+    topic: 'React',
+    tags: ['accessibility', 'components'],
+    componentName: 'PriceTag',
+    description: `## Visually Hidden Text
+
+Build a \`PriceTag\` showing a sale price and the original price struck through.
+
+**Requirements**
+- Display the sale price prominently and the original price with a strikethrough.
+- A screen reader must understand context — bare numbers "29" and "49" without labels are meaningless. Add **visually hidden text** to clarify each price's role.
+
+> The component takes no props — hardcode the prices.`,
+    hints: [
+      'Screen readers read "29 49" with no context. Add visually-hidden labels like "Sale price" and "Original price".',
+      'The sr-only pattern: position absolute, width/height 1px, overflow hidden, clip rect(0,0,0,0).',
+    ],
+    checks: [
+      { id: 'shows-prices', label: 'Renders both price elements', selector: 'span, p', minCount: 2 },
+    ],
+    starterCode: `function PriceTag() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+      <span style={{ fontSize: 24, fontWeight: 700, color: '#4f46e5' }}>$29</span>
+      <span style={{ fontSize: 14, color: '#9ca3af', textDecoration: 'line-through' }}>$49</span>
+    </div>
+  );
+}`,
+    solution: `function PriceTag() {
+  const srOnly = {
+    position: 'absolute', width: 1, height: 1, padding: 0, margin: -1,
+    overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0,
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+      <span style={{ fontSize: 24, fontWeight: 700, color: '#4f46e5' }}>
+        <span style={srOnly}>Sale price: </span>$29
+      </span>
+      <span style={{ fontSize: 14, color: '#9ca3af', textDecoration: 'line-through' }}>
+        <span style={srOnly}>Original price: </span>$49
+      </span>
+    </div>
+  );
+}`,
+  },
 ];
 
 async function main() {
