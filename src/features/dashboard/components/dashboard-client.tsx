@@ -95,7 +95,7 @@ function DashboardContent() {
             {isPro ? (
               <WeakAreasList weakAreas={weakAreas} />
             ) : (
-              <WeakAreasLockedPreview />
+              <WeakAreasLockedPreview topics={recommendations.slice(0, 3).map((r) => r.topic)} />
             )}
             <RecommendedPractice recommendations={recommendations} />
           </div>
@@ -105,13 +105,13 @@ function DashboardContent() {
   );
 }
 
-/** Blurred preview of weak-areas list shown to free users as an upgrade teaser. */
-function WeakAreasLockedPreview() {
-  const GHOST_ROWS = [
-    { topic: 'JavaScript Closures', score: 2.1, gap: 'Scope chain and lexical environment not well understood.' },
-    { topic: 'CSS Specificity',     score: 1.8, gap: 'Selector weight rules unclear; cascade order confused.' },
-    { topic: 'React Reconciliation', score: 2.4, gap: 'Diffing algorithm and key prop role need reinforcement.' },
-  ];
+/** Blurred preview of weak-areas list shown to free users as an upgrade teaser.
+ *  Uses the user's real weak topics (from free recommendations) so it matches
+ *  the AI Recommendations card. Only the score + root-cause text are blurred. */
+function WeakAreasLockedPreview({ topics }: { topics: string[] }) {
+  // Fall back to generic placeholders if no recommendation data yet.
+  const FALLBACK = ['JavaScript', 'CSS Fundamentals', 'React Patterns'];
+  const rows = (topics.length > 0 ? topics : FALLBACK).slice(0, 3);
 
   return (
     <section className="app-surface-card relative flex h-full flex-col overflow-hidden rounded-xl border border-border/60 bg-card p-5">
@@ -126,22 +126,27 @@ function WeakAreasLockedPreview() {
         </div>
       </div>
 
-      {/* Blurred ghost rows */}
+      {/* Ghost rows — topic name visible, score + gap blurred */}
       <ul className="grid flex-1 auto-rows-fr gap-2 select-none" aria-hidden="true">
-        {GHOST_ROWS.map((row) => (
-          <li key={row.topic} className="flex flex-col justify-between rounded-lg border border-border/50 bg-muted/15 px-3.5 py-3 blur-[3px]">
+        {rows.map((topic) => (
+          <li key={topic} className="flex flex-col justify-between rounded-lg border border-border/50 bg-muted/15 px-3.5 py-3">
             <div className="flex items-start gap-3">
               <span className="mt-1.5 size-2 shrink-0 rounded-full bg-red-500/80" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-sm font-semibold truncate">{row.topic}</p>
-                  <p className="shrink-0 text-xs font-bold tabular-nums text-red-500">
-                    {row.score.toFixed(1)}<span className="font-normal text-muted-foreground">/5</span>
+                  {/* Topic name is real — already visible in AI Recommendations */}
+                  <p className="text-sm font-semibold truncate">{topic}</p>
+                  {/* Score is Pro-only — blur it */}
+                  <p className="shrink-0 select-none blur-sm text-xs font-bold tabular-nums text-red-500">
+                    2.x<span className="font-normal text-muted-foreground">/5</span>
                   </p>
                 </div>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">{row.gap}</p>
-                <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full rounded-full bg-red-500/70" style={{ width: `${(row.score / 5) * 100}%` }} />
+                {/* Root-cause gap is Pro-only — blur it */}
+                <p className="mt-1 select-none blur-sm text-xs leading-relaxed text-muted-foreground line-clamp-2">
+                  Specific gap analysis unlocked with Pro.
+                </p>
+                <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-muted blur-sm">
+                  <div className="h-full w-2/5 rounded-full bg-red-500/70" />
                 </div>
               </div>
             </div>
@@ -156,7 +161,7 @@ function WeakAreasLockedPreview() {
         </div>
         <div>
           <p className="text-sm font-semibold">Unlock your weak spots</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">See which topics drag your score down and exactly why.</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">See exactly why these topics drag your score down.</p>
         </div>
         <Link href="/upgrade" className={buttonVariants({ size: 'sm' })}>
           Upgrade to Pro
