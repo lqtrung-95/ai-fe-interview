@@ -7,7 +7,10 @@ export function FeedbackLoadingState() {
   return (
     <section className="overflow-hidden rounded-xl border border-primary/20 bg-card">
       <div className="h-1 overflow-hidden bg-primary/10">
-        <div className="h-full w-2/3 animate-pulse rounded-r-full bg-primary/70" />
+        <div
+          className="h-full w-1/3 rounded-full bg-gradient-to-r from-primary/40 via-primary to-primary/40"
+          style={{ animation: 'progress-slide 1.6s ease-in-out infinite' }}
+        />
       </div>
       <div className="border-b border-border/60 px-5 py-4">
         <div className="flex items-center gap-3">

@@ -537,6 +537,11 @@
   to { opacity: 1; }
 }
 
+@keyframes progress-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(500%); }
+}
+
 @media print {
   .reader-atmosphere {
     display: none;
