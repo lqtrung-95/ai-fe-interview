@@ -19,7 +19,9 @@ export function DailyReviewCard({ dueCount, reviewedToday, dailyGoal, currentStr
     <section className="app-surface-card flex h-full flex-col rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <CalendarCheck className="h-4 w-4 text-primary" />
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10">
+            <CalendarCheck className="h-3.5 w-3.5 text-primary" />
+          </span>
           <h3 className="text-sm font-semibold">Daily review</h3>
         </div>
         {/* Streak badge */}
