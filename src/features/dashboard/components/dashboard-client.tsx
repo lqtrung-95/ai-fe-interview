@@ -81,7 +81,6 @@ function DashboardContent() {
             <ScoreTrendChart data={trend} />
             <TopicRadarChart data={topics} />
           </div>
-          <ReadinessScoreCard overall={readiness.overall} topics={readiness.topics} />
           <div className="grid gap-5 lg:grid-cols-2">
             <DailyReviewCard
               dueCount={review.dueCount}
@@ -99,6 +98,7 @@ function DashboardContent() {
             )}
             <RecommendedPractice recommendations={recommendations} />
           </div>
+          <ReadinessScoreCard overall={readiness.overall} topics={readiness.topics} />
         </div>
       )}
     </div>
