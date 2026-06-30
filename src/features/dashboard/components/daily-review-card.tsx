@@ -65,12 +65,14 @@ export function DailyReviewCard({ dueCount, reviewedToday, dailyGoal, currentStr
         </div>
       </div>
 
-      <Link
-        href="/review"
-        className={`mt-auto pt-4 w-full ${buttonVariants({ variant: dueCount > 0 ? 'default' : 'outline', size: 'sm' })}`}
-      >
-        {dueCount > 0 ? `Review ${dueCount} topic${dueCount !== 1 ? 's' : ''} →` : 'Open review'}
-      </Link>
+      <div className="mt-auto pt-4">
+        <Link
+          href="/review"
+          className={`w-full ${buttonVariants({ variant: dueCount > 0 ? 'default' : 'outline', size: 'sm' })}`}
+        >
+          {dueCount > 0 ? `Review ${dueCount} topic${dueCount !== 1 ? 's' : ''} →` : 'Open review'}
+        </Link>
+      </div>
     </section>
   );
 }
