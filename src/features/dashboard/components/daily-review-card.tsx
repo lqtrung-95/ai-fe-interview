@@ -16,7 +16,7 @@ export function DailyReviewCard({ dueCount, reviewedToday, dailyGoal, currentStr
   const goalHit = reviewedToday >= dailyGoal && dailyGoal > 0;
 
   return (
-    <section className="app-surface-card flex flex-col rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm">
+    <section className="app-surface-card flex h-full flex-col rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <CalendarCheck className="h-4 w-4 text-primary" />

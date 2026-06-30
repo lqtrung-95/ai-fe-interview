@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { ArrowRight, Code2 } from 'lucide-react';
+import { Code2 } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button';
 
 interface Props {
   solved: number;
@@ -11,7 +12,7 @@ export function CodingChallengesStatCard({ solved, total }: Props) {
   const remaining = total - solved;
 
   return (
-    <section className="app-surface-card flex flex-col rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm">
+    <section className="app-surface-card flex h-full flex-col rounded-xl border border-border/60 bg-card/90 p-5 backdrop-blur-sm">
       <div className="mb-4 flex items-center gap-2">
         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sky-500/10">
           <Code2 className="h-3.5 w-3.5 text-sky-500" />
@@ -40,10 +41,9 @@ export function CodingChallengesStatCard({ solved, total }: Props) {
       <div className="mt-auto pt-4">
         <Link
           href="/coding-challenges"
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-transparent px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-sky-500/30 hover:text-sky-400"
+          className={`w-full ${buttonVariants({ variant: solved === 0 ? 'default' : 'outline', size: 'sm' })}`}
         >
-          {solved === 0 ? 'Start first challenge' : 'Browse challenges'}
-          <ArrowRight className="h-3.5 w-3.5" />
+          {solved === 0 ? 'Start first challenge →' : 'Browse challenges'}
         </Link>
       </div>
     </section>
