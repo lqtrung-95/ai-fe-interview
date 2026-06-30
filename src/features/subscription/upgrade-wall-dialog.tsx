@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -17,7 +19,11 @@ const PRO_PERKS = [
 ];
 
 export function UpgradeWallDialog({ open, onClose }: Props) {
-  if (!open) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!open || !mounted) return null;
 
   const monthlyId = process.env.NEXT_PUBLIC_POLAR_MONTHLY_PRODUCT_ID;
   const lifetimeId = process.env.NEXT_PUBLIC_POLAR_LIFETIME_PRODUCT_ID;
@@ -25,7 +31,7 @@ export function UpgradeWallDialog({ open, onClose }: Props) {
   const monthlyUrl = monthlyId ? `/api/checkout?products=${monthlyId}` : '/upgrade';
   const lifetimeUrl = lifetimeId ? `/api/checkout?products=${lifetimeId}` : '/upgrade';
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={onClose}
@@ -67,6 +73,7 @@ export function UpgradeWallDialog({ open, onClose }: Props) {
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
