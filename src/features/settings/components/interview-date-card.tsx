@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { CalendarDays } from 'lucide-react';
+import { dashboardKeys } from '@/lib/query/keys';
 import { updateInterviewDateAction } from '../server/update-interview-date-action';
 
 interface Props {
@@ -16,6 +18,7 @@ export function InterviewDateCard({ initialDate }: Props) {
   const [value, setValue] = useState(toInputValue(initialDate));
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setValue(e.target.value);
@@ -25,6 +28,9 @@ export function InterviewDateCard({ initialDate }: Props) {
   function handleSave() {
     startTransition(async () => {
       await updateInterviewDateAction(value || null);
+      // Bust React Query's 30-min stale cache so the dashboard banner
+      // reflects the new date immediately without a manual refresh.
+      await queryClient.invalidateQueries({ queryKey: dashboardKeys.all() });
       setSaved(true);
     });
   }
@@ -33,6 +39,7 @@ export function InterviewDateCard({ initialDate }: Props) {
     setValue('');
     startTransition(async () => {
       await updateInterviewDateAction(null);
+      await queryClient.invalidateQueries({ queryKey: dashboardKeys.all() });
       setSaved(false);
     });
   }
