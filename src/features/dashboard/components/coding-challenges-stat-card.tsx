@@ -41,7 +41,7 @@ export function CodingChallengesStatCard({ solved, total }: Props) {
       <div className="mt-auto pt-4">
         <Link
           href="/coding-challenges"
-          className={`w-full ${buttonVariants({ variant: solved === 0 ? 'default' : 'outline', size: 'sm' })}`}
+          className={`w-full ${buttonVariants({ variant: 'outline', size: 'sm' })}`}
         >
           {solved === 0 ? 'Start first challenge →' : 'Browse challenges'}
         </Link>
