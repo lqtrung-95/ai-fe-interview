@@ -39,7 +39,7 @@ export function CodingChallengesStatCard({ solved, total }: Props) {
 
       <Link
         href="/coding-challenges"
-        className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-transparent px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-sky-500/30 hover:text-sky-400"
+        className="mt-auto pt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-transparent px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-sky-500/30 hover:text-sky-400"
       >
         {solved === 0 ? 'Start first challenge' : 'Browse challenges'}
         <ArrowRight className="h-3.5 w-3.5" />
