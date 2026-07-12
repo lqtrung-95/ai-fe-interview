@@ -11,6 +11,7 @@ export function buildJdExtractPrompt(input: ExtractJdInput): { system: string; u
     '- level: inferred seniority (junior/mid/senior/staff) based on requirements, else omit',
     '- domain: business domain in 3–5 words (e.g. "fintech / payments", "e-commerce / B2C")',
     '- requiredStack: up to 10 explicitly required technologies or frameworks',
+    '- responsibilities: up to 5 concrete work items the role owns, quoted or tightly paraphrased from the posting (e.g. "own checkout performance", "migrate legacy jQuery views to React", "build and maintain the design system"). Prefer specific, technical responsibilities over generic ones ("write clean code" is useless).',
     '- signals: up to 6 short culture or working-style keywords (e.g. "high-ownership", "distributed-systems")',
     'Output strict JSON. Omit optional fields when they cannot be reliably inferred.',
   ].join('\n');

@@ -46,8 +46,8 @@ export const questionInputSchema = z.object({
   // Max 1 200 chars — built by buildCvContext(). NOT stored in AICall logs.
   cvContext: z.string().max(1200).optional(),
   // Formatted JD context injected when session targets a specific job (Pro).
-  // Max 600 chars — built by formatJdContext(). NOT stored in AICall logs.
-  jdContext: z.string().max(600).optional(),
+  // Max 900 chars — built by formatJdContext(). NOT stored in AICall logs.
+  jdContext: z.string().max(900).optional(),
 });
 export type QuestionInput = z.infer<typeof questionInputSchema>;
 
@@ -83,6 +83,9 @@ export const evaluateInputSchema = z.object({
   userAnswer: z.string(),
   followUpAnswer: z.string().optional(),
   level: levelEnum,
+  // Formatted JD context when the session targets a specific job — lets the
+  // evaluator calibrate feedback to that role/domain. NOT stored in AICall logs.
+  jdContext: z.string().max(900).optional(),
 });
 export type EvaluateInput = z.infer<typeof evaluateInputSchema>;
 
@@ -151,6 +154,9 @@ export const extractJdOutputSchema = z.object({
   level: z.string().optional(),
   domain: z.string(),
   requiredStack: z.array(z.string()).max(10),
+  // Concrete work items from the JD ("own checkout performance", "migrate to
+  // React") — the most fertile material for scenario questions.
+  responsibilities: z.array(z.string()).max(5).default([]),
   signals: z.array(z.string()).max(6),
 });
 export type ExtractJdOutput = z.infer<typeof extractJdOutputSchema>;

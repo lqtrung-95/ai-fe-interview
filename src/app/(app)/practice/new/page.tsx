@@ -3,6 +3,11 @@ import { requireUser } from '@/lib/auth/session';
 import { prisma } from '@/lib/db/client';
 import { TopicSelectionForm } from '@/features/interview/topic-selection-form';
 import { ONBOARDING_TOPICS } from '@/features/onboarding/schema';
+import {
+  suggestTopicsFromJd,
+  suggestDifficultyFromJd,
+  type JdContext,
+} from '@/features/target-jobs/target-job-types';
 import type { Level } from '@prisma/client';
 
 export const metadata = { title: 'Start a session' };
@@ -35,16 +40,28 @@ export default async function NewSessionPage({
   const user = await requireUser();
   const params = await searchParams;
 
-  const [topicCounts, targetJobs] = await Promise.all([
+  const [topicCounts, rawTargetJobs] = await Promise.all([
     getSeedTopicCounts(),
     user.isPro
       ? prisma.targetJob.findMany({
           where: { userId: user.id },
-          select: { id: true, label: true },
+          select: { id: true, label: true, jdContext: true },
           orderBy: { createdAt: 'desc' },
         })
       : Promise.resolve([]),
   ]);
+
+  // Derive per-job topic + difficulty suggestions from the extracted JD so the
+  // form can pre-select them when a target job is picked.
+  const targetJobs = rawTargetJobs.map((job) => {
+    const ctx = job.jdContext as JdContext | null;
+    return {
+      id: job.id,
+      label: job.label,
+      suggestedTopics: ctx ? suggestTopicsFromJd(ctx) : [],
+      suggestedDifficulty: ctx ? suggestDifficultyFromJd(ctx) : null,
+    };
+  });
 
   // Honor ?topic=X and ?difficulty=Y from recommendation cards, when valid.
   const requestedTopic =

@@ -12,8 +12,10 @@ vi.mock('@ai-sdk/deepseek', () => ({ deepseek: (id: string) => stubModel(`deepse
 import { routeModel } from './model-router';
 
 describe('routeModel — task → tier mapping', () => {
-  const cheapTasks = ['generate_question', 'generate_followup', 'extract_jd'] as const;
-  const smartTasks = ['evaluate_answer', 'generate_summary'] as const;
+  const cheapTasks = ['generate_question', 'generate_followup'] as const;
+  // extract_jd is smart: one-time per saved job, but every JD-tailored question
+  // in every future session inherits its extraction quality.
+  const smartTasks = ['evaluate_answer', 'generate_summary', 'extract_jd'] as const;
 
   it.each(cheapTasks)('%s routes to the cheap tier', (task) => {
     const { tier } = routeModel(task);
@@ -36,7 +38,7 @@ describe('routeModel — task → tier mapping', () => {
 });
 
 describe('routeModel — Pro priority (premium model tier)', () => {
-  const cheapTasks = ['generate_question', 'generate_followup', 'extract_jd'] as const;
+  const cheapTasks = ['generate_question', 'generate_followup'] as const;
 
   it.each(cheapTasks)('Pro user is upgraded to the smart tier on %s', (task) => {
     expect(routeModel(task, { isPro: false }).tier).toBe('cheap');

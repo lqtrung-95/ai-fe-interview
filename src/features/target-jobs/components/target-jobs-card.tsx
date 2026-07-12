@@ -7,12 +7,15 @@ import { Button } from '@/components/ui/button';
 import { buttonVariants } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { TargetJobAddForm } from './target-job-add-form';
+import type { JdContext } from '../target-job-types';
 
 const MAX_JOBS = 3;
 
 interface SavedJob {
   id: string;
   label: string;
+  /** Extracted JD context — shown so the user can verify what the AI pulled out. */
+  jdContext?: JdContext | null;
 }
 
 interface Props {
@@ -82,19 +85,22 @@ export function TargetJobsCard({ isPro, initialJobs }: Props) {
               {jobs.map((job) => (
                 <li
                   key={job.id}
-                  className="flex items-center gap-3 rounded-lg border border-border/60 bg-background/60 px-4 py-3"
+                  className="rounded-lg border border-border/60 bg-background/60 px-4 py-3"
                 >
-                  <Briefcase className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="flex-1 truncate text-sm font-medium">{job.label}</span>
-                  <button
-                    type="button"
-                    onClick={() => setPendingDelete(job)}
-                    disabled={deletingId === job.id}
-                    aria-label={`Remove ${job.label}`}
-                    className="text-muted-foreground transition-colors hover:text-destructive disabled:opacity-40"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <Briefcase className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="flex-1 truncate text-sm font-medium">{job.label}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPendingDelete(job)}
+                      disabled={deletingId === job.id}
+                      aria-label={`Remove ${job.label}`}
+                      className="text-muted-foreground transition-colors hover:text-destructive disabled:opacity-40"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  {job.jdContext && <JdContextSummary ctx={job.jdContext} />}
                 </li>
               ))}
             </ul>
@@ -135,5 +141,37 @@ export function TargetJobsCard({ isPro, initialJobs }: Props) {
         onCancel={() => setPendingDelete(null)}
       />
     </section>
+  );
+}
+
+/**
+ * Compact readout of what the AI extracted from the JD — role, domain, and
+ * stack chips. Lets the user verify the extraction that drives question
+ * tailoring instead of trusting it blindly.
+ */
+function JdContextSummary({ ctx }: { ctx: JdContext }) {
+  return (
+    <div className="mt-2 space-y-1.5 pl-7">
+      <p className="text-xs text-muted-foreground">
+        {[ctx.role, ctx.domain, ctx.level].filter(Boolean).join(' · ')}
+      </p>
+      {ctx.requiredStack.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {ctx.requiredStack.slice(0, 6).map((tech) => (
+            <span
+              key={tech}
+              className="rounded border border-border/50 bg-muted/40 px-1.5 py-0.5 text-[10px] text-muted-foreground"
+            >
+              {tech}
+            </span>
+          ))}
+          {ctx.requiredStack.length > 6 && (
+            <span className="px-1 py-0.5 text-[10px] text-muted-foreground">
+              +{ctx.requiredStack.length - 6}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

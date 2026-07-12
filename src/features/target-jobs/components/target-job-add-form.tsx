@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import type { JdContext } from '../target-job-types';
 
 interface Props {
-  onSaved: (job: { id: string; label: string }) => void;
+  onSaved: (job: { id: string; label: string; jdContext?: JdContext | null }) => void;
   onCancel: () => void;
 }
 

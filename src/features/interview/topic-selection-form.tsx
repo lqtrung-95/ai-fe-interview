@@ -22,7 +22,14 @@ interface Props {
   /** Whether the user has a parsed CV — shows the "Based on my CV" toggle when true. */
   hasCv?: boolean;
   /** Pro users' saved job targets — shows the target job selector when non-empty. */
-  targetJobs?: { id: string; label: string }[];
+  targetJobs?: {
+    id: string;
+    label: string;
+    /** Canonical topics matched from the JD's stack/domain — pre-selected on pick. */
+    suggestedTopics?: string[];
+    /** Difficulty inferred from the JD's seniority — pre-selected on pick. */
+    suggestedDifficulty?: Difficulty | null;
+  }[];
   /** Gates Pro-only modes (mock interview) — non-Pro clicks open the upgrade wall. */
   isPro?: boolean;
 }
@@ -66,6 +73,17 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
     setTopics((current) =>
       current.includes(topic) ? current.filter((item) => item !== topic) : [...current, topic]
     );
+  }
+
+  const selectedJob = targetJobs.find((job) => job.id === selectedJobId) ?? null;
+  const jobApplied =
+    !!selectedJob && ((selectedJob.suggestedTopics?.length ?? 0) > 0 || !!selectedJob.suggestedDifficulty);
+
+  /** Selecting a job pre-fills topics + difficulty matched from its JD (still editable). */
+  function selectJob(job: NonNullable<Props['targetJobs']>[number]) {
+    setSelectedJobId(job.id);
+    if (job.suggestedTopics?.length) setTopics(job.suggestedTopics);
+    if (job.suggestedDifficulty) setDifficulty(job.suggestedDifficulty);
   }
 
   function handleStart() {
@@ -249,7 +267,7 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
               <button
                 key={job.id}
                 type="button"
-                onClick={() => setSelectedJobId(job.id)}
+                onClick={() => selectJob(job)}
                 className={cn(
                   'flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all',
                   selectedJobId === job.id
@@ -268,6 +286,12 @@ export function TopicSelectionForm({ defaultTopics, defaultDifficulty, topicCoun
               </button>
             ))}
 
+            {jobApplied && (
+              <p className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+                <Sparkles className="mr-1 inline h-3 w-3 text-primary" />
+                Topics and difficulty were matched to this JD — adjust below if needed.
+              </p>
+            )}
             <p className="text-xs text-muted-foreground">
               Manage targets in{' '}
               <Link href="/settings" className="underline underline-offset-2 hover:text-foreground">

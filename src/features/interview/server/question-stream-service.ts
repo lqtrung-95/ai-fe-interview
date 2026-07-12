@@ -59,9 +59,14 @@ export async function streamNextQuestion(args: Args): Promise<Response> {
   const difficulty = adaptDifficulty(baseDifficulty, answeredScores);
 
   // CV/experience sessions run conversationally (opener → drill into the
-  // candidate's answers), so they skip canned seed questions entirely.
+  // candidate's answers) and JD-targeted sessions must anchor to the job's
+  // stack/domain — both skip canned seed questions entirely, since a seed's
+  // "keep the same topic + expectedPoints" instruction would override the
+  // personalisation context.
   const seedQuestion =
-    !args.session.usesCv && Math.random() < SEED_PROBABILITY
+    !args.session.usesCv &&
+    !args.session.targetJobId &&
+    Math.random() < SEED_PROBABILITY
       ? await pickSeedQuestion({ topic, difficulty, sessionId: args.session.id })
       : null;
 

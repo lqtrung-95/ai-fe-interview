@@ -3,6 +3,20 @@ import { prisma } from '@/lib/db/client';
 import { runAITask, streamAITask } from '@/lib/ai/orchestrator';
 import { evaluateOutputSchema, type EvaluateOutput } from '@/features/interview/ai-schemas';
 import { recordReview } from '@/features/review/server/review-scheduler-service';
+import { formatJdContext, type JdContext } from '@/features/target-jobs/target-job-types';
+
+/**
+ * Formatted JD context for a session's target job, if any — lets the evaluator
+ * calibrate feedback to the role. NOT stored in AICall logs.
+ */
+async function getSessionJdContext(sessionId: string): Promise<string | undefined> {
+  const session = await prisma.interviewSession.findFirst({
+    where: { id: sessionId },
+    select: { targetJob: { select: { jdContext: true } } },
+  });
+  const raw = session?.targetJob?.jdContext;
+  return raw ? formatJdContext(raw as unknown as JdContext) : undefined;
+}
 
 export async function streamFeedback(answerId: string, userId: string): Promise<Response> {
   const answer = await prisma.userAnswer.findFirst({
@@ -19,10 +33,13 @@ export async function streamFeedback(answerId: string, userId: string): Promise<
     return sseResponse(sse('final', fromFeedback(answer.feedback)));
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { level: true },
-  });
+  const [user, jdContext] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { level: true },
+    }),
+    getSessionJdContext(answer.sessionId),
+  ]);
   if (!user) return Response.json({ error: 'not_found' }, { status: 404 });
 
   const result = streamAITask(
@@ -34,6 +51,7 @@ export async function streamFeedback(answerId: string, userId: string): Promise<
         userAnswer: answer.answer,
         followUpAnswer: answer.followUpAnswer ?? undefined,
         level: user.level,
+        jdContext,
       },
     },
     { userId, sessionId: answer.sessionId }
@@ -81,10 +99,13 @@ export async function generateMissingFeedbackForSession(
   });
   if (answers.length === 0) return;
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { level: true },
-  });
+  const [user, jdContext] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { level: true },
+    }),
+    getSessionJdContext(sessionId),
+  ]);
   if (!user) return;
 
   await Promise.allSettled(
@@ -98,6 +119,7 @@ export async function generateMissingFeedbackForSession(
             userAnswer: answer.answer,
             followUpAnswer: answer.followUpAnswer ?? undefined,
             level: user.level,
+            jdContext,
           },
         },
         { userId, sessionId },

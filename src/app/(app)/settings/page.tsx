@@ -16,11 +16,17 @@ export default async function SettingsPage() {
 
   const cvData = (user.cvData as CvData | null) ?? null;
 
-  const targetJobs = await prisma.targetJob.findMany({
+  const rawTargetJobs = await prisma.targetJob.findMany({
     where: { userId: user.id },
-    select: { id: true, label: true },
+    select: { id: true, label: true, jdContext: true },
     orderBy: { createdAt: 'desc' },
   });
+  // Serialize the JSON column into the shape the client card expects.
+  const targetJobs = rawTargetJobs.map((job) => ({
+    id: job.id,
+    label: job.label,
+    jdContext: job.jdContext as import('@/features/target-jobs/target-job-types').JdContext | null,
+  }));
 
   return (
     <div className="app-page mx-auto max-w-4xl space-y-8 px-6 py-10">

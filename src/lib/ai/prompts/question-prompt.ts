@@ -22,7 +22,14 @@ export function buildQuestionPrompt(input: QuestionInput): {
   }
 
   const jdInstruction = input.jdContext
-    ? '\n- When a target job context is provided, probe the technologies and domain in that JD. Prefer scenario framing tied to the company\'s domain (e.g. high-scale payments, marketplace, SaaS).'
+    ? [
+        '\n- A target job context is provided below. The question MUST be visibly anchored to it — the candidate should feel it was written for THIS job. Do one of:',
+        '  (a) frame the question as a realistic scenario in that company\'s domain (e.g. for a payments company: "your checkout page…"),',
+        '  (b) probe one of the required-stack technologies in depth within the given topic, or',
+        '  (c) turn one of the key responsibilities into a "how would you approach…" question.',
+        '- Never ask a generic question that ignores the JD — if the topic and the JD stack conflict, adapt the question toward the JD.',
+        '- If you generate a behavioral question, ground it in one of the culture signals (e.g. "high-ownership" → a time they owned an outcome end-to-end).',
+      ].join('\n')
     : '';
 
   const system = [
