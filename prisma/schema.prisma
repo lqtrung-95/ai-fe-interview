@@ -105,6 +105,7 @@ model InterviewSession {
   targetJob    TargetJob?    @relation(fields: [targetJobId], references: [id], onDelete: SetNull)
   startedAt    DateTime      @default(now())
   completedAt  DateTime?
+  shareToken   String?       @unique
 
   questions InterviewQuestion[]
   summary   SessionSummary?

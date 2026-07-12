@@ -40,9 +40,6 @@ export default async function CompletePage({ params }: PageProps) {
   // for going through the session without any live feedback.
   const isMock = detail?.mode === 'mock';
 
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://frontcoach.app';
-  const shareUrl = `${base}/practice/${sessionId}/complete`;
-
   return (
     <div className="app-page mx-auto max-w-5xl px-6 py-8">
       <header className="mb-8">
@@ -82,7 +79,7 @@ export default async function CompletePage({ params }: PageProps) {
         <Link href="/history" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
           View history
         </Link>
-        <ShareSessionButton shareUrl={shareUrl} score={summary.overallScore} />
+        <ShareSessionButton sessionId={sessionId} score={summary.overallScore} />
         <Link href="/dashboard" className={buttonVariants({ variant: 'ghost', size: 'lg' })}>
           Dashboard
         </Link>
