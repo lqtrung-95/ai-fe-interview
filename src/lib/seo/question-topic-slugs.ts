@@ -66,6 +66,13 @@ export const QUESTION_TOPIC_PAGES: QuestionTopicPage[] = [
     intro:
       'Behavioral questions tailored to software engineers — failure stories, production incidents, cross-team conflict, estimation misses, and influence without authority — each with STAR answer structure, strong-vs-weak answer guidance, and the probing follow-ups interviewers use.',
   },
+  {
+    topic: 'Web3 & Blockchain',
+    slug: 'web3-blockchain',
+    title: 'Web3 & Blockchain Frontend Interview Questions',
+    intro:
+      'Frontend-focused web3 questions covering wallet connection (EIP-1193 and window.ethereum), reading and writing contract state with viem and wagmi, the transaction lifecycle and pending-state UX, EIP-712 typed-data signing, wei and BigInt precision, event syncing, chain switching, RPC provider strategy, approval security, ENS, and dapp testing — the material that separates real dapp engineers from tutorial-followers.',
+  },
 ];
 
 export function getTopicPageBySlug(slug: string): QuestionTopicPage | undefined {

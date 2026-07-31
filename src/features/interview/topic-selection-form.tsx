@@ -39,6 +39,7 @@ const GROUPS = [
   ['Performance', ['Web Performance']],
   ['Architecture', ['Frontend System Design']],
   ['Interview Skills', ['Testing', 'Behavioral']],
+  ['Specialised', ['Web3 & Blockchain']],
 ] as const;
 
 /** Timer preset options: 0 = no limit, CUSTOM_SENTINEL = custom input */

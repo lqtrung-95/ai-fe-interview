@@ -8,6 +8,7 @@ export const ONBOARDING_TOPICS = [
   'Browser & Web APIs',
   'Testing',
   'Behavioral',
+  'Web3 & Blockchain',
 ] as const;
 
 export const ONBOARDING_COMPANY_TYPES = [

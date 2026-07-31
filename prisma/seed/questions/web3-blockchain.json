@@ -1,7 +1,7 @@
 [
   {
     "id": "web3-browser-eip1193-provider-wallet-connection",
-    "topic": "Browser & Web APIs",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Wallet Integration",
     "difficulty": "mid",
     "type": "conceptual",
@@ -18,12 +18,15 @@
       "What should the UI do when the user has a wallet but hasn't connected any account yet?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-react-wallet-connection-state-management",
-    "topic": "React",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Wallet Integration",
     "difficulty": "mid",
     "type": "system_design",
@@ -40,12 +43,15 @@
       "Why is a status enum better than a boolean isConnected here?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-react-reading-contract-state-hooks",
-    "topic": "React",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Contract Reads",
     "difficulty": "mid",
     "type": "conceptual",
@@ -62,12 +68,15 @@
       "What are the trade-offs of caching read results vs. refetching every block?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-react-transaction-lifecycle-pending-ux",
-    "topic": "React",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Transactions",
     "difficulty": "senior",
     "type": "system_design",
@@ -84,12 +93,15 @@
       "How do you handle a transaction that's stuck pending for a long time?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-js-units-wei-gwei-ether-bigint",
-    "topic": "JavaScript",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Units & Precision",
     "difficulty": "mid",
     "type": "debugging",
@@ -106,12 +118,15 @@
       "Why can't you just use Number for a token with 6 decimals like USDC 'to be safe'?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-js-eip712-typed-data-signing",
-    "topic": "JavaScript",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Signatures",
     "difficulty": "senior",
     "type": "conceptual",
@@ -128,12 +143,15 @@
       "What replay risks remain, and how does including a nonce help?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-react-contract-events-ui-sync",
-    "topic": "React",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Events & Realtime",
     "difficulty": "senior",
     "type": "system_design",
@@ -150,12 +168,15 @@
       "Why might you prefer an indexer (e.g. The Graph) over listening to raw logs in the client?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-react-wrong-network-chain-switching",
-    "topic": "React",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Networks",
     "difficulty": "mid",
     "type": "debugging",
@@ -172,12 +193,15 @@
       "How would you support a multi-chain dapp where several networks are valid?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-fsd-rpc-provider-strategy-reliability",
-    "topic": "Frontend System Design",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Infrastructure",
     "difficulty": "senior",
     "type": "system_design",
@@ -194,12 +218,15 @@
       "How do you decide between direct RPC reads and a backend/indexer for a given query?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-fsd-token-approval-security-ux",
-    "topic": "Frontend System Design",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Security",
     "difficulty": "senior",
     "type": "tradeoff",
@@ -216,12 +243,15 @@
       "How does a malicious site typically abuse approvals, and what UI cues reduce that risk?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-js-read-vs-write-call-vs-transaction",
-    "topic": "JavaScript",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Contract Interaction",
     "difficulty": "junior",
     "type": "conceptual",
@@ -238,12 +268,15 @@
       "What does the transaction receipt tell you that the tx hash alone doesn't?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-js-ens-resolution-display",
-    "topic": "JavaScript",
+    "topic": "Web3 & Blockchain",
     "subtopic": "ENS",
     "difficulty": "junior",
     "type": "conceptual",
@@ -260,12 +293,15 @@
       "What UX do you show while resolution is in flight?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-react-transaction-error-handling-reverts",
-    "topic": "React",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Error Handling",
     "difficulty": "senior",
     "type": "debugging",
@@ -282,12 +318,15 @@
       "A tx is mined but status is 0 (reverted) — how do you present that, since gas was still spent?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-fsd-onchain-data-freshness-caching",
-    "topic": "Frontend System Design",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Data & Caching",
     "difficulty": "senior",
     "type": "tradeoff",
@@ -304,12 +343,15 @@
       "How do you avoid unnecessary React re-renders when polling many values?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   },
   {
     "id": "web3-testing-mocking-providers-forked-networks",
-    "topic": "Testing",
+    "topic": "Web3 & Blockchain",
     "subtopic": "Dapp Testing",
     "difficulty": "senior",
     "type": "conceptual",
@@ -326,7 +368,10 @@
       "What would you mock vs. run for real, and why?"
     ],
     "rubric": {},
-    "tags": ["web3", "blockchain"],
+    "tags": [
+      "web3",
+      "blockchain"
+    ],
     "sourceFile": "web3-blockchain-frontend"
   }
 ]

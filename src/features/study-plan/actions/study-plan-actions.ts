@@ -3,19 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import type { Level } from '@prisma/client';
 import { requireUser } from '@/lib/auth/session';
+import { ONBOARDING_TOPICS } from '@/features/onboarding/schema';
 import { upsertStudyPlan, toggleStudied, markReviewed } from '../server/study-plan-service';
 
 const VALID_LEVELS: Level[] = ['junior', 'mid', 'senior', 'staff'];
 const VALID_PREP_WEEKS = [1, 2, 4, 12];
-const CANONICAL_TOPICS = [
-  'JavaScript',
-  'React',
-  'Frontend System Design',
-  'Web Performance',
-  'Browser & Web APIs',
-  'Testing',
-  'Behavioral',
-];
+// Single source of truth for topics — avoids drift when a topic is added.
+const CANONICAL_TOPICS: readonly string[] = ONBOARDING_TOPICS;
 
 export async function savePlanAction(formData: FormData) {
   const user = await requireUser();
