@@ -1,0 +1,332 @@
+[
+  {
+    "id": "web3-browser-eip1193-provider-wallet-connection",
+    "topic": "Browser & Web APIs",
+    "subtopic": "Wallet Integration",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "Walk me through how a browser dapp connects to a user's wallet. What is window.ethereum, and how does the EIP-1193 provider interface fit in?",
+    "expectedPoints": [
+      "An injected wallet (e.g. MetaMask) exposes an EIP-1193 provider on window.ethereum.",
+      "Connection starts by requesting accounts, e.g. provider.request({ method: 'eth_requestAccounts' }), which triggers the wallet approval popup.",
+      "EIP-1193 standardises request(), plus 'accountsChanged' and 'chainChanged' events.",
+      "The dapp should never assume a wallet exists — feature-detect window.ethereum and handle its absence.",
+      "Distinguish read-only RPC access from account-connected (signer) access."
+    ],
+    "followUps": [
+      "How would you support multiple injected wallets fighting over window.ethereum? Are you aware of EIP-6963?",
+      "What should the UI do when the user has a wallet but hasn't connected any account yet?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-react-wallet-connection-state-management",
+    "topic": "React",
+    "subtopic": "Wallet Integration",
+    "difficulty": "mid",
+    "type": "system_design",
+    "question": "You're building the wallet-connection layer of a React dapp. How would you model and manage connection state — address, chain, connection status — across the app?",
+    "expectedPoints": [
+      "Centralise wallet state in context/a store (or a library like wagmi) rather than prop-drilling.",
+      "Track address, chainId, and a status machine: disconnected / connecting / connected / reconnecting.",
+      "Subscribe to 'accountsChanged' and 'chainChanged' and update state; clean up listeners on unmount.",
+      "Handle auto-reconnect on refresh vs. requiring an explicit connect.",
+      "Expose a clean hook API (e.g. useAccount) so components stay declarative."
+    ],
+    "followUps": [
+      "How do you avoid a flash of 'disconnected' UI during reconnection on page load?",
+      "Why is a status enum better than a boolean isConnected here?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-react-reading-contract-state-hooks",
+    "topic": "React",
+    "subtopic": "Contract Reads",
+    "difficulty": "mid",
+    "type": "conceptual",
+    "question": "How do you read on-chain contract state in a React app with a library like wagmi or viem? What makes a read different from a normal REST fetch?",
+    "expectedPoints": [
+      "Reads are eth_call against a node — no gas, no signature, just the current (or a pinned block's) state.",
+      "You need the contract address and ABI to encode the call and decode the result.",
+      "Hooks like useReadContract wrap this in query state (loading/error/data), often via TanStack Query under the hood.",
+      "Return values are typically BigInt and must be formatted for display.",
+      "Data is only as fresh as the last block — you must decide a refresh/polling strategy."
+    ],
+    "followUps": [
+      "How would you batch many reads efficiently instead of one RPC call each? (Multicall.)",
+      "What are the trade-offs of caching read results vs. refetching every block?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-react-transaction-lifecycle-pending-ux",
+    "topic": "React",
+    "subtopic": "Transactions",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "A user submits a transaction that changes on-chain state. Walk me through the full lifecycle and how you'd design the UI to communicate each stage.",
+    "expectedPoints": [
+      "Stages: user prompted to sign → submitted to mempool (tx hash) → mined/confirmed → optional extra confirmations.",
+      "Handle user rejection separately from on-chain failure/revert.",
+      "Show a pending state tied to the tx hash, ideally with a link to a block explorer.",
+      "Decide optimistic UI vs. waiting for confirmation, and how to reconcile if the tx reverts.",
+      "Refresh dependent reads after confirmation so the UI reflects new state."
+    ],
+    "followUps": [
+      "How many confirmations would you wait for, and how does that depend on the action's value?",
+      "How do you handle a transaction that's stuck pending for a long time?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-js-units-wei-gwei-ether-bigint",
+    "topic": "JavaScript",
+    "subtopic": "Units & Precision",
+    "difficulty": "mid",
+    "type": "debugging",
+    "question": "A teammate displays a token balance by doing balance / 1e18 and users report tiny rounding errors on large balances. What's going wrong and how do you fix it?",
+    "expectedPoints": [
+      "On-chain amounts are integers in the smallest unit (wei = 10^-18 ether); values exceed Number.MAX_SAFE_INTEGER.",
+      "Dividing a BigInt-scale value using floating point loses precision.",
+      "Use BigInt end-to-end and a formatting util (e.g. viem's formatUnits / ethers' formatUnits) for display only.",
+      "Never do arithmetic in floats; keep integer math and format at the edge.",
+      "Account for the token's decimals() — not every token is 18."
+    ],
+    "followUps": [
+      "How would you let a user input '1.5' tokens and convert it safely for a transaction? (parseUnits.)",
+      "Why can't you just use Number for a token with 6 decimals like USDC 'to be safe'?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-js-eip712-typed-data-signing",
+    "topic": "JavaScript",
+    "subtopic": "Signatures",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "What is EIP-712 typed-data signing, and why would a dapp use it instead of signing a plain string message?",
+    "expectedPoints": [
+      "EIP-712 signs structured, typed data with a domain separator instead of an opaque string.",
+      "Wallets can render human-readable fields, so users see what they're approving.",
+      "The domain separator (name, version, chainId, verifyingContract) prevents cross-app and cross-chain replay.",
+      "Used for gasless approvals (permit), off-chain orders, and authentication.",
+      "The signature is verified on-chain or off-chain by recovering the signer."
+    ],
+    "followUps": [
+      "How does an ERC-20 permit use EIP-712 to avoid a separate approve transaction?",
+      "What replay risks remain, and how does including a nonce help?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-react-contract-events-ui-sync",
+    "topic": "React",
+    "subtopic": "Events & Realtime",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Your dapp needs to update the UI when a specific contract event fires (e.g. a Transfer to the connected user). How would you implement that, and what are the pitfalls?",
+    "expectedPoints": [
+      "Subscribe to logs via watchContractEvent / an event filter, or poll getLogs over block ranges.",
+      "WebSocket providers give push updates; HTTP requires polling — call out the trade-off.",
+      "Handle reorgs: an event can be un-emitted if a block is reorged out.",
+      "Debounce/refetch dependent reads rather than trusting event payloads blindly.",
+      "Clean up subscriptions on unmount and on account/chain change to avoid leaks and stale listeners."
+    ],
+    "followUps": [
+      "How do you backfill events the user missed while the page was closed?",
+      "Why might you prefer an indexer (e.g. The Graph) over listening to raw logs in the client?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-react-wrong-network-chain-switching",
+    "topic": "React",
+    "subtopic": "Networks",
+    "difficulty": "mid",
+    "type": "debugging",
+    "question": "A user has your dapp open but their wallet is on the wrong network, and contract calls fail. How do you detect this and guide them to the right chain?",
+    "expectedPoints": [
+      "Compare the wallet's chainId to the app's expected chain; listen to 'chainChanged'.",
+      "Prompt a switch via wallet_switchEthereumChain, and handle the chain-not-added case with wallet_addEthereumChain.",
+      "Block or disable write actions while on the wrong network instead of letting them fail cryptically.",
+      "Handle user rejection of the switch gracefully.",
+      "Re-run reads/writes against the correct chain after the switch resolves."
+    ],
+    "followUps": [
+      "What happens to in-flight reads when the chain changes mid-session?",
+      "How would you support a multi-chain dapp where several networks are valid?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-fsd-rpc-provider-strategy-reliability",
+    "topic": "Frontend System Design",
+    "subtopic": "Infrastructure",
+    "difficulty": "senior",
+    "type": "system_design",
+    "question": "Design the RPC/data layer for a production dapp. How does the frontend talk to the blockchain reliably, and how do you handle rate limits and outages?",
+    "expectedPoints": [
+      "Distinguish the user's wallet provider (for writes/signing) from a dedicated read RPC (Alchemy/Infura/own node).",
+      "Don't route all reads through the injected wallet — use a reliable provider with fallbacks.",
+      "Handle rate limiting with batching (multicall), caching, and backoff; add a fallback provider.",
+      "Consider an indexer/subgraph for historical or aggregated queries instead of hammering RPC.",
+      "Keep API keys off the client or proxy them; monitor RPC health and errors."
+    ],
+    "followUps": [
+      "Where would you put a caching layer, and what's safe to cache given chain reorgs?",
+      "How do you decide between direct RPC reads and a backend/indexer for a given query?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-fsd-token-approval-security-ux",
+    "topic": "Frontend System Design",
+    "subtopic": "Security",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "Many dapps request an unlimited ERC-20 approval to reduce transaction count. Discuss the security trade-offs and how you'd design the approval UX responsibly.",
+    "expectedPoints": [
+      "Unlimited approval lets the spender contract move any amount later — a risk if that contract is buggy or malicious.",
+      "Exact-amount approvals are safer but add a transaction per action (worse UX, more gas).",
+      "Explain the approve-then-transfer two-step and why the first approval is a common phishing vector.",
+      "Options: approve exact amount, or approve unlimited but surface revocation and educate the user.",
+      "Consider permit (EIP-2612) to combine approval + action and scope it with a deadline."
+    ],
+    "followUps": [
+      "How would you help users review and revoke existing approvals?",
+      "How does a malicious site typically abuse approvals, and what UI cues reduce that risk?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-js-read-vs-write-call-vs-transaction",
+    "topic": "JavaScript",
+    "subtopic": "Contract Interaction",
+    "difficulty": "junior",
+    "type": "conceptual",
+    "question": "What's the difference between a contract 'read' and a contract 'write' from a frontend perspective, and how does gas come into it?",
+    "expectedPoints": [
+      "Reads (eth_call) are free, instant-ish, need no signature, and don't change state.",
+      "Writes are transactions: signed by the user, cost gas, go to the mempool, and take time to confirm.",
+      "A read returns a value synchronously from the node; a write returns a tx hash, then you await a receipt.",
+      "Gas is estimated (eth_estimateGas) before sending; the user pays in the chain's native token.",
+      "Error handling differs: a read either returns or reverts; a write can be rejected, revert, or get stuck."
+    ],
+    "followUps": [
+      "Why can a write's gas estimate succeed but the transaction still revert on-chain?",
+      "What does the transaction receipt tell you that the tx hash alone doesn't?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-js-ens-resolution-display",
+    "topic": "JavaScript",
+    "subtopic": "ENS",
+    "difficulty": "junior",
+    "type": "conceptual",
+    "question": "How would you display a user's ENS name and avatar instead of a raw 0x address, and what do you need to be careful about?",
+    "expectedPoints": [
+      "Reverse-resolve the address to a name, then forward-resolve the name to confirm it matches (avoid spoofing).",
+      "ENS resolution is an on-chain/RPC call — it's async and can fail or be unset; fall back to a truncated address.",
+      "Cache resolved names to avoid repeated lookups.",
+      "Avatars come from an ENS text record and may point anywhere — treat the URL as untrusted.",
+      "Not all addresses have ENS names; handle the null case gracefully."
+    ],
+    "followUps": [
+      "Why is the forward-resolution check important for reverse records?",
+      "What UX do you show while resolution is in flight?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-react-transaction-error-handling-reverts",
+    "topic": "React",
+    "subtopic": "Error Handling",
+    "difficulty": "senior",
+    "type": "debugging",
+    "question": "Transactions in your dapp fail for many reasons — user rejection, insufficient funds, reverts, RPC errors. How do you surface these clearly instead of a generic 'transaction failed'?",
+    "expectedPoints": [
+      "Classify errors: user rejection (code 4001), insufficient funds, gas/estimation failure, contract revert, RPC/network error.",
+      "Decode revert reasons (custom errors / revert strings) into human-readable messages.",
+      "Treat user rejection as a non-error (no scary UI) vs. actual failures.",
+      "Map low-level provider errors to actionable messaging; avoid leaking raw JSON-RPC errors.",
+      "Provide recovery: retry, adjust amount, add funds, or link to the explorer for a mined-but-reverted tx."
+    ],
+    "followUps": [
+      "How do you tell 'the wallet rejected' apart from 'the contract reverted'?",
+      "A tx is mined but status is 0 (reverted) — how do you present that, since gas was still spent?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-fsd-onchain-data-freshness-caching",
+    "topic": "Frontend System Design",
+    "subtopic": "Data & Caching",
+    "difficulty": "senior",
+    "type": "tradeoff",
+    "question": "On-chain data changes every block. How do you keep a dapp's UI reasonably fresh without hammering the RPC or degrading performance?",
+    "expectedPoints": [
+      "Options: poll on an interval, subscribe via WebSocket, refetch on relevant events, or invalidate after the user's own tx confirms.",
+      "Use a query cache (e.g. TanStack Query) with sensible staleTime and dedup rather than ad-hoc effects.",
+      "Batch reads with multicall to cut RPC calls; scope refetches to what's on screen.",
+      "Balance freshness vs. cost/rate limits vs. re-render churn.",
+      "After a user action, optimistically update or targeted-refetch instead of refetching everything."
+    ],
+    "followUps": [
+      "What's safe to cache given that reorgs can change recent state?",
+      "How do you avoid unnecessary React re-renders when polling many values?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  },
+  {
+    "id": "web3-testing-mocking-providers-forked-networks",
+    "topic": "Testing",
+    "subtopic": "Dapp Testing",
+    "difficulty": "senior",
+    "type": "conceptual",
+    "question": "How would you test the frontend of a dapp — the wallet connection, reads, and a write flow — without depending on a live network and real funds?",
+    "expectedPoints": [
+      "Mock the EIP-1193 provider / wallet in unit tests to simulate accounts, chain, and request responses.",
+      "Run against a local or forked chain (Anvil/Hardhat) for integration tests with deterministic state.",
+      "Test the UI state machine: connecting, wrong network, pending tx, success, revert, rejection.",
+      "Stub RPC responses for reads; assert the UI formats units and handles BigInt correctly.",
+      "For e2e, use a test wallet/automation against a testnet or local node rather than mainnet."
+    ],
+    "followUps": [
+      "How do you make tx-confirmation flows deterministic in tests?",
+      "What would you mock vs. run for real, and why?"
+    ],
+    "rubric": {},
+    "tags": ["web3", "blockchain"],
+    "sourceFile": "web3-blockchain-frontend"
+  }
+]
